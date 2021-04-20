@@ -1,0 +1,7 @@
+{
+  "dependencies": {},
+  "devDependencies": {
+    "@cucumber/cucumber": "^7.1.0",
+    "hardhat": "^2.2.0"
+  }
+}
