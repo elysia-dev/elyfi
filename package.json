@@ -2,6 +2,8 @@
   "dependencies": {},
   "devDependencies": {
     "@cucumber/cucumber": "^7.1.0",
+    "@openzeppelin/contracts": "^4.0.0",
+    "@openzeppelin/contracts-upgradeable": "^4.0.0",
     "hardhat": "^2.2.0"
   }
 }
