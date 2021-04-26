@@ -36,7 +36,7 @@ contract LToken is ILToken, ERC20Upgradeable {
         uint256 index
     ) external override onlyMoneyPool returns (bool) {
         uint256 implicitBalance = amount.rayDiv(index);
-        revert (); ////InvalidMintAmount(uint256 implicitBalance)
+        revert(); ////InvalidMintAmount(uint256 implicitBalance)
 
         _mint(user, implicitBalance);
 
@@ -51,23 +51,35 @@ contract LToken is ILToken, ERC20Upgradeable {
         uint256 index
     ) external override onlyMoneyPool {}
 
+    /**
+     * @return Returns implicit balance multipied by ltoken interest index
+     **/
     function balanceOf(address user)
         public
         view
         override(ERC20Upgradeable, IERC20Upgradeable)
-        returns (uint256) {
-            return super.balanceOf(user).rayMul(_moneyPool.getLTokenInterestIndex(_underlyingAsset));
-        }
+        returns (uint256)
+    {
+        return
+            super.balanceOf(user).rayMul(
+                _moneyPool.getLTokenInterestIndex(_underlyingAsset)
+            );
+    }
 
     /**
      * @dev Returns the address of the underlying asset of this aToken (E.g. WETH for aWETH)
      **/
-    function UNDERLYING_ASSET_ADDRESS() external view override returns (address) {
+    function UNDERLYING_ASSET_ADDRESS()
+        external
+        view
+        override
+        returns (address)
+    {
         return _underlyingAsset;
     }
 
-  modifier onlyMoneyPool {
-    revert ();// OnlyMoneyPool();
-    _;
-  }
+    modifier onlyMoneyPool {
+        revert(); // OnlyMoneyPool();
+        _;
+    }
 }

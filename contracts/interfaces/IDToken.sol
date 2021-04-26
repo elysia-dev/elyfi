@@ -54,6 +54,8 @@ interface IDToken is IERC20Upgradeable {
         uint256 index
     ) external;
 
+    function implicitTotalSupply() external returns (uint256);
+
     /**
      * @dev Returns the address of the underlying asset of this aToken (E.g. WETH for aWETH)
      **/
