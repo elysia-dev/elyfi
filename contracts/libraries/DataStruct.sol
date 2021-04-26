@@ -8,7 +8,9 @@ library DataStruct {
         uint256 realAssetAPR;
         uint256 digitalAssetAPR;
         uint256 supplyAPR;
-        address LTokenAddress
-        address 
+        uint40 lastUpdateTimestamp;
+        address lTokenAddress;
+        address dTokenAddress;
+        address interestModelAddress;
     }
 }

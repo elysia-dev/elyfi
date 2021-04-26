@@ -29,3 +29,7 @@ library Errors {
 library MoneyPoolErrors {
   // error OnlyMoneyPool();
 }
+
+library TokenErrors {
+  // error InvalidmintAmount(uint256 implicitBalance);
+}

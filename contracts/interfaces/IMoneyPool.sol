@@ -10,4 +10,6 @@ interface IMoneyPool {
         address account,
         uint256 amount
     ) external returns (bool);
+
+    function getLTokenInterestIndex(address asset) external view returns (uint256);
 }
