@@ -4,15 +4,15 @@ pragma solidity 0.8.4;
 import "@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol";
 import "./libraries/WadRayMath.sol";
-import "./interfaces/ILToken.sol";
+import "./interfaces/IDToken.sol";
 import "./interfaces/IMoneyPool.sol";
 import "./libraries/Errors.sol";
 
 /**
- * @title ELYFI LToken
+ * @title ELYFI DToken
  * @author ELYSIA
  */
-contract LToken is ILToken, ERC20Upgradeable {
+contract DToken is IDToken, ERC20Upgradeable {
     using WadRayMath for uint256;
 
     IMoneyPool internal _pool;
@@ -51,7 +51,7 @@ contract LToken is ILToken, ERC20Upgradeable {
     }
 
   modifier onlyMoneyPool {
-    revert ();// OnlyMoneyPool();
+    revert (); //OnlyMoneyPool();
     _;
   }
 }

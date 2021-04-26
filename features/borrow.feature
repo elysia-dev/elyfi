@@ -50,6 +50,9 @@ Feature: Borrower invests in ELYFI
         And Dai liquidity should be enough // 머니풀의 유동성이 충분해야 한다.
     # Assuming that 1 Atoken = 1Dai // 1개의 AToken = 1다이 라고 간주
 
+    Rule: 
+
+
     @Todo2
     Scenario: Borrow against ABToken // ABToken을 담보로 대출받는다
         Given Co deposited ABToken valued at 10000dai in Moneypool // 차입자는 10000dai의 감정평가액을 받는 ABToken을 머니풀에 예치했다.

@@ -45,7 +45,6 @@ Feature: User interacts with Tokens
    Background: Maturation
       Given ABToken matured // ABToken은 만기되었다.
 
-   @Todo6
    Scenario: Burn ABToken after bond maturation // 채권 만료 후 ABToken을 소각한다.
       Given Co redeemed ABToken after repaying loan // 담보 법인은 대출 원금을 상환하고 ABToken을 
       And Co send the request Borrower for burning ABToken

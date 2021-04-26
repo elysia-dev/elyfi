@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.3;
+pragma solidity 0.8.4;
 
 /**
  * @title Errors library
@@ -23,4 +23,9 @@ library Errors {
   string public constant BORROW_ALLOWANCE_NOT_ENOUGH = '59'; // User borrows on behalf, but allowance are too small
   string public constant VL_NO_ACTIVE_RESERVE = '2'; // 'Action requires an active reserve'
   string public constant AUTH_ONLY_MONEYPOOL = '1'; // Only moneypool
+
+}
+
+library MoneyPoolErrors {
+  // error OnlyMoneyPool();
 }
