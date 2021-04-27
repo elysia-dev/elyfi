@@ -6,11 +6,13 @@ import {
     MoneyPoolTest,
     MoneyPoolTest__factory,
     ERC20Test,
-    ERC20Test__factory
+    ERC20Test__factory,
+    InterestRateModel,
+    InterestRateModel__factory
 } from "../../typechain"
 import { BigNumber, Contract, Wallet } from "ethers"
 import { ethers } from "hardhat";
-import { expandToDecimals } from "./Ethereum";
+import { expandToDecimals, toRate } from "./Ethereum";
 
 export async function makeUnderlyingAsset({
     deployer,
@@ -58,6 +60,49 @@ export async function makeMoneyPool({
     );
 
     return moneyPoolTest;
+}
+
+export async function makeInterestModel({
+    deployer,
+    optimalDigitalAssetUtilizationRate = toRate(0.8),
+    optimalRealAssetUtilizationRate = toRate(0.8),
+    digitalAssetBorrowRateBase = toRate(0.02),
+    digitalAssetBorrowRateOptimal = toRate(0.1),
+    digitalAssetBorrowRateMax = toRate(0.4),
+    realAssetBorrowRateBase = toRate(0.05),
+    realAssetBorrowRateOptimal = toRate(0.2),
+    realAssetBorrowRateMax = toRate(0.6),
+}: {
+    deployer: Wallet
+    optimalDigitalAssetUtilizationRate?: BigNumber
+    optimalRealAssetUtilizationRate?: BigNumber
+    digitalAssetBorrowRateBase?: BigNumber
+    digitalAssetBorrowRateOptimal?: BigNumber
+    digitalAssetBorrowRateMax?: BigNumber
+    realAssetBorrowRateBase?: BigNumber
+    realAssetBorrowRateOptimal?: BigNumber
+    realAssetBorrowRateMax?: BigNumber
+}): Promise<InterestRateModel> {
+
+    let interestRateModel: InterestRateModel;
+
+    const interestRateModelFactory = (await ethers.getContractFactory(
+        "InterestRateModel",
+        deployer
+    )) as InterestRateModel__factory;
+
+    interestRateModel = await interestRateModelFactory.deploy(
+        optimalDigitalAssetUtilizationRate,
+        optimalRealAssetUtilizationRate,
+        digitalAssetBorrowRateBase,
+        digitalAssetBorrowRateOptimal,
+        digitalAssetBorrowRateMax,
+        realAssetBorrowRateBase,
+        realAssetBorrowRateOptimal,
+        realAssetBorrowRateMax
+    );
+
+    return interestRateModel;
 }
 
 export async function makeTokens({

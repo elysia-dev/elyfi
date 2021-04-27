@@ -20,7 +20,8 @@ library Index {
     function getLTokenInterestIndex(DataStruct.ReserveData storage reserve)
         internal
         view
-        returns (uint256) {
+        returns (uint256)
+    {
         uint40 lastUpdateTimestamp = reserve.lastUpdateTimestamp;
 
         if (lastUpdateTimestamp == uint40(block.timestamp)) {
@@ -31,8 +32,8 @@ library Index {
             Math.calculateLinearInterest(
                 reserve.supplyAPR,
                 lastUpdateTimestamp,
-                block.timestamp)
-                .rayMul(reserve.lTokenInterestIndex);
+                block.timestamp
+            ).rayMul(reserve.lTokenInterestIndex);
 
         return newIndex;
     }
@@ -40,7 +41,8 @@ library Index {
     function getDTokenInterestIndex(DataStruct.ReserveData storage reserve)
         internal
         view
-        returns (uint256) {
+        returns (uint256)
+    {
         uint40 lastUpdateTimestamp = reserve.lastUpdateTimestamp;
 
         if (lastUpdateTimestamp == uint40(block.timestamp)) {
@@ -51,15 +53,15 @@ library Index {
             Math.calculateCompoundedInterest(
                 reserve.digitalAssetAPR,
                 lastUpdateTimestamp,
-                block.timestamp)
-                .rayMul(reserve.dTokenInterestIndex);
+                block.timestamp
+            ).rayMul(reserve.dTokenInterestIndex);
 
         return newIndex;
     }
 
-    function updateState(DataStruct.ReserveData storage reserve)
-        internal {
-        uint256 implicitDTokenTotalSupply = IDToken(reserve.dTokenAddress).implicitTotalSupply();
+    function updateState(DataStruct.ReserveData storage reserve) internal {
+        uint256 implicitDTokenTotalSupply =
+            IDToken(reserve.dTokenAddress).implicitTotalSupply();
         uint256 previousLTokenIndex = reserve.lTokenInterestIndex;
         uint256 previousDTokenIndex = reserve.dTokenInterestIndex;
         uint40 lastUpdateTimestamp = reserve.lastUpdateTimestamp;
@@ -70,19 +72,19 @@ library Index {
             previousLTokenIndex,
             previousDTokenIndex,
             lastUpdateTimestamp
-            );
+        );
 
         // _mintToReserveFactor
     }
 
     /**
-    * @dev Updates the reserve indexes and the timestamp
-   * @param reserve The reserve to be updated
-   * @param implicitDTokenTotalSupply Implicit DToken total supply
-   * @param lTokenIndex The last updated lToken Index
-   * @param dTokenIndex The last updated dToken Index
-   * @param timeStamp The last updated timestamp
-   **/
+     * @dev Updates the reserve indexes and the timestamp
+     * @param reserve The reserve to be updated
+     * @param implicitDTokenTotalSupply Implicit DToken total supply
+     * @param lTokenIndex The last updated lToken Index
+     * @param dTokenIndex The last updated dToken Index
+     * @param timeStamp The last updated timestamp
+     **/
     function updateIndexes(
         DataStruct.ReserveData storage reserve,
         uint256 implicitDTokenTotalSupply,
@@ -102,6 +104,9 @@ library Index {
 
         reserve.lastUpdateTimestamp = uint40(block.timestamp);
 
-        return (getLTokenInterestIndex(reserve), getDTokenInterestIndex(reserve));
+        return (
+            getLTokenInterestIndex(reserve),
+            getDTokenInterestIndex(reserve)
+        );
     }
 }

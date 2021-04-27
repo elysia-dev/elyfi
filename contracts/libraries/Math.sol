@@ -56,8 +56,7 @@ library Math {
         uint256 basePowerThree = basePowerTwo.rayMul(ratePerSecond);
 
         uint256 secondTerm = exp * expMinusOne * basePowerTwo / 2;
-        uint256 thirdTerm =
-            exp * expMinusOne * expMinusTwo * basePowerThree / 6;
+        uint256 thirdTerm = exp * expMinusOne * expMinusTwo * basePowerThree / 6;
 
         return WadRayMath.ray() + (ratePerSecond * exp) + secondTerm + thirdTerm;
     }

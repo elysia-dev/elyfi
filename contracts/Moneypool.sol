@@ -9,15 +9,13 @@ import "./logic/Index.sol";
 import "./libraries/DataStruct.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
 
-contract MoneyPool is IMoneyPool, MoneyPoolStorage  {
+contract MoneyPool is IMoneyPool, MoneyPoolStorage {
     using SafeERC20Upgradeable for IERC20Upgradeable;
     using Index for DataStruct.ReserveData;
 
-    function initialize(
-        uint256 maxReserveCount_
-    ) public initializer {
+    function initialize(uint256 maxReserveCount_) public initializer {
         _maxReserveCount = maxReserveCount_;
-        _reserveCount +=1;
+        _reserveCount += 1;
     }
 
     function invest(
@@ -45,9 +43,10 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage  {
         external
         view
         override
-        returns (uint256) {
-            return _reserves[asset].getLTokenInterestIndex();
-        }
+        returns (uint256)
+    {
+        return _reserves[asset].getLTokenInterestIndex();
+    }
 
     // Need access control, onlyConfigurator can add new reserve.
     function addNewReserve(
@@ -56,7 +55,6 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage  {
         address dToken,
         address interestModel
     ) external override {
-
         DataStruct.ReserveData memory newReserveData =
             DataStruct.ReserveData({
                 lTokenInterestIndex: WadRayMath.ray(),
@@ -80,11 +78,25 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage  {
 
         if (reserveCount >= _maxReserveCount) revert(); ////MaxReserveCountExceeded();
 
-        if (_reserves[asset].id != 0 ) revert(); ////DigitalAssetAlreadyAdded(address asset);
+        if (_reserves[asset].id != 0) revert(); ////DigitalAssetAlreadyAdded(address asset);
 
         _reserves[asset].id = uint8(reserveCount);
         _reservesList[reserveCount] = asset;
 
         _reserveCount = reserveCount + 1;
+    }
+
+    /**
+     * @dev Returns the state and configuration of the reserve
+     * @param asset The address of the underlying asset of the reserve
+     * @return The state of the reserve
+     **/
+    function getReserveData(address asset)
+        external
+        view
+        override
+        returns (DataStruct.ReserveData memory)
+    {
+        return _reserves[asset];
     }
 }

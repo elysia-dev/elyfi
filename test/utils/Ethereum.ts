@@ -29,6 +29,14 @@ export function toRate(n: number): BigNumber {
   return BigNumber.from(n).mul(BigNumber.from(10).pow(27))
 }
 
+export function rayMul(n: BigNumber, m: BigNumber): BigNumber {
+  return n.mul(m).div(RAY);
+}
+
+export function rayDiv(n: BigNumber, m: BigNumber): BigNumber {
+  return n.mul(RAY).div(m);
+}
+
 // Addresses
 
 export function address(n: number) {
@@ -38,5 +46,9 @@ export function address(n: number) {
 // Constants
 
 export const RAY = expandToDecimals(10, 27)
-export const ONE_YEAR = 31536000
+export const PERCENTAGE_FACTOR = '10000';
+export const HALF_PERCENTAGE = '5000';
+export const WAD = expandToDecimals(10, 18)
+
+export const SECONDSPERYEAR = 31536000
 export const ETH = "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE"

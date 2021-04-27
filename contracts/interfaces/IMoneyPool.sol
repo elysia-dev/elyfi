@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.4;
 
+import "../libraries/DataStruct.sol";
+
 interface IMoneyPool {
 
     event Invest(address indexed asset, address indexed account, uint256 amount);
@@ -19,4 +21,6 @@ interface IMoneyPool {
         address dToken,
         address interestModel
     ) external;
+
+    function getReserveData(address asset) external view returns (DataStruct.ReserveData memory);
 }
