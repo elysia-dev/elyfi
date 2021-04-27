@@ -9,9 +9,16 @@ import "./logic/Index.sol";
 import "./libraries/DataStruct.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
 
-contract MoneyPool is IMoneyPool, MoneyPoolStorage {
+contract MoneyPool is IMoneyPool, MoneyPoolStorage  {
     using SafeERC20Upgradeable for IERC20Upgradeable;
     using Index for DataStruct.ReserveData;
+
+    function initialize(
+        uint256 maxReserveCount_
+    ) public initializer {
+        _maxReserveCount = maxReserveCount_;
+        _reserveCount +=1;
+    }
 
     function invest(
         address asset,
@@ -24,7 +31,7 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
 
         // validation
 
-        // update interest rate
+        // update indexes and mintToReserve
         reserve.updateState();
 
         // Mint ltoken
@@ -41,4 +48,43 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
         returns (uint256) {
             return _reserves[asset].getLTokenInterestIndex();
         }
+
+    // Need access control, onlyConfigurator can add new reserve.
+    function addNewReserve(
+        address asset,
+        address lToken,
+        address dToken,
+        address interestModel
+    ) external override {
+
+        DataStruct.ReserveData memory newReserveData =
+            DataStruct.ReserveData({
+                lTokenInterestIndex: WadRayMath.ray(),
+                dTokenInterestIndex: WadRayMath.ray(),
+                realAssetAPR: 0,
+                digitalAssetAPR: 0,
+                supplyAPR: 0,
+                lastUpdateTimestamp: uint40(block.timestamp),
+                lTokenAddress: lToken,
+                dTokenAddress: dToken,
+                interestModelAddress: interestModel,
+                id: 0
+            });
+
+        _reserves[asset] = newReserveData;
+        _addNewReserveToList(asset);
+    }
+
+    function _addNewReserveToList(address asset) internal {
+        uint256 reserveCount = _reserveCount;
+
+        if (reserveCount >= _maxReserveCount) revert(); ////MaxReserveCountExceeded();
+
+        if (_reserves[asset].id != 0 ) revert(); ////DigitalAssetAlreadyAdded(address asset);
+
+        _reserves[asset].id = uint8(reserveCount);
+        _reservesList[reserveCount] = asset;
+
+        _reserveCount = reserveCount + 1;
+    }
 }

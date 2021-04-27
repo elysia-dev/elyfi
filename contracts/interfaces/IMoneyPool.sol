@@ -12,4 +12,11 @@ interface IMoneyPool {
     ) external returns (bool);
 
     function getLTokenInterestIndex(address asset) external view returns (uint256);
+
+    function addNewReserve(
+        address asset,
+        address lToken,
+        address dToken,
+        address interestModel
+    ) external;
 }

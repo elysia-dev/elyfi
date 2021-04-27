@@ -12,5 +12,6 @@ library DataStruct {
         address lTokenAddress;
         address dTokenAddress;
         address interestModelAddress;
+        uint8 id;
     }
 }

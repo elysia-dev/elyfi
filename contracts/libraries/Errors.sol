@@ -27,9 +27,11 @@ library Errors {
 }
 
 library MoneyPoolErrors {
-  // error OnlyMoneyPool();
+  //// error MaxDigitalAssetCountExceeded();
+  //// error DigitalAssetAlreadyAdded(address asset);
 }
 
 library TokenErrors {
-  // error InvalidmintAmount(uint256 implicitBalance);
+  //// error OnlyMoneyPool();
+  //// error InvalidMintAmount(uint256 implicitBalance);
 }

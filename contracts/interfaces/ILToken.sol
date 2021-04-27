@@ -48,6 +48,5 @@ interface ILToken is IERC20Upgradeable {
   /**
    * @dev Returns the address of the underlying asset of this aToken (E.g. WETH for aWETH)
    **/
-  function UNDERLYING_ASSET_ADDRESS() external view returns (address);
-  
+  function getUnderlyingAsset() external view returns (address);
 }

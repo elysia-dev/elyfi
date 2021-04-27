@@ -43,15 +43,19 @@ contract DToken is IDToken, ERC20Upgradeable {
         uint256 index
     ) external override onlyMoneyPool {}
 
+    function implicitTotalSupply() public view override returns (uint256) {
+        return super.totalSupply();
+    }
+
     /**
      * @dev Returns the address of the underlying asset of this aToken (E.g. WETH for aWETH)
      **/
-    function UNDERLYING_ASSET_ADDRESS() external view override returns (address) {
+    function getUnderlyingAsset() external view override returns (address) {
         return _underlyingAsset;
     }
 
-  modifier onlyMoneyPool {
-    revert (); //OnlyMoneyPool();
-    _;
-  }
+    modifier onlyMoneyPool {
+        if (_msgSender() != address(_pool)) revert(); ////OnlyMoneyPool();
+        _;
+    }
 }

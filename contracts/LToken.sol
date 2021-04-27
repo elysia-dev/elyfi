@@ -69,7 +69,7 @@ contract LToken is ILToken, ERC20Upgradeable {
     /**
      * @dev Returns the address of the underlying asset of this aToken (E.g. WETH for aWETH)
      **/
-    function UNDERLYING_ASSET_ADDRESS()
+    function getUnderlyingAsset()
         external
         view
         override
@@ -79,7 +79,7 @@ contract LToken is ILToken, ERC20Upgradeable {
     }
 
     modifier onlyMoneyPool {
-        revert(); // OnlyMoneyPool();
+        revert(); ////OnlyMoneyPool();
         _;
     }
 }

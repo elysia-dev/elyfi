@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.4;
 
-import "./WadRaymath.sol";
+import "./WadRayMath.sol";
 
 library Math {
     using WadRayMath for uint256;
