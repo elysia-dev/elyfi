@@ -1,5 +1,6 @@
 import "dotenv/config";
 import "@nomiclabs/hardhat-ethers";
+import "@nomiclabs/hardhat-web3";
 import "@nomiclabs/hardhat-waffle";
 import "@nomiclabs/hardhat-solhint";
 import "@nomiclabs/hardhat-etherscan";

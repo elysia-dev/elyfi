@@ -67,11 +67,12 @@ describe("MoneyPool", () => {
     describe("Invest", async () => {
         it("Mints lToken and takes asset", async () => {
             await underlyingAsset.connect(admin).approve(moneyPool.address, RAY)
-            await moneyPool.invest(
+            const investTx = await moneyPool.invest(
                 underlyingAsset.address,
                 admin.address,
                 10000
             )
+            
         })
     })
 })

@@ -1,37 +1,81 @@
 import { ethers, waffle } from 'hardhat'
-import { smoddit } from '@eth-optimism/smock'
-import { address, ETH, toIndex, toRate } from './utils/Ethereum';
-import { DTokenTest, ERC20Test, LTokenTest, MoneyPoolTest } from '../typechain';
-import { makeMoneyPool, makeTokens, makeUnderlyingAsset } from './utils/makeContract';
-import { BigNumber } from 'ethers';
+import { smockit, smoddit } from '@eth-optimism/smock'
+import { address, advanceBlock, advanceTime, ETH, expandToDecimals, getTimestamp, toIndex, toRate } from './utils/Ethereum';
+import { DTokenTest, DTokenTest__factory, ERC20Test, LTokenTest, MoneyPoolTest } from '../typechain';
+import { makeDToken, makeLToken, makeMoneyPool, makeUnderlyingAsset } from './utils/makeContract';
+import { BigNumber, Contract } from 'ethers';
+import { calculateCompoundedInterest, calculateLinearInterest } from './utils/Math';
+import { expect } from 'chai';
+import BN from 'bn.js'
+
+chai.use(require('chai-bn')(BN));
 
 describe("Index", () => {
-    let underlyingAsset: ERC20Test
-    let moneyPool: MoneyPoolTest
-    let lToken: LTokenTest
-    let dToken: DTokenTest
+    let indexMock: Contract
+    let underlyingAssetAddress: string
 
     const provider = waffle.provider
-    const [admin, account1, account2] = provider.getWallets()
+    const [deployer, account1, account2] = provider.getWallets()
+
+    underlyingAssetAddress = address(1)
+
+    // BigNumber below 2^53 allowed in smodify
+    // toString need refactor
+    const testData = {
+        lTokenInterestIndex: toIndex(1).toString(),
+        dTokenInterestIndex: toIndex(1).toString(),
+        realAssetAPR: toRate(0.15).toString(),
+        digitalAssetAPR: toRate(0.1).toString(),
+        supplyAPR: toRate(0.2).toString(),
+        lastUpdateTimestamp: BigNumber.from(0),
+        dTokenAddress: ""
+    }
 
     beforeEach(async () => {
-        const MoneyPoolModifibleFactory = await smoddit('MoneyPoolTest');
-        const moneyPoolModifiable = await MoneyPoolModifibleFactory.deploy()
+        const dTokenFactory = (await ethers.getContractFactory(
+            "DTokenTest",
+            deployer
+            )) as DTokenTest__factory
+        const dTokenMock = await smockit(dTokenFactory)
 
-        await moneyPoolModifiable.smodify.put({
-            ethReserve: {
-                ETH: {
-                    lTokenInterestIndex: toIndex(1),
-                    dTokenInterestIndex: toIndex(1),
-                    realAssetAPR: toRate(0.1),
-                    digitalAssetAPR: toRate(0.1),
-                    supplyAPR: toRate(0.2),
-                    lastUpdateTimestamp: 0,
-                    lTokenAddress: address(1),
-                    dTokenAddress: address(2),
-                    interestModelAddress: address(3)
-                }
+        testData.dTokenAddress = dTokenMock.address
+
+        const IndexMockFactory = await smoddit('IndexMock');
+        indexMock = await IndexMockFactory.deploy()
+
+        const dTokenImplicitTotalSupply = BigNumber.from(10000)
+
+        dTokenMock.smocked.implicitTotalSupply.will.return.with(dTokenImplicitTotalSupply)
+
+        const initTx = await advanceBlock()
+        testData.lastUpdateTimestamp = await getTimestamp(initTx)
+
+        await indexMock.smodify.put({
+            _reserves: {
+                [underlyingAssetAddress]: testData
             }
         })
+        })
+
+    it("Updates Indexes", async () => {
+        // put returns nothing, not evm interaction
+        const advanceTimeTx = await advanceTime(100)
+        const updateTx = await indexMock.updateState(underlyingAssetAddress)
+        const data = await indexMock.getReserveData(underlyingAssetAddress);
+
+        // lTokenIndex
+        expect(data[0]).to.be.equal(
+            calculateLinearInterest(
+                BigNumber.from(testData.supplyAPR),
+                testData.lastUpdateTimestamp,
+                await getTimestamp(updateTx))
+        )
+        // dTokenIndex
+        expect(data[1]).to.be.equal(
+            calculateCompoundedInterest(
+                BigNumber.from(testData.digitalAssetAPR),
+                testData.lastUpdateTimestamp,
+                await getTimestamp(updateTx))
+        )
     })
 })
