@@ -2,13 +2,11 @@ import { ethers, waffle } from 'hardhat'
 import { smockit, smoddit } from '@eth-optimism/smock'
 import { address, advanceBlock, advanceTime, ETH, expandToDecimals, getTimestamp, toIndex, toRate } from './utils/Ethereum';
 import { DTokenTest, DTokenTest__factory, ERC20Test, LTokenTest, MoneyPoolTest } from '../typechain';
-import { makeDToken, makeLToken, makeMoneyPool, makeUnderlyingAsset } from './utils/makeContract';
 import { BigNumber, Contract } from 'ethers';
 import { calculateCompoundedInterest, calculateLinearInterest } from './utils/Math';
 import { expect } from 'chai';
-import BN from 'bn.js'
 
-chai.use(require('chai-bn')(BN));
+chai.use(waffle.solidity)
 
 describe("Index", () => {
     let indexMock: Contract
@@ -63,12 +61,14 @@ describe("Index", () => {
         const updateTx = await indexMock.updateState(underlyingAssetAddress)
         const data = await indexMock.getReserveData(underlyingAssetAddress);
 
+        expect(BigNumber.from(100)).to.be.closeTo(BigNumber.from(101), 10);
+
         // lTokenIndex
-        expect(data[0]).to.be.equal(
+        expect(data[0]).to.be.closeTo(
             calculateLinearInterest(
                 BigNumber.from(testData.supplyAPR),
                 testData.lastUpdateTimestamp,
-                await getTimestamp(updateTx))
+                await getTimestamp(updateTx)), 10000
         )
         // dTokenIndex
         expect(data[1]).to.be.equal(
