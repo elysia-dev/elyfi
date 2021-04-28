@@ -18,7 +18,7 @@ describe("Index", () => {
         const MoneyPoolModifibleFactory = await smoddit('MoneyPoolTest');
         const moneyPoolModifiable = await MoneyPoolModifibleFactory.deploy()
 
-         await moneyPoolModifiable.smodify.put({
+        await moneyPoolModifiable.smodify.put({
             ethReserve: {
                 ETH: {
                     lTokenInterestIndex: toIndex(1),

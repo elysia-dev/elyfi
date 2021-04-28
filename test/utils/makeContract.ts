@@ -13,12 +13,14 @@ import {
 import { BigNumber, Contract, Wallet } from "ethers"
 import { ethers } from "hardhat";
 import { expandToDecimals, toRate } from "./Ethereum";
+import { defaultInterestModelParams, defaultReserveData } from "./Interfaces";
+
 
 export async function makeUnderlyingAsset({
     deployer,
     totalSupply = expandToDecimals(1000000, 18),
-    name = "RandomToken",
-    symbol = "RT"
+    name = defaultReserveData.underlyingAssetName,
+    symbol = defaultReserveData.underlyingAssetsymbol
 }: {
     deployer: Wallet
     totalSupply?: BigNumber
@@ -43,7 +45,7 @@ export async function makeUnderlyingAsset({
 
 export async function makeMoneyPool({
     deployer,
-    maxReserveCount_ = new BigNumber(16, "10")
+    maxReserveCount_ = BigNumber.from(16)
 }: {
     deployer: Wallet
     maxReserveCount_?: BigNumber
@@ -64,14 +66,14 @@ export async function makeMoneyPool({
 
 export async function makeInterestModel({
     deployer,
-    optimalDigitalAssetUtilizationRate = toRate(0.8),
-    optimalRealAssetUtilizationRate = toRate(0.8),
-    digitalAssetBorrowRateBase = toRate(0.02),
-    digitalAssetBorrowRateOptimal = toRate(0.1),
-    digitalAssetBorrowRateMax = toRate(0.4),
-    realAssetBorrowRateBase = toRate(0.05),
-    realAssetBorrowRateOptimal = toRate(0.2),
-    realAssetBorrowRateMax = toRate(0.6),
+    optimalDigitalAssetUtilizationRate = defaultInterestModelParams.optimalDigitalAssetUtilizationRate,
+    optimalRealAssetUtilizationRate = defaultInterestModelParams.optimalRealAssetUtilizationRate,
+    digitalAssetBorrowRateBase = defaultInterestModelParams.digitalAssetBorrowRateBase,
+    digitalAssetBorrowRateOptimal = defaultInterestModelParams.digitalAssetBorrowRateOptimal,
+    digitalAssetBorrowRateMax = defaultInterestModelParams.digitalAssetBorrowRateMax,
+    realAssetBorrowRateBase = defaultInterestModelParams.realAssetBorrowRateBase,
+    realAssetBorrowRateOptimal = defaultInterestModelParams.realAssetBorrowRateOptimal,
+    realAssetBorrowRateMax = defaultInterestModelParams.realAssetBorrowRateMax,
 }: {
     deployer: Wallet
     optimalDigitalAssetUtilizationRate?: BigNumber
@@ -105,33 +107,21 @@ export async function makeInterestModel({
     return interestRateModel;
 }
 
-export async function makeTokens({
+export async function makeLToken({
     deployer,
     moneyPool,
     underlyingAsset,
-    interestModel,
     lTokenName = "LToken",
-    dTokenName = "DToken",
-    lTokenSymbol = "LT",
-    dTokenSymbol = "DT"
+    lTokenSymbol = "LT"
 }: {
     deployer: Wallet
     moneyPool: MoneyPoolTest | Contract
     underlyingAsset: Contract
-    interestModel: Contract
     lTokenName?: string
-    dTokenName?: string
     lTokenSymbol?: string
-    dTokenSymbol?: string
-}): Promise<[LTokenTest, DTokenTest]> {
+}): Promise<LTokenTest> {
 
     let lTokenTest: LTokenTest;
-    let dTokenTest: DTokenTest;
-
-    const dTokenFactory = (await ethers.getContractFactory(
-        "DTokenTest",
-        deployer
-    )) as DTokenTest__factory
 
     const lTokenFactory = (await ethers.getContractFactory(
         "LTokenTest",
@@ -145,6 +135,30 @@ export async function makeTokens({
         lTokenSymbol
     );
 
+    return lTokenTest;
+}
+
+export async function makeDToken({
+    deployer,
+    moneyPool,
+    underlyingAsset,
+    dTokenName = "DToken",
+    dTokenSymbol = "DT"
+}: {
+    deployer: Wallet
+    moneyPool: MoneyPoolTest | Contract
+    underlyingAsset: Contract
+    dTokenName?: string
+    dTokenSymbol?: string
+}): Promise<DTokenTest> {
+
+    let dTokenTest: DTokenTest;
+
+    const dTokenFactory = (await ethers.getContractFactory(
+        "DTokenTest",
+        deployer
+    )) as DTokenTest__factory
+
     dTokenTest = await dTokenFactory.deploy(
         moneyPool.address,
         underlyingAsset.address,
@@ -152,13 +166,5 @@ export async function makeTokens({
         dTokenSymbol
     );
 
-    await moneyPool.addNewReserve(
-        underlyingAsset.address,
-        lTokenTest.address,
-        dTokenTest.address,
-        interestModel.address
-    )
-
-    return [lTokenTest, dTokenTest];
+    return dTokenTest;
 }
-

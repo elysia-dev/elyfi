@@ -37,6 +37,8 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
 
         // transfer underlying asset
         IERC20Upgradeable(asset).transferFrom(msg.sender, lToken, amount);
+
+        emit Invest(asset, account, amount);
     }
 
     function getLTokenInterestIndex(address asset)

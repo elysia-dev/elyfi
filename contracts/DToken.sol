@@ -15,16 +15,16 @@ import "./libraries/Errors.sol";
 contract DToken is IDToken, ERC20Upgradeable {
     using WadRayMath for uint256;
 
-    IMoneyPool internal _pool;
+    IMoneyPool internal _moneyPool;
     address internal _underlyingAsset;
 
     function initialize(
-        IMoneyPool pool,
+        IMoneyPool moneyPool,
         address underlyingAsset_,
         string memory name_,
         string memory symbol_
     ) public initializer {
-        _pool = pool;
+        _moneyPool = moneyPool;
         _underlyingAsset = underlyingAsset_;
 
         __ERC20_init(name_, symbol_);
@@ -55,7 +55,7 @@ contract DToken is IDToken, ERC20Upgradeable {
     }
 
     modifier onlyMoneyPool {
-        if (_msgSender() != address(_pool)) revert(); ////OnlyMoneyPool();
+        if (_msgSender() != address(_moneyPool)) revert(); ////OnlyMoneyPool();
         _;
     }
 }
