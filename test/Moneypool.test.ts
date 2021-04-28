@@ -1,4 +1,4 @@
-import { expect } from 'chai'
+import chai, { expect } from 'chai'
 import { ethers, waffle } from 'hardhat'
 import { smoddit } from '@eth-optimism/smock'
 import { address, ETH, RAY, toIndex, toRate } from './utils/Ethereum';
@@ -6,6 +6,8 @@ import { DTokenTest, ERC20Test, InterestRateModel, LTokenTest, MoneyPoolTest } f
 import { makeInterestModel, makeMoneyPool, makeLToken, makeDToken, makeUnderlyingAsset } from './utils/makeContract';
 import { BigNumber } from 'ethers';
 import { defaultReserveData } from './utils/Interfaces';
+
+chai.use(waffle.solidity)
 
 describe("MoneyPool", () => {
     let underlyingAsset: ERC20Test
@@ -15,29 +17,29 @@ describe("MoneyPool", () => {
     let dToken: DTokenTest
 
     const provider = waffle.provider
-    const [admin, account1, account2] = provider.getWallets()
+    const [deployer, account1, account2] = provider.getWallets()
 
     beforeEach(async () => {
         underlyingAsset = await makeUnderlyingAsset({
-            deployer: admin,
+            deployer: deployer,
         })
 
         moneyPool = await makeMoneyPool({
-            deployer: admin,
+            deployer: deployer,
         })
 
         interestModel = await makeInterestModel({
-            deployer: admin,
+            deployer: deployer,
         })
 
         lToken = await makeLToken({
-            deployer: admin,
+            deployer: deployer,
             moneyPool: moneyPool,
             underlyingAsset: underlyingAsset,
         })
 
         dToken = await makeDToken({
-            deployer: admin,
+            deployer: deployer,
             moneyPool: moneyPool,
             underlyingAsset: underlyingAsset,
         })
@@ -66,13 +68,14 @@ describe("MoneyPool", () => {
 
     describe("Invest", async () => {
         it("Mints lToken and takes asset", async () => {
-            await underlyingAsset.connect(admin).approve(moneyPool.address, RAY)
+            await underlyingAsset.connect(deployer).approve(moneyPool.address, RAY)
             const investTx = await moneyPool.invest(
                 underlyingAsset.address,
-                admin.address,
+                deployer.address,
                 10000
             )
-            
+            expect(await lToken.balanceOf(deployer.address)).to.be.equal(10000)
+            expect(await underlyingAsset.balanceOf(lToken.address)).to.be.equal(10000)
         })
     })
 })
