@@ -4,6 +4,7 @@ pragma solidity 0.8.4;
 import "./interfaces/ILToken.sol";
 import "./interfaces/IDToken.sol";
 import "./interfaces/IMoneyPool.sol";
+import "./interfaces/ITokenizer.sol";
 import "./MoneyPoolStorage.sol";
 import "./logic/Index.sol";
 import "./logic/Rate.sol";
@@ -120,6 +121,27 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
         _reservesList[reserveCount] = asset;
 
         _reserveCount = reserveCount + 1;
+    }
+    
+    // should be in MoneyPool
+    function depositABToken(
+        uint256 realAssetAPR,
+        uint256 borrowAmount,
+        uint256 id
+    ) external {
+        ITokenizer(_tokenizer).mintAToken(_moneyPool, amount);
+
+        if (true) revert(); ////error UnverifiedABTokenDeposit(id);
+
+        DataStruct.AssetBondData memory newAssetBond =
+            DataStruct.AssetBondData({
+
+            });
+
+        // update indexes and mintToReserve
+        reserve.updateState();
+        reserve.updateRates(asset, lToken, amount, 0);
+        
     }
 
     /**

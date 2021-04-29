@@ -5,18 +5,6 @@ pragma solidity 0.8.4;
  * @title Errors library
  * @author ELYSIA
  * @dev Error messages prefix glossary:
- *  - VL = ValidationLogic
- *  - MATH = Math libraries
- *  - CT = Common errors between tokens (AToken, VariableDebtToken and StableDebtToken)
- *  - AT = AToken
- *  - SDT = StableDebtToken
- *  - VDT = VariableDebtToken
- *  - LP = LendingPool
- *  - LPAPR = LendingPoolAddressesProviderRegistry
- *  - LPC = LendingPoolConfiguration
- *  - RL = ReserveLogic
- *  - LPCM = LendingPoolCollateralManager
- *  - P = Pausable
  */
 library Errors {
   //common errors
@@ -34,5 +22,5 @@ library MoneyPoolErrors {
 library TokenErrors {
   //// error OnlyMoneyPool();
   //// error InvalidMintAmount(uint256 implicitBalance);
-  //// error InvalidBurnAmount(uint256 implicitBalance)
+  //// error InvalidBurnAmount(uint256 implicitBalance);
 }

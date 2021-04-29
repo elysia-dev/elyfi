@@ -14,4 +14,15 @@ library DataStruct {
         address interestModelAddress;
         uint8 id;
     }
+
+    struct AssetBondData {
+        string ipfsHash; // refactor : gas
+        uint256 sign; // refactor : apply oz - sign
+    }
+
+    struct TokenizerData {
+        uint256 totalABToken;
+        uint256 maturedABToken;
+        uint256 totalAToken;
+    }
 }
