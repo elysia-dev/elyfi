@@ -6,12 +6,14 @@ import "./interfaces/IDToken.sol";
 import "./interfaces/IMoneyPool.sol";
 import "./MoneyPoolStorage.sol";
 import "./logic/Index.sol";
+import "./logic/Rate.sol";
 import "./libraries/DataStruct.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
 
 contract MoneyPool is IMoneyPool, MoneyPoolStorage {
     using SafeERC20Upgradeable for IERC20Upgradeable;
     using Index for DataStruct.ReserveData;
+    using Rate for DataStruct.ReserveData;
 
     function initialize(uint256 maxReserveCount_) public initializer {
         _maxReserveCount = maxReserveCount_;
@@ -31,15 +33,47 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
 
         // update indexes and mintToReserve
         reserve.updateState();
+        reserve.updateRates(asset, lToken, amount, 0);
 
         // Mint ltoken
         ILToken(lToken).mint(account, amount, reserve.lTokenInterestIndex);
 
         // transfer underlying asset
-        IERC20Upgradeable(asset).transferFrom(msg.sender, lToken, amount);
+        IERC20Upgradeable(asset).safeTransferFrom(msg.sender, lToken, amount);
 
         emit Invest(asset, account, amount);
     }
+
+    function withdraw(
+        address asset,
+        address account,
+        uint256 amount
+    ) external override returns (uint256) {
+        DataStruct.ReserveData storage reserve = _reserves[asset];
+
+        address lToken = reserve.lTokenAddress;
+
+        uint256 accountBalance = ILToken(lToken).balanceOf(msg.sender);
+
+        uint256 amountToWithdraw = amount;
+
+        if (amount == type(uint256).max) {
+            amountToWithdraw == accountBalance;
+        }
+
+        // validation
+
+        // update indexes and mintToReserve
+        reserve.updateState();
+        reserve.updateRates(asset, lToken, amount, 0);
+
+        // Burn ltoken
+        ILToken(lToken).burn(msg.sender, account, amount, reserve.lTokenInterestIndex);
+
+        emit Withdraw(asset, msg.sender, account, amountToWithdraw);
+    }
+
+
 
     function getLTokenInterestIndex(address asset)
         external

@@ -34,4 +34,5 @@ library MoneyPoolErrors {
 library TokenErrors {
   //// error OnlyMoneyPool();
   //// error InvalidMintAmount(uint256 implicitBalance);
+  //// error InvalidBurnAmount(uint256 implicitBalance)
 }

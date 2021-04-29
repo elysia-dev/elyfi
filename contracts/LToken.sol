@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.4;
 
+import "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol";
 import "./libraries/WadRayMath.sol";
@@ -13,6 +14,7 @@ import "./libraries/Errors.sol";
  * @author ELYSIA
  */
 contract LToken is ILToken, ERC20Upgradeable {
+    using SafeERC20Upgradeable for IERC20Upgradeable;
     using WadRayMath for uint256;
 
     IMoneyPool internal _moneyPool;
@@ -31,39 +33,57 @@ contract LToken is ILToken, ERC20Upgradeable {
     }
 
     function mint(
-        address user,
+        address account,
         uint256 amount,
         uint256 index
     ) external override onlyMoneyPool returns (bool) {
         uint256 implicitBalance = amount.rayDiv(index);
-        if (amount == 0) revert(); ////InvalidMintAmount(uint256 implicitBalance)
+        if (amount == 0) revert(); ////InvalidMintAmount(uint256 implicitBalance);
 
-        _mint(user, implicitBalance);
+        _mint(account, implicitBalance);
 
-        emit Transfer(address(0), user, amount);
-        emit Mint(user, amount, index);
+        emit Transfer(address(0), account, amount);
+        emit Mint(account, amount, index);
     }
 
     function burn(
-        address user,
-        address receiverOfUnderlying,
+        address account,
+        address receiverOfUnderlyingAsset,
         uint256 amount,
         uint256 index
-    ) external override onlyMoneyPool {}
+    ) external override onlyMoneyPool {
+        uint256 implicitBalance = amount.rayDiv(index);
+        if (amount == 0) revert(); ////InvalidBurnAmount(uint256 implicitBalance);
+
+        _burn(account, implicitBalance);
+
+        IERC20Upgradeable(_underlyingAsset).safeTransfer(receiverOfUnderlyingAsset, amount);
+
+        emit Burn(account, receiverOfUnderlyingAsset, amount, index);
+    }
 
     /**
      * @return Returns implicit balance multipied by ltoken interest index
      **/
-    function balanceOf(address user)
+    function balanceOf(address account)
         public
         view
         override(ERC20Upgradeable, IERC20Upgradeable)
         returns (uint256)
     {
         return
-            super.balanceOf(user).rayMul(
+            super.balanceOf(account).rayMul(
                 _moneyPool.getLTokenInterestIndex(_underlyingAsset)
             );
+    }
+
+    function implicitBalanceOf(address account)
+        external
+        view
+        override
+        returns (uint256)
+    {
+        return super.balanceOf(account);
     }
 
     /**
