@@ -16,8 +16,18 @@ library DataStruct {
     }
 
     struct AssetBondData {
+        address asset;
+        address borrower;
+        address lawfirm;
         string ipfsHash; // refactor : gas
+        uint256 collateralValue;
+        uint256 borrowAPR;
         uint256 sign; // refactor : apply oz - sign
+        uint40 issuanceDate;
+        uint40 maturityDate;
+        bool isSettled; // refactor : need configuration
+        bool isDeposited; // refactor : need configuration
+        bool isMatured; // refactor : need configuration
     }
 
     struct TokenizerData {

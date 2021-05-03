@@ -8,6 +8,7 @@ import "./interfaces/ITokenizer.sol";
 import "./MoneyPoolStorage.sol";
 import "./logic/Index.sol";
 import "./logic/Rate.sol";
+import "./logic/AssetBond.sol";
 import "./libraries/DataStruct.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
 
@@ -15,8 +16,12 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
     using SafeERC20Upgradeable for IERC20Upgradeable;
     using Index for DataStruct.ReserveData;
     using Rate for DataStruct.ReserveData;
+    using AssetBond for DataStruct.AssetBondData;
 
-    function initialize(uint256 maxReserveCount_) public initializer {
+    function initialize(
+        uint256 maxReserveCount_,
+        address tokenizer) public initializer {
+        _tokenizer = tokenizer;
         _maxReserveCount = maxReserveCount_;
         _reserveCount += 1;
     }
@@ -74,8 +79,6 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
         emit Withdraw(asset, msg.sender, account, amountToWithdraw);
     }
 
-
-
     function getLTokenInterestIndex(address asset)
         external
         view
@@ -122,21 +125,58 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
 
         _reserveCount = reserveCount + 1;
     }
-    
-    // should be in MoneyPool
+
+    function mintABToken(
+        address account, // Co address
+        uint256 id // information about Co and borrower
+    ) external {
+        ITokenizer(_tokenizer).mintABToken(asset, account, id);
+    }
+
+    // access control : only minter
+    function settleABToken(
+        address asset,
+        address borrower, // borrower address
+        address lawfirm, // lawfirm address
+        uint256 id, // Token Id
+        uint256 collateralValue, // collateralValue in USD
+        string memory ipfsHash
+    ) external {
+        _assetBond[id].initAssetBond(
+            asset,
+            borrower,
+            lawfirm,
+            collateralValue,
+            ipfsHash
+        );
+    }
+
+    // need access control signer: only lawfirm or asset owner
+    function signABToken(
+        uint256 id,
+        address signe
+    ) external {
+    }
+
+    // need access control : only minter
     function depositABToken(
         uint256 realAssetAPR,
-        uint256 borrowAmount,
+        uint256 collateralValue,
         uint256 id
     ) external {
+        DataStruct.AssetBondData storage assetBond = _assetBond[id];
+
+        AssetBond.validateDepositABToken(
+            assetBond
+        );
+
         ITokenizer(_tokenizer).mintAToken(_moneyPool, amount);
 
         if (true) revert(); ////error UnverifiedABTokenDeposit(id);
 
-        DataStruct.AssetBondData memory newAssetBond =
-            DataStruct.AssetBondData({
-
-            });
+        AssetBond.depositAssetBond(
+            assetBond
+            );
 
         // update indexes and mintToReserve
         reserve.updateState();
