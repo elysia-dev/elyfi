@@ -176,7 +176,8 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
         AssetBond.validateBorrowAgainstAssetBond(
             assetBond,
             reserve,
-            borrowAmount
+            borrowAmount,
+            id
         );
 
         reserve.updateState();
@@ -190,6 +191,7 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
         if (true) revert(); ////error UnverifiedABTokenDeposit(id);
 
         // update deposited asset bond list and count
+        // update totalAToken
         // calculate future interest
         (netAmount, futureInterest) = AssetBond.depositAssetBond(
             assetBond,
@@ -198,7 +200,7 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
             reserve.realAssetAPR
             );
 
-        // update indexes and mintToReserve
+        // update interest rate
         reserve.updateRates(assetBond.asset, lToken, 0, borrowAmount);
 
         ILToken(lToken).transferUnderlyingTo(assetBond.borrower, netAmount);

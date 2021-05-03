@@ -34,25 +34,43 @@ library AssetBond {
         uint256 borrowAmount,
         uint256 id
     ) internal {
-        if (assetBond.isSettled == true) revert(); ////error NotSettledABToken(id);
-        // sign logic
         // moneypool validate logic : active, frozen
+
+        // check settled logic
+        if (assetBond.isSettled == true) revert(); ////error NotSettledABToken(id);
+
+        // check sign logic
+
     }
 
     struct DepositAssetBondLocalVars {
         uint256 netAmount;
         uint256 futureInterest;
-        uint256 totalAssetBondCount;
-        uint256 maturedAssetBondCount;
+        uint256 currentTotalAssetBondCount;
+        uint256 currentMaturedAssetBondCount;
         uint256 newTotalATokenAmount;
-        uint256 newRealAssetAPR;
     }
 
     function depositAssetBond(
         DataStruct.AssetBondData storage assetBondData,
         DataStruct.TokenizerData storage tokenizer,
         uint256 borrowAmount,
-        uint256 realAssetAPR)
+        uint256 realAssetAPR,
+        uint256 dueDate)
         internal returns (uint256, uint256) {
+            DepositAssetBondLocalVars memory vars;
+
+            tokenizer.totalDepositedAssetBondCount += 1;
+            tokenizer.totalAToken += borrowAmount;
+
+            assetBondData.borrowAPR = realAssetAPR;
+            assetBondData.isDeposited = true;
+            assetBondData.issuanceDate = block.timestamp;
+            assetBondData.maturityDate = block.timestamp + (dueDate *  1 days);
+
+            vars.netAmount = borrowAmount.rayMul(realAssetAPR);
+            vars.futureInterest = borrowAmount - vars.netAmount;
+
+            return (vars.netAmount, vars.futureInterest);
         }
 }

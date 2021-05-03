@@ -31,8 +31,7 @@ library DataStruct {
     }
 
     struct TokenizerData {
-        address asset;
-        uint256 totalAssetBondCount;
+        uint256 totalDepositedAssetBondCount;
         uint256 maturedAssetBondCount;
         uint256 totalAToken;
     }
