@@ -31,8 +31,22 @@ library AssetBond {
     function validateBorrowAgainstAssetBond(
         DataStruct.AssetBondData storage assetBond,
         DataStruct.ReserveData storage reserve,
-        uint256 borrowAmount
-    ) internal {}
+        uint256 borrowAmount,
+        uint256 id
+    ) internal {
+        if (assetBond.isSettled == true) revert(); ////error NotSettledABToken(id);
+        // sign logic
+        // moneypool validate logic : active, frozen
+    }
+
+    struct DepositAssetBondLocalVars {
+        uint256 netAmount;
+        uint256 futureInterest;
+        uint256 totalAssetBondCount;
+        uint256 maturedAssetBondCount;
+        uint256 newTotalATokenAmount;
+        uint256 newRealAssetAPR;
+    }
 
     function depositAssetBond(
         DataStruct.AssetBondData storage assetBondData,
@@ -40,6 +54,5 @@ library AssetBond {
         uint256 borrowAmount,
         uint256 realAssetAPR)
         internal returns (uint256, uint256) {
-
         }
 }

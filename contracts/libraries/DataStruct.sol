@@ -23,8 +23,8 @@ library DataStruct {
         uint256 collateralValue;
         uint256 borrowAPR;
         uint256 sign; // refactor : apply oz - sign
-        uint40 issuanceDate;
-        uint40 maturityDate;
+        uint256 issuanceDate;
+        uint256 maturityDate;
         bool isSettled; // refactor : need configuration
         bool isDeposited; // refactor : need configuration
         bool isMatured; // refactor : need configuration
@@ -32,8 +32,8 @@ library DataStruct {
 
     struct TokenizerData {
         address asset;
-        uint256 totalABToken;
-        uint256 maturedABToken;
+        uint256 totalAssetBondCount;
+        uint256 maturedAssetBondCount;
         uint256 totalAToken;
     }
 }
