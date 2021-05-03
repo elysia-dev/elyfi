@@ -130,7 +130,7 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
         address account, // Co address
         uint256 id // information about Co and borrower
     ) external {
-        ITokenizer(_tokenizer).mintABToken(asset, account, id);
+        ITokenizer(_tokenizer).mintABToken(account, id);
     }
 
     // access control : only minter
@@ -154,34 +154,54 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
     // need access control signer: only lawfirm or asset owner
     function signABToken(
         uint256 id,
-        address signe
+        address signer
     ) external {
     }
 
     // need access control : only minter
-    function depositABToken(
-        uint256 realAssetAPR,
-        uint256 collateralValue,
+    function borrowAgainstABToken(
+        uint256 borrowAmount,
         uint256 id
     ) external {
         DataStruct.AssetBondData storage assetBond = _assetBond[id];
+        DataStruct.ReserveData storage reserve = _reserves[assetBond.asset];
+        DataStruct.TokenizerData storage tokenizer = _tokenizers[assetBond.asset];
 
-        AssetBond.validateDepositABToken(
-            assetBond
+        address lToken = reserve.lTokenAddress;
+
+        (uint256 netAmount, uint256 futureInterest) = (0, 0);
+
+        // Check if borrow amount exceeds collateral value
+        // Check if borrow amount exceeds liquidity available
+        AssetBond.validateBorrowAgainstAssetBond(
+            assetBond,
+            reserve,
+            borrowAmount
         );
 
-        ITokenizer(_tokenizer).mintAToken(_moneyPool, amount);
+        reserve.updateState();
+
+        ITokenizer(_tokenizer).mintAToken(
+            address(this),
+            id,
+            borrowAmount,
+            reserve.realAssetAPR);
 
         if (true) revert(); ////error UnverifiedABTokenDeposit(id);
 
-        AssetBond.depositAssetBond(
-            assetBond
+        // update deposited asset bond list and count
+        // calculate future interest
+        (netAmount, futureInterest) = AssetBond.depositAssetBond(
+            assetBond,
+            tokenizer,
+            borrowAmount,
+            reserve.realAssetAPR
             );
 
         // update indexes and mintToReserve
-        reserve.updateState();
-        reserve.updateRates(asset, lToken, amount, 0);
-        
+        reserve.updateRates(assetBond.asset, lToken, 0, borrowAmount);
+
+        ILToken(lToken).transferUnderlyingTo(assetBond.borrower, netAmount);
     }
 
     /**

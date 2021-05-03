@@ -15,25 +15,31 @@ library AssetBond {
         address asset,
         address borrower,
         address lawfirm,
+        uint256 collateralValue,
         string memory ipfsHash
     ) internal {
         assetBondData.asset = asset;
         assetBondData.borrower = borrower;
         assetBondData.lawfirm = lawfirm;
         assetBondData.ipfsHash = ipfsHash;
+        assetBondData.collateralValue = collateralValue;
         assetBondData.isSettled = true;
         assetBondData.isDeposited = false;
         assetBondData.isMatured = false;
     }
 
-    function validateDepositAssetBond(
-    DataStruct.AssetBondData storage assetBondData
-    ) internal {
-
-    }
+    function validateBorrowAgainstAssetBond(
+        DataStruct.AssetBondData storage assetBond,
+        DataStruct.ReserveData storage reserve,
+        uint256 borrowAmount
+    ) internal {}
 
     function depositAssetBond(
-        DataStruct.AssetBondData storage assetBondData
-    ) internal {
-    }
+        DataStruct.AssetBondData storage assetBondData,
+        DataStruct.TokenizerData storage tokenizer,
+        uint256 borrowAmount,
+        uint256 realAssetAPR)
+        internal returns (uint256, uint256) {
+
+        }
 }

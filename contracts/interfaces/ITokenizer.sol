@@ -15,8 +15,9 @@ interface ITokenizer {
     event Withdraw(address indexed asset, address indexed account, address indexed to, uint256 amount);
 
     function mintAToken(
-        address asset,
         address account,
-        uint256 amount
+        uint256 id,
+        uint256 amount,
+        uint256 realAssetAPR
     ) external;
 }

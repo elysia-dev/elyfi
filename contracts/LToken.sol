@@ -48,7 +48,7 @@ contract LToken is ILToken, ERC20Upgradeable {
 
     function burn(
         address account,
-        address receiverOfUnderlyingAsset,
+        address underlyingAssetReceiver,
         uint256 amount,
         uint256 index
     ) external override onlyMoneyPool {
@@ -57,9 +57,12 @@ contract LToken is ILToken, ERC20Upgradeable {
 
         _burn(account, implicitBalance);
 
-        IERC20Upgradeable(_underlyingAsset).safeTransfer(receiverOfUnderlyingAsset, amount);
+        IERC20Upgradeable(_underlyingAsset).safeTransfer(
+            underlyingAssetReceiver,
+            amount
+        );
 
-        emit Burn(account, receiverOfUnderlyingAsset, amount, index);
+        emit Burn(account, underlyingAssetReceiver, amount, index);
     }
 
     /**
@@ -87,14 +90,26 @@ contract LToken is ILToken, ERC20Upgradeable {
     }
 
     /**
+     * @dev Transfers the underlying asset to receiver.
+     * @param underlyingAssetReceiver The recipient of the underlying asset
+     * @param amount The amount getting transferred
+     * @return The amount transferred
+     **/
+    function transferUnderlyingTo(
+        address underlyingAssetReceiver,
+        uint256 amount
+    ) external override onlyMoneyPool returns (uint256) {
+        IERC20Upgradeable(_underlyingAsset).safeTransfer(
+            underlyingAssetReceiver,
+            amount
+        );
+        return amount;
+    }
+
+    /**
      * @dev Returns the address of the underlying asset of this aToken (E.g. WETH for aWETH)
      **/
-    function getUnderlyingAsset()
-        external
-        view
-        override
-        returns (address)
-    {
+    function getUnderlyingAsset() external view override returns (address) {
         return _underlyingAsset;
     }
 

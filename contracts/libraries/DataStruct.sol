@@ -31,6 +31,7 @@ library DataStruct {
     }
 
     struct TokenizerData {
+        address asset;
         uint256 totalABToken;
         uint256 maturedABToken;
         uint256 totalAToken;

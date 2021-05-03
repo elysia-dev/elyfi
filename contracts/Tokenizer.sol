@@ -51,7 +51,7 @@ contract Tokenizer is ITokenizer, ERC1155Upgradeable {
         // mint ABToken to Co
         _mint(account, id, 1, "");
 
-        _minter[id] = msg.sender;
+        _minter[id] = account;
     }
 
     function settleABToken(
@@ -65,9 +65,10 @@ contract Tokenizer is ITokenizer, ERC1155Upgradeable {
     }
 
     function mintAToken(
-        address asset,
         address account,
-        uint256 amount
+        uint256 id,
+        uint256 amount,
+        uint256 realAssetAPR
     ) external override onlyMoneyPool {
 
     }
