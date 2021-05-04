@@ -36,16 +36,20 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
         address lToken = reserve.lTokenAddress;
 
         // validation
+        // Check pool activation
 
         // update indexes and mintToReserve
         reserve.updateState();
+
+        // update rates
         reserve.updateRates(asset, _tokenizer, amount, 0);
+
+        // transfer underlying asset
+        // If transfer fail, reverts
+        IERC20Upgradeable(asset).safeTransferFrom(msg.sender, lToken, amount);
 
         // Mint ltoken
         ILToken(lToken).mint(account, amount, reserve.lTokenInterestIndex);
-
-        // transfer underlying asset
-        IERC20Upgradeable(asset).safeTransferFrom(msg.sender, lToken, amount);
 
         emit Invest(asset, account, amount);
     }
@@ -68,10 +72,13 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
         }
 
         // validation
+        // Without digital asset borrow, validation might be quite simple.
 
         // update indexes and mintToReserve
         reserve.updateState();
-        reserve.updateRates(asset, _tokenizer, amount, 0);
+
+        // update rates
+        reserve.updateRates(asset, _tokenizer, 0, amount);
 
         // Burn ltoken
         ILToken(lToken).burn(msg.sender, account, amount, reserve.lTokenInterestIndex);
@@ -151,8 +158,6 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
 
         address lToken = reserve.lTokenAddress;
 
-        (uint256 netAmount, uint256 futureInterest) = (0, 0);
-
         // Check if borrow amount exceeds collateral value
         // Check if borrow amount exceeds liquidity available
         AssetBond.validateBorrowAgainstAssetBond(
@@ -164,24 +169,28 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
 
         reserve.updateState();
 
+        // update interest rate
+        reserve.updateRates(assetBond.asset, _tokenizer, 0, borrowAmount);
+
+        // mintAToken to moneyPool
         ITokenizer(_tokenizer).mintAToken(
             address(this),
             id,
             borrowAmount,
             reserve.realAssetAPR);
 
+        // transfer asset bond
+        // or lock NFT?
+
         // update deposited asset bond list and count
         // update totalAToken
         // calculate future interest
-        (netAmount, futureInterest) = AssetBond.depositAssetBond(
+        (uint256 netAmount, uint256 futureInterest) = AssetBond.depositAssetBond(
             assetBond,
             tokenizer,
             borrowAmount,
             reserve.realAssetAPR
             );
-
-        // update interest rate
-        reserve.updateRates(assetBond.asset, _tokenizer, 0, borrowAmount);
 
         // transfer Underlying asset
         ILToken(lToken).transferUnderlyingTo(assetBond.borrower, netAmount);

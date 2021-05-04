@@ -38,6 +38,7 @@ contract LToken is ILToken, ERC20Upgradeable {
         uint256 index
     ) external override onlyMoneyPool returns (bool) {
         uint256 implicitBalance = amount.rayDiv(index);
+
         if (amount == 0) revert(); ////InvalidMintAmount(uint256 implicitBalance);
 
         _mint(account, implicitBalance);
@@ -53,6 +54,7 @@ contract LToken is ILToken, ERC20Upgradeable {
         uint256 index
     ) external override onlyMoneyPool {
         uint256 implicitBalance = amount.rayDiv(index);
+
         if (amount == 0) revert(); ////InvalidBurnAmount(uint256 implicitBalance);
 
         _burn(account, implicitBalance);

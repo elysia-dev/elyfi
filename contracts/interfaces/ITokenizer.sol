@@ -2,8 +2,9 @@
 pragma solidity 0.8.4;
 
 import "../libraries/DataStruct.sol";
+import "@openzeppelin/contracts-upgradeable/token/ERC1155/IERC1155Upgradeable.sol";
 
-interface ITokenizer {
+interface ITokenizer is IERC1155Upgradeable {
 
     event Invest(address indexed asset, address indexed account, uint256 amount);
 

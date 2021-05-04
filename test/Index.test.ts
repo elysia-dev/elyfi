@@ -1,15 +1,15 @@
+import { BigNumber } from 'ethers';
 import { ethers, waffle } from 'hardhat'
-import { smockit, smoddit } from '@eth-optimism/smock'
+import { ModifiableContract, smockit, smoddit } from '@eth-optimism/smock'
 import { address, advanceBlock, advanceTime, ETH, expandToDecimals, getTimestamp, toIndex, toRate } from './utils/Ethereum';
-import { DTokenTest, DTokenTest__factory, ERC20Test, LTokenTest, MoneyPoolTest } from '../typechain';
-import { BigNumber, Contract } from 'ethers';
+import { DTokenTest__factory } from '../typechain';
 import { calculateCompoundedInterest, calculateLinearInterest } from './utils/Math';
-import { expect } from 'chai';
+import { getWaffleExpect } from './utils/Expect';
 
-chai.use(waffle.solidity)
+const expect = getWaffleExpect();
 
 describe("Index", () => {
-    let indexMock: Contract
+    let indexMock: ModifiableContract
     let underlyingAssetAddress: string
 
     const provider = waffle.provider
@@ -61,21 +61,17 @@ describe("Index", () => {
         const updateTx = await indexMock.updateState(underlyingAssetAddress)
         const data = await indexMock.getReserveData(underlyingAssetAddress);
 
-        expect(BigNumber.from(100)).to.be.closeTo(BigNumber.from(101), 10);
-
         // lTokenIndex
-        expect(data[0]).to.be.closeTo(
-            calculateLinearInterest(
-                BigNumber.from(testData.supplyAPR),
-                testData.lastUpdateTimestamp,
-                await getTimestamp(updateTx)), 10000
-        )
+        expect((data[0].sub(calculateLinearInterest(
+            BigNumber.from(testData.supplyAPR),
+            testData.lastUpdateTimestamp,
+            await getTimestamp(updateTx))
+            ))).to.be.within(-(10**7), 10**7)
+
         // dTokenIndex
-        expect(data[1]).to.be.equal(
-            calculateCompoundedInterest(
-                BigNumber.from(testData.digitalAssetAPR),
-                testData.lastUpdateTimestamp,
-                await getTimestamp(updateTx))
-        )
+        expect(data[1].sub(calculateCompoundedInterest(
+            BigNumber.from(testData.digitalAssetAPR),
+            testData.lastUpdateTimestamp,
+            await getTimestamp(updateTx)))).to.be.within(-(10**7), 10**7)
     })
 })

@@ -35,8 +35,8 @@ library Rate {
 
     function updateRates(
         DataStruct.ReserveData storage reserve,
-        address tokenizer,
         address underlyingAssetAddress,
+        address tokenizer,
         uint256 investAmount,
         uint256 borrowAmount
     ) internal {
