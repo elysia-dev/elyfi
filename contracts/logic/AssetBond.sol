@@ -16,11 +16,13 @@ library AssetBond {
         address borrower,
         address lawfirm,
         uint256 collateralValue,
+        uint256 dueDate,
         string memory ipfsHash
     ) internal {
         assetBondData.asset = asset;
         assetBondData.borrower = borrower;
         assetBondData.lawfirm = lawfirm;
+        assetBondData.dueDate = dueDate;
         assetBondData.ipfsHash = ipfsHash;
         assetBondData.collateralValue = collateralValue;
         assetBondData.isSettled = true;
@@ -40,34 +42,38 @@ library AssetBond {
         if (assetBond.isSettled == true) revert(); ////error NotSettledABToken(id);
 
         // check sign logic
+    }
 
+    function validateTokenId(uint256 id) internal {
+        // validate id
+        //// error InvalidABTokenID(id)
     }
 
     struct DepositAssetBondLocalVars {
         uint256 netAmount;
         uint256 futureInterest;
-        uint256 currentTotalAssetBondCount;
-        uint256 currentMaturedAssetBondCount;
-        uint256 newTotalATokenAmount;
     }
 
     function depositAssetBond(
         DataStruct.AssetBondData storage assetBondData,
         DataStruct.TokenizerData storage tokenizer,
         uint256 borrowAmount,
-        uint256 realAssetAPR,
-        uint256 dueDate)
+        uint256 realAssetAPR
+        )
         internal returns (uint256, uint256) {
             DepositAssetBondLocalVars memory vars;
 
+            // update tokenizer data
             tokenizer.totalDepositedAssetBondCount += 1;
             tokenizer.totalAToken += borrowAmount;
 
+            // set bond date data
             assetBondData.borrowAPR = realAssetAPR;
             assetBondData.isDeposited = true;
             assetBondData.issuanceDate = block.timestamp;
-            assetBondData.maturityDate = block.timestamp + (dueDate *  1 days);
+            assetBondData.maturityDate = block.timestamp + (assetBondData.dueDate *  1 days);
 
+            // calculate amount reserve in tokenizer
             vars.netAmount = borrowAmount.rayMul(realAssetAPR);
             vars.futureInterest = borrowAmount - vars.netAmount;
 

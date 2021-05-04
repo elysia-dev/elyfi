@@ -16,18 +16,16 @@ contract Tokenizer is ITokenizer, ERC1155Upgradeable {
     using WadRayMath for uint256;
 
     IMoneyPool internal _moneyPool;
-    address internal _underlyingAsset;
 
     mapping(uint256 => address) internal _minter;
 
+    uint256 internal _totalATokenSupply;
+
     function initialize(
         IMoneyPool moneyPool,
-        address underlyingAsset_,
         string memory uri_
     ) public initializer {
         _moneyPool = moneyPool;
-        _underlyingAsset = underlyingAsset_;
-
         __ERC1155_init(uri_);
     }
 
@@ -39,29 +37,16 @@ contract Tokenizer is ITokenizer, ERC1155Upgradeable {
 
     // id : bitMask
     function mintABToken(
-        address account, // Co address
-        uint256 id // information about Co and borrower
+        address account, // CO address
+        uint256 id // information about CO and borrower
     ) external override onlyMoneyPool {
 
-        if (_minter[id] != address(0)) revert(); ////error TokenIDAlreadyExist(id)
+        if (_minter[id] != address(0)) revert(); ////error ABTokenIDAlreadyExist(id)
 
-        // validate Id :
-        // if ()
-
-        // mint ABToken to Co
+        // mint ABToken to CO
         _mint(account, id, 1, "");
 
         _minter[id] = account;
-    }
-
-    function settleABToken(
-        address asset,
-        uint256 id,
-        address borrower,
-        address lawfirm,
-        uint256 collateralValue,
-        string memory ipfsHash
-    ) external onlyMoneyPool {
     }
 
     function mintAToken(
@@ -70,7 +55,11 @@ contract Tokenizer is ITokenizer, ERC1155Upgradeable {
         uint256 amount,
         uint256 realAssetAPR
     ) external override onlyMoneyPool {
+        _totalATokenSupply += amount;
+    }
 
+    function totalATokenSupply() external view override returns (uint256) {
+        return _totalATokenSupply;
     }
 
     modifier onlyMoneyPool {

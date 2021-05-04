@@ -20,4 +20,6 @@ interface ITokenizer {
         uint256 amount,
         uint256 realAssetAPR
     ) external;
+
+    function totalATokenSupply() external view returns (uint256);
 }

@@ -24,6 +24,7 @@ library DataStruct {
         uint256 borrowAPR;
         uint256 sign; // refactor : apply oz - sign
         uint256 issuanceDate;
+        uint256 dueDate;
         uint256 maturityDate;
         bool isSettled; // refactor : need configuration
         bool isDeposited; // refactor : need configuration

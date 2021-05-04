@@ -5,15 +5,16 @@ import "../libraries/DataStruct.sol";
 import "../libraries/Errors.sol";
 import "../libraries/Math.sol";
 import "../interfaces/IDToken.sol";
+import "../interfaces/ITokenizer.sol";
 
 library Rate {
     using WadRayMath for uint256;
     using Rate for DataStruct.ReserveData;
 
     struct UpdateRatesLocalVars {
-        address dTokenAddress;
-        uint256 availableLiquidity;
-        uint256 totalStableDebt;
+        uint256 totalLToken;
+        uint256 totalAToken;
+        uint256 totalDToken;
         uint256 newLiquidityRate;
         uint256 newStableRate;
         uint256 newVariableRate;
@@ -23,11 +24,20 @@ library Rate {
 
     function updateRates(
         DataStruct.ReserveData storage reserve,
+        address tokenizer
         address underlyingAssetAddress,
-        address lToken,
         uint256 investAmount,
         uint256 borrowAmount
     ) internal {
         UpdateRatesLocalVars memory vars;
+
+        vars.totalLToken = ILToken(reserve.lTokenAddress).totalSupply();
+
+        vars.totalAToken = ITokenizer(tokenizer).totalATokenSupply();
+        
+        vars.totalDToken = IDToken(reserve.dTokenAddress).totalSupply();
+
+        vars.realAssetAPR = reserve.realAssetAPR;
+
     }
 }

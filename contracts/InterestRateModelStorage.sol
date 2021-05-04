@@ -8,9 +8,7 @@ import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
  * @author ELYSIA
  */
 contract InterestRateModelStorage is Initializable {
-    uint256 internal _optimalDigitalAssetUtilizationRate;
-
-    uint256 internal _optimalRealAssetUtilizationRate;
+    uint256 internal _optimalUtilizationRate;
 
     uint256 internal _digitalAssetBorrowRateBase;
 

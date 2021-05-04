@@ -39,7 +39,7 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
 
         // update indexes and mintToReserve
         reserve.updateState();
-        reserve.updateRates(asset, lToken, amount, 0);
+        reserve.updateRates(asset, _tokenizer, amount, 0);
 
         // Mint ltoken
         ILToken(lToken).mint(account, amount, reserve.lTokenInterestIndex);
@@ -71,7 +71,7 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
 
         // update indexes and mintToReserve
         reserve.updateState();
-        reserve.updateRates(asset, lToken, amount, 0);
+        reserve.updateRates(asset, _tokenizer, amount, 0);
 
         // Burn ltoken
         ILToken(lToken).burn(msg.sender, account, amount, reserve.lTokenInterestIndex);
@@ -88,48 +88,28 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
         return _reserves[asset].getLTokenInterestIndex();
     }
 
-    // Need access control, onlyConfigurator can add new reserve.
-    function addNewReserve(
-        address asset,
-        address lToken,
-        address dToken,
-        address interestModel
-    ) external override {
-        DataStruct.ReserveData memory newReserveData =
-            DataStruct.ReserveData({
-                lTokenInterestIndex: WadRayMath.ray(),
-                dTokenInterestIndex: WadRayMath.ray(),
-                realAssetAPR: 0,
-                digitalAssetAPR: 0,
-                supplyAPR: 0,
-                lastUpdateTimestamp: uint40(block.timestamp),
-                lTokenAddress: lToken,
-                dTokenAddress: dToken,
-                interestModelAddress: interestModel,
-                id: 0
-            });
-
-        _reserves[asset] = newReserveData;
-        _addNewReserveToList(asset);
+    /**
+     * @dev Returns the state and configuration of the reserve
+     * @param asset The address of the underlying asset of the reserve
+     * @return The state of the reserve
+     **/
+    function getReserveData(address asset)
+        external
+        view
+        override
+        returns (DataStruct.ReserveData memory)
+    {
+        return _reserves[asset];
     }
 
-    function _addNewReserveToList(address asset) internal {
-        uint256 reserveCount = _reserveCount;
-
-        if (reserveCount >= _maxReserveCount) revert(); ////MaxReserveCountExceeded();
-
-        if (_reserves[asset].id != 0) revert(); ////DigitalAssetAlreadyAdded(address asset);
-
-        _reserves[asset].id = uint8(reserveCount);
-        _reservesList[reserveCount] = asset;
-
-        _reserveCount = reserveCount + 1;
-    }
-
+    // Access control : only CO
     function mintABToken(
-        address account, // Co address
+        address account, // ABToken owner address
         uint256 id // information about Co and borrower
     ) external {
+        // validate Id : Id should have information about minter.
+        AssetBond.validateTokenId(id);
+
         ITokenizer(_tokenizer).mintABToken(account, id);
     }
 
@@ -140,6 +120,7 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
         address lawfirm, // lawfirm address
         uint256 id, // Token Id
         uint256 collateralValue, // collateralValue in USD
+        uint256 dueDate,
         string memory ipfsHash
     ) external {
         _assetBond[id].initAssetBond(
@@ -147,6 +128,7 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
             borrower,
             lawfirm,
             collateralValue,
+            dueDate,
             ipfsHash
         );
     }
@@ -188,8 +170,6 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
             borrowAmount,
             reserve.realAssetAPR);
 
-        if (true) revert(); ////error UnverifiedABTokenDeposit(id);
-
         // update deposited asset bond list and count
         // update totalAToken
         // calculate future interest
@@ -201,22 +181,48 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
             );
 
         // update interest rate
-        reserve.updateRates(assetBond.asset, lToken, 0, borrowAmount);
+        reserve.updateRates(assetBond.asset, _tokenizer, 0, borrowAmount);
 
+        // transfer Underlying asset
         ILToken(lToken).transferUnderlyingTo(assetBond.borrower, netAmount);
+        ILToken(lToken).transferUnderlyingTo(_tokenizer, futureInterest);
     }
 
-    /**
-     * @dev Returns the state and configuration of the reserve
-     * @param asset The address of the underlying asset of the reserve
-     * @return The state of the reserve
-     **/
-    function getReserveData(address asset)
-        external
-        view
-        override
-        returns (DataStruct.ReserveData memory)
-    {
-        return _reserves[asset];
+    // Need access control, onlyConfigurator can add new reserve.
+    function addNewReserve(
+        address asset,
+        address lToken,
+        address dToken,
+        address interestModel
+    ) external override {
+        DataStruct.ReserveData memory newReserveData =
+            DataStruct.ReserveData({
+                lTokenInterestIndex: WadRayMath.ray(),
+                dTokenInterestIndex: WadRayMath.ray(),
+                realAssetAPR: 0,
+                digitalAssetAPR: 0,
+                supplyAPR: 0,
+                lastUpdateTimestamp: uint40(block.timestamp),
+                lTokenAddress: lToken,
+                dTokenAddress: dToken,
+                interestModelAddress: interestModel,
+                id: 0
+            });
+
+        _reserves[asset] = newReserveData;
+        _addNewReserveToList(asset);
+    }
+
+    function _addNewReserveToList(address asset) internal {
+        uint256 reserveCount = _reserveCount;
+
+        if (reserveCount >= _maxReserveCount) revert(); ////MaxReserveCountExceeded();
+
+        if (_reserves[asset].id != 0) revert(); ////DigitalAssetAlreadyAdded(address asset);
+
+        _reserves[asset].id = uint8(reserveCount);
+        _reservesList[reserveCount] = asset;
+
+        _reserveCount = reserveCount + 1;
     }
 }

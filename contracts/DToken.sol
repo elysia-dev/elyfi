@@ -47,6 +47,10 @@ contract DToken is IDToken, ERC20Upgradeable {
         return super.totalSupply();
     }
 
+    function totalSupply() public view override(ERC20Upgradeable, IERC20Upgradeable) returns (uint256) {
+        return super.totalSupply().rayMul(_moneyPool.getLTokenInterestIndex(_underlyingAsset));
+    }
+
     /**
      * @dev Returns the address of the underlying asset of this aToken (E.g. WETH for aWETH)
      **/
