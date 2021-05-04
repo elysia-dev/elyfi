@@ -36,26 +36,30 @@ contract InterestRateModel is IInterestRateModel, InterestRateModelStorage {
         uint256 utilizationRate;
         uint256 newRealAssetAPR;
         uint256 newDigitalAssetAPR;
+        uint256 newSupplyAPR;
     }
 
     function calculateRates(
         address asset,
         address lToken,
+        uint256 aTokenAmount,
+        uint256 dTokenAmount,
         uint256 investAmount,
         uint256 borrowAmount,
-        uint256 dToken,
-        uint256 aToken,
+        uint256 averageRealAssetAPR
         uint256 moneyPoolFactor,
-        uint256 realAssetAPR
     ) public view override returns (uint256, uint256, uint256) {
         calculateRatesLocalVars memory vars;
 
         uint256 availableLiquidity = IERC20(asset).balanceOf(lToken) + investAmount - borrowAmount;
 
-        vars.totalDebt = dToken + aToken;
+        vars.totalDebt = aTokenAmount + dTokenAmount;
         vars.utilizationRate = vars.totalDebt == 0
             ? 0
             : vars.totalDebt.rayDiv(availableLiquidity + vars.totalDebt);
+
+        vars.newRealAssetAPR = 0;
+        vars.newDigitalAssetAPR = 0;
 
         if (vars.utilizationRate <= _optimalUtilizationRate) {
             vars.newRealAssetAPR = _realAssetBorrowRateBase
@@ -78,19 +82,34 @@ contract InterestRateModel is IInterestRateModel, InterestRateModelStorage {
                 .rayDiv(WadRayMath.ray() - _optimalUtilizationRate)
                 .rayMul(vars.utilizationRate);
         }
+
+        vars.newSupplyAPR = _overallBorrowAPR(
+            aTokenAmount,
+            dTokenAmount,
+            vars.newDigitalAssetAPR,
+            averageRealAssetAPR
+            )
+            .rayMul(vars.utilizationRate);
+            // need reserveFactor calculation
+
+        return (
+            vars.newRealAssetAPR,
+            vars.newDigitalAssetAPR,
+            vars.newSupplyAPR
+            );
     }
 
     function _overallBorrowAPR(
-        uint256 dToken,
-        uint256 aToken,
+        uint256 aTokenAmount,
+        uint256 dTokenAmount,
         uint256 digitalAssetAPR,
-        uint256 realAssetAPR
+        uint256 averageRealAssetAPR
     ) internal pure returns (uint256) {
-        uint256 totalDebt = dToken + aToken;
+        uint256 totalDebt = aTokenAmount + dTokenAmount;
 
-        uint256 weightedDigitalAssetAPR = dToken.wadToRay().rayMul(digitalAssetAPR);
+        uint256 weightedRealAssetAPR = aTokenAmount.wadToRay().rayMul(averageRealAssetAPR);
 
-        uint256 weightedRealAssetAPR = aToken.wadToRay().rayMul(realAssetAPR);
+        uint256 weightedDigitalAssetAPR = dTokenAmount.wadToRay().rayMul(digitalAssetAPR);
 
         uint256 result = (weightedDigitalAssetAPR + weightedRealAssetAPR).rayDiv(totalDebt.wadToRay());
 

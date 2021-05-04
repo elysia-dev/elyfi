@@ -21,6 +21,8 @@ contract Tokenizer is ITokenizer, ERC1155Upgradeable {
 
     uint256 internal _totalATokenSupply;
 
+    uint256 internal _averageATokenAPR;
+
     function initialize(
         IMoneyPool moneyPool,
         string memory uri_

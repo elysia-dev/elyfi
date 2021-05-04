@@ -7,19 +7,29 @@ import "../libraries/Math.sol";
 import "../interfaces/IDToken.sol";
 import "../interfaces/ILToken.sol";
 import "../interfaces/ITokenizer.sol";
+import "../interfaces/IInterestRateModel.sol";
 
 library Rate {
     using WadRayMath for uint256;
     using Rate for DataStruct.ReserveData;
 
+    event MoneyPoolRatesUpdated(
+        address indexed underlyingAssetAddress,
+        uint256 lTokenIndex,
+        uint256 dTokenIndex,
+        uint256 realAssetAPR,
+        uint256 digitalAssetAPR,
+        uint256 supplyAPR
+    );
+
     struct UpdateRatesLocalVars {
         uint256 totalLToken;
         uint256 totalAToken;
         uint256 totalDToken;
-        uint256 newSupplyAPR;
         uint256 newRealAssetAPR;
         uint256 newDigitalAssetAPR;
-        uint256 avgStableRate;
+        uint256 newSupplyAPR;
+        uint256 averageRealAssetAPR;
         uint256 totalVariableDebt;
     }
 
@@ -38,7 +48,31 @@ library Rate {
 
         vars.totalDToken = IDToken(reserve.dTokenAddress).totalSupply();
 
-        vars.newRealAssetAPR = reserve.realAssetAPR;
+        vars.averageRealAssetAPR = ITokenizer(tokenizer).getAverageATokenAPR();
 
+        (vars.newRealAssetAPR, vars.newDigitalAssetAPR, vars.newSupplyAPR) =
+            IInterestRateModel(reserve.interestModelAddress).calculateRates(
+                underlyingAssetAddress,
+                reserve.lTokenAddress,
+                vars.totalLToken,
+                vars.totalAToken,
+                vars.totalDToken,
+                investAmount,
+                borrowAmount,
+                vars.averageRealAssetAPR
+            );
+
+        reserve.realAssetAPR = vars.newRealAssetAPR;
+        reserve.digitalAssetAPR = vars.newDigitalAssetAPR;
+        reserve.supplyAPR = vars.newSupplyAPR;
+
+        emit MoneyPoolRatesUpdated(
+            underlyingAssetAddress,
+            reserve.lTokenInterestIndex,
+            reserve.dTokenInterestIndex,
+            vars.newRealAssetAPR,
+            vars.newDigitalAssetAPR,
+            vars.newSupplyAPR
+            );
     }
 }

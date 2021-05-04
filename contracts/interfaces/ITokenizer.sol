@@ -22,4 +22,6 @@ interface ITokenizer {
     ) external;
 
     function totalATokenSupply() external view returns (uint256);
+
+    function getAverageATokenAPR() external view returns (uint256);
 }
