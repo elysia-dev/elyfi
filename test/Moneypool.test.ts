@@ -1,13 +1,11 @@
-import chai, { expect } from 'chai'
+import { BigNumber } from 'ethers';
 import { ethers, waffle } from 'hardhat'
 import { smoddit } from '@eth-optimism/smock'
 import { address, ETH, RAY, toIndex, toRate } from './utils/Ethereum';
 import { DTokenTest, ERC20Test, InterestRateModel, LTokenTest, MoneyPoolTest } from '../typechain';
 import { makeInterestModel, makeMoneyPool, makeLToken, makeDToken, makeUnderlyingAsset } from './utils/makeContract';
-import { BigNumber } from 'ethers';
 import { defaultReserveData } from './utils/Interfaces';
-
-chai.use(waffle.solidity)
+import { expect } from 'chai'
 
 describe("MoneyPool", () => {
     let underlyingAsset: ERC20Test

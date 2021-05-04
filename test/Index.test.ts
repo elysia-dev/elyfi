@@ -4,9 +4,7 @@ import { ModifiableContract, smockit, smoddit } from '@eth-optimism/smock'
 import { address, advanceBlock, advanceTime, ETH, expandToDecimals, getTimestamp, toIndex, toRate } from './utils/Ethereum';
 import { DTokenTest__factory } from '../typechain';
 import { calculateCompoundedInterest, calculateLinearInterest } from './utils/Math';
-import { getWaffleExpect } from './utils/Expect';
-
-const expect = getWaffleExpect();
+import { expect } from 'chai'
 
 describe("Index", () => {
     let indexMock: ModifiableContract
