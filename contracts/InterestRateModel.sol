@@ -3,13 +3,14 @@ pragma solidity 0.8.4;
 
 import "./InterestRateModelStorage.sol";
 import "./libraries/WadRayMath.sol";
+import "./interfaces/IInterestRateModel.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 /**
  * @title ELYFI InterestRateModel
  * @author ELYSIA
  */
-contract InterestRateModel is InterestRateModelStorage {
+contract InterestRateModel is IInterestRateModel, InterestRateModelStorage {
     using WadRayMath for uint256;
 
     constructor(
