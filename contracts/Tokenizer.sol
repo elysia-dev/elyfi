@@ -64,6 +64,10 @@ contract Tokenizer is ITokenizer, ERC1155Upgradeable {
         return _totalATokenSupply;
     }
 
+    function getAverageATokenAPR() external view override returns (uint256) {
+        return _averageATokenAPR;
+    }
+
     modifier onlyMoneyPool {
         if (_msgSender() != address(_moneyPool)) revert(); ////OnlyMoneyPool();
         _;

@@ -46,8 +46,8 @@ contract InterestRateModel is IInterestRateModel, InterestRateModelStorage {
         uint256 dTokenAmount,
         uint256 investAmount,
         uint256 borrowAmount,
-        uint256 averageRealAssetAPR
-        uint256 moneyPoolFactor,
+        uint256 averageRealAssetAPR,
+        uint256 moneyPoolFactor
     ) public view override returns (uint256, uint256, uint256) {
         calculateRatesLocalVars memory vars;
 
