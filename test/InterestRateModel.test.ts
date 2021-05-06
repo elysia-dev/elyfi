@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { ethers, waffle } from 'hardhat'
+import { waffle } from 'hardhat'
 import { Connector, ERC20Test, InterestRateModel, LTokenTest, MoneyPoolTest } from '../typechain';
 import { expandToDecimals, toRate } from './utils/Ethereum';
 import { defaultInterestModelParams } from './utils/Interfaces';
@@ -14,8 +14,6 @@ describe("Rate", () => {
 
     const provider = waffle.provider
     const [deployer, account1, account2] = provider.getWallets()
-
-    context
 
     beforeEach(async () => {
         underlyingAsset = await makeUnderlyingAsset({
@@ -87,7 +85,7 @@ describe("Rate", () => {
                 expandToDecimals(8, 18),
                 0,
                 0,
-                expandToDecimals(1, 18), //utilization rate after borrow '1' = (8)/(8+(3-'1'))
+                expandToDecimals(1, 18), //utilization rate after borrow '1' = 8/(8+(3-'1'))
                 0,
                 0
             )
@@ -117,16 +115,20 @@ describe("Rate", () => {
     context(".supply APR", async () => {
         it("Returns half of the overall borrow APR when 50% utilization ratio", async () => {
             await underlyingAsset.connect(deployer).transfer(lToken.address, expandToDecimals(5, 18))
+
+            const averageRealAssetAPR = toRate(0.1)
             const result = await interestRateModel.calculateRates(
                 underlyingAsset.address,
                 lToken.address,
-                expandToDecimals(5, 18), //utilization rate = 8/(8+2)
+                expandToDecimals(5, 18), //utilization rate = 5/(5+5)
                 0,
                 0,
                 0,
-                0,
-                toRate(0.1)
+                averageRealAssetAPR,
+                0
             )
+
+            expect(result[2]).to.be.equal(averageRealAssetAPR.div(2))
         })
     })
 })
