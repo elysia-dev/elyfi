@@ -27,7 +27,8 @@ interface IMoneyPool {
         address asset,
         address lToken,
         address dToken,
-        address interestModel
+        address interestModel,
+        address tokenizer
     ) external;
 
     function getReserveData(address asset) external view returns (DataStruct.ReserveData memory);

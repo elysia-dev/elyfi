@@ -8,10 +8,13 @@ library DataStruct {
         uint256 realAssetAPR;
         uint256 digitalAssetAPR;
         uint256 supplyAPR;
+        uint256 totalDepositedAssetBondCount; // need refactor: consider bitmask
+        uint256 maturedAssetBondCount; // need refactor: consider bitmask
         uint40 lastUpdateTimestamp;
         address lTokenAddress;
         address dTokenAddress;
         address interestModelAddress;
+        address tokenizerAddress;
         uint8 id;
     }
 
@@ -29,11 +32,5 @@ library DataStruct {
         bool isSettled; // refactor : need configuration
         bool isDeposited; // refactor : need configuration
         bool isMatured; // refactor : need configuration
-    }
-
-    struct TokenizerData {
-        uint256 totalDepositedAssetBondCount;
-        uint256 maturedAssetBondCount;
-        uint256 totalAToken;
     }
 }

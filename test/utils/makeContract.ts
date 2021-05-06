@@ -8,7 +8,9 @@ import {
     ERC20Test,
     ERC20Test__factory,
     InterestRateModel,
-    InterestRateModel__factory
+    InterestRateModel__factory,
+    TokenizerTest,
+    TokenizerTest__factory
 } from "../../typechain"
 import { BigNumber, Contract, Wallet } from "ethers"
 import { ethers } from "hardhat";
@@ -64,10 +66,33 @@ export async function makeMoneyPool({
     return moneyPoolTest;
 }
 
+export async function makeTokenizer({
+    deployer,
+    moneyPool,
+    uri = ""
+}: {
+    deployer: Wallet
+    moneyPool: MoneyPoolTest | Contract
+    uri: string
+}): Promise<TokenizerTest> {
+    let tokenizerTest: TokenizerTest
+
+    const tokenizerFactory = (await ethers.getContractFactory(
+        "TokenizerFactory",
+        deployer
+    )) as TokenizerTest__factory
+
+    tokenizerTest = await tokenizerFactory.deploy(
+        moneyPool.address,
+        uri
+    )
+
+    return tokenizerTest;
+}
+
 export async function makeInterestModel({
     deployer,
-    optimalDigitalAssetUtilizationRate = defaultInterestModelParams.optimalDigitalAssetUtilizationRate,
-    optimalRealAssetUtilizationRate = defaultInterestModelParams.optimalRealAssetUtilizationRate,
+    optimalUtilizationRate = defaultInterestModelParams.optimalUtilizationRate,
     digitalAssetBorrowRateBase = defaultInterestModelParams.digitalAssetBorrowRateBase,
     digitalAssetBorrowRateOptimal = defaultInterestModelParams.digitalAssetBorrowRateOptimal,
     digitalAssetBorrowRateMax = defaultInterestModelParams.digitalAssetBorrowRateMax,
@@ -76,8 +101,7 @@ export async function makeInterestModel({
     realAssetBorrowRateMax = defaultInterestModelParams.realAssetBorrowRateMax,
 }: {
     deployer: Wallet
-    optimalDigitalAssetUtilizationRate?: BigNumber
-    optimalRealAssetUtilizationRate?: BigNumber
+    optimalUtilizationRate?: BigNumber
     digitalAssetBorrowRateBase?: BigNumber
     digitalAssetBorrowRateOptimal?: BigNumber
     digitalAssetBorrowRateMax?: BigNumber
@@ -94,8 +118,7 @@ export async function makeInterestModel({
     )) as InterestRateModel__factory;
 
     interestRateModel = await interestRateModelFactory.deploy(
-        optimalDigitalAssetUtilizationRate,
-        optimalRealAssetUtilizationRate,
+        optimalUtilizationRate,
         digitalAssetBorrowRateBase,
         digitalAssetBorrowRateOptimal,
         digitalAssetBorrowRateMax,

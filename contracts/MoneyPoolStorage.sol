@@ -18,9 +18,7 @@ contract MoneyPoolStorage is Initializable {
 
     mapping(uint256 => DataStruct.AssetBondData) internal _assetBond;
 
-    mapping(address => DataStruct.TokenizerData) internal _tokenizers;
-
-    address internal _tokenizer;
+    address internal _connector;
 
     mapping(uint256 => uint256) internal _depositedAssetBondList;
 

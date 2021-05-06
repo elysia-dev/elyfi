@@ -46,6 +46,7 @@ describe("Index", () => {
         const initTx = await advanceBlock()
         testData.lastUpdateTimestamp = await getTimestamp(initTx)
 
+        // smoddit 'put' returns nothing, not evm interaction
         await indexMock.smodify.put({
             _reserves: {
                 [underlyingAssetAddress]: testData
@@ -54,7 +55,6 @@ describe("Index", () => {
         })
 
     it("Updates Indexes", async () => {
-        // put returns nothing, not evm interaction
         const advanceTimeTx = await advanceTime(100)
         const updateTx = await indexMock.updateState(underlyingAssetAddress)
         const data = await indexMock.getReserveData(underlyingAssetAddress);

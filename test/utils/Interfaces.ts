@@ -35,8 +35,7 @@ export const defaultReserveData: ReserveData = <ReserveData>{
 }
 
 export interface InterestModelParams {
-    optimalDigitalAssetUtilizationRate: BigNumber;
-    optimalRealAssetUtilizationRate: BigNumber;
+    optimalUtilizationRate: BigNumber;
     digitalAssetBorrowRateBase: BigNumber;
     digitalAssetBorrowRateOptimal: BigNumber;
     digitalAssetBorrowRateMax: BigNumber;
@@ -46,12 +45,11 @@ export interface InterestModelParams {
 }
 
 export const defaultInterestModelParams: InterestModelParams = <InterestModelParams>{
-    optimalDigitalAssetUtilizationRate: toRate(0.8),
-    optimalRealAssetUtilizationRate: toRate(0.8),
+    optimalUtilizationRate: toRate(0.8),
     digitalAssetBorrowRateBase: toRate(0.02),
     digitalAssetBorrowRateOptimal: toRate(0.1),
-    digitalAssetBorrowRateMax: toRate(0.4),
-    realAssetBorrowRateBase: toRate(0.05),
+    digitalAssetBorrowRateMax: toRate(1),
+    realAssetBorrowRateBase: toRate(0.04),
     realAssetBorrowRateOptimal: toRate(0.2),
-    realAssetBorrowRateMax: toRate(0.6),
+    realAssetBorrowRateMax: toRate(2),
 }

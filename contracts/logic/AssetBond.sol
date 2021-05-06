@@ -56,7 +56,7 @@ library AssetBond {
 
     function depositAssetBond(
         DataStruct.AssetBondData storage assetBondData,
-        DataStruct.TokenizerData storage tokenizer,
+        DataStruct.ReserveData storage reserve,
         uint256 borrowAmount,
         uint256 realAssetAPR
         )
@@ -64,8 +64,7 @@ library AssetBond {
             DepositAssetBondLocalVars memory vars;
 
             // update tokenizer data
-            tokenizer.totalDepositedAssetBondCount += 1;
-            tokenizer.totalAToken += borrowAmount;
+            reserve.totalDepositedAssetBondCount += 1;
 
             // set bond date data
             assetBondData.borrowAPR = realAssetAPR;

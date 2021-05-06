@@ -20,8 +20,8 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
 
     function initialize(
         uint256 maxReserveCount_,
-        address tokenizer) public initializer {
-        _tokenizer = tokenizer;
+        address connector) public initializer {
+        _connector = connector;
         _maxReserveCount = maxReserveCount_;
         _reserveCount += 1;
     }
@@ -34,6 +34,7 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
         DataStruct.ReserveData storage reserve = _reserves[asset];
 
         address lToken = reserve.lTokenAddress;
+        address tokenizer = reserve.tokenizerAddress;
 
         // validation
         // Check pool activation
@@ -42,7 +43,7 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
         reserve.updateState();
 
         // update rates
-        reserve.updateRates(asset, _tokenizer, amount, 0);
+        reserve.updateRates(asset, tokenizer, amount, 0);
 
         // transfer underlying asset
         // If transfer fail, reverts
@@ -62,6 +63,7 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
         DataStruct.ReserveData storage reserve = _reserves[asset];
 
         address lToken = reserve.lTokenAddress;
+        address tokenizer = reserve.tokenizerAddress;
 
         uint256 accountBalance = ILToken(lToken).balanceOf(msg.sender);
 
@@ -78,7 +80,7 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
         reserve.updateState();
 
         // update rates
-        reserve.updateRates(asset, _tokenizer, 0, amount);
+        reserve.updateRates(asset, tokenizer, 0, amount);
 
         // Burn ltoken
         ILToken(lToken).burn(msg.sender, account, amount, reserve.lTokenInterestIndex);
@@ -111,13 +113,18 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
 
     // Access control : only CO
     function mintABToken(
+        address asset,
         address account, // ABToken owner address
         uint256 id // information about Co and borrower
     ) external {
+        DataStruct.ReserveData storage reserve = _reserves[asset];
+
+        address tokenizer = reserve.tokenizerAddress;
+
         // validate Id : Id should have information about minter.
         AssetBond.validateTokenId(id);
 
-        ITokenizer(_tokenizer).mintABToken(account, id);
+        ITokenizer(tokenizer).mintABToken(account, id);
     }
 
     // access control : only minter
@@ -154,9 +161,9 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
     ) external {
         DataStruct.AssetBondData storage assetBond = _assetBond[id];
         DataStruct.ReserveData storage reserve = _reserves[assetBond.asset];
-        DataStruct.TokenizerData storage tokenizer = _tokenizers[assetBond.asset];
 
         address lToken = reserve.lTokenAddress;
+        address tokenizer = reserve.tokenizerAddress;
 
         // Check if borrow amount exceeds collateral value
         // Check if borrow amount exceeds liquidity available
@@ -170,10 +177,10 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
         reserve.updateState();
 
         // update interest rate
-        reserve.updateRates(assetBond.asset, _tokenizer, 0, borrowAmount);
+        reserve.updateRates(assetBond.asset, tokenizer, 0, borrowAmount);
 
         // mintAToken to moneyPool
-        ITokenizer(_tokenizer).mintAToken(
+        ITokenizer(tokenizer).mintAToken(
             address(this),
             id,
             borrowAmount,
@@ -187,14 +194,14 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
         // calculate future interest
         (uint256 netAmount, uint256 futureInterest) = AssetBond.depositAssetBond(
             assetBond,
-            tokenizer,
+            reserve,
             borrowAmount,
             reserve.realAssetAPR
             );
 
         // transfer Underlying asset
         ILToken(lToken).transferUnderlyingTo(assetBond.borrower, netAmount);
-        ILToken(lToken).transferUnderlyingTo(_tokenizer, futureInterest);
+        ILToken(lToken).transferUnderlyingTo(tokenizer, futureInterest);
     }
 
     // Need access control, onlyConfigurator can add new reserve.
@@ -202,7 +209,8 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
         address asset,
         address lToken,
         address dToken,
-        address interestModel
+        address interestModel,
+        address tokenizer
     ) external override {
         DataStruct.ReserveData memory newReserveData =
             DataStruct.ReserveData({
@@ -211,10 +219,13 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
                 realAssetAPR: 0,
                 digitalAssetAPR: 0,
                 supplyAPR: 0,
+                totalDepositedAssetBondCount: 0,
+                maturedAssetBondCount: 0,
                 lastUpdateTimestamp: uint40(block.timestamp),
                 lTokenAddress: lToken,
                 dTokenAddress: dToken,
                 interestModelAddress: interestModel,
+                tokenizerAddress: tokenizer,
                 id: 0
             });
 
