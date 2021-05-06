@@ -1,6 +1,6 @@
 import { ethers, waffle } from 'hardhat'
 import { ERC20Test, InterestRateModel, LTokenTest, MoneyPoolTest } from '../typechain';
-import { makeInterestModel, makeLToken, makeMoneyPool, makeUnderlyingAsset } from './utils/makeContract';
+import { makeInterestRateModel, makeLToken, makeMoneyPool, makeUnderlyingAsset } from './utils/makeContract';
 
 describe("Rate", () => {
     let underlyingAsset: ERC20Test
@@ -16,11 +16,7 @@ describe("Rate", () => {
             deployer: deployer,
         })
 
-        moneyPool = await makeMoneyPool({
-            deployer: deployer,
-        })
-
-        interestRateModel = await makeInterestModel({
+        interestRateModel = await makeInterestRateModel({
             deployer: deployer,
         })
 

@@ -10,12 +10,14 @@ import {
     InterestRateModel,
     InterestRateModel__factory,
     TokenizerTest,
-    TokenizerTest__factory
+    TokenizerTest__factory,
+    Connector,
+    Connector__factory
 } from "../../typechain"
 import { BigNumber, Contract, Wallet } from "ethers"
 import { ethers } from "hardhat";
 import { expandToDecimals, toRate } from "./Ethereum";
-import { defaultInterestModelParams, defaultReserveData } from "./Interfaces";
+import { defaultInterestModelParams, defaultReserveData, InterestModelParams } from "./Interfaces";
 
 
 export async function makeUnderlyingAsset({
@@ -45,12 +47,31 @@ export async function makeUnderlyingAsset({
     return underlyingAsset;
 }
 
+export async function makeConnector({
+    deployer
+}: {
+    deployer: Wallet
+}): Promise<Connector> {
+    let connector: Connector;
+
+    const connectorFactory = (await ethers.getContractFactory(
+        "Connector",
+        deployer
+    )) as Connector__factory
+
+    connector = await connectorFactory.deploy()
+
+    return connector;
+}
+
 export async function makeMoneyPool({
     deployer,
-    maxReserveCount_ = BigNumber.from(16)
+    maxReserveCount_ = BigNumber.from(16),
+    connector
 }: {
     deployer: Wallet
     maxReserveCount_?: BigNumber
+    connector: Connector | Contract
 }): Promise<MoneyPoolTest> {
     let moneyPoolTest: MoneyPoolTest;
 
@@ -60,74 +81,11 @@ export async function makeMoneyPool({
     )) as MoneyPoolTest__factory
 
     moneyPoolTest = await moneyPoolFactory.deploy(
-        maxReserveCount_
+        maxReserveCount_,
+        connector.address
     );
 
     return moneyPoolTest;
-}
-
-export async function makeTokenizer({
-    deployer,
-    moneyPool,
-    uri = ""
-}: {
-    deployer: Wallet
-    moneyPool: MoneyPoolTest | Contract
-    uri: string
-}): Promise<TokenizerTest> {
-    let tokenizerTest: TokenizerTest
-
-    const tokenizerFactory = (await ethers.getContractFactory(
-        "TokenizerFactory",
-        deployer
-    )) as TokenizerTest__factory
-
-    tokenizerTest = await tokenizerFactory.deploy(
-        moneyPool.address,
-        uri
-    )
-
-    return tokenizerTest;
-}
-
-export async function makeInterestModel({
-    deployer,
-    optimalUtilizationRate = defaultInterestModelParams.optimalUtilizationRate,
-    digitalAssetBorrowRateBase = defaultInterestModelParams.digitalAssetBorrowRateBase,
-    digitalAssetBorrowRateOptimal = defaultInterestModelParams.digitalAssetBorrowRateOptimal,
-    digitalAssetBorrowRateMax = defaultInterestModelParams.digitalAssetBorrowRateMax,
-    realAssetBorrowRateBase = defaultInterestModelParams.realAssetBorrowRateBase,
-    realAssetBorrowRateOptimal = defaultInterestModelParams.realAssetBorrowRateOptimal,
-    realAssetBorrowRateMax = defaultInterestModelParams.realAssetBorrowRateMax,
-}: {
-    deployer: Wallet
-    optimalUtilizationRate?: BigNumber
-    digitalAssetBorrowRateBase?: BigNumber
-    digitalAssetBorrowRateOptimal?: BigNumber
-    digitalAssetBorrowRateMax?: BigNumber
-    realAssetBorrowRateBase?: BigNumber
-    realAssetBorrowRateOptimal?: BigNumber
-    realAssetBorrowRateMax?: BigNumber
-}): Promise<InterestRateModel> {
-
-    let interestRateModel: InterestRateModel;
-
-    const interestRateModelFactory = (await ethers.getContractFactory(
-        "InterestRateModel",
-        deployer
-    )) as InterestRateModel__factory;
-
-    interestRateModel = await interestRateModelFactory.deploy(
-        optimalUtilizationRate,
-        digitalAssetBorrowRateBase,
-        digitalAssetBorrowRateOptimal,
-        digitalAssetBorrowRateMax,
-        realAssetBorrowRateBase,
-        realAssetBorrowRateOptimal,
-        realAssetBorrowRateMax
-    );
-
-    return interestRateModel;
 }
 
 export async function makeLToken({
@@ -190,4 +148,56 @@ export async function makeDToken({
     );
 
     return dTokenTest;
+}
+
+export async function makeInterestRateModel({
+    deployer,
+    interestRateModelParam = defaultInterestModelParams
+}: {
+    deployer: Wallet
+    interestRateModelParam?: InterestModelParams
+}): Promise<InterestRateModel> {
+
+    let interestRateModel: InterestRateModel;
+
+    const interestRateModelFactory = (await ethers.getContractFactory(
+        "InterestRateModel",
+        deployer
+    )) as InterestRateModel__factory;
+
+    interestRateModel = await interestRateModelFactory.deploy(
+        interestRateModelParam.optimalUtilizationRate,
+        interestRateModelParam.digitalAssetBorrowRateBase,
+        interestRateModelParam.digitalAssetBorrowRateOptimal,
+        interestRateModelParam.digitalAssetBorrowRateMax,
+        interestRateModelParam.realAssetBorrowRateBase,
+        interestRateModelParam.realAssetBorrowRateOptimal,
+        interestRateModelParam.realAssetBorrowRateMax
+    );
+
+    return interestRateModel;
+}
+
+export async function makeTokenizer({
+    deployer,
+    moneyPool,
+    uri = ""
+}: {
+    deployer: Wallet
+    moneyPool: MoneyPoolTest | Contract
+    uri?: string
+}): Promise<TokenizerTest> {
+    let tokenizerTest: TokenizerTest
+
+    const tokenizerFactory = (await ethers.getContractFactory(
+        "TokenizerFactory",
+        deployer
+    )) as TokenizerTest__factory
+
+    tokenizerTest = await tokenizerFactory.deploy(
+        moneyPool.address,
+        uri
+    )
+
+    return tokenizerTest;
 }
