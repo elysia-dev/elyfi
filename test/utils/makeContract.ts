@@ -22,7 +22,7 @@ import { defaultInterestModelParams, defaultReserveData, InterestModelParams } f
 
 export async function makeUnderlyingAsset({
     deployer,
-    totalSupply = expandToDecimals(1000000, 18),
+    totalSupply = expandToDecimals(10, 18),
     name = defaultReserveData.underlyingAssetName,
     symbol = defaultReserveData.underlyingAssetsymbol
 }: {

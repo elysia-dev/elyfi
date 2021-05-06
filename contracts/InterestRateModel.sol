@@ -22,13 +22,13 @@ contract InterestRateModel is IInterestRateModel, InterestRateModelStorage {
         uint256 realAssetBorrowRateOptimal,
         uint256 realAssetBorrowRateMax
     ) {
-        optimalUtilizationRate = _optimalUtilizationRate;
-        digitalAssetBorrowRateBase = _digitalAssetBorrowRateBase;
-        digitalAssetBorrowRateOptimal = _digitalAssetBorrowRateOptimal;
-        digitalAssetBorrowRateMax = _digitalAssetBorrowRateMax;
-        realAssetBorrowRateBase = _realAssetBorrowRateBase;
-        realAssetBorrowRateOptimal = _realAssetBorrowRateOptimal;
-        realAssetBorrowRateMax = _realAssetBorrowRateMax;
+        _optimalUtilizationRate = optimalUtilizationRate;
+        _digitalAssetBorrowRateBase = digitalAssetBorrowRateBase;
+        _digitalAssetBorrowRateOptimal = digitalAssetBorrowRateOptimal;
+        _digitalAssetBorrowRateMax = digitalAssetBorrowRateMax;
+        _realAssetBorrowRateBase = realAssetBorrowRateBase;
+        _realAssetBorrowRateOptimal = realAssetBorrowRateOptimal;
+        _realAssetBorrowRateMax = realAssetBorrowRateMax;
     }
 
     struct calculateRatesLocalVars {
@@ -106,6 +106,10 @@ contract InterestRateModel is IInterestRateModel, InterestRateModelStorage {
         uint256 averageRealAssetAPR
     ) internal pure returns (uint256) {
         uint256 totalDebt = aTokenAmount + dTokenAmount;
+
+        if (totalDebt == 0) {
+            return 0;
+        }
 
         uint256 weightedRealAssetAPR = aTokenAmount.wadToRay().rayMul(averageRealAssetAPR);
 
