@@ -5,6 +5,7 @@ import "./InterestRateModelStorage.sol";
 import "./libraries/WadRayMath.sol";
 import "./interfaces/IInterestRateModel.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "hardhat/console.sol";
 
 /**
  * @title ELYFI InterestRateModel
@@ -63,24 +64,24 @@ contract InterestRateModel is IInterestRateModel, InterestRateModelStorage {
 
         if (vars.utilizationRate <= _optimalUtilizationRate) {
             vars.newRealAssetAPR = _realAssetBorrowRateBase
-                + (_realAssetBorrowRateOptimal-_realAssetBorrowRateBase)
+                + ((_realAssetBorrowRateOptimal-_realAssetBorrowRateBase)
                 .rayDiv(_optimalUtilizationRate)
-                .rayMul(vars.utilizationRate);
+                .rayMul(vars.utilizationRate));
 
             vars.newDigitalAssetAPR = _digitalAssetBorrowRateBase
-                + (_digitalAssetBorrowRateOptimal - _digitalAssetBorrowRateBase)
+                + ((_digitalAssetBorrowRateOptimal - _digitalAssetBorrowRateBase)
                 .rayDiv(_optimalUtilizationRate)
-                .rayMul(vars.utilizationRate);
+                .rayMul(vars.utilizationRate));
         } else {
             vars.newRealAssetAPR = _realAssetBorrowRateOptimal
-                + (_realAssetBorrowRateMax - _realAssetBorrowRateOptimal)
+                + ((_realAssetBorrowRateMax - _realAssetBorrowRateOptimal)
                 .rayDiv(WadRayMath.ray() - _optimalUtilizationRate)
-                .rayMul(vars.utilizationRate);
+                .rayMul(vars.utilizationRate));
 
             vars.newDigitalAssetAPR = _digitalAssetBorrowRateOptimal
-                + (_digitalAssetBorrowRateMax - _digitalAssetBorrowRateOptimal)
+                + ((_digitalAssetBorrowRateMax - _digitalAssetBorrowRateOptimal)
                 .rayDiv(WadRayMath.ray() - _optimalUtilizationRate)
-                .rayMul(vars.utilizationRate);
+                .rayMul(vars.utilizationRate));
         }
 
         vars.newSupplyAPR = _overallBorrowAPR(
@@ -91,6 +92,16 @@ contract InterestRateModel is IInterestRateModel, InterestRateModelStorage {
             )
             .rayMul(vars.utilizationRate);
             // need reserveFactor calculation
+
+        console.log("hardhat console: totalDebt-Util",
+            vars.totalDebt,
+            vars.utilizationRate
+            );
+
+        console.log("hardhat console: RealAsset-Digital-Supply",
+            vars.newRealAssetAPR,
+            vars.newDigitalAssetAPR,
+            vars.newSupplyAPR);
 
         return (
             vars.newRealAssetAPR,

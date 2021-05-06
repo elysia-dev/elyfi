@@ -1,6 +1,6 @@
 import { BigNumber } from 'ethers';
 import { ethers, waffle } from 'hardhat'
-import { ModifiableContract, smockit, smoddit } from '@eth-optimism/smock'
+import { ModifiableContract, ModifiableContractFactory, smockit, smoddit } from '@eth-optimism/smock'
 import { address, advanceBlock, advanceTime, ETH, expandToDecimals, getTimestamp, toIndex, toRate } from './utils/Ethereum';
 import { DTokenTest__factory } from '../typechain';
 import { calculateCompoundedInterest, calculateLinearInterest } from './utils/Math';
@@ -8,6 +8,7 @@ import { expect } from 'chai'
 
 describe("Index", () => {
     let indexMock: ModifiableContract
+    let indexMockFactory: ModifiableContractFactory
     let underlyingAssetAddress: string
 
     const provider = waffle.provider
@@ -27,6 +28,8 @@ describe("Index", () => {
         dTokenAddress: ""
     }
 
+    const dTokenImplicitTotalSupply = BigNumber.from(10000)
+
     beforeEach(async () => {
         const dTokenFactory = (await ethers.getContractFactory(
             "DTokenTest",
@@ -36,11 +39,11 @@ describe("Index", () => {
 
         testData.dTokenAddress = dTokenMock.address
 
-        const IndexMockFactory = await smoddit('IndexMock');
-        indexMock = await IndexMockFactory.deploy()
+        indexMockFactory = await smoddit('IndexMock');
 
-        const dTokenImplicitTotalSupply = BigNumber.from(10000)
+        indexMock = await indexMockFactory.deploy()
 
+        // contract mocking
         dTokenMock.smocked.implicitTotalSupply.will.return.with(dTokenImplicitTotalSupply)
 
         const initTx = await advanceBlock()
