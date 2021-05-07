@@ -1,6 +1,6 @@
 import { BigNumber } from 'ethers';
 import { ethers, waffle } from 'hardhat'
-import { smoddit } from '@eth-optimism/smock'
+import { smockit, smoddit } from '@eth-optimism/smock'
 import { address, ETH, RAY, toIndex, toRate } from './utils/Ethereum';
 import { Connector, DTokenTest, ERC20Test, InterestRateModel, LTokenTest, MoneyPoolTest, Tokenizer, TokenizerTest } from '../typechain';
 import { makeInterestRateModel, makeMoneyPool, makeLToken, makeDToken, makeUnderlyingAsset, makeConnector, makeTokenizer } from './utils/makeContract';
@@ -63,21 +63,13 @@ describe("Tokenizer", () => {
         )
     })
 
-    describe("MintABToken", async () => {
-        it("", async () => {
+    describe("Mint AToken", async () => {
+        beforeEach(async () => {
+        })
+
+        it("Mints AToken and updates states", async () => {
+
         })
     })
 
-    describe("Invest", async () => {
-        it("Mints lToken and takes asset", async () => {
-            await underlyingAsset.connect(deployer).approve(moneyPool.address, RAY)
-            const investTx = await moneyPool.invest(
-                underlyingAsset.address,
-                deployer.address,
-                10000
-            )
-            expect(await lToken.balanceOf(deployer.address)).to.be.equal(10000)
-            expect(await underlyingAsset.balanceOf(lToken.address)).to.be.equal(10000)
-        })
-    })
 })

@@ -65,6 +65,7 @@ library AssetBond {
 
             // update tokenizer data
             reserve.totalDepositedAssetBondCount += 1;
+            reserve.totalDepositedATokenBalance += borrowAmount;
 
             // set bond date data
             assetBondData.borrowAPR = realAssetAPR;

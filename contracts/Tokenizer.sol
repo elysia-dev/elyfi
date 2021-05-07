@@ -72,18 +72,15 @@ contract Tokenizer is ITokenizer, ERC1155Upgradeable {
 
         vars.futureInterestAmount = borrowAmount.rayMul(realAssetAPR);
 
-        // refactor use library considering gas consumption
-
-        vars.newAverageATokenRate = Math.calculateAverageAPR(
+        (vars.newAverageATokenRate, vars.newTotalATokenSupply) = Math.calculateAverageAPR(
             _averageATokenAPR,
             _totalATokenSupply,
             borrowAmount,
             realAssetAPR
         );
 
+        _totalATokenSupply = vars.newTotalATokenSupply;
         _averageATokenAPR = vars.newAverageATokenRate;
-
-        vars.newTotalATokenSupply = _totalATokenSupply + vars.futureInterestAmount;
 
         _mint(account, vars.aTokenId, vars.futureInterestAmount, "");
 
@@ -91,7 +88,6 @@ contract Tokenizer is ITokenizer, ERC1155Upgradeable {
             account,
             vars.aTokenId,
             borrowAmount,
-            realAssetAPR,
             vars.newAverageATokenRate,
             vars.newTotalATokenSupply
         );
@@ -105,7 +101,7 @@ contract Tokenizer is ITokenizer, ERC1155Upgradeable {
         return _averageATokenAPR;
     }
 
-    // need logic : what is
+    // need logic : generation
     function _generateATokenId(uint256 assetBondId) internal pure returns (uint256) {
         return assetBondId;
     }

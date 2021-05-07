@@ -10,6 +10,7 @@ library DataStruct {
         uint256 supplyAPR;
         uint256 totalDepositedAssetBondCount; // need refactor: consider bitmask
         uint256 maturedAssetBondCount; // need refactor: consider bitmask
+        uint256 totalDepositedATokenBalance;
         uint40 lastUpdateTimestamp;
         address lTokenAddress;
         address dTokenAddress;
