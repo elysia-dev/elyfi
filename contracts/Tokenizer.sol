@@ -5,6 +5,7 @@ import "@openzeppelin/contracts-upgradeable/token/ERC1155/ERC1155Upgradeable.sol
 import "./libraries/WadRayMath.sol";
 import "./libraries/Errors.sol";
 import "./libraries/DataStruct.sol";
+import "./logic/AssetBond.sol";
 import "./interfaces/IMoneyPool.sol";
 import "./interfaces/ITokenizer.sol";
 
@@ -51,13 +52,45 @@ contract Tokenizer is ITokenizer, ERC1155Upgradeable {
         _minter[id] = account;
     }
 
+    struct MintLocalVars {
+        uint256 aTokenId;
+        uint256 currentAverageATokenRate;
+        uint256 previousATokenSupply;
+        uint256 futureInterestAmount;
+        uint256 nextATokenSupply;
+        uint256 amountInRay;
+        uint256 newAverageATokenRate;
+    }
+
     function mintAToken(
         address account,
         uint256 id,
-        uint256 amount,
+        uint256 borrowAmount,
         uint256 realAssetAPR
     ) external override onlyMoneyPool {
-        _totalATokenSupply += amount;
+        MintLocalVars memory vars;
+
+        vars.aTokenId = _generateATokenId(id);
+
+        // refactor use library considering gas consumption
+
+        vars.currentAverageATokenRate = _averageATokenAPR;
+
+        vars.previousATokenSupply = _totalATokenSupply;
+        vars.futureInterestAmount = borrowAmount.rayMul(realAssetAPR);
+        vars.nextATokenSupply = _totalATokenSupply + vars.futureInterestAmount;
+
+        _totalATokenSupply = vars.nextATokenSupply;
+
+        // calculate the updated averageATokenAPR
+        vars.newAverageATokenRate = (vars.currentAverageATokenRate
+            .rayMul(vars.previousATokenSupply.wadToRay())
+            + (realAssetAPR.rayMul(borrowAmount.wadToRay())))
+            .rayDiv(vars.nextATokenSupply.wadToRay());
+
+        _averageATokenAPR = vars.newAverageATokenRate;
+
+        _mint(account, vars.aTokenId, vars.futureInterestAmount, "");
     }
 
     function totalATokenSupply() external view override returns (uint256) {
@@ -66,6 +99,11 @@ contract Tokenizer is ITokenizer, ERC1155Upgradeable {
 
     function getAverageATokenAPR() external view override returns (uint256) {
         return _averageATokenAPR;
+    }
+
+    // need logic : what is
+    function _generateATokenId(uint256 assetBondId) internal pure returns (uint256) {
+        return assetBondId;
     }
 
     modifier onlyMoneyPool {
