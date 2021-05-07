@@ -60,4 +60,21 @@ library Math {
 
         return WadRayMath.ray() + (ratePerSecond * exp) + secondTerm + thirdTerm;
     }
+
+    function calculateAverageAPR(
+        uint256 currentAverageRate,
+        uint256 currentTotalAmount,
+        uint256 amount,
+        uint256 rate
+    ) internal pure returns (uint256) {
+        uint256 amountIn = amount.rayMul(rate);
+        uint256 newTotalAmount = currentTotalAmount + amountIn;
+
+        uint256 newAverageRate = (currentAverageRate
+            .rayMul(currentTotalAmount.wadToRay())
+            + (rate.rayMul(amount))
+            ).rayDiv(newTotalAmount.wadToRay());
+
+        return newAverageRate;
+    }
 }

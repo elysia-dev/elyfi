@@ -15,6 +15,15 @@ interface ITokenizer is IERC1155Upgradeable {
 
     event Withdraw(address indexed asset, address indexed account, address indexed to, uint256 amount);
 
+
+    event MintAToken(
+            address indexed account,
+            uint256 aTokenID,
+            uint256 borrowAmount,
+            uint256 realAssetAPR,
+            uint256 newAverageATokenRate,
+            uint256 newTotalATokenSupply
+        );
     function mintAToken(
         address account,
         uint256 id,

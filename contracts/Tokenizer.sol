@@ -5,6 +5,7 @@ import "@openzeppelin/contracts-upgradeable/token/ERC1155/ERC1155Upgradeable.sol
 import "./libraries/WadRayMath.sol";
 import "./libraries/Errors.sol";
 import "./libraries/DataStruct.sol";
+import "./libraries/Math.sol";
 import "./logic/AssetBond.sol";
 import "./interfaces/IMoneyPool.sol";
 import "./interfaces/ITokenizer.sol";
@@ -54,12 +55,9 @@ contract Tokenizer is ITokenizer, ERC1155Upgradeable {
 
     struct MintLocalVars {
         uint256 aTokenId;
-        uint256 currentAverageATokenRate;
-        uint256 previousATokenSupply;
         uint256 futureInterestAmount;
-        uint256 nextATokenSupply;
-        uint256 amountInRay;
         uint256 newAverageATokenRate;
+        uint256 newTotalATokenSupply;
     }
 
     function mintAToken(
@@ -72,25 +70,31 @@ contract Tokenizer is ITokenizer, ERC1155Upgradeable {
 
         vars.aTokenId = _generateATokenId(id);
 
+        vars.futureInterestAmount = borrowAmount.rayMul(realAssetAPR);
+
         // refactor use library considering gas consumption
 
-        vars.currentAverageATokenRate = _averageATokenAPR;
-
-        vars.previousATokenSupply = _totalATokenSupply;
-        vars.futureInterestAmount = borrowAmount.rayMul(realAssetAPR);
-        vars.nextATokenSupply = _totalATokenSupply + vars.futureInterestAmount;
-
-        _totalATokenSupply = vars.nextATokenSupply;
-
-        // calculate the updated averageATokenAPR
-        vars.newAverageATokenRate = (vars.currentAverageATokenRate
-            .rayMul(vars.previousATokenSupply.wadToRay())
-            + (realAssetAPR.rayMul(borrowAmount.wadToRay())))
-            .rayDiv(vars.nextATokenSupply.wadToRay());
+        vars.newAverageATokenRate = Math.calculateAverageAPR(
+            _averageATokenAPR,
+            _totalATokenSupply,
+            borrowAmount,
+            realAssetAPR
+        );
 
         _averageATokenAPR = vars.newAverageATokenRate;
 
+        vars.newTotalATokenSupply = _totalATokenSupply + vars.futureInterestAmount;
+
         _mint(account, vars.aTokenId, vars.futureInterestAmount, "");
+
+        emit MintAToken(
+            account,
+            vars.aTokenId,
+            borrowAmount,
+            realAssetAPR,
+            vars.newAverageATokenRate,
+            vars.newTotalATokenSupply
+        );
     }
 
     function totalATokenSupply() external view override returns (uint256) {
