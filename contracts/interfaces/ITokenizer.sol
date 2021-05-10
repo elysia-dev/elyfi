@@ -6,22 +6,28 @@ import "@openzeppelin/contracts-upgradeable/token/ERC1155/IERC1155Upgradeable.so
 
 interface ITokenizer is IERC1155Upgradeable {
 
-    event Invest(address indexed asset, address indexed account, uint256 amount);
+    event Invest(
+        address indexed asset,
+        address indexed account,
+        uint256 amount);
+
+    event Withdraw(
+        address indexed asset,
+        address indexed account,
+        address indexed to,
+        uint256 amount);
+
+    event MintAToken(
+        address indexed account,
+        uint256 aTokenID,
+        uint256 borrowAmount,
+        uint256 newAverageATokenRate,
+        uint256 newTotalATokenSupply);
 
     function mintABToken(
         address account,
         uint256 id // information about Co and borrower
     ) external;
-
-    event Withdraw(address indexed asset, address indexed account, address indexed to, uint256 amount);
-
-    event MintAToken(
-            address indexed account,
-            uint256 aTokenID,
-            uint256 borrowAmount,
-            uint256 newAverageATokenRate,
-            uint256 newTotalATokenSupply
-        );
 
     function mintAToken(
         address account,

@@ -4,7 +4,43 @@ pragma solidity 0.8.4;
 import "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
 
 interface ILToken is IERC20Upgradeable {
-    event Mint(address indexed from, uint256 value, uint256 index);
+
+    /**
+     * @dev Emitted after lTokens are minted
+     * @param account The receiver of minted lToken
+     * @param amount The amount being minted
+     * @param index The new liquidity index of the reserve
+     **/
+    event Mint(
+        address indexed account,
+        uint256 amount,
+        uint256 index);
+
+    /**
+     * @dev Emitted after lTokens are burned
+     * @param account The owner of the lTokens, getting them burned
+     * @param underlyingAssetReceiver The address that will receive the underlying asset
+     * @param amount The amount being burned
+     * @param index The new liquidity index of the reserve
+     **/
+    event Burn(
+        address indexed account,
+        address indexed underlyingAssetReceiver,
+        uint256 amount,
+        uint256 index);
+
+    /**
+     * @dev Emitted during the transfer action
+     * @param account The user whose tokens are being transferred
+     * @param to The recipient
+     * @param amount The amount being transferred
+     * @param index The new liquidity index of the reserve
+     **/
+    event BalanceTransfer(
+        address indexed account,
+        address indexed to,
+        uint256 amount,
+        uint256 index);
 
     function mint(
         address user,
@@ -13,36 +49,8 @@ interface ILToken is IERC20Upgradeable {
     ) external returns (bool);
 
     /**
-     * @dev Emitted after aTokens are burned
-     * @param from The owner of the aTokens, getting them burned
-     * @param target The address that will receive the underlying
-     * @param value The amount being burned
-     * @param index The new liquidity index of the reserve
-     **/
-    event Burn(
-        address indexed from,
-        address indexed target,
-        uint256 value,
-        uint256 index
-    );
-
-    /**
-     * @dev Emitted during the transfer action
-     * @param from The user whose tokens are being transferred
-     * @param to The recipient
-     * @param value The amount being transferred
-     * @param index The new liquidity index of the reserve
-     **/
-    event BalanceTransfer(
-        address indexed from,
-        address indexed to,
-        uint256 value,
-        uint256 index
-    );
-
-    /**
-     * @dev Burns aTokens from `user` and sends the equivalent amount of underlying to `receiverOfUnderlying`
-     * @param user The owner of the aTokens, getting them burned
+     * @dev Burns lTokens account `user` and sends the equivalent amount of underlying to `receiverOfUnderlying`
+     * @param user The owner of the lTokens, getting them burned
      * @param receiverOfUnderlying The address that will receive the underlying
      * @param amount The amount being burned
      * @param index The new liquidity index of the reserve
@@ -55,7 +63,7 @@ interface ILToken is IERC20Upgradeable {
     ) external;
 
     /**
-     * @dev Returns the address of the underlying asset of this aToken (E.g. WETH for aWETH)
+     * @dev Returns the address of the underlying asset of this LTokens (E.g. WETH for aWETH)
      **/
     function getUnderlyingAsset() external view returns (address);
 

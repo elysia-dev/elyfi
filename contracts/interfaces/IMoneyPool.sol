@@ -5,7 +5,10 @@ import "../libraries/DataStruct.sol";
 
 interface IMoneyPool {
 
-    event Invest(address indexed asset, address indexed account, uint256 amount);
+    event Invest(
+        address indexed asset,
+        address indexed account,
+        uint256 amount);
 
     function invest(
         address asset,
@@ -13,7 +16,11 @@ interface IMoneyPool {
         uint256 amount
     ) external returns (bool);
 
-    event Withdraw(address indexed asset, address indexed account, address indexed to, uint256 amount);
+    event Withdraw(
+        address indexed asset,
+        address indexed account,
+        address indexed to,
+        uint256 amount);
 
     function withdraw(
         address asset,

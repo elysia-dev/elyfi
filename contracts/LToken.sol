@@ -49,7 +49,7 @@ contract LToken is ILToken, ERC20Upgradeable {
 
     function burn(
         address account,
-        address underlyingAssetReceiver,
+        address receiver,
         uint256 amount,
         uint256 index
     ) external override onlyMoneyPool {
@@ -60,49 +60,43 @@ contract LToken is ILToken, ERC20Upgradeable {
         _burn(account, implicitBalance);
 
         IERC20Upgradeable(_underlyingAsset).safeTransfer(
-            underlyingAssetReceiver,
+            receiver,
             amount
         );
 
-        emit Burn(account, underlyingAssetReceiver, amount, index);
+        emit Burn(account, receiver, amount, index);
     }
 
     /**
      * @return Returns implicit balance multipied by ltoken interest index
      **/
-    function balanceOf(address account)
-        public
-        view
-        override(ERC20Upgradeable, IERC20Upgradeable)
-        returns (uint256)
-    {
+    function balanceOf(
+        address account
+    ) public view override(ERC20Upgradeable, IERC20Upgradeable) returns (uint256) {
         return
             super.balanceOf(account).rayMul(
                 _moneyPool.getLTokenInterestIndex(_underlyingAsset)
             );
     }
 
-    function implicitBalanceOf(address account)
-        external
-        view
-        override
-        returns (uint256)
-    {
+    function implicitBalanceOf(
+        address account
+    ) external view override returns (uint256) {
         return super.balanceOf(account);
     }
 
     /**
      * @dev Transfers the underlying asset to receiver.
-     * @param underlyingAssetReceiver The recipient of the underlying asset
+     * @param receiver The recipient of the underlying asset
      * @param amount The amount getting transferred
      * @return The amount transferred
      **/
     function transferUnderlyingTo(
-        address underlyingAssetReceiver,
+        address receiver,
         uint256 amount
     ) external override onlyMoneyPool returns (uint256) {
         IERC20Upgradeable(_underlyingAsset).safeTransfer(
-            underlyingAssetReceiver,
+            receiver,
             amount
         );
         return amount;

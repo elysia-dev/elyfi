@@ -7,4 +7,5 @@ contract TokenizerTest is Tokenizer {
     constructor(address moneyPool, string memory uri) {
         initialize(moneyPool, uri);
     }
+
 }

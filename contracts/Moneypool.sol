@@ -20,12 +20,21 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
 
     function initialize(
         uint256 maxReserveCount_,
-        address connector) public initializer {
+        address connector
+    ) public initializer {
         _connector = connector;
         _maxReserveCount = maxReserveCount_;
         _reserveCount += 1;
     }
 
+    /* MoneyPool Investment Function */
+
+    /**
+     * @dev Invests an amount of underlying asset and receive corresponding LTokens.
+     * @param asset The address of the underlying asset to invest
+     * @param account The address that will receive the LToken
+     * @param amount Investment amount
+     **/
     function invest(
         address asset,
         address account,
@@ -83,17 +92,26 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
         reserve.updateRates(asset, tokenizer, 0, amount);
 
         // Burn ltoken
-        ILToken(lToken).burn(msg.sender, account, amount, reserve.lTokenInterestIndex);
+        ILToken(lToken).burn(
+            msg.sender,
+            account,
+            amount,
+            reserve.lTokenInterestIndex
+        );
 
         emit Withdraw(asset, msg.sender, account, amountToWithdraw);
     }
 
-    function getLTokenInterestIndex(address asset)
-        external
-        view
-        override
-        returns (uint256)
-    {
+    /* View Functions */
+
+    /**
+     * @dev Returns LToken Interest index of asset
+     * @param asset The address of the underlying asset of the reserve
+     * @return The LToken interest index of reserve
+     */
+    function getLTokenInterestIndex(
+        address asset
+    ) external view override returns (uint256) {
         return _reserves[asset].getLTokenInterestIndex();
     }
 
@@ -102,14 +120,13 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
      * @param asset The address of the underlying asset of the reserve
      * @return The state of the reserve
      **/
-    function getReserveData(address asset)
-        external
-        view
-        override
-        returns (DataStruct.ReserveData memory)
-    {
+    function getReserveData(
+        address asset
+    ) external view override returns (DataStruct.ReserveData memory) {
         return _reserves[asset];
     }
+
+    /* ABToken Formation Functions */
 
     // Access control : only CO
     function mintABToken(
@@ -127,7 +144,7 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
         ITokenizer(tokenizer).mintABToken(account, id);
     }
 
-    // access control : only minter
+    // Access control : only minter
     function settleABToken(
         address asset,
         address borrower, // borrower address
@@ -151,8 +168,7 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
     function signABToken(
         uint256 id,
         address signer
-    ) external {
-    }
+        ) external {}
 
     // need access control : only minter
     function borrowAgainstABToken(
@@ -184,7 +200,8 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
             address(this),
             id,
             borrowAmount,
-            reserve.realAssetAPR);
+            reserve.realAssetAPR
+        );
 
         // transfer asset bond
         // or lock NFT?
@@ -192,11 +209,12 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
         // update deposited asset bond list and count
         // update totalAToken
         // calculate future interest
-        (uint256 netAmount, uint256 futureInterest) = AssetBond.depositAssetBond(
-            assetBond,
-            reserve,
-            borrowAmount,
-            reserve.realAssetAPR
+        (uint256 netAmount, uint256 futureInterest) =
+            AssetBond.depositAssetBond(
+                assetBond,
+                reserve,
+                borrowAmount,
+                reserve.realAssetAPR
             );
 
         // transfer Underlying asset
@@ -221,6 +239,7 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
                 supplyAPR: 0,
                 totalDepositedAssetBondCount: 0,
                 maturedAssetBondCount: 0,
+                totalDepositedATokenBalance: 0,
                 lastUpdateTimestamp: uint40(block.timestamp),
                 lTokenAddress: lToken,
                 dTokenAddress: dToken,
@@ -233,7 +252,9 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
         _addNewReserveToList(asset);
     }
 
-    function _addNewReserveToList(address asset) internal {
+    function _addNewReserveToList(
+        address asset
+    ) internal {
         uint256 reserveCount = _reserveCount;
 
         if (reserveCount >= _maxReserveCount) revert(); ////MaxReserveCountExceeded();
