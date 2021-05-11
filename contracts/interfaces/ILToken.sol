@@ -31,7 +31,7 @@ interface ILToken is IERC20Upgradeable {
 
     /**
      * @dev Emitted during the transfer action
-     * @param account The user whose tokens are being transferred
+     * @param account The account whose tokens are being transferred
      * @param to The recipient
      * @param amount The amount being transferred
      * @param index The new liquidity index of the reserve
@@ -43,21 +43,21 @@ interface ILToken is IERC20Upgradeable {
         uint256 index);
 
     function mint(
-        address user,
+        address account,
         uint256 amount,
         uint256 index
     ) external returns (bool);
 
     /**
-     * @dev Burns lTokens account `user` and sends the equivalent amount of underlying to `receiverOfUnderlying`
-     * @param user The owner of the lTokens, getting them burned
-     * @param receiverOfUnderlying The address that will receive the underlying
+     * @dev Burns lTokens account `account` and sends the equivalent amount of underlying to `receiver`
+     * @param account The owner of the lTokens, getting them burned
+     * @param receiver The address that will receive the underlying
      * @param amount The amount being burned
      * @param index The new liquidity index of the reserve
      **/
     function burn(
-        address user,
-        address receiverOfUnderlying,
+        address account,
+        address receiver,
         uint256 amount,
         uint256 index
     ) external;

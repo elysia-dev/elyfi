@@ -17,6 +17,10 @@ library Errors {
 library MoneyPoolErrors {
   //// error MaxDigitalAssetCountExceeded();
   //// error DigitalAssetAlreadyAdded(address asset);
+  //// error ReservePaused();
+  //// error ReserveInactivated();
+  //// error InvalidAmount(uint256 amount);
+  //// error WithdrawInsufficientBalance(uint256 amount, uint256 userLTokenBalance);
 }
 
 library TokenErrors {

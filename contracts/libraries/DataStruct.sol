@@ -17,6 +17,8 @@ library DataStruct {
         address interestModelAddress;
         address tokenizerAddress;
         uint8 id;
+        bool isPaused;
+        bool isActivated;
     }
 
     struct AssetBondData {
@@ -33,5 +35,9 @@ library DataStruct {
         bool isSettled; // refactor : need configuration
         bool isDeposited; // refactor : need configuration
         bool isMatured; // refactor : need configuration
+    }
+
+    struct UserInfo {
+        uint256 userData;
     }
 }

@@ -25,4 +25,6 @@ contract MoneyPoolStorage is Initializable {
     uint256 internal _depositAssetBondCount;
 
     uint256 internal _maturedAssetBondCount;
+
+    mapping(address => DataStruct.UserInfo) internal _userInfo;
 }

@@ -19,7 +19,6 @@ import { ethers } from "hardhat";
 import { expandToDecimals, toRate } from "./Ethereum";
 import { defaultInterestModelParams, defaultReserveData, InterestModelParams } from "./Interfaces";
 
-
 export async function makeUnderlyingAsset({
     deployer,
     totalSupply = expandToDecimals(1000000, 18),

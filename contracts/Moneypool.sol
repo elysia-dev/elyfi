@@ -9,12 +9,14 @@ import "./MoneyPoolStorage.sol";
 import "./logic/Index.sol";
 import "./logic/Rate.sol";
 import "./logic/AssetBond.sol";
+import "./logic/Validation.sol";
 import "./libraries/DataStruct.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
 
 contract MoneyPool is IMoneyPool, MoneyPoolStorage {
     using SafeERC20Upgradeable for IERC20Upgradeable;
     using Index for DataStruct.ReserveData;
+    using Validation for DataStruct.ReserveData;
     using Rate for DataStruct.ReserveData;
     using AssetBond for DataStruct.AssetBondData;
 
@@ -27,7 +29,7 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
         _reserveCount += 1;
     }
 
-    /* MoneyPool Investment Function */
+    /************ MoneyPool Investment Functions ************/
 
     /**
      * @dev Invests an amount of underlying asset and receive corresponding LTokens.
@@ -35,7 +37,7 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
      * @param account The address that will receive the LToken
      * @param amount Investment amount
      **/
-    function invest(
+    function investMoneyPool(
         address asset,
         address account,
         uint256 amount
@@ -47,6 +49,7 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
 
         // validation
         // Check pool activation
+        Validation.validateInvest(reserve, amount);
 
         // update indexes and mintToReserve
         reserve.updateState();
@@ -61,10 +64,10 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
         // Mint ltoken
         ILToken(lToken).mint(account, amount, reserve.lTokenInterestIndex);
 
-        emit Invest(asset, account, amount);
+        emit InvestMoneyPool(asset, account, amount);
     }
 
-    function withdraw(
+    function withdrawMoneyPool(
         address asset,
         address account,
         uint256 amount
@@ -74,16 +77,25 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
         address lToken = reserve.lTokenAddress;
         address tokenizer = reserve.tokenizerAddress;
 
-        uint256 accountBalance = ILToken(lToken).balanceOf(msg.sender);
+        uint256 userLTokenBalance = ILToken(lToken).balanceOf(msg.sender);
 
         uint256 amountToWithdraw = amount;
 
         if (amount == type(uint256).max) {
-            amountToWithdraw == accountBalance;
+            amountToWithdraw == userLTokenBalance;
         }
 
         // validation
         // Without digital asset borrow, validation might be quite simple.
+        Validation.validateWithdraw(
+            reserve,
+            _userInfo[msg.sender],
+            asset,
+            amount,
+            userLTokenBalance,
+            _reservesList,
+            _reserveCount
+        );
 
         // update indexes and mintToReserve
         reserve.updateState();
@@ -99,10 +111,65 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
             reserve.lTokenInterestIndex
         );
 
-        emit Withdraw(asset, msg.sender, account, amountToWithdraw);
+        emit WithdrawMoneyPool(asset, msg.sender, account, amountToWithdraw);
     }
 
-    /* View Functions */
+    /************ ABToken Investment Functions ************/
+
+    function investABToken(
+        address asset,
+        address account,
+        uint256 id, // token id
+        uint256 amount
+    ) external {
+
+        Validation.validateInvestABToken(
+
+        );
+        // validation : AToken Balance check
+        // validation : if token matured, reverts
+
+        // update states, rate
+
+        // transferFrom underlying asset
+
+        // transfer AToken via tokenizer
+
+        // update ReserveData
+    }
+
+    function withdrawABToken(
+        address asset,
+        address account,
+        uint256 id,
+        uint256 amount,
+        bool rewardClaim // if true, transfer all accrued reward
+    ) external override {
+        // validation : AToken Balance check
+
+        // update states, rate
+
+        // transfer underlying asset
+
+        // transferFrom AToken -> need allowance
+
+        // if true, claim all rewards
+
+        // update ReserveData
+    }
+
+    function claimABTokenReward(
+        address asset,
+        address account, // account to receive rewards
+        uint256 id // token id
+    ) external {
+        // validation : check if account accrued enough reward
+
+        // check if token matured
+    }
+
+
+    /************ View Functions ************/
 
     /**
      * @dev Returns LToken Interest index of asset
@@ -126,7 +193,7 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
         return _reserves[asset];
     }
 
-    /* ABToken Formation Functions */
+    /************ ABToken Formation Functions ************/
 
     // Access control : only CO
     function mintABToken(
@@ -221,6 +288,8 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
         ILToken(lToken).transferUnderlyingTo(assetBond.borrower, netAmount);
         ILToken(lToken).transferUnderlyingTo(tokenizer, futureInterest);
     }
+
+    /************ Configuration Functions ************/
 
     // Need access control, onlyConfigurator can add new reserve.
     function addNewReserve(
