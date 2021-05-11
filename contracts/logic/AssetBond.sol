@@ -80,5 +80,18 @@ library AssetBond {
             return (vars.netAmount, vars.futureInterest);
         }
 
+    /**
+     * @notice save reward
+     * @param account address for save reward
+     */
+    function saveATokenInterest(address account) internal returns (bool) {
+        if (account == address(this)) {
+            return true;
+        }
 
+        _accruedInterest[account] = _getInterest(account);
+        _blockNumbers[account] = block.number;
+
+        return true;
+    }
 }

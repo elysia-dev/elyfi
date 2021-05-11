@@ -28,7 +28,7 @@ library Validation {
     }
 
     /**
-     * @dev Validate Withdraw
+     * @dev Validate WithdrawMoneyPool
      * Check reserve state
      * Check user amount
      * Check user total debt(later)
@@ -49,15 +49,32 @@ library Validation {
         uint256 reserveCount
     ) internal view {
         if(amount == 0) revert(); //// InvalidAmount(amount)
-
         if(reserve.isPaused == true) revert(); //// ReservePaused();
-
         if(reserve.isActivated == false) revert(); //// ReserveInactivated();
-
         if(amount > userLTokenBalance) revert(); //// WithdrawInsufficientBalance(amount, userLTokenBalance);
     }
 
+    /**
+     * @dev Validate invest ABToken
+     * Check reserve state
+     * Check ABToken state
+     * Check user amount
+     * Check user total debt(later)
+     * @param reserve The reserve object
+     * @param assetBond The assetBond object
+     * @param amount Withdraw amount
+     **/
     function validateInvestABToken(
+        DataStruct.ReserveData storage reserve,
+        DataStruct.AssetBondData storage assetBond,
+        uint256 amount
+    ) internal view {
+        if(amount == 0) revert(); //// InvalidAmount(amount)
+        if(reserve.isPaused == true) revert(); //// ReservePaused();
+        if(reserve.isActivated == false) revert(); //// ReserveInactivated();
 
-    )
+        if(assetBond.isMatured == true) revert(); //// MaturedABToken();
+        if(assetBond.isDeposited == false) revert(); //// NotDepositedABToken();
+        if(reserve.totalDepositedATokenBalance < amount) revert(); //// InsufficientATokenBalance(reserve.totalDepositedATokenBalance);
+    }
 }

@@ -6,6 +6,7 @@ import "./libraries/WadRayMath.sol";
 import "./libraries/Errors.sol";
 import "./libraries/DataStruct.sol";
 import "./libraries/Math.sol";
+import "./libraries/Role.sol";
 import "./logic/AssetBond.sol";
 import "./interfaces/IMoneyPool.sol";
 import "./interfaces/ITokenizer.sol";
@@ -19,7 +20,16 @@ contract Tokenizer is ITokenizer, ERC1155Upgradeable {
 
     IMoneyPool internal _moneyPool;
 
+    mapping(uint256 => bytes32) internal _tokenType;
+
     mapping(uint256 => address) internal _minter;
+
+    // Account rewards
+    // Decimals: 18
+    mapping(address => uint256) private _accruedInterest;
+
+    // Account block numbers
+    mapping(address => uint256) private _blockNumbers;
 
     uint256 internal _totalATokenSupply;
 
@@ -51,6 +61,7 @@ contract Tokenizer is ITokenizer, ERC1155Upgradeable {
         _mint(account, id, 1, "");
 
         _minter[id] = account;
+        _tokenType[id] = Role.ABTOKEN;
     }
 
     struct MintLocalVars {
@@ -84,6 +95,8 @@ contract Tokenizer is ITokenizer, ERC1155Upgradeable {
 
         _mint(account, vars.aTokenId, vars.futureInterestAmount, "");
 
+        _tokenType[id] = Role.ATOKEN;
+
         emit MintAToken(
             account,
             vars.aTokenId,
@@ -91,6 +104,57 @@ contract Tokenizer is ITokenizer, ERC1155Upgradeable {
             vars.newAverageATokenRate,
             vars.newTotalATokenSupply
         );
+    }
+
+    /************ Interest Manage Functions ************/
+
+    function _beforeTokenTransfer(
+        address operator,
+        address from,
+        address to,
+        uint256[] memory ids,
+        uint256[] memory amounts,
+        bytes memory data
+    ) internal virtual override {
+        super._beforeTokenTransfer(operator, from, to, ids, amounts, data);
+
+        for (uint256 i = 0; i < ids.length; ++i) {
+            uint256 id = ids[i];
+            uint256 amount = amounts[i];
+
+            if(_tokenType[id] == Role.ATOKEN) {
+                AssetBond.saveATokenInterest(from);
+                AssetBond.saveATokenInterest(to);
+            }
+        }
+    }
+
+    /**
+     * @notice Get reward
+     * @param account Addresss
+     * @return saved reward + new reward
+     */
+    function _getInterest(address account) internal view returns (uint256) {
+
+        uint256 blockNumber = block.number;
+
+        if (_tokenMatured()) {
+            blockNumber = initialBlocknumber + blockRemaining;
+        }
+
+        AssetTokenLibrary.RewardLocalVars memory vars =
+            AssetTokenLibrary.RewardLocalVars({
+                newReward: 0,
+                accountReward: _rewards[account],
+                accountBalance: balanceOf(account),
+                rewardBlockNumber: _blockNumbers[account],
+                blockNumber: blockNumber,
+                diffBlock: 0,
+                rewardPerBlock: rewardPerBlock,
+                totalSupply: totalSupply()
+            });
+
+        return vars.getReward();
     }
 
     function totalATokenSupply() external view override returns (uint256) {
@@ -101,7 +165,7 @@ contract Tokenizer is ITokenizer, ERC1155Upgradeable {
         return _averageATokenAPR;
     }
 
-    // need logic : generation
+    // need logic : generate token id
     function _generateATokenId(uint256 assetBondId) internal pure returns (uint256) {
         return assetBondId;
     }

@@ -16,6 +16,12 @@ interface IMoneyPool {
         address indexed to,
         uint256 amount);
 
+    event InvestABToken(
+        address indexed asset,
+        address indexed account,
+        uint256 id,
+        uint256 amount);
+
     function investMoneyPool(
         address asset,
         address account,

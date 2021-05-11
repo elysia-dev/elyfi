@@ -49,7 +49,7 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
 
         // validation
         // Check pool activation
-        Validation.validateInvest(reserve, amount);
+        Validation.validateInvestMoneyPool(reserve, amount);
 
         // update indexes and mintToReserve
         reserve.updateState();
@@ -87,7 +87,7 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
 
         // validation
         // Without digital asset borrow, validation might be quite simple.
-        Validation.validateWithdraw(
+        Validation.validateWithdrawMoneyPool(
             reserve,
             _userInfo[msg.sender],
             asset,
@@ -104,12 +104,7 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
         reserve.updateRates(asset, tokenizer, 0, amount);
 
         // Burn ltoken
-        ILToken(lToken).burn(
-            msg.sender,
-            account,
-            amount,
-            reserve.lTokenInterestIndex
-        );
+        ILToken(lToken).burn(msg.sender, account, amount, reserve.lTokenInterestIndex);
 
         emit WithdrawMoneyPool(asset, msg.sender, account, amountToWithdraw);
     }
@@ -122,10 +117,28 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
         uint256 id, // token id
         uint256 amount
     ) external {
+        DataStruct.ReserveData storage reserve = _reserves[asset];
+        DataStruct.AssetBondData storage assetBond = _assetBond[id];
 
-        Validation.validateInvestABToken(
+        address lToken = reserve.lTokenAddress;
+        address tokenizer = reserve.tokenizerAddress;
 
-        );
+        Validation.validateInvestABToken(reserve, assetBond, amount);
+
+        // update indexes and mintToReserve
+        reserve.updateState();
+
+        // update rates
+        reserve.updateRates(asset, tokenizer, amount, 0);
+
+        // transfer underlying asset
+        // If transfer fail, reverts
+        IERC20Upgradeable(asset).safeTransferFrom(msg.sender, lToken, amount);
+
+        // transfer AToken via tokenizer
+        ITokenizer(tokenizer).safeTransferFrom(account, amount, reserve.lTokenInterestIndex);
+
+        emit InvestABToken(asset, account, id, amount);
         // validation : AToken Balance check
         // validation : if token matured, reverts
 
