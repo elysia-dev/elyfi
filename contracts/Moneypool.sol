@@ -123,6 +123,9 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
         address lToken = reserve.lTokenAddress;
         address tokenizer = reserve.tokenizerAddress;
 
+
+        // validation : AToken Balance check
+        // validation : if token matured, reverts
         Validation.validateInvestABToken(
             reserve,
             assetBond,
@@ -141,23 +144,13 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
 
         // transfer AToken via tokenizer
         ITokenizer(tokenizer).safeTransferFrom(
-            account,
             address(tokenizer),
+            account,
+            id,
             amount,
-            reserve.lTokenInterestIndex,
             "");
 
         emit InvestABToken(asset, account, id, amount);
-        // validation : AToken Balance check
-        // validation : if token matured, reverts
-
-        // update states, rate
-
-        // transferFrom underlying asset
-
-        // transfer AToken via tokenizer
-
-        // update ReserveData
     }
 
     function withdrawABToken(

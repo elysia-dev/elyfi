@@ -47,4 +47,9 @@ library DataStruct {
     struct UserInfo {
         uint256 userData;
     }
+
+    struct UserAssetBondInvestData {
+        uint256 averageSupplyAPR;
+        uint40 updateTimestamp;
+    }
 }

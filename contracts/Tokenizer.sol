@@ -21,23 +21,33 @@ contract Tokenizer is ITokenizer, ERC1155Upgradeable {
 
     IMoneyPool internal _moneyPool;
 
-    mapping(uint256 => bytes32) internal _tokenType;
+    mapping (uint256 => bytes32) internal _tokenType;
 
-    mapping(uint256 => address) internal _minter;
+    mapping (uint256 => address) internal _minter;
 
-    // user
+    // account supply APR and timestamp for each AToken
+    mapping (uint256 => mapping (address => DataStruct.UserAssetBondInvestData)) internal _userData;
 
+    DataStruct.TokenizerData internal _tokenizer;
 
-    // Account rewards
-    // Decimals: 18
+    /************ Initial Functions ************/
 
+    function initialize(
+        address moneyPool,
+        string memory uri_
+    ) public initializer {
+        _moneyPool = IMoneyPool(moneyPool);
+        __ERC1155_init(uri_);
+    }
 
-    // account supply APR for each AToken
-    mapping (uint256 => mapping (address => uint256)) internal _userSupplyAPR;
+    /************ View Functions ************/
 
-    // account timestamp for each AToken
-    mapping (uint256 => mapping (address => uint40)) internal _userTimestamp;
-
+    /**
+     * @dev Returns sum of previous balance and accrued interest of account
+     * @param account Account address
+     * @param tokenId Token Id
+     * @return The sum of previous balance and accrued interest
+     */
     function balanceOf(
         address account,
         uint256 tokenId
@@ -50,15 +60,17 @@ contract Tokenizer is ITokenizer, ERC1155Upgradeable {
         // need calculation after maturity
         uint256 accruedInterest =
             Math.calculateLinearInterest(
-                _userSupplyAPR[tokenId][account],
-                _userTimestamp[tokenId][account],
+                _userData[tokenId][account].averageSupplyAPR,
+                _userData[tokenId][account].updateTimestamp,
                 block.timestamp);
 
         return userPreviousBalance.rayMul(accruedInterest);
     }
 
-    DataStruct.TokenizerData internal _tokenizer;
-
+    /**
+     * @dev Returns sum of previous balance and accrued interest of moneypool
+     * @return The sum of previous balance and accrued interest of moneypool
+     */
     function totalATokenBalanceOfMoneyPool() public view override returns (uint256) {
         uint256 accruedInterest =
             Math.calculateLinearInterest(
@@ -69,6 +81,10 @@ contract Tokenizer is ITokenizer, ERC1155Upgradeable {
         return _tokenizer.totalATokenBalanceOfMoneyPool.rayMul(accruedInterest);
     }
 
+    /**
+     * @dev Returns total AToken supply which is sum of previous balance and accrued interest
+     * @return The sum of previous balance and accrued interest
+     */
     function totalATokenSupply() public view override returns (uint256) {
         uint256 accruedInterest =
             Math.calculateLinearInterest(
@@ -109,18 +125,20 @@ contract Tokenizer is ITokenizer, ERC1155Upgradeable {
     ) external override onlyMoneyPool {
         MintLocalVars memory vars;
 
+        // generate AToken Id based on the Id of asset bond
         vars.aTokenId = _generateATokenId(assetBondId);
 
+        // update total Atoken supply and average AToken rate
         AssetBond.increaseTotalAToken(
             _tokenizer,
             borrowAmount,
             realAssetAPR);
 
+        // update moneyPool AToken supply and average AToken rate
         AssetBond.increaseATokenBalanceOfMoneyPool(
             _tokenizer,
             borrowAmount,
             realAssetAPR);
-
 
         _mint(address(_moneyPool), vars.aTokenId, vars.futureInterestAmount, "");
 
@@ -133,13 +151,6 @@ contract Tokenizer is ITokenizer, ERC1155Upgradeable {
             vars.newAverageATokenRate,
             vars.newTotalATokenSupply
         );
-    }
-    function initialize(
-        address moneyPool,
-        string memory uri_
-    ) public initializer {
-        _moneyPool = IMoneyPool(moneyPool);
-        __ERC1155_init(uri_);
     }
 
     function getMinter(
@@ -162,7 +173,6 @@ contract Tokenizer is ITokenizer, ERC1155Upgradeable {
         _minter[id] = account;
         _tokenType[id] = Role.ABTOKEN;
     }
-
 
     /************ Interest Manage Functions ************/
 
