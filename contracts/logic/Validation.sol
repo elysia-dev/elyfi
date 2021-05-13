@@ -67,7 +67,8 @@ library Validation {
     function validateInvestABToken(
         DataStruct.ReserveData storage reserve,
         DataStruct.AssetBondData storage assetBond,
-        uint256 amount
+        uint256 amount,
+        uint256 moneyPoolATokenBalance
     ) internal view {
         if(amount == 0) revert(); //// InvalidAmount(amount)
         if(reserve.isPaused == true) revert(); //// ReservePaused();
@@ -75,6 +76,6 @@ library Validation {
 
         if(assetBond.isMatured == true) revert(); //// MaturedABToken();
         if(assetBond.isDeposited == false) revert(); //// NotDepositedABToken();
-        if(reserve.totalDepositedATokenBalance < amount) revert(); //// InsufficientATokenBalance(reserve.totalDepositedATokenBalance);
+        if(moneyPoolATokenBalance < amount) revert(); //// InsufficientATokenBalance(reserve.totalDepositedATokenBalance);
     }
 }

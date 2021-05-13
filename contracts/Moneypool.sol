@@ -41,7 +41,7 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
         address asset,
         address account,
         uint256 amount
-    ) external override returns (bool) {
+    ) external override {
         DataStruct.ReserveData storage reserve = _reserves[asset];
 
         address lToken = reserve.lTokenAddress;
@@ -116,14 +116,18 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
         address account,
         uint256 id, // token id
         uint256 amount
-    ) external {
+    ) external override {
         DataStruct.ReserveData storage reserve = _reserves[asset];
         DataStruct.AssetBondData storage assetBond = _assetBond[id];
 
         address lToken = reserve.lTokenAddress;
         address tokenizer = reserve.tokenizerAddress;
 
-        Validation.validateInvestABToken(reserve, assetBond, amount);
+        Validation.validateInvestABToken(
+            reserve,
+            assetBond,
+            amount,
+            ITokenizer(reserve.tokenizerAddress).totalATokenBalanceOfMoneyPool());
 
         // update indexes and mintToReserve
         reserve.updateState();
@@ -136,7 +140,12 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
         IERC20Upgradeable(asset).safeTransferFrom(msg.sender, lToken, amount);
 
         // transfer AToken via tokenizer
-        ITokenizer(tokenizer).safeTransferFrom(account, amount, reserve.lTokenInterestIndex);
+        ITokenizer(tokenizer).safeTransferFrom(
+            account,
+            address(tokenizer),
+            amount,
+            reserve.lTokenInterestIndex,
+            "");
 
         emit InvestABToken(asset, account, id, amount);
         // validation : AToken Balance check
@@ -157,7 +166,7 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
         uint256 id,
         uint256 amount,
         bool rewardClaim // if true, transfer all accrued reward
-    ) external override {
+    ) external override returns (uint256) {
         // validation : AToken Balance check
 
         // update states, rate
@@ -170,17 +179,6 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
 
         // update ReserveData
     }
-
-    function claimABTokenReward(
-        address asset,
-        address account, // account to receive rewards
-        uint256 id // token id
-    ) external {
-        // validation : check if account accrued enough reward
-
-        // check if token matured
-    }
-
 
     /************ View Functions ************/
 
@@ -289,7 +287,7 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
         // update deposited asset bond list and count
         // update totalAToken
         // calculate future interest
-        (uint256 netAmount, uint256 futureInterest) =
+        uint256 netAmount =
             AssetBond.depositAssetBond(
                 assetBond,
                 reserve,
@@ -298,8 +296,7 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
             );
 
         // transfer Underlying asset
-        ILToken(lToken).transferUnderlyingTo(assetBond.borrower, netAmount);
-        ILToken(lToken).transferUnderlyingTo(tokenizer, futureInterest);
+        ILToken(lToken).transferUnderlyingTo(assetBond.borrower, borrowAmount);
     }
 
     /************ Configuration Functions ************/
@@ -321,13 +318,14 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
                 supplyAPR: 0,
                 totalDepositedAssetBondCount: 0,
                 maturedAssetBondCount: 0,
-                totalDepositedATokenBalance: 0,
                 lastUpdateTimestamp: uint40(block.timestamp),
                 lTokenAddress: lToken,
                 dTokenAddress: dToken,
                 interestModelAddress: interestModel,
                 tokenizerAddress: tokenizer,
-                id: 0
+                id: 0,
+                isPaused: false,
+                isActivated: true
             });
 
         _reserves[asset] = newReserveData;

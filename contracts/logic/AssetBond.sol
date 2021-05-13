@@ -60,12 +60,11 @@ library AssetBond {
         uint256 borrowAmount,
         uint256 realAssetAPR
         )
-        internal returns (uint256, uint256) {
+        internal returns (uint256) {
             DepositAssetBondLocalVars memory vars;
 
             // update tokenizer data
             reserve.totalDepositedAssetBondCount += 1;
-            reserve.totalDepositedATokenBalance += borrowAmount;
 
             // set bond date data
             assetBondData.borrowAPR = realAssetAPR;
@@ -75,23 +74,63 @@ library AssetBond {
 
             // calculate amount reserve in tokenizer
             vars.netAmount = borrowAmount.rayMul(realAssetAPR);
-            vars.futureInterest = borrowAmount - vars.netAmount;
 
-            return (vars.netAmount, vars.futureInterest);
+            return vars.netAmount;
         }
 
-    /**
-     * @notice save reward
-     * @param account address for save reward
-     */
-    function saveATokenInterest(address account) internal returns (bool) {
-        if (account == address(this)) {
-            return true;
-        }
-
-        _accruedInterest[account] = _getInterest(account);
-        _blockNumbers[account] = block.number;
-
-        return true;
+    struct IncreaseATokenBalanceLocalVars {
+        uint256 newAPR;
+        uint256 newBalance;
     }
+
+    function increaseTotalAToken(
+        DataStruct.TokenizerData storage tokenizer,
+        uint256 amountIn,
+        uint256 rate
+    ) internal {
+        IncreaseATokenBalanceLocalVars memory vars;
+
+        (vars.newAPR, vars.newBalance) = Math.calculateRateInIncreasingBalance(
+            tokenizer.averageATokenAPR,
+            tokenizer.totalATokenSupply,
+            amountIn,
+            rate
+        );
+
+        tokenizer.averageATokenAPR = vars.newAPR;
+        tokenizer.totalATokenSupply = vars.newBalance;
+    }
+
+    function increaseATokenBalanceOfMoneyPool(
+        DataStruct.TokenizerData storage tokenizer,
+        uint256 amountIn,
+        uint256 rate
+    ) internal {
+        IncreaseATokenBalanceLocalVars memory vars;
+
+        (vars.newAPR, vars.newBalance) = Math.calculateRateInIncreasingBalance(
+            tokenizer.averageATokenAPR,
+            tokenizer.totalATokenSupply,
+            amountIn,
+            rate
+        );
+
+        tokenizer.averageMoneyPoolAPR = vars.newAPR;
+        tokenizer.totalATokenBalanceOfMoneyPool = vars.newBalance;
+    }
+
+    struct DecreaseATokenBalanceLocalVars {
+        uint256 previousMoneyPoolBalance;
+        uint256 newAPR;
+        uint256 newBalance;
+    }
+
+    function decreaseATokenBalanceOfMoneyPool(
+        DataStruct.TokenizerData storage tokenizer,
+        uint256 amountOut,
+        uint256 rate
+    ) internal {
+        DecreaseATokenBalanceLocalVars memory vars;
+    }
+
 }

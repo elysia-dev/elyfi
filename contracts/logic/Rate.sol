@@ -44,7 +44,7 @@ library Rate {
 
         vars.totalLToken = ILToken(reserve.lTokenAddress).totalSupply();
 
-        vars.totalAToken = reserve.totalDepositedATokenBalance;
+        vars.totalAToken = ITokenizer(reserve.tokenizerAddress).totalATokenBalanceOfMoneyPool();
 
         vars.totalDToken = IDToken(reserve.dTokenAddress).totalSupply();
 

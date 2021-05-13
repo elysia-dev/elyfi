@@ -1,7 +1,7 @@
 import { BigNumber } from 'ethers';
 import { ethers, waffle } from 'hardhat'
-import { smockit, smoddit } from '@eth-optimism/smock'
-import { address, ETH, RAY, toIndex, toRate } from './utils/Ethereum';
+import { ModifiableContract, ModifiableContractFactory, smockit, smoddit } from '@eth-optimism/smock'
+import { address, advanceBlock, ETH, expandToDecimals, getTimestamp, RAY, toIndex, toRate } from './utils/Ethereum';
 import { Connector, DTokenTest, ERC20Test, InterestRateModel, LTokenTest, MoneyPoolTest, Tokenizer, TokenizerTest } from '../typechain';
 import { makeInterestRateModel, makeMoneyPool, makeLToken, makeDToken, makeUnderlyingAsset, makeConnector, makeTokenizer } from './utils/makeContract';
 import { defaultReserveData } from './utils/Interfaces';
@@ -15,6 +15,8 @@ describe("Tokenizer", () => {
     let lToken: LTokenTest
     let dToken: DTokenTest
     let tokenizer: TokenizerTest
+    let tokenizerMock: ModifiableContract
+    let tokenizerMockFactory: ModifiableContractFactory
 
     const provider = waffle.provider
     const [deployer, account1, account2] = provider.getWallets()
@@ -61,6 +63,25 @@ describe("Tokenizer", () => {
             interestModel.address,
             tokenizer.address
         )
+    })
+
+    describe("View Functions", async () => {
+        beforeEach(async () => {
+            tokenizerMockFactory = await smoddit('TokenizerTest');
+
+            tokenizerMock = await tokenizerMockFactory.deploy();
+            const initTx = await advanceBlock();
+
+            await tokenizerMock.smodify.put({
+                _averageATokenAPR: toRate(0.1),
+                _totalATokenBalanceOfMoneyPool: expandToDecimals(100, 18),
+                _lastUpdateTimestamp: await getTimestamp(initTx)
+            })
+        })
+
+        it("Mints AToken and updates states", async () => {
+
+        })
     })
 
     describe("Mint AToken", async () => {

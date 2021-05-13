@@ -61,23 +61,45 @@ library Math {
         return WadRayMath.ray() + (ratePerSecond * exp) + secondTerm + thirdTerm;
     }
 
-    function calculateAverageAPR(
-        uint256 currentAverageRate,
-        uint256 currentTotalAmount,
-        uint256 amount,
+    function calculateRateInIncreasingBalance(
+        uint256 averageRate,
+        uint256 totalBalance,
+        uint256 amountIn,
         uint256 rate
     ) internal pure returns (uint256, uint256) {
-        uint256 amountIn = amount.rayMul(rate);
-        uint256 newTotalAmount = currentTotalAmount + amountIn;
+        uint256 weightedAverageRate = totalBalance.wadToRay().rayMul(averageRate);
+        uint256 weightedAmountRate = amountIn.wadToRay().rayMul(rate);
 
-        uint256 newAverageRate = (currentAverageRate
-            .rayMul(currentTotalAmount.wadToRay())
-            + (rate.rayMul(amount))
-            ).rayDiv(newTotalAmount.wadToRay());
+        uint256 newTotalBalance = totalBalance + amountIn;
+        uint256 newAverageRate = (weightedAverageRate + weightedAmountRate).rayDiv(newTotalBalance);
 
-        return (
-            newAverageRate,
-            newTotalAmount
-        );
+        return (newTotalBalance, newAverageRate);
+    }
+
+    function calculateRateInDecreasingBalance(
+        uint256 averageRate,
+        uint256 totalBalance,
+        uint256 amountOut,
+        uint256 rate
+    ) internal pure returns (uint256, uint256) {
+
+        // if decreasing amount exceeds totalBalance,
+        // overall rate and balacne would be set 0
+        if (totalBalance <= amountOut) {
+            return (0, 0);
+        }
+
+        uint256 weightedAverageRate = totalBalance.wadToRay().rayMul(averageRate);
+        uint256 weightedAmountRate = amountOut.wadToRay().rayMul(rate);
+
+        if (weightedAverageRate <= weightedAmountRate) {
+            return (0, 0);
+        }
+
+        uint256 newTotalBalance = totalBalance - amountOut;
+
+        uint256 newAverageRate = (weightedAverageRate - weightedAmountRate).rayDiv(newTotalBalance);
+
+        return (newTotalBalance, newAverageRate);
     }
 }

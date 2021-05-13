@@ -39,7 +39,7 @@ describe("Index", () => {
 
         testData.dTokenAddress = dTokenMock.address
 
-        indexMockFactory = await smoddit('IndexMock');
+        indexMockFactory = await smoddit('IndexTest');
 
         indexMock = await indexMockFactory.deploy()
 

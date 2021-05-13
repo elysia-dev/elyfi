@@ -17,6 +17,7 @@ import "./interfaces/ITokenizer.sol";
  */
 contract Tokenizer is ITokenizer, ERC1155Upgradeable {
     using WadRayMath for uint256;
+    using AssetBond for DataStruct.TokenizerData;
 
     IMoneyPool internal _moneyPool;
 
@@ -24,17 +25,115 @@ contract Tokenizer is ITokenizer, ERC1155Upgradeable {
 
     mapping(uint256 => address) internal _minter;
 
+    // user
+
+
     // Account rewards
     // Decimals: 18
-    mapping(address => uint256) private _accruedInterest;
 
-    // Account block numbers
-    mapping(address => uint256) private _blockNumbers;
 
-    uint256 internal _totalATokenSupply;
+    // account supply APR for each AToken
+    mapping (uint256 => mapping (address => uint256)) internal _userSupplyAPR;
 
-    uint256 internal _averageATokenAPR;
+    // account timestamp for each AToken
+    mapping (uint256 => mapping (address => uint40)) internal _userTimestamp;
 
+    function balanceOf(
+        address account,
+        uint256 tokenId
+    ) public view virtual override(ERC1155Upgradeable, IERC1155Upgradeable) returns (uint256) {
+        uint256 userPreviousBalance = super.balanceOf(account, tokenId);
+        if (userPreviousBalance == 0) {
+            return 0;
+        }
+
+        // need calculation after maturity
+        uint256 accruedInterest =
+            Math.calculateLinearInterest(
+                _userSupplyAPR[tokenId][account],
+                _userTimestamp[tokenId][account],
+                block.timestamp);
+
+        return userPreviousBalance.rayMul(accruedInterest);
+    }
+
+    DataStruct.TokenizerData internal _tokenizer;
+
+    function totalATokenBalanceOfMoneyPool() public view override returns (uint256) {
+        uint256 accruedInterest =
+            Math.calculateLinearInterest(
+                _tokenizer.averageMoneyPoolAPR,
+                _tokenizer.lastUpdateTimestamp,
+                block.timestamp);
+
+        return _tokenizer.totalATokenBalanceOfMoneyPool.rayMul(accruedInterest);
+    }
+
+    function totalATokenSupply() public view override returns (uint256) {
+        uint256 accruedInterest =
+            Math.calculateLinearInterest(
+                _tokenizer.averageATokenAPR,
+                _tokenizer.lastUpdateTimestamp,
+                block.timestamp);
+
+        return _tokenizer.totalATokenSupply.rayMul(accruedInterest);
+    }
+
+    // function burnAToken(
+    //     address account,
+    //     uint256 assetBondId,
+    //     uint256 amount
+    // ) external {
+
+    //     // validation : only after maturation
+
+    //     Math.calculateRateInDecreasingBalance(
+    //         _tokenizer.averageMoneyPoolAPR,
+    //         _tokenizer.totalATokenBalanceOfMoneyPool,
+    //         amount,
+    //         );
+    // }
+
+    struct MintLocalVars {
+        uint256 aTokenId;
+        uint256 futureInterestAmount;
+        uint256 newAverageATokenRate;
+        uint256 newTotalATokenSupply;
+    }
+
+    function mintAToken(
+        address account,
+        uint256 assetBondId,
+        uint256 borrowAmount,
+        uint256 realAssetAPR
+    ) external override onlyMoneyPool {
+        MintLocalVars memory vars;
+
+        vars.aTokenId = _generateATokenId(assetBondId);
+
+        AssetBond.increaseTotalAToken(
+            _tokenizer,
+            borrowAmount,
+            realAssetAPR);
+
+        AssetBond.increaseATokenBalanceOfMoneyPool(
+            _tokenizer,
+            borrowAmount,
+            realAssetAPR);
+
+
+        _mint(address(_moneyPool), vars.aTokenId, vars.futureInterestAmount, "");
+
+        _tokenType[assetBondId] = Role.ATOKEN;
+
+        emit MintAToken(
+            account,
+            vars.aTokenId,
+            borrowAmount,
+            vars.newAverageATokenRate,
+            vars.newTotalATokenSupply
+        );
+    }
     function initialize(
         address moneyPool,
         string memory uri_
@@ -64,105 +163,11 @@ contract Tokenizer is ITokenizer, ERC1155Upgradeable {
         _tokenType[id] = Role.ABTOKEN;
     }
 
-    struct MintLocalVars {
-        uint256 aTokenId;
-        uint256 futureInterestAmount;
-        uint256 newAverageATokenRate;
-        uint256 newTotalATokenSupply;
-    }
-
-    function mintAToken(
-        address account,
-        uint256 id,
-        uint256 borrowAmount,
-        uint256 realAssetAPR
-    ) external override onlyMoneyPool {
-        MintLocalVars memory vars;
-
-        vars.aTokenId = _generateATokenId(id);
-
-        vars.futureInterestAmount = borrowAmount.rayMul(realAssetAPR);
-
-        (vars.newAverageATokenRate, vars.newTotalATokenSupply) = Math.calculateAverageAPR(
-            _averageATokenAPR,
-            _totalATokenSupply,
-            borrowAmount,
-            realAssetAPR
-        );
-
-        _totalATokenSupply = vars.newTotalATokenSupply;
-        _averageATokenAPR = vars.newAverageATokenRate;
-
-        _mint(account, vars.aTokenId, vars.futureInterestAmount, "");
-
-        _tokenType[id] = Role.ATOKEN;
-
-        emit MintAToken(
-            account,
-            vars.aTokenId,
-            borrowAmount,
-            vars.newAverageATokenRate,
-            vars.newTotalATokenSupply
-        );
-    }
 
     /************ Interest Manage Functions ************/
 
-    function _beforeTokenTransfer(
-        address operator,
-        address from,
-        address to,
-        uint256[] memory ids,
-        uint256[] memory amounts,
-        bytes memory data
-    ) internal virtual override {
-        super._beforeTokenTransfer(operator, from, to, ids, amounts, data);
-
-        for (uint256 i = 0; i < ids.length; ++i) {
-            uint256 id = ids[i];
-            uint256 amount = amounts[i];
-
-            if(_tokenType[id] == Role.ATOKEN) {
-                AssetBond.saveATokenInterest(from);
-                AssetBond.saveATokenInterest(to);
-            }
-        }
-    }
-
-    /**
-     * @notice Get reward
-     * @param account Addresss
-     * @return saved reward + new reward
-     */
-    function _getInterest(address account) internal view returns (uint256) {
-
-        uint256 blockNumber = block.number;
-
-        if (_tokenMatured()) {
-            blockNumber = initialBlocknumber + blockRemaining;
-        }
-
-        AssetTokenLibrary.RewardLocalVars memory vars =
-            AssetTokenLibrary.RewardLocalVars({
-                newReward: 0,
-                accountReward: _rewards[account],
-                accountBalance: balanceOf(account),
-                rewardBlockNumber: _blockNumbers[account],
-                blockNumber: blockNumber,
-                diffBlock: 0,
-                rewardPerBlock: rewardPerBlock,
-                totalSupply: totalSupply()
-            });
-
-        return vars.getReward();
-    }
-
-    function totalATokenSupply() external view override returns (uint256) {
-        return _totalATokenSupply;
-    }
-
     function getAverageATokenAPR() external view override returns (uint256) {
-        return _averageATokenAPR;
+        return _tokenizer.averageATokenAPR;
     }
 
     // need logic : generate token id

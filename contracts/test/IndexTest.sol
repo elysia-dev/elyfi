@@ -4,7 +4,7 @@ pragma solidity 0.8.4;
 import "../logic/Index.sol";
 import "../MoneyPoolStorage.sol";
 
-contract IndexMock is MoneyPoolStorage {
+contract IndexTest is MoneyPoolStorage {
     using Index for DataStruct.ReserveData;
 
     function getLTokenInterestIndex(address asset)

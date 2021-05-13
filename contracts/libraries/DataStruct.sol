@@ -10,7 +10,6 @@ library DataStruct {
         uint256 supplyAPR;
         uint256 totalDepositedAssetBondCount; // need refactor: consider bitmask
         uint256 maturedAssetBondCount; // need refactor: consider bitmask
-        uint256 totalDepositedATokenBalance;
         uint40 lastUpdateTimestamp;
         address lTokenAddress;
         address dTokenAddress;
@@ -35,6 +34,14 @@ library DataStruct {
         bool isSettled; // refactor : need configuration
         bool isDeposited; // refactor : need configuration
         bool isMatured; // refactor : need configuration
+    }
+
+    struct TokenizerData {
+        uint256 averageATokenAPR;
+        uint256 averageMoneyPoolAPR;
+        uint256 totalATokenSupply;
+        uint256 totalATokenBalanceOfMoneyPool;
+        uint40 lastUpdateTimestamp;
     }
 
     struct UserInfo {

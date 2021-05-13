@@ -26,7 +26,7 @@ interface IMoneyPool {
         address asset,
         address account,
         uint256 amount
-    ) external returns (bool);
+    ) external;
 
     function withdrawMoneyPool(
         address asset,
@@ -39,7 +39,7 @@ interface IMoneyPool {
         address account,
         uint256 id,
         uint256 amount
-    ) external returns (bool);
+    ) external;
 
     function withdrawABToken(
         address asset,
@@ -48,12 +48,6 @@ interface IMoneyPool {
         uint256 amount,
         bool rewardClaim
     ) external returns (uint256);
-
-    function claimABTokenReward(
-        address asset,
-        address account, // account to receive rewards
-        uint256 id // token id
-    ) external;
 
     function getLTokenInterestIndex(
         address asset
