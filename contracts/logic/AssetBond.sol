@@ -10,6 +10,13 @@ library AssetBond {
     using WadRayMath for uint256;
     using AssetBond for DataStruct.AssetBondData;
 
+    event MoneyTotalATokenDataUpdated(
+        address underlyingAsset,
+        uint256 id,
+        uint256 averageMoneyPoolAPR,
+        uint256 totalATokenBalanceOfMoneyPool
+    );
+
     function initAssetBond(
         DataStruct.AssetBondData storage assetBondData,
         address asset,
@@ -83,16 +90,9 @@ library AssetBond {
         uint256 newBalance;
     }
 
-    event TokenizerDataUpdated(
-        address underlyingAsset,
-        uint256 id,
-        uint256 averageMoneyPoolAPR,
-        uint256 totalATokenBalanceOfMoneyPool
-    );
 
     function increaseTotalAToken(
         DataStruct.TokenizerData storage tokenizer,
-        uint256 id,
         uint256 amountIn,
         uint256 rate
     ) internal {
@@ -107,17 +107,11 @@ library AssetBond {
 
         tokenizer.averageATokenAPR = vars.newAPR;
         tokenizer.totalATokenSupply = vars.newBalance;
-
-        emit TokenizerDataUpdated(
-            tokenizer.asset,
-            id,
-            vars.newAPR,
-            vars.newBalance
-        );
     }
 
     function increaseATokenBalanceOfMoneyPool(
         DataStruct.TokenizerData storage tokenizer,
+        uint256 aTokenId,
         uint256 amountIn,
         uint256 rate
     ) internal {
@@ -132,20 +126,43 @@ library AssetBond {
 
         tokenizer.averageMoneyPoolAPR = vars.newAPR;
         tokenizer.totalATokenBalanceOfMoneyPool = vars.newBalance;
+
+        emit MoneyTotalATokenDataUpdated(
+            tokenizer.asset,
+            aTokenId,
+            vars.newAPR,
+            vars.newBalance
+        );
     }
 
     struct DecreaseATokenBalanceLocalVars {
-        uint256 previousMoneyPoolBalance;
         uint256 newAPR;
         uint256 newBalance;
     }
 
     function decreaseATokenBalanceOfMoneyPool(
         DataStruct.TokenizerData storage tokenizer,
+        uint256 aTokenId,
         uint256 amountOut,
         uint256 rate
     ) internal {
         DecreaseATokenBalanceLocalVars memory vars;
-    }
 
+        (vars.newAPR, vars.newBalance) = Math.calculateRateInDecreasingBalance(
+            tokenizer.averageATokenAPR,
+            tokenizer.totalATokenSupply,
+            amountOut,
+            rate
+        );
+
+        tokenizer.averageMoneyPoolAPR = vars.newAPR;
+        tokenizer.totalATokenBalanceOfMoneyPool = vars.newBalance;
+
+        emit MoneyTotalATokenDataUpdated(
+            tokenizer.asset,
+            aTokenId,
+            vars.newAPR,
+            vars.newBalance
+        );
+    }
 }

@@ -131,13 +131,13 @@ contract Tokenizer is ITokenizer, ERC1155Upgradeable {
         // update total Atoken supply and average AToken rate
         AssetBond.increaseTotalAToken(
             _tokenizer,
-            vars.aTokenId,
             borrowAmount,
             realAssetAPR);
 
         // update moneyPool AToken supply and average AToken rate
         AssetBond.increaseATokenBalanceOfMoneyPool(
             _tokenizer,
+            vars.aTokenId,
             borrowAmount,
             realAssetAPR);
 
@@ -178,11 +178,25 @@ contract Tokenizer is ITokenizer, ERC1155Upgradeable {
     /************ Interest Manage Functions ************/
 
     function increaseATokenBalanceOfMoneyPool(
+        uint256 aTokenId,
         uint256 amount,
         uint256 rate
-    ) external override returns (uint256) {
+    ) external override {
         AssetBond.increaseATokenBalanceOfMoneyPool(
             _tokenizer,
+            aTokenId,
+            amount,
+            rate);
+    }
+
+    function decreaseATokenBalanceOfMoneyPool(
+        uint256 aTokenId,
+        uint256 amount,
+        uint256 rate
+    ) external override {
+        AssetBond.decreaseATokenBalanceOfMoneyPool(
+            _tokenizer,
+            aTokenId,
             amount,
             rate);
     }

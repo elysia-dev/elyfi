@@ -43,7 +43,14 @@ interface ITokenizer is IERC1155Upgradeable {
     function getAverageATokenAPR() external view returns (uint256);
 
     function increaseATokenBalanceOfMoneyPool(
+        uint256 aTokenId,
         uint256 amount,
         uint256 rate
-    ) external returns (uint256);
+    ) external;
+
+    function decreaseATokenBalanceOfMoneyPool(
+        uint256 aTokenId,
+        uint256 amount,
+        uint256 rate
+    ) external;
 }
