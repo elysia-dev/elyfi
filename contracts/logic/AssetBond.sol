@@ -83,8 +83,16 @@ library AssetBond {
         uint256 newBalance;
     }
 
+    event TokenizerDataUpdated(
+        address underlyingAsset,
+        uint256 id,
+        uint256 averageMoneyPoolAPR,
+        uint256 totalATokenBalanceOfMoneyPool
+    );
+
     function increaseTotalAToken(
         DataStruct.TokenizerData storage tokenizer,
+        uint256 id,
         uint256 amountIn,
         uint256 rate
     ) internal {
@@ -99,6 +107,13 @@ library AssetBond {
 
         tokenizer.averageATokenAPR = vars.newAPR;
         tokenizer.totalATokenSupply = vars.newBalance;
+
+        emit TokenizerDataUpdated(
+            tokenizer.asset,
+            id,
+            vars.newAPR,
+            vars.newBalance
+        );
     }
 
     function increaseATokenBalanceOfMoneyPool(

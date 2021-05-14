@@ -123,14 +123,13 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
         address lToken = reserve.lTokenAddress;
         address tokenizer = reserve.tokenizerAddress;
 
-
         // validation : AToken Balance check
         // validation : if token matured, reverts
         Validation.validateInvestABToken(
             reserve,
             assetBond,
             amount,
-            ITokenizer(reserve.tokenizerAddress).totalATokenBalanceOfMoneyPool());
+            ITokenizer(tokenizer).totalATokenBalanceOfMoneyPool());
 
         // update indexes and mintToReserve
         reserve.updateState();
@@ -280,13 +279,12 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
         // update deposited asset bond list and count
         // update totalAToken
         // calculate future interest
-        uint256 netAmount =
-            AssetBond.depositAssetBond(
-                assetBond,
-                reserve,
-                borrowAmount,
-                reserve.realAssetAPR
-            );
+        AssetBond.depositAssetBond(
+            assetBond,
+            reserve,
+            borrowAmount,
+            reserve.realAssetAPR
+        );
 
         // transfer Underlying asset
         ILToken(lToken).transferUnderlyingTo(assetBond.borrower, borrowAmount);

@@ -41,4 +41,9 @@ interface ITokenizer is IERC1155Upgradeable {
     function totalATokenBalanceOfMoneyPool() external view returns (uint256);
 
     function getAverageATokenAPR() external view returns (uint256);
+
+    function increaseATokenBalanceOfMoneyPool(
+        uint256 amount,
+        uint256 rate
+    ) external returns (uint256);
 }
