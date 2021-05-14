@@ -41,7 +41,7 @@ interface IMoneyPool {
         uint256 amount
     ) external;
 
-    function withdrawABToken(
+    function withdrawABTokenInvestment(
         address asset,
         address account,
         uint256 id,

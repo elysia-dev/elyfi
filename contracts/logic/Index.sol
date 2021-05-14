@@ -105,8 +105,8 @@ library Index {
         reserve.lastUpdateTimestamp = uint40(block.timestamp);
 
         return (
-            getLTokenInterestIndex(reserve),
-            getDTokenInterestIndex(reserve)
+            reserve.lTokenInterestIndex,
+            reserve.dTokenInterestIndex
         );
     }
 }

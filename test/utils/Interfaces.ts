@@ -1,4 +1,4 @@
-import { BigNumber } from "ethers"
+import { BigNumber, BigNumberish } from "ethers"
 import { RAY, toRate } from "./Ethereum"
 
 export interface ReserveData {
@@ -10,17 +10,20 @@ export interface ReserveData {
     implicitLTokenSupply: BigNumber;
     totalDTokenSupply: BigNumber;
     implicitDTokenSupply: BigNumber;
+    totalATokenSupply: BigNumber;
+    totalMoneyPoolATokenBalance: BigNumber;
     lTokenInterestIndex: BigNumber;
     dTokenInterestIndex: BigNumber;
     realAssetAPR: BigNumber;
     digitalAssetAPR: BigNumber;
     supplyAPR: BigNumber;
     lastUpdateTimestamp: BigNumber;
-    lTokenAddress: string
-    dTokenAddress: string
+    lTokenAddress: string;
+    dTokenAddress: string;
+    interestRateModelAddress: string;
+    tokenizerAddress: string;
     stableBorrowRate: BigNumber;
     utilizationRate: BigNumber;
-    interestRateModelAddress: string
     interestRateModelParams : InterestModelParams
 }
 
@@ -52,4 +55,17 @@ export const defaultInterestModelParams: InterestModelParams = <InterestModelPar
     realAssetBorrowRateBase: toRate(0.04),
     realAssetBorrowRateOptimal: toRate(0.2),
     realAssetBorrowRateMax: toRate(2),
+}
+export interface UserData {
+    underlyingAssetBalance: BigNumber;
+    lTokenBalance: BigNumber;
+    implicitLtokenBalance: BigNumber;
+    dTokenBalance: BigNumber;
+    implicitDtokenBalance: BigNumber;
+    aTokenInvestments: ATokenInvestment[];
+}
+interface ATokenInvestment {
+    lastUpdatetimestamp: BigNumber;
+    averageSupplyAPR: BigNumber;
+    aTokenBalance: BigNumber;
 }

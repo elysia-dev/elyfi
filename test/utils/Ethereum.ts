@@ -46,6 +46,10 @@ export function rayDiv(n: BigNumber, m: BigNumber): BigNumber {
   return n.mul(RAY).div(m);
 }
 
+export function wadToRay(n: BigNumber): BigNumber {
+  return n.mul(RAY).div(WAD);
+}
+
 // Addresses
 
 export function address(n: number) {

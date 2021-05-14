@@ -178,10 +178,12 @@ contract Tokenizer is ITokenizer, ERC1155Upgradeable {
     /************ Interest Manage Functions ************/
 
     function increaseATokenBalanceOfMoneyPool(
-        uint256 aTokenId,
+        uint256 id,
         uint256 amount,
         uint256 rate
     ) external override {
+        uint256 aTokenId = _generateATokenId(id);
+
         AssetBond.increaseATokenBalanceOfMoneyPool(
             _tokenizer,
             aTokenId,
@@ -190,10 +192,12 @@ contract Tokenizer is ITokenizer, ERC1155Upgradeable {
     }
 
     function decreaseATokenBalanceOfMoneyPool(
-        uint256 aTokenId,
+        uint256 id,
         uint256 amount,
         uint256 rate
     ) external override {
+        uint256 aTokenId = _generateATokenId(id);
+
         AssetBond.decreaseATokenBalanceOfMoneyPool(
             _tokenizer,
             aTokenId,

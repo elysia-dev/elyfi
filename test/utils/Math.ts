@@ -1,5 +1,5 @@
 import { BigNumber } from "ethers";
-import { RAY, rayMul, SECONDSPERYEAR } from "./Ethereum";
+import { RAY, rayDiv, rayMul, SECONDSPERYEAR, wadToRay } from "./Ethereum";
 
 export function calculateLinearInterest(
     rate: BigNumber,
@@ -37,4 +37,82 @@ export function calculateCompoundedInterest(
       .add(ratePerSecond.mul(timeDelta))
       .add(secondTerm)
       .add(thirdTerm);
+}
+
+/******************* updateState functions *******************/
+
+export function calculateLTokenIndexAfterAction(
+    timeStampBeforeAction: BigNumber,
+    supplyAPR: BigNumber,
+    lTokenIndexBeforeAction: BigNumber,
+    timeStampAfterAction: BigNumber
+): BigNumber {
+    const accruedInterest = calculateLinearInterest(
+        supplyAPR,
+        timeStampBeforeAction,
+        timeStampAfterAction
+    )
+
+    return rayMul(lTokenIndexBeforeAction, accruedInterest)
+}
+
+export function calculateDTokenIndexAfterAction(
+    timeStampBeforeAction: BigNumber,
+    digitalAssetAPR: BigNumber,
+    dTokenIndexBeforeAction: BigNumber,
+    timeStampAfterAction: BigNumber
+): BigNumber {
+    const accruedInterest = calculateCompoundedInterest(
+        digitalAssetAPR,
+        timeStampBeforeAction,
+        timeStampAfterAction
+    )
+
+    return rayMul(dTokenIndexBeforeAction, accruedInterest)
+}
+
+export function calculateTotalATokenSupplyAfterAction(
+    previous
+)
+
+export function calculateTotalATokenBalanceOfMoneyPoolAfterAction(
+
+)
+
+export function calculateRateInIncreasingBalance(
+    averageRateBefore: BigNumber,
+    totalBalanceBefore: BigNumber,
+    amount: BigNumber,
+    rate: BigNumber,
+): BigNumber {
+    const weightedAverageRate = rayMul(wadToRay(totalBalanceBefore), averageRateBefore);
+    const weightedAmountRate = rayMul(wadToRay(amount), rate);
+
+    const newTotalBalance = totalBalanceBefore.add(amount)
+    const newAverageRate = rayDiv((weightedAmountRate.add(weightedAverageRate)), newTotalBalance);
+
+    return newAverageRate;
+}
+
+export function calculateRateInDecreasingBalance(
+    averageRateBefore: BigNumber,
+    totalBalanceBefore: BigNumber,
+    amount: BigNumber,
+    rate: BigNumber,
+): BigNumber {
+    if (totalBalanceBefore.lte(amount)) {
+        return BigNumber.from(0);
+    }
+
+    const weightedAverageRate = rayMul(wadToRay(totalBalanceBefore), averageRateBefore);
+    const weightedAmountRate = rayMul(wadToRay(amount), rate);
+
+    if (weightedAverageRate.lte(weightedAmountRate)) {
+        return BigNumber.from(0);
+    }
+
+    const newTotalBalance = totalBalanceBefore.add(amount)
+    const newAverageRate = rayDiv((weightedAmountRate.add(weightedAverageRate)), newTotalBalance);
+
+    return newAverageRate;
 }

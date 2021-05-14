@@ -141,6 +141,12 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
         // If transfer fail, reverts
         IERC20Upgradeable(asset).safeTransferFrom(msg.sender, lToken, amount);
 
+        // decrease moneypool balance of AToken
+        ITokenizer(tokenizer).decreaseATokenBalanceOfMoneyPool(
+            id,
+            amount,
+            assetBond.borrowAPR);
+
         // transfer AToken via tokenizer
         ITokenizer(tokenizer).safeTransferFrom(
             address(tokenizer),
@@ -152,7 +158,7 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
         emit InvestABToken(asset, account, id, amount);
     }
 
-    function withdrawABToken(
+    function withdrawABTokenInvestment(
         address asset,
         address account,
         uint256 id,
