@@ -14,10 +14,12 @@ export interface ReserveData {
     totalMoneyPoolATokenBalance: BigNumber;
     lTokenInterestIndex: BigNumber;
     dTokenInterestIndex: BigNumber;
+    averageATokenAPR: BigNumber;
     realAssetAPR: BigNumber;
     digitalAssetAPR: BigNumber;
     supplyAPR: BigNumber;
     lastUpdateTimestamp: BigNumber;
+    tokenizerLastUpdateTimestamp: BigNumber;
     lTokenAddress: string;
     dTokenAddress: string;
     interestRateModelAddress: string;

@@ -62,6 +62,13 @@ contract InterestRateModel is IInterestRateModel, InterestRateModelStorage {
         vars.newRealAssetAPR = 0;
         vars.newDigitalAssetAPR = 0;
 
+        // Example
+        // Case1
+        // baseRate = 2%, util = 40%, optimalRate = 10%, optimalUtil = 80%
+        // result = 2+40*(10-2)/80 = 4%
+        // Case2
+        // optimalRate = 10%, util = 90%, maxRate = 100%, optimalUtil = 80%
+        // result = 10+90*(100-10)/(100-80) = 55%
         if (vars.utilizationRate <= _optimalUtilizationRate) {
             vars.newRealAssetAPR = _realAssetBorrowRateBase
                 + ((_realAssetBorrowRateOptimal-_realAssetBorrowRateBase)
@@ -76,12 +83,12 @@ contract InterestRateModel is IInterestRateModel, InterestRateModelStorage {
             vars.newRealAssetAPR = _realAssetBorrowRateOptimal
                 + ((_realAssetBorrowRateMax - _realAssetBorrowRateOptimal)
                 .rayDiv(WadRayMath.ray() - _optimalUtilizationRate)
-                .rayMul(vars.utilizationRate));
+                .rayMul(vars.utilizationRate - _realAssetBorrowRateOptimal));
 
             vars.newDigitalAssetAPR = _digitalAssetBorrowRateOptimal
                 + ((_digitalAssetBorrowRateMax - _digitalAssetBorrowRateOptimal)
                 .rayDiv(WadRayMath.ray() - _optimalUtilizationRate)
-                .rayMul(vars.utilizationRate));
+                .rayMul(vars.utilizationRate - _digitalAssetBorrowRateOptimal));
         }
 
         vars.newSupplyAPR = _overallBorrowAPR(

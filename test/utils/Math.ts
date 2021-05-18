@@ -1,5 +1,6 @@
 import { BigNumber } from "ethers";
 import { RAY, rayDiv, rayMul, SECONDSPERYEAR, wadToRay } from "./Ethereum";
+import { InterestModelParams } from "./Interfaces";
 
 export function calculateLinearInterest(
     rate: BigNumber,
@@ -108,4 +109,58 @@ export function calculateRateInDecreasingBalance(
     const newAverageRate = rayDiv((weightedAmountRate.add(weightedAverageRate)), newTotalBalance);
 
     return newAverageRate;
+}
+
+export function calculateRateInInterestRateModel(
+    lTokenAmount: BigNumber,
+    aTokenAmount: BigNumber,
+    dTokenAmount: BigNumber,
+    investAmount: BigNumber,
+    borrowAmount: BigNumber,
+    averageRealAssetAPR: BigNumber,
+    interestRateModelParams: InterestModelParams
+): BigNumber {
+    let utilizationRate: BigNumber;
+    let newRealAssetAPR: BigNumber;
+    let newDigitalAssetAPR: BigNumber;
+    let newSupplyAPR: BigNumber;
+
+    const totalDebt = aTokenAmount.add(dTokenAmount);
+    const totalLiquidity = lTokenAmount.add(investAmount).sub(borrowAmount);
+
+    if (totalDebt == BigNumber.from(0)) {
+        utilizationRate = BigNumber.from(0);
+    }
+
+    utilizationRate = totalDebt.div(totalLiquidity);
+
+    // Example
+    // Case1
+    // baseRate = 2%, util = 40%, optimalRate = 10%, optimalUtil = 80%
+    // result = 2+40*(10-2)/80 = 4%
+    // Case2
+    // optimalRate = 10%, util = 90%, maxRate = 100%, optimalUtil = 80%
+    // result = 10+90*(100-10)/(100-80) = 55%
+    if (utilizationRate.lte(interestRateModelParams.optimalUtilizationRate)) {
+        newRealAssetAPR = interestRateModelParams.realAssetBorrowRateBase.add(
+            rayMul(rayDiv(
+                (interestRateModelParams.realAssetBorrowRateOptimal.sub(interestRateModelParams.realAssetBorrowRateBase)),
+                interestRateModelParams.realAssetBorrowRateOptimal), utilizationRate)
+        )
+        newDigitalAssetAPR = interestRateModelParams.digitalAssetBorrowRateBase.add(
+            rayMul(rayDiv(
+                (interestRateModelParams.digitalAssetBorrowRateOptimal.sub(interestRateModelParams.digitalAssetBorrowRateBase)),
+                interestRateModelParams.digitalAssetBorrowRateOptimal), utilizationRate)
+        )
+    }
+}
+
+export function overallBorrowAPR(
+    aTokenAmount: BigNumber,
+    dTokenAmount: BigNumber,
+    investAmount: BigNumber,
+    borrowAmount: BigNumber,
+    averageRealAssetAPR: BigNumber,
+): BigNumber {
+    
 }
