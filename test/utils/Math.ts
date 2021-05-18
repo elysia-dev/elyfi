@@ -119,7 +119,7 @@ export function calculateRateInInterestRateModel(
     borrowAmount: BigNumber,
     averageRealAssetAPR: BigNumber,
     interestRateModelParams: InterestModelParams
-): BigNumber {
+): BigNumber, BigNumber, BigNumber {
     let utilizationRate: BigNumber;
     let newRealAssetAPR: BigNumber;
     let newDigitalAssetAPR: BigNumber;
@@ -135,12 +135,12 @@ export function calculateRateInInterestRateModel(
     utilizationRate = totalDebt.div(totalLiquidity);
 
     // Example
-    // Case1
+    // Case1: under optimal U
     // baseRate = 2%, util = 40%, optimalRate = 10%, optimalUtil = 80%
     // result = 2+40*(10-2)/80 = 4%
-    // Case2
+    // Case2: over optimal U
     // optimalRate = 10%, util = 90%, maxRate = 100%, optimalUtil = 80%
-    // result = 10+90*(100-10)/(100-80) = 55%
+    // result = 10+(90-80)*(100-10)/(100-80) = 55%
     if (utilizationRate.lte(interestRateModelParams.optimalUtilizationRate)) {
         newRealAssetAPR = interestRateModelParams.realAssetBorrowRateBase.add(
             rayMul(rayDiv(
@@ -152,15 +152,48 @@ export function calculateRateInInterestRateModel(
                 (interestRateModelParams.digitalAssetBorrowRateOptimal.sub(interestRateModelParams.digitalAssetBorrowRateBase)),
                 interestRateModelParams.digitalAssetBorrowRateOptimal), utilizationRate)
         )
+    } else {
+        newRealAssetAPR = interestRateModelParams.realAssetBorrowRateOptimal.add(
+            rayMul(rayDiv(
+                (interestRateModelParams.realAssetBorrowRateMax.sub(interestRateModelParams.realAssetBorrowRateOptimal)),
+                RAY.sub(interestRateModelParams.realAssetBorrowRateOptimal)), utilizationRate.sub(interestRateModelParams.realAssetBorrowRateOptimal))
+        )
+        newDigitalAssetAPR = interestRateModelParams.digitalAssetBorrowRateOptimal.add(
+            rayMul(rayDiv(
+                (interestRateModelParams.digitalAssetBorrowRateMax.sub(interestRateModelParams.digitalAssetBorrowRateOptimal)),
+                RAY.sub(interestRateModelParams.digitalAssetBorrowRateOptimal)), utilizationRate.sub(interestRateModelParams.digitalAssetBorrowRateOptimal))
+        )
     }
+
+    newSupplyAPR = rayMul(overallBorrowAPR(
+        aTokenAmount,
+        dTokenAmount,
+        newDigitalAssetAPR,
+        averageRealAssetAPR
+    ), utilizationRate)
+
+    return [newRealAssetAPR, newDigitalAssetAPR, newSupplyAPR];
 }
 
-export function overallBorrowAPR(
+function overallBorrowAPR(
     aTokenAmount: BigNumber,
     dTokenAmount: BigNumber,
-    investAmount: BigNumber,
-    borrowAmount: BigNumber,
+    digitalAssetAPR: BigNumber,
     averageRealAssetAPR: BigNumber,
 ): BigNumber {
-    
+    let result: BigNumber;
+
+    const totalDebt = aTokenAmount.add(dTokenAmount);
+
+    if (totalDebt == BigNumber.from(0)) {
+        return BigNumber.from(0);
+    }
+
+    const weightedRealAssetAPR = rayMul(averageRealAssetAPR, wadToRay(aTokenAmount));
+
+    const weightedDigitalAssetAPR = rayMul(digitalAssetAPR, wadToRay(dTokenAmount));
+
+    result = rayDiv((weightedDigitalAssetAPR.add(weightedRealAssetAPR)), wadToRay(totalDebt));
+
+    return result;
 }

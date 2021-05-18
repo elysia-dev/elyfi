@@ -1,10 +1,10 @@
 import { BigNumber } from "ethers";
 import { rayMul } from "./Ethereum";
 import { ReserveData } from "./Interfaces";
-import { calculateCompoundedInterest, calculateLinearInterest } from "./Math";
+import { calculateCompoundedInterest, calculateLinearInterest, calculateRateInInterestRateModel } from "./Math";
 
 export function expectedReserveDataAfterInvest(
-    amountDeposit: BigNumber,
+    amountInvest: BigNumber,
     reserveDataBefore: ReserveData,
     txTimestamp: BigNumber
 ): ReserveData {
@@ -30,22 +30,33 @@ export function expectedReserveDataAfterInvest(
     }
 
     // update rates
-
     // totalSupply of L, D, A tokens
     const totalLTokenSupply = rayMul(expectedReserveData.implicitLTokenSupply, expectedReserveData.lTokenInterestIndex);
     const totalDTokenSupply = rayMul(expectedReserveData.implicitDTokenSupply, expectedReserveData.dTokenInterestIndex);
-
     const aTokenAccruedInterest = calculateLinearInterest(
         expectedReserveData.averageATokenAPR,
         expectedReserveData.tokenizerLastUpdateTimestamp,
         txTimestamp
     );
-    const totalATokenSupply = rayMul(expectedReserveData.totalATokenSupply, aTokenAccruedInterest)
+    const totalATokenSupply = rayMul(expectedReserveData.totalATokenSupply, aTokenAccruedInterest);
 
-    
+    const interestRates = calculateRateInInterestRateModel(
+        totalLTokenSupply,
+        totalATokenSupply,
+        totalDTokenSupply,
+        amountInvest,
+        BigNumber.from(0),
+        expectedReserveData.averageATokenAPR,
+        expectedReserveData.interestRateModelParams
+    );
 
-    expectedReserveData.totalLTokenSupply = expectedReserveData.totalLTokenSupply.add(amountDeposit);
-    expectedReserveData.totalDTokenSupply = expectedReserveData.totalDTokenSupply.add(amountDeposit);
+    expectedReserveData.realAssetAPR = interestRates[0];
+    expectedReserveData.digitalAssetAPR = interestRates[1];
+    expectedReserveData.supplyAPR = interestRates[2];
+
+    // Mint lToken
+    expectedReserveData.implicitLTokenSupply = expectedReserveData.implicitLTokenSupply.add(amountInvest);
+    expectedReserveData.totalLTokenSupply = totalLTokenSupply.add(amountInvest);
 
     return expectedReserveData;
 }

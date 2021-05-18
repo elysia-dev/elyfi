@@ -63,12 +63,12 @@ contract InterestRateModel is IInterestRateModel, InterestRateModelStorage {
         vars.newDigitalAssetAPR = 0;
 
         // Example
-        // Case1
+        // Case1: under optimal U
         // baseRate = 2%, util = 40%, optimalRate = 10%, optimalUtil = 80%
         // result = 2+40*(10-2)/80 = 4%
-        // Case2
+        // Case2: over optimal U
         // optimalRate = 10%, util = 90%, maxRate = 100%, optimalUtil = 80%
-        // result = 10+90*(100-10)/(100-80) = 55%
+        // result = 10+(90-80)*(100-10)/(100-80) = 55%
         if (vars.utilizationRate <= _optimalUtilizationRate) {
             vars.newRealAssetAPR = _realAssetBorrowRateBase
                 + ((_realAssetBorrowRateOptimal-_realAssetBorrowRateBase)
