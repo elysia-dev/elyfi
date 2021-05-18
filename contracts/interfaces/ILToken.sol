@@ -69,5 +69,7 @@ interface ILToken is IERC20Upgradeable {
 
     function implicitBalanceOf(address account) external view returns (uint256);
 
+    function implicitTotalSupply() external view returns (uint256);
+
     function transferUnderlyingTo(address underlyingAssetReceiver, uint256 amount) external returns (uint256);
 }

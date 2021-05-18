@@ -71,13 +71,6 @@ export function calculateDTokenIndexAfterAction(
     return rayMul(dTokenIndexBeforeAction, accruedInterest)
 }
 
-export function calculateTotalATokenSupplyAfterAction(
-    previous
-)
-
-export function calculateTotalATokenBalanceOfMoneyPoolAfterAction(
-
-)
 
 export function calculateRateInIncreasingBalance(
     averageRateBefore: BigNumber,

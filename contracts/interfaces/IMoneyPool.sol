@@ -53,6 +53,10 @@ interface IMoneyPool {
         address asset
     ) external view returns (uint256);
 
+    function getDTokenInterestIndex(
+        address asset
+    ) external view returns (uint256);
+
     function getReserveData(
         address asset
     ) external view returns (DataStruct.ReserveData memory);

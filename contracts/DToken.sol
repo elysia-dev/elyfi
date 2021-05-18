@@ -48,7 +48,7 @@ contract DToken is IDToken, ERC20Upgradeable {
     }
 
     function totalSupply() public view override(ERC20Upgradeable, IERC20Upgradeable) returns (uint256) {
-        return super.totalSupply().rayMul(_moneyPool.getLTokenInterestIndex(_underlyingAsset));
+        return super.totalSupply().rayMul(_moneyPool.getDTokenInterestIndex(_underlyingAsset));
     }
 
     /**

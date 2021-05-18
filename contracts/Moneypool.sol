@@ -192,6 +192,17 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
     }
 
     /**
+     * @dev Returns DToken Interest index of asset
+     * @param asset The address of the underlying asset of the reserve
+     * @return The DToken interest index of reserve
+     */
+    function getDTokenInterestIndex(
+        address asset
+    ) external view override returns (uint256) {
+        return _reserves[asset].getDTokenInterestIndex();
+    }
+
+    /**
      * @dev Returns the state and configuration of the reserve
      * @param asset The address of the underlying asset of the reserve
      * @return The state of the reserve

@@ -85,6 +85,14 @@ contract LToken is ILToken, ERC20Upgradeable {
         return super.balanceOf(account);
     }
 
+    function implicitTotalSupply() public view override returns (uint256) {
+        return super.totalSupply();
+    }
+
+    function totalSupply() public view override(ERC20Upgradeable, IERC20Upgradeable) returns (uint256) {
+        return super.totalSupply().rayMul(_moneyPool.getLTokenInterestIndex(_underlyingAsset));
+    }
+
     /**
      * @dev Transfers the underlying asset to receiver.
      * @param receiver The recipient of the underlying asset
