@@ -119,7 +119,7 @@ export function calculateRateInInterestRateModel(
     borrowAmount: BigNumber,
     averageRealAssetAPR: BigNumber,
     interestRateModelParams: InterestModelParams
-): BigNumber, BigNumber, BigNumber {
+): BigNumber[] {
     let utilizationRate: BigNumber;
     let newRealAssetAPR: BigNumber;
     let newDigitalAssetAPR: BigNumber;

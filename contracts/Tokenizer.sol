@@ -60,7 +60,7 @@ contract Tokenizer is ITokenizer, ERC1155Upgradeable {
         // need calculation after maturity
         uint256 accruedInterest =
             Math.calculateLinearInterest(
-                _userData[tokenId][account].averageSupplyAPR,
+                _userData[tokenId][account].averageAssetBondAPR,
                 _userData[tokenId][account].updateTimestamp,
                 block.timestamp);
 
@@ -176,6 +176,27 @@ contract Tokenizer is ITokenizer, ERC1155Upgradeable {
     }
 
     /************ Interest Manage Functions ************/
+
+    function _beforeTokenTransfer(
+        address operator,
+        address from,
+        address to,
+        uint256[] memory ids,
+        uint256[] memory amounts,
+        bytes memory data
+    ) internal virtual override {
+        super._beforeTokenTransfer(operator, from, to, ids, amounts, data);
+
+        for (uint256 i = 0; i < ids.length; ++i) {
+            uint256 id = ids[i];
+            uint256 amount = amounts[i];
+
+            if(_tokenType[id] == Role.ATOKEN) {
+                AssetBond.updateATokenState(from);
+                AssetBond.updateATokenState(to);
+            }
+        }
+    }
 
     function increaseATokenBalanceOfMoneyPool(
         uint256 id,

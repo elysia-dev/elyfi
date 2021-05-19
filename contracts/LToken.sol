@@ -111,6 +111,52 @@ contract LToken is ILToken, ERC20Upgradeable {
     }
 
     /**
+     * @dev Transfers LToken
+     * @param from The from address
+     * @param to The recipient of LToken
+     * @param amount The amount getting transferred, but actual amount is implicit balance
+     * @param validate If true, validate and finalize transfer
+     **/
+    function _transfer(
+        address from,
+        address to,
+        uint256 amount,
+        bool validate
+    ) internal {
+        uint256 index = _moneyPool.getLTokenInterestIndex(_underlyingAsset);
+
+        uint256 previousFromBalance = super.balanceOf(from).rayMul(index);
+        uint256 previousToBalance = super.balanceOf(to).rayMul(index);
+
+        super._transfer(from, to, amount.rayDiv(index));
+
+        if (validate) {
+            _moneyPool.validateLTokenTransfer(
+                _underlyingAsset,
+                from,
+                to,
+                amount,
+                previousFromBalance,
+                previousToBalance
+            );
+        }
+    }
+
+    /**
+     * @dev Overriding ERC20 _transfer for reflecting implicit balance
+     * @param from The from address
+     * @param to The recipient of LToken
+     * @param amount The amount getting transferred
+     **/
+    function _transfer(
+        address from,
+        address to,
+        uint256 amount
+    ) internal override {
+        _transfer(from, to, amount, true);
+    }
+
+    /**
      * @dev Returns the address of the underlying asset of this aToken (E.g. WETH for aWETH)
      **/
     function getUnderlyingAsset() external view override returns (address) {

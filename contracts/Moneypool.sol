@@ -306,6 +306,25 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
         // transfer Underlying asset
         ILToken(lToken).transferUnderlyingTo(assetBond.borrower, borrowAmount);
     }
+    /************ TransferValidate Functions ************/
+
+    /**
+     * @dev Validate and finalize LToken transfer
+     * @notice In beta version, there's no need for validation
+     */
+    function validateLTokenTransfer(
+        address asset,
+        address from,
+        address to,
+        uint256 amount,
+        uint256 previousFromBalance,
+        uint256 previousToBalance
+    ) external override {
+        if(_msgSender() == _reserves[asset].lTokenAddress) revert(); ////
+
+        // For beta version, there's no need for validate LToken transfer
+        Validation.validateLTokenTrasfer();
+    }
 
     /************ Configuration Functions ************/
 

@@ -78,4 +78,6 @@ library Validation {
         if(assetBond.isDeposited == false) revert(); //// NotDepositedABToken();
         if(moneyPoolATokenBalance < amount) revert(); //// InsufficientATokenBalance(reserve.totalDepositedATokenBalance);
     }
+
+    function validateLTokenTrasfer() internal pure {}
 }

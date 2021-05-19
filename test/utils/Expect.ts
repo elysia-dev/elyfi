@@ -1,9 +1,9 @@
 import { BigNumber } from "ethers";
 import { rayMul } from "./Ethereum";
-import { ReserveData } from "./Interfaces";
+import { ReserveData, UserData } from "./Interfaces";
 import { calculateCompoundedInterest, calculateLinearInterest, calculateRateInInterestRateModel } from "./Math";
 
-export function expectedReserveDataAfterInvest(
+export function expectedReserveDataAfterInvestMoneyPool(
     amountInvest: BigNumber,
     reserveDataBefore: ReserveData,
     txTimestamp: BigNumber
@@ -59,4 +59,15 @@ export function expectedReserveDataAfterInvest(
     expectedReserveData.totalLTokenSupply = totalLTokenSupply.add(amountInvest);
 
     return expectedReserveData;
+}
+
+export function expectUserDataAfterInvestMoneyPool(
+    amountInvest: BigNumber,
+    userDataBefore: UserData,
+    reserveDataBefore: ReserveData,
+    txTimestamp: BigNumber
+): UserData {
+    let expectedUserData: UserData = userDataBefore;
+
+    
 }
