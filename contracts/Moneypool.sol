@@ -16,6 +16,7 @@ import "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeab
 contract MoneyPool is IMoneyPool, MoneyPoolStorage {
     using SafeERC20Upgradeable for IERC20Upgradeable;
     using Index for DataStruct.ReserveData;
+    using Index for DataStruct.AssetBondData;
     using Validation for DataStruct.ReserveData;
     using Rate for DataStruct.ReserveData;
     using AssetBond for DataStruct.AssetBondData;
@@ -154,7 +155,7 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
         uint256 amount
     ) external override {
         DataStruct.ReserveData storage reserve = _reserves[asset];
-        DataStruct.AssetBondData storage assetBond = _assetBond[id];
+        DataStruct.AssetBondData storage assetBond = _assetBond[asset][id];
 
         address lToken = reserve.lTokenAddress;
         address tokenizer = reserve.tokenizerAddress;
@@ -345,7 +346,7 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
 
     // need access control : only minter
     function borrowAgainstABToken(
-        address asset
+        address asset,
         uint256 borrowAmount,
         uint256 id
     ) external {

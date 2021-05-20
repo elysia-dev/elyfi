@@ -38,25 +38,6 @@ library AssetBond {
         assetBondData.isMatured = false;
     }
 
-    function validateBorrowAgainstAssetBond(
-        DataStruct.AssetBondData storage assetBond,
-        DataStruct.ReserveData storage reserve,
-        uint256 borrowAmount,
-        uint256 id
-    ) internal {
-        // moneypool validate logic : active, frozen
-
-        // check settled logic
-        if (assetBond.isSettled == true) revert(); ////error NotSettledABToken(id);
-
-        // check sign logic
-    }
-
-    function validateTokenId(uint256 id) internal {
-        // validate id
-        //// error InvalidABTokenID(id)
-    }
-
     struct DepositAssetBondLocalVars {
         uint256 netAmount;
         uint256 futureInterest;
