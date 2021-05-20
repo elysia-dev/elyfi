@@ -61,7 +61,8 @@ describe("Tokenizer", () => {
             lToken.address,
             dToken.address,
             interestModel.address,
-            tokenizer.address
+            tokenizer.address,
+            defaultReserveData.moneyPoolFactor
         )
     })
 

@@ -40,7 +40,6 @@ Feature: Borrower invests in ELYFI
         And 101 Deth is burned from Borrower // 101Deth 가 소각된다.
         And Health Factor of Borrower decreases // 유저의 Health factor가 감소한다
 
-    @Todo1
     Borrower borrow against real asset
     Background: ABToken state
         Given ABToken should be loanable state // ABToken은 대출가능한 상태여야 한다.

@@ -1,6 +1,6 @@
 import { BigNumber, Wallet } from "ethers";
 import { DataPipeline, ERC20Test } from "../../typechain";
-import { ReserveData, UserData } from "./Interfaces";
+import { defaultInterestModelParams, ReserveData, UserData } from "./Interfaces";
 
 export async function getUserData({
     underlyingAsset,
@@ -38,8 +38,8 @@ export async function getReserveData({
     )
     reserveData.underlyingAssetAddress = underlyingAsset.address
     reserveData.underlyingAssetName = await underlyingAsset.name()
-    reserveData.underlyingAssetsymbol = await underlyingAsset.symbol();
-    reserveData.underlyingAssetdecimals = BigNumber.from(await underlyingAsset.decimals());
+    reserveData.underlyingAssetSymbol = await underlyingAsset.symbol();
+    reserveData.underlyingAssetDecimals = BigNumber.from(await underlyingAsset.decimals());
     reserveData.totalLTokenSupply = contractReserveData.totalLTokenSupply;
     reserveData.implicitLTokenSupply = contractReserveData.implicitLTokenSupply;
     reserveData.totalDTokenSupply = contractReserveData.totalDTokenSupply;
@@ -53,7 +53,8 @@ export async function getReserveData({
     reserveData.digitalAssetAPR = contractReserveData.digitalAssetAPR;
     reserveData.supplyAPR = contractReserveData.supplyAPR;
     reserveData.moneyPoolLastUpdateTimestamp = contractReserveData.moneyPooLastUpdateTimestamp;
-    reserveData.tokenizerLastUpdateTimestamp = contractReserveData.tokenizerLastUpdateTimestamp
+    reserveData.tokenizerLastUpdateTimestamp = contractReserveData.tokenizerLastUpdateTimestamp;
+    reserveData.interestRateModelParams = defaultInterestModelParams;
 
     return reserveData;
 }

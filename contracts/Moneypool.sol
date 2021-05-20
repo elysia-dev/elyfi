@@ -432,10 +432,12 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
         address lToken,
         address dToken,
         address interestModel,
-        address tokenizer
+        address tokenizer,
+        uint256 moneyPoolFactor_
     ) external override {
         DataStruct.ReserveData memory newReserveData =
             DataStruct.ReserveData({
+                moneyPoolFactor: moneyPoolFactor_,
                 lTokenInterestIndex: WadRayMath.ray(),
                 dTokenInterestIndex: WadRayMath.ray(),
                 realAssetAPR: 0,

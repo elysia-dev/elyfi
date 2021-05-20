@@ -65,18 +65,18 @@ export function expectedReserveDataAfterInvestMoneyPool({
     return expectedReserveData;
 }
 
-export function expectedUserDataAfterInvestMoneyPool({
-    amountInvest,
-    userDataBefore,
-    reserveDataBefore,
-    txTimestamp
-}: {
-    amountInvest: BigNumber,
-    userDataBefore: UserData,
-    reserveDataBefore: ReserveData,
-    txTimestamp: BigNumber
-}): UserData {
-    let expectedUserData: UserData = userDataBefore;
+// export function expectedUserDataAfterInvestMoneyPool({
+//     amountInvest,
+//     userDataBefore,
+//     reserveDataBefore,
+//     txTimestamp
+// }: {
+//     amountInvest: BigNumber,
+//     userDataBefore: UserData,
+//     reserveDataBefore: ReserveData,
+//     txTimestamp: BigNumber
+// }): UserData {
+//     let expectedUserData: UserData = userDataBefore;
 
 
-}
+// }

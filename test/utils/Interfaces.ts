@@ -2,10 +2,11 @@ import { BigNumber, BigNumberish } from "ethers"
 import { RAY, toRate } from "./Ethereum"
 
 export interface ReserveData {
+    moneyPoolFactor: BigNumber;
     underlyingAssetAddress: string;
     underlyingAssetName: string;
-    underlyingAssetsymbol: string;
-    underlyingAssetdecimals: BigNumber;
+    underlyingAssetSymbol: string;
+    underlyingAssetDecimals: BigNumber;
     totalLTokenSupply: BigNumber;
     implicitLTokenSupply: BigNumber;
     totalDTokenSupply: BigNumber;
@@ -18,7 +19,8 @@ export interface ReserveData {
     realAssetAPR: BigNumber;
     digitalAssetAPR: BigNumber;
     supplyAPR: BigNumber;
-    lastUpdateTimestamp: BigNumber;
+    moneyPoolLastUpdateTimestamp: BigNumber;
+    tokenizerLastUpdateTimestamp: BigNumber;
     lTokenAddress: string;
     dTokenAddress: string;
     interestRateModelAddress: string;
@@ -28,8 +30,9 @@ export interface ReserveData {
 }
 
 export const defaultReserveData: ReserveData = <ReserveData>{
+    moneyPoolFactor: toRate(0.03),
     underlyingAssetName: "ELYSIA",
-    underlyingAssetsymbol: "EL",
+    underlyingAssetSymbol: "EL",
     lTokenInterestIndex: RAY,
     dTokenInterestIndex: RAY,
     realAssetAPR: BigNumber.from(0),

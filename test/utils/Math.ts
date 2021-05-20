@@ -185,7 +185,7 @@ function overallBorrowAPR(
 
     const totalDebt = aTokenAmount.add(dTokenAmount);
 
-    if (totalDebt == BigNumber.from(0)) {
+    if (totalDebt.eq(BigNumber.from(0))) {
         return BigNumber.from(0);
     }
 

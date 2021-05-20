@@ -27,9 +27,9 @@ import {
 
 export async function makeUnderlyingAsset({
     deployer,
-    totalSupply = expandToDecimals(1000000, 18),
+    totalSupply = expandToDecimals(1, 36),
     name = defaultReserveData.underlyingAssetName,
-    symbol = defaultReserveData.underlyingAssetsymbol
+    symbol = defaultReserveData.underlyingAssetSymbol
 }: {
     deployer: Wallet
     totalSupply?: BigNumber
@@ -195,7 +195,7 @@ export async function makeTokenizer({
     let tokenizerTest: TokenizerTest
 
     const tokenizerFactory = (await ethers.getContractFactory(
-        "TokenizerFactory",
+        "TokenizerTest",
         deployer
     )) as TokenizerTest__factory
 

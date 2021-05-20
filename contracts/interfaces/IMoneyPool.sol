@@ -85,6 +85,7 @@ interface IMoneyPool {
         address lToken,
         address dToken,
         address interestModel,
-        address tokenizer
+        address tokenizer,
+        uint256 moneyPoolFactor_
     ) external;
 }

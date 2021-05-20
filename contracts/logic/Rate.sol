@@ -54,12 +54,12 @@ library Rate {
             IInterestRateModel(reserve.interestModelAddress).calculateRates(
                 underlyingAssetAddress,
                 reserve.lTokenAddress,
-                vars.totalLToken,
                 vars.totalAToken,
                 vars.totalDToken,
                 investAmount,
                 borrowAmount,
-                vars.averageRealAssetAPR
+                vars.averageRealAssetAPR,
+                reserve.moneyPoolFactor
             );
 
         reserve.realAssetAPR = vars.newRealAssetAPR;

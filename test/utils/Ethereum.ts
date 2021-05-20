@@ -68,7 +68,3 @@ export const SECONDSPERYEAR = 31536000
 export const ETH = "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE"
 
 // Getter
-
-export async function getUserData(
-  
-)

@@ -8,11 +8,11 @@ interface IInterestRateModel {
     function calculateRates(
         address asset,
         address lToken,
+        uint256 totalAToken,
+        uint256 totalDToken,
         uint256 investAmount,
         uint256 borrowAmount,
-        uint256 dToken,
-        uint256 aToken,
-        uint256 moneyPoolFactor,
-        uint256 realAssetAPR
+        uint256 realAssetAPR,
+        uint256 moneyPoolFactor
     ) external view returns (uint256, uint256, uint256);
 }
