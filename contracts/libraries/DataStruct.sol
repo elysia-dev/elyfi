@@ -27,10 +27,12 @@ library DataStruct {
         string ipfsHash; // refactor : gas
         uint256 collateralValue;
         uint256 borrowAPR;
+        uint256 aTokenInterestIndex;
         uint256 sign; // refactor : apply oz - sign
         uint256 issuanceDate;
         uint256 dueDate;
         uint256 maturityDate;
+        uint40 lastUpdateTimestamp;
         bool isSettled; // refactor : need configuration
         bool isDeposited; // refactor : need configuration
         bool isMatured; // refactor : need configuration
@@ -50,7 +52,7 @@ library DataStruct {
     }
 
     struct UserAssetBondInvestData {
-        uint256 averageSupplyAPR;
+        uint256 averageAssetBondAPR;
         uint40 updateTimestamp;
     }
 }

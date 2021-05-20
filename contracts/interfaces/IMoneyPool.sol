@@ -57,9 +57,19 @@ interface IMoneyPool {
         address asset
     ) external view returns (uint256);
 
+    function getATokenInterestIndex(
+        address asset,
+        uint256 tokenId
+    ) external view returns (uint256);
+
     function getReserveData(
         address asset
     ) external view returns (DataStruct.ReserveData memory);
+
+    function getAssetBondData(
+        address asset,
+        uint256 tokenId
+    ) external view returns (DataStruct.AssetBondData memory);
 
     function validateLTokenTransfer(
         address asset,

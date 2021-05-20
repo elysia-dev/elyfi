@@ -23,7 +23,8 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
     function initialize(
         uint256 maxReserveCount_,
         address connector
-    ) public initializer {
+    ) public initializer
+    {
         _connector = connector;
         _maxReserveCount = maxReserveCount_;
         _reserveCount += 1;
@@ -55,16 +56,33 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
         reserve.updateState();
 
         // update rates
-        reserve.updateRates(asset, tokenizer, amount, 0);
+        reserve.updateRates(
+            asset,
+            tokenizer,
+            amount,
+            0
+        );
 
         // transfer underlying asset
         // If transfer fail, reverts
-        IERC20Upgradeable(asset).safeTransferFrom(msg.sender, lToken, amount);
+        IERC20Upgradeable(asset).safeTransferFrom(
+            msg.sender,
+            lToken,
+            amount
+        );
 
         // Mint ltoken
-        ILToken(lToken).mint(account, amount, reserve.lTokenInterestIndex);
+        ILToken(lToken).mint(
+            account,
+            amount,
+            reserve.lTokenInterestIndex
+        );
 
-        emit InvestMoneyPool(asset, account, amount);
+        emit InvestMoneyPool(
+            asset,
+            account,
+            amount
+        );
     }
 
     function withdrawMoneyPool(
@@ -101,12 +119,27 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
         reserve.updateState();
 
         // update rates
-        reserve.updateRates(asset, tokenizer, 0, amount);
+        reserve.updateRates(
+            asset,
+            tokenizer,
+            0,
+            amount
+        );
 
         // Burn ltoken
-        ILToken(lToken).burn(msg.sender, account, amount, reserve.lTokenInterestIndex);
+        ILToken(lToken).burn(
+            msg.sender,
+            account,
+            amount,
+            reserve.lTokenInterestIndex
+        );
 
-        emit WithdrawMoneyPool(asset, msg.sender, account, amountToWithdraw);
+        emit WithdrawMoneyPool(
+            asset,
+            msg.sender,
+            account,
+            amountToWithdraw
+        );
     }
 
     /************ ABToken Investment Functions ************/
@@ -129,23 +162,34 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
             reserve,
             assetBond,
             amount,
-            ITokenizer(tokenizer).totalATokenBalanceOfMoneyPool());
+            ITokenizer(tokenizer).totalATokenBalanceOfMoneyPool()
+        );
 
         // update indexes and mintToReserve
         reserve.updateState();
 
         // update rates
-        reserve.updateRates(asset, tokenizer, amount, 0);
+        reserve.updateRates(
+            asset,
+            tokenizer,
+            amount,
+            0
+        );
 
         // transfer underlying asset
         // If transfer fail, reverts
-        IERC20Upgradeable(asset).safeTransferFrom(msg.sender, lToken, amount);
+        IERC20Upgradeable(asset).safeTransferFrom(
+            msg.sender,
+            lToken,
+            amount
+        );
 
         // decrease moneypool balance of AToken
         ITokenizer(tokenizer).decreaseATokenBalanceOfMoneyPool(
             id,
             amount,
-            assetBond.borrowAPR);
+            assetBond.borrowAPR
+        );
 
         // transfer AToken via tokenizer
         ITokenizer(tokenizer).safeTransferFrom(
@@ -153,9 +197,15 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
             account,
             id,
             amount,
-            "");
+            ""
+        );
 
-        emit InvestABToken(asset, account, id, amount);
+        emit InvestABToken(
+            asset,
+            account,
+            id,
+            amount
+        );
     }
 
     function withdrawABTokenInvestment(
@@ -166,15 +216,10 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
         bool rewardClaim // if true, transfer all accrued reward
     ) external override returns (uint256) {
         // validation : AToken Balance check
-
         // update states, rate
-
         // transfer underlying asset
-
         // transferFrom AToken -> need allowance
-
         // if true, claim all rewards
-
         // update ReserveData
     }
 
@@ -203,6 +248,19 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
     }
 
     /**
+     * @dev Returns AToken Interest index of assetBond
+     * @param asset The address of the underlying asset of the asset bond
+     * @param tokenId The asset bond token id
+     * @return The AToken interest index of asset bond
+     */
+    function getATokenInterestIndex(
+        address asset,
+        uint256 tokenId
+    ) external view override returns (uint256) {
+        return _assetBond[asset][tokenId].getATokenInterestIndex();
+    }
+
+    /**
      * @dev Returns the state and configuration of the reserve
      * @param asset The address of the underlying asset of the reserve
      * @return The state of the reserve
@@ -211,6 +269,19 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
         address asset
     ) external view override returns (DataStruct.ReserveData memory) {
         return _reserves[asset];
+    }
+
+    /**
+     * @dev Returns the state of the asset bond
+     * @param asset The address of the underlying asset of the reserve
+     * @param tokenId The asset bond token id
+     * @return The data of the asset bond
+     **/
+    function getAssetBondData(
+        address asset,
+        uint256 tokenId
+    ) external view override returns (DataStruct.AssetBondData memory) {
+        return _assetBond[asset][tokenId];
     }
 
     /************ ABToken Formation Functions ************/
@@ -225,8 +296,8 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
 
         address tokenizer = reserve.tokenizerAddress;
 
-        // validate Id : Id should have information about minter.
-        AssetBond.validateTokenId(id);
+        // validate Id : Id should have information about
+        Validation.validateTokenId(id);
 
         ITokenizer(tokenizer).mintABToken(account, id);
     }
@@ -241,7 +312,11 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
         uint256 dueDate,
         string memory ipfsHash
     ) external {
-        _assetBond[id].initAssetBond(
+        // Validate init asset bond
+        // lawfirm should be authorized
+        Validation.validateInitABToken(lawfirm);
+
+        _assetBond[asset][id].initAssetBond(
             asset,
             borrower,
             lawfirm,
@@ -255,7 +330,7 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
     function signABToken(
         uint256 id,
         address signer
-        ) external {}
+    ) external {}
 
     // need access control : only minter
     function borrowAgainstABToken(
@@ -270,7 +345,7 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
 
         // Check if borrow amount exceeds collateral value
         // Check if borrow amount exceeds liquidity available
-        AssetBond.validateBorrowAgainstAssetBond(
+        Validation.validateBorrowAgainstAssetBond(
             assetBond,
             reserve,
             borrowAmount,
@@ -280,7 +355,12 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
         reserve.updateState();
 
         // update interest rate
-        reserve.updateRates(assetBond.asset, tokenizer, 0, borrowAmount);
+        reserve.updateRates(
+            assetBond.asset,
+            tokenizer,
+            0,
+            borrowAmount
+        );
 
         // mintAToken to moneyPool
         ITokenizer(tokenizer).mintAToken(
@@ -304,8 +384,12 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
         );
 
         // transfer Underlying asset
-        ILToken(lToken).transferUnderlyingTo(assetBond.borrower, borrowAmount);
+        ILToken(lToken).transferUnderlyingTo(
+            assetBond.borrower,
+            borrowAmount
+        );
     }
+
     /************ TransferValidate Functions ************/
 
     /**
@@ -320,7 +404,7 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
         uint256 previousFromBalance,
         uint256 previousToBalance
     ) external override {
-        if(_msgSender() == _reserves[asset].lTokenAddress) revert(); ////
+        if (msg.sender == _reserves[asset].lTokenAddress) revert(); ////
 
         // For beta version, there's no need for validate LToken transfer
         Validation.validateLTokenTrasfer();

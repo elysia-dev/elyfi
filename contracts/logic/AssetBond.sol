@@ -32,6 +32,7 @@ library AssetBond {
         assetBondData.dueDate = dueDate;
         assetBondData.ipfsHash = ipfsHash;
         assetBondData.collateralValue = collateralValue;
+        assetBondData.lastUpdateTimestamp = uint40(block.timestamp);
         assetBondData.isSettled = true;
         assetBondData.isDeposited = false;
         assetBondData.isMatured = false;
@@ -169,5 +170,7 @@ library AssetBond {
         address account,
         uint256 tokenId,
         uint256 supplyAPR
-    )
+    ) internal {
+        
+    }
 }

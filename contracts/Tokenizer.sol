@@ -52,19 +52,15 @@ contract Tokenizer is ITokenizer, ERC1155Upgradeable {
         address account,
         uint256 tokenId
     ) public view virtual override(ERC1155Upgradeable, IERC1155Upgradeable) returns (uint256) {
-        uint256 userPreviousBalance = super.balanceOf(account, tokenId);
-        if (userPreviousBalance == 0) {
-            return 0;
+        if (_tokenType[tokenId] == Role.ABTOKEN) {
+            return super.balanceOf(account, tokenId);
         }
 
-        // need calculation after maturity
-        uint256 accruedInterest =
-            Math.calculateLinearInterest(
-                _userData[tokenId][account].averageAssetBondAPR,
-                _userData[tokenId][account].updateTimestamp,
-                block.timestamp);
+        uint256 aTokenIndex = _moneyPool.getATokenInterestIndex(
+            _underlyingAsset,
+            tokenId);
 
-        return userPreviousBalance.rayMul(accruedInterest);
+        return super.balanceOf(account, tokenId).rayMul(aTokenIndex);
     }
 
     /**
@@ -74,7 +70,7 @@ contract Tokenizer is ITokenizer, ERC1155Upgradeable {
     function totalATokenBalanceOfMoneyPool() public view override returns (uint256) {
         uint256 accruedInterest =
             Math.calculateLinearInterest(
-                _tokenizer.averageMoneyPoolAPR,
+                _tokenizer.averageATokenAPR,
                 _tokenizer.lastUpdateTimestamp,
                 block.timestamp);
 
@@ -192,8 +188,8 @@ contract Tokenizer is ITokenizer, ERC1155Upgradeable {
             uint256 amount = amounts[i];
 
             if(_tokenType[id] == Role.ATOKEN) {
-                AssetBond.updateATokenState(from);
-                AssetBond.updateATokenState(to);
+                AssetBond.updateAccountATokenBalance(from);
+                AssetBond.updateAccountATokenBalance(to);
             }
         }
     }

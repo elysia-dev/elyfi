@@ -79,5 +79,30 @@ library Validation {
         if(moneyPoolATokenBalance < amount) revert(); //// InsufficientATokenBalance(reserve.totalDepositedATokenBalance);
     }
 
+    function validateBorrowAgainstAssetBond(
+        DataStruct.AssetBondData storage assetBond,
+        DataStruct.ReserveData storage reserve,
+        uint256 borrowAmount,
+        uint256 id
+    ) internal {
+        // moneypool validate logic : active, frozen
+
+        // check settled logic
+        if (assetBond.isSettled == true) revert(); ////error NotSettledABToken(id);
+
+        // check sign logic
+    }
+
+    function validateTokenId(uint256 id) internal {
+        // validate id
+        //// error InvalidABTokenID(id)
+    }
+
+    function validateInitABToken(
+        address lawfirm
+    ) internal view {
+        // checks whether lawfirm authorized
+    }
+
     function validateLTokenTrasfer() internal pure {}
 }
