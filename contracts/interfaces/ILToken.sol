@@ -14,7 +14,8 @@ interface ILToken is IERC20Upgradeable {
     event Mint(
         address indexed account,
         uint256 amount,
-        uint256 index);
+        uint256 index
+    );
 
     /**
      * @dev Emitted after lTokens are burned
@@ -27,7 +28,8 @@ interface ILToken is IERC20Upgradeable {
         address indexed account,
         address indexed underlyingAssetReceiver,
         uint256 amount,
-        uint256 index);
+        uint256 index
+    );
 
     /**
      * @dev Emitted during the transfer action
@@ -40,7 +42,8 @@ interface ILToken is IERC20Upgradeable {
         address indexed account,
         address indexed to,
         uint256 amount,
-        uint256 index);
+        uint256 index
+    );
 
     function mint(
         address account,

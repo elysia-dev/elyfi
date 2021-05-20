@@ -50,7 +50,10 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
 
         // validation
         // Check pool activation
-        Validation.validateInvestMoneyPool(reserve, amount);
+        Validation.validateInvestMoneyPool(
+            reserve,
+            amount
+        );
 
         // update indexes and mintToReserve
         reserve.updateState();
@@ -299,10 +302,16 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
         // validate Id : Id should have information about
         Validation.validateTokenId(id);
 
-        ITokenizer(tokenizer).mintABToken(account, id);
+        ITokenizer(tokenizer).mintABToken(
+            account,
+            id
+        );
     }
 
     // Access control : only minter
+    /**
+     * @dev Asset Bond su
+     */
     function settleABToken(
         address asset,
         address borrower, // borrower address
@@ -314,7 +323,9 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
     ) external {
         // Validate init asset bond
         // lawfirm should be authorized
-        Validation.validateInitABToken(lawfirm);
+        Validation.validateInitABToken(
+            lawfirm
+        );
 
         _assetBond[asset][id].initAssetBond(
             asset,
@@ -334,11 +345,12 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
 
     // need access control : only minter
     function borrowAgainstABToken(
+        address asset
         uint256 borrowAmount,
         uint256 id
     ) external {
-        DataStruct.AssetBondData storage assetBond = _assetBond[id];
-        DataStruct.ReserveData storage reserve = _reserves[assetBond.asset];
+        DataStruct.AssetBondData storage assetBond = _assetBond[asset][id];
+        DataStruct.ReserveData storage reserve = _reserves[asset];
 
         address lToken = reserve.lTokenAddress;
         address tokenizer = reserve.tokenizerAddress;
@@ -348,6 +360,7 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
         Validation.validateBorrowAgainstAssetBond(
             assetBond,
             reserve,
+            asset,
             borrowAmount,
             id
         );
@@ -390,7 +403,7 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
         );
     }
 
-    /************ TransferValidate Functions ************/
+    /************ External Functions ************/
 
     /**
      * @dev Validate and finalize LToken transfer

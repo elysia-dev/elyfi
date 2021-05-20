@@ -82,15 +82,20 @@ library Validation {
     function validateBorrowAgainstAssetBond(
         DataStruct.AssetBondData storage assetBond,
         DataStruct.ReserveData storage reserve,
+        address asset,
         uint256 borrowAmount,
         uint256 id
     ) internal {
         // moneypool validate logic : active, frozen
 
         // check settled logic
-        if (assetBond.isSettled == true) revert(); ////error NotSettledABToken(id);
+        if (assetBond.isSettled == true) revert(); //// NotSettledABToken(id);
 
         // check sign logic
+        if (assetBond.isSigned == false) revert(); ////NotSignedABToken(id);
+
+        uint256 availableLiquidity = IERC20Upgradeable(asset).balanceOf(reserve.lTokenAddress);
+
     }
 
     function validateTokenId(uint256 id) internal {

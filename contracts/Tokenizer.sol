@@ -25,6 +25,8 @@ contract Tokenizer is ITokenizer, ERC1155Upgradeable {
 
     mapping (uint256 => address) internal _minter;
 
+    address internal _underlyingAsset;
+
     // account supply APR and timestamp for each AToken
     mapping (uint256 => mapping (address => DataStruct.UserAssetBondInvestData)) internal _userData;
 
@@ -44,6 +46,7 @@ contract Tokenizer is ITokenizer, ERC1155Upgradeable {
 
     /**
      * @dev Returns sum of previous balance and accrued interest of account
+     * If token is NFT, return 1
      * @param account Account address
      * @param tokenId Token Id
      * @return The sum of previous balance and accrued interest
@@ -91,20 +94,28 @@ contract Tokenizer is ITokenizer, ERC1155Upgradeable {
         return _tokenizer.totalATokenSupply.rayMul(accruedInterest);
     }
 
-    // function burnAToken(
-    //     address account,
-    //     uint256 assetBondId,
-    //     uint256 amount
-    // ) external {
+    function getMinter(
+        uint256 id
+    ) external view returns (address) {
+        return _minter[id];
+    }
 
-    //     // validation : only after maturation
+    /************ ABToken Formation Functions ************/
 
-    //     Math.calculateRateInDecreasingBalance(
-    //         _tokenizer.averageMoneyPoolAPR,
-    //         _tokenizer.totalATokenBalanceOfMoneyPool,
-    //         amount,
-    //         );
-    // }
+    // id : bitMask
+    function mintABToken(
+        address account, // CO address
+        uint256 id // information about CO and borrower
+    ) external override onlyMoneyPool {
+
+        if (_minter[id] != address(0)) revert(); ////error ABTokenIDAlreadyExist(id)
+
+        // mint ABToken to CO
+        _mint(account, id, 1, "");
+
+        _minter[id] = account;
+        _tokenType[id] = Role.ABTOKEN;
+    }
 
     struct MintLocalVars {
         uint256 aTokenId;
@@ -150,49 +161,88 @@ contract Tokenizer is ITokenizer, ERC1155Upgradeable {
         );
     }
 
-    function getMinter(
-        uint256 id
-    ) external view returns (address) {
-        return _minter[id];
+    // function burnAToken(
+    //     address account,
+    //     uint256 assetBondId,
+    //     uint256 amount
+    // ) external {
+
+    //     // validation : only after maturation
+
+    //     Math.calculateRateInDecreasingBalance(
+    //         _tokenizer.averageMoneyPoolAPR,
+    //         _tokenizer.totalATokenBalanceOfMoneyPool,
+    //         amount,
+    //         );
+    // }
+
+    /************ Token Functions ************/
+
+    /**
+     * @dev Overriding ERC1155 safeTransferFrom to transfer implicit balance
+     * Transfer AToken to moneypool is not allowed in beta version
+     */
+    function safeTransferFrom(
+        address from,
+        address to,
+        uint256 tokenId,
+        uint256 amount,
+        bytes memory data
+    ) public override(ERC1155Upgradeable, IERC1155Upgradeable) {
+        if (_tokenType[tokenId] == Role.ATOKEN) {
+            if (to == address(_moneyPool)) revert(); //// TransferATokenToMoneyPoolNotAllowed();
+
+            uint256 index = _moneyPool.getATokenInterestIndex(
+                _underlyingAsset,
+                tokenId);
+
+            super.safeTransferFrom(
+                from,
+                to,
+                tokenId,
+                amount.rayDiv(index),
+                data
+            );
+        }
     }
 
-    // id : bitMask
-    function mintABToken(
-        address account, // CO address
-        uint256 id // information about CO and borrower
-    ) external override onlyMoneyPool {
-
-        if (_minter[id] != address(0)) revert(); ////error ABTokenIDAlreadyExist(id)
-
-        // mint ABToken to CO
-        _mint(account, id, 1, "");
-
-        _minter[id] = account;
-        _tokenType[id] = Role.ABTOKEN;
-    }
-
-    /************ Interest Manage Functions ************/
-
-    function _beforeTokenTransfer(
-        address operator,
+    /**
+     * @dev Overriding ERC1155 safeBatchTransferFrom to transfer implicit balance
+     * Transfer AToken to moneypool is not allowed in beta version
+     */
+    function safeBatchTransferFrom(
         address from,
         address to,
         uint256[] memory ids,
         uint256[] memory amounts,
         bytes memory data
-    ) internal virtual override {
-        super._beforeTokenTransfer(operator, from, to, ids, amounts, data);
+    ) public override(ERC1155Upgradeable, IERC1155Upgradeable) {
 
         for (uint256 i = 0; i < ids.length; ++i) {
             uint256 id = ids[i];
             uint256 amount = amounts[i];
 
-            if(_tokenType[id] == Role.ATOKEN) {
-                AssetBond.updateAccountATokenBalance(from);
-                AssetBond.updateAccountATokenBalance(to);
+            if (_tokenType[id] == Role.ATOKEN) {
+                if (to == address(_moneyPool)) revert(); //// TransferATokenToMoneyPoolNotAllowed();
+
+                uint256 index = _moneyPool.getATokenInterestIndex(
+                _underlyingAsset,
+                id);
+
+                amounts[i] = amount.rayDiv(index);
             }
         }
+
+        super.safeBatchTransferFrom(
+            from,
+            to,
+            ids,
+            amounts,
+            data
+        );
     }
+
+    /************ Interest Manage Functions ************/
 
     function increaseATokenBalanceOfMoneyPool(
         uint256 id,
@@ -227,7 +277,9 @@ contract Tokenizer is ITokenizer, ERC1155Upgradeable {
     }
 
     // need logic : generate token id
-    function _generateATokenId(uint256 assetBondId) internal pure returns (uint256) {
+    function _generateATokenId(
+        uint256 assetBondId
+    ) internal pure returns (uint256) {
         return assetBondId;
     }
 

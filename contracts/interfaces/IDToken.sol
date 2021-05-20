@@ -4,7 +4,11 @@ pragma solidity 0.8.4;
 import "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
 
 interface IDToken is IERC20Upgradeable {
-    event Mint(address indexed from, uint256 value, uint256 index);
+    event Mint(
+        address indexed from,
+        uint256 value,
+        uint256 index
+    );
 
     function mint(
         address user,
@@ -55,8 +59,6 @@ interface IDToken is IERC20Upgradeable {
     ) external;
 
     function implicitTotalSupply() external returns (uint256);
-
-    
 
     /**
      * @dev Returns the address of the underlying asset of this aToken (E.g. WETH for aWETH)
