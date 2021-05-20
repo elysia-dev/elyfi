@@ -94,6 +94,10 @@ contract Tokenizer is ITokenizer, ERC1155Upgradeable {
         return _tokenizer.totalATokenSupply.rayMul(accruedInterest);
     }
 
+    function getAverageATokenAPR() external view override returns (uint256) {
+        return _tokenizer.averageATokenAPR;
+    }
+
     function getMinter(
         uint256 id
     ) external view returns (address) {
@@ -270,10 +274,6 @@ contract Tokenizer is ITokenizer, ERC1155Upgradeable {
             aTokenId,
             amount,
             rate);
-    }
-
-    function getAverageATokenAPR() external view override returns (uint256) {
-        return _tokenizer.averageATokenAPR;
     }
 
     // need logic : generate token id

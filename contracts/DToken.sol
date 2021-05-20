@@ -52,6 +52,24 @@ contract DToken is IDToken, ERC20Upgradeable {
     }
 
     /**
+     * @return Returns implicit balance multipied by dToken interest index
+     **/
+    function balanceOf(
+        address account
+    ) public view override(ERC20Upgradeable, IERC20Upgradeable) returns (uint256) {
+        return
+            super.balanceOf(account).rayMul(
+                _moneyPool.getDTokenInterestIndex(_underlyingAsset)
+            );
+    }
+
+    function implicitBalanceOf(
+        address account
+    ) external view override returns (uint256) {
+        return super.balanceOf(account);
+    }
+
+    /**
      * @dev Returns the address of the underlying asset of this aToken (E.g. WETH for aWETH)
      **/
     function getUnderlyingAsset() external view override returns (address) {
