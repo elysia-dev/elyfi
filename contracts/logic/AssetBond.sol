@@ -105,7 +105,7 @@ library AssetBond {
             rate
         );
 
-        tokenizer.averageMoneyPoolAPR = vars.newAPR;
+        tokenizer.averageATokenAPR = vars.newAPR;
         tokenizer.totalATokenBalanceOfMoneyPool = vars.newBalance;
 
         emit MoneyTotalATokenDataUpdated(
@@ -136,7 +136,7 @@ library AssetBond {
             rate
         );
 
-        tokenizer.averageMoneyPoolAPR = vars.newAPR;
+        tokenizer.averageATokenAPR = vars.newAPR;
         tokenizer.totalATokenBalanceOfMoneyPool = vars.newBalance;
 
         emit MoneyTotalATokenDataUpdated(

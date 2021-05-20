@@ -52,8 +52,8 @@ export async function getReserveData({
     reserveData.realAssetAPR = contractReserveData.realAssetAPR;
     reserveData.digitalAssetAPR = contractReserveData.digitalAssetAPR;
     reserveData.supplyAPR = contractReserveData.supplyAPR;
-    reserveData.lastUpdateTimestamp = contractReserveData.lastUpdateTimestamp;
-
+    reserveData.moneyPoolLastUpdateTimestamp = contractReserveData.moneyPooLastUpdateTimestamp;
+    reserveData.tokenizerLastUpdateTimestamp = contractReserveData.tokenizerLastUpdateTimestamp
 
     return reserveData;
 }

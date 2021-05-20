@@ -94,6 +94,10 @@ contract Tokenizer is ITokenizer, ERC1155Upgradeable {
         return _tokenizer.totalATokenSupply.rayMul(accruedInterest);
     }
 
+    function getAverageATokenAPR() external view override returns (uint256) {
+        return _tokenizer.averageATokenAPR;
+    }
+
     function getTokenizerData() external view override returns (DataStruct.TokenizerData memory) {
         return _tokenizer;
     }
@@ -246,7 +250,7 @@ contract Tokenizer is ITokenizer, ERC1155Upgradeable {
         );
     }
 
-    /************ MoneyPool AToken Balance Manage Functions ************/
+    /************ MoneyPool Total AToken Balance Manage Functions ************/
 
     function increaseATokenBalanceOfMoneyPool(
         uint256 id,

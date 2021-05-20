@@ -3,30 +3,34 @@ import { rayMul } from "./Ethereum";
 import { ReserveData, UserData } from "./Interfaces";
 import { calculateCompoundedInterest, calculateLinearInterest, calculateRateInInterestRateModel } from "./Math";
 
-export function expectedReserveDataAfterInvestMoneyPool(
+export function expectedReserveDataAfterInvestMoneyPool({
+    amountInvest,
+    reserveDataBefore,
+    txTimestamp
+}: {
     amountInvest: BigNumber,
     reserveDataBefore: ReserveData,
     txTimestamp: BigNumber
-): ReserveData {
+}): ReserveData {
     let expectedReserveData: ReserveData = reserveDataBefore
 
     // update states
-    if (expectedReserveData.supplyAPR == BigNumber.from(0) ) {
-        expectedReserveData.lastUpdateTimestamp = txTimestamp;
+    if (expectedReserveData.supplyAPR == BigNumber.from(0)) {
+        expectedReserveData.moneyPoolLastUpdateTimestamp = txTimestamp;
     }
-    if (expectedReserveData.lastUpdateTimestamp != txTimestamp) {
+    if (expectedReserveData.moneyPoolLastUpdateTimestamp != txTimestamp) {
         expectedReserveData.lTokenInterestIndex = calculateLinearInterest(
             expectedReserveData.supplyAPR,
-            expectedReserveData.lastUpdateTimestamp,
+            expectedReserveData.moneyPoolLastUpdateTimestamp,
             txTimestamp
         );
         expectedReserveData.dTokenInterestIndex = calculateCompoundedInterest(
             expectedReserveData.digitalAssetAPR,
-            expectedReserveData.lastUpdateTimestamp,
+            expectedReserveData.moneyPoolLastUpdateTimestamp,
             txTimestamp
         );
 
-        expectedReserveData.lastUpdateTimestamp = txTimestamp;
+        expectedReserveData.moneyPoolLastUpdateTimestamp = txTimestamp;
     }
 
     // update rates
@@ -61,13 +65,18 @@ export function expectedReserveDataAfterInvestMoneyPool(
     return expectedReserveData;
 }
 
-export function expectUserDataAfterInvestMoneyPool(
+export function expectedUserDataAfterInvestMoneyPool({
+    amountInvest,
+    userDataBefore,
+    reserveDataBefore,
+    txTimestamp
+}: {
     amountInvest: BigNumber,
     userDataBefore: UserData,
     reserveDataBefore: ReserveData,
     txTimestamp: BigNumber
-): UserData {
+}): UserData {
     let expectedUserData: UserData = userDataBefore;
 
-    
+
 }
