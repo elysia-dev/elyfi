@@ -40,7 +40,7 @@ interface ITokenizer is IERC1155Upgradeable {
 
     function totalATokenBalanceOfMoneyPool() external view returns (uint256);
 
-    function getAverageATokenAPR() external view returns (uint256);
+    function getTokenizerData() external view returns (DataStruct.TokenizerData memory);
 
     function increaseATokenBalanceOfMoneyPool(
         uint256 aTokenId,

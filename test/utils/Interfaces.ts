@@ -19,12 +19,10 @@ export interface ReserveData {
     digitalAssetAPR: BigNumber;
     supplyAPR: BigNumber;
     lastUpdateTimestamp: BigNumber;
-    tokenizerLastUpdateTimestamp: BigNumber;
     lTokenAddress: string;
     dTokenAddress: string;
     interestRateModelAddress: string;
     tokenizerAddress: string;
-    stableBorrowRate: BigNumber;
     utilizationRate: BigNumber;
     interestRateModelParams : InterestModelParams
 }

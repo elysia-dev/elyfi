@@ -1,0 +1,59 @@
+import { BigNumber, Wallet } from "ethers";
+import { DataPipeline, ERC20Test } from "../../typechain";
+import { ReserveData, UserData } from "./Interfaces";
+
+export async function getUserData({
+    underlyingAsset,
+    dataPipeline,
+    user
+}: {
+    underlyingAsset: ERC20Test
+    dataPipeline: DataPipeline
+    user: Wallet
+}): Promise<UserData> {
+    const userData = <UserData>{};
+    const contractUserData = await dataPipeline.getUserData(
+        underlyingAsset.address,
+        user.address
+    )
+    userData.underlyingAssetBalance = contractUserData.underlyingAssetBalance;
+    userData.lTokenBalance = contractUserData.lTokenBalance;
+    userData.implicitLtokenBalance = contractUserData.implicitLtokenBalance;
+    userData.dTokenBalance = contractUserData.dTokenBalance;
+    userData.implicitLtokenBalance = contractUserData.implicitDtokenBalance;
+
+    return userData;
+}
+
+export async function getReserveData({
+    underlyingAsset,
+    dataPipeline
+}: {
+    underlyingAsset: ERC20Test
+    dataPipeline: DataPipeline
+}): Promise<ReserveData> {
+    const reserveData = <ReserveData>{};
+    const contractReserveData = await dataPipeline.getReserveData(
+        underlyingAsset.address
+    )
+    reserveData.underlyingAssetAddress = underlyingAsset.address
+    reserveData.underlyingAssetName = await underlyingAsset.name()
+    reserveData.underlyingAssetsymbol = await underlyingAsset.symbol();
+    reserveData.underlyingAssetdecimals = BigNumber.from(await underlyingAsset.decimals());
+    reserveData.totalLTokenSupply = contractReserveData.totalLTokenSupply;
+    reserveData.implicitLTokenSupply = contractReserveData.implicitLTokenSupply;
+    reserveData.totalDTokenSupply = contractReserveData.totalDTokenSupply;
+    reserveData.implicitDTokenSupply = contractReserveData.implicitDTokenSupply;
+    reserveData.totalATokenSupply = contractReserveData.totalATokenSupply;
+    reserveData.totalMoneyPoolATokenBalance = contractReserveData.totalMoneyPoolATokenBalance;
+    reserveData.lTokenInterestIndex = contractReserveData.lTokenInterestIndex;
+    reserveData.dTokenInterestIndex = contractReserveData.dTokenInterestIndex;
+    reserveData.averageATokenAPR = contractReserveData.averageATokenAPR;
+    reserveData.realAssetAPR = contractReserveData.realAssetAPR;
+    reserveData.digitalAssetAPR = contractReserveData.digitalAssetAPR;
+    reserveData.supplyAPR = contractReserveData.supplyAPR;
+    reserveData.lastUpdateTimestamp = contractReserveData.lastUpdateTimestamp;
+
+
+    return reserveData;
+}

@@ -53,6 +53,8 @@ contract DataPipeline {
         uint256 realAssetAPR;
         uint256 digitalAssetAPR;
         uint256 supplyAPR;
+        uint256 moneyPooLastUpdateTimestamp;
+        uint256 tokenizerLastUpdateTimestamp;
     }
 
     function getReserveData(
@@ -60,6 +62,7 @@ contract DataPipeline {
     ) external view returns (ReserveData memory) {
         ReserveData memory vars;
         DataStruct.ReserveData memory reserve = moneyPool.getReserveData(asset);
+        DataStruct.TokenizerData memory tokenizer = ITokenizer(reserve.tokenizerAddress).getTokenizerData();
 
         vars.totalLTokenSupply = ILToken(reserve.lTokenAddress).totalSupply();
         vars.implicitLTokenSupply = ILToken(reserve.lTokenAddress).implicitTotalSupply();
@@ -69,10 +72,12 @@ contract DataPipeline {
         vars.totalMoneyPoolATokenBalance = ITokenizer(reserve.tokenizerAddress).totalATokenBalanceOfMoneyPool();
         vars.lTokenInterestIndex = reserve.lTokenInterestIndex;
         vars.dTokenInterestIndex = reserve.dTokenInterestIndex;
-        vars.averageATokenAPR = ITokenizer(reserve.tokenizerAddress).getAverageATokenAPR();
+        vars.averageATokenAPR = tokenizer.averageATokenAPR;
         vars.realAssetAPR = reserve.realAssetAPR;
         vars.digitalAssetAPR = reserve.digitalAssetAPR;
         vars.supplyAPR = reserve.supplyAPR;
+        vars.moneyPooLastUpdateTimestamp = uint256(reserve.lastUpdateTimestamp);
+        vars.tokenizerLastUpdateTimestamp = uint256(tokenizer.lastUpdateTimestamp);
 
         return vars;
     }

@@ -42,7 +42,6 @@ library DataStruct {
     struct TokenizerData {
         address asset;
         uint256 averageATokenAPR;
-        uint256 averageMoneyPoolAPR;
         uint256 totalATokenSupply;
         uint256 totalATokenBalanceOfMoneyPool;
         uint40 lastUpdateTimestamp;

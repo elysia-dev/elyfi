@@ -12,12 +12,18 @@ import {
     TokenizerTest,
     TokenizerTest__factory,
     Connector,
-    Connector__factory
+    Connector__factory,
+    DataPipeline,
+    DataPipeline__factory
 } from "../../typechain"
 import { BigNumber, Contract, Wallet } from "ethers"
 import { ethers } from "hardhat";
 import { expandToDecimals, toRate } from "./Ethereum";
-import { defaultInterestModelParams, defaultReserveData, InterestModelParams } from "./Interfaces";
+import {
+    defaultInterestModelParams,
+    defaultReserveData,
+    InterestModelParams
+} from "./Interfaces";
 
 export async function makeUnderlyingAsset({
     deployer,
@@ -199,4 +205,25 @@ export async function makeTokenizer({
     )
 
     return tokenizerTest;
+}
+
+export async function makeDataPipeline({
+    deployer,
+    moneyPool
+}: {
+    deployer: Wallet
+    moneyPool: MoneyPoolTest | Contract
+}): Promise<DataPipeline> {
+    let dataPipeline: DataPipeline;
+
+    const dataPipelineFactory = (await ethers.getContractFactory(
+        "DataPipeline",
+        deployer
+    )) as DataPipeline__factory
+
+    dataPipeline = await dataPipelineFactory.deploy(
+        moneyPool.address
+    )
+
+    return dataPipeline;
 }

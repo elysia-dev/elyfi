@@ -66,3 +66,9 @@ export const WAD = expandToDecimals(1, 18)
 
 export const SECONDSPERYEAR = 31536000
 export const ETH = "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE"
+
+// Getter
+
+export async function getUserData(
+  
+)
