@@ -34,7 +34,7 @@ Assertion.addMethod("equalReserveData", function (expectedData: ReserveData) {
         const actualDataValue = actualData[key]
         const expectedDataValue = expectedData[key]
 
-        console.log(`${key} : ${actualDataValue.toString()}`)
+        console.log(`${key} : ${actualDataValue.toString()} in reserveData`)
 
         new Assertion(actualDataValue).to.be.eq(expectedDataValue,
             `Expected ${expectedDataValue} to be equal ${actualDataValue} in ${key}`)
@@ -55,7 +55,7 @@ Assertion.addMethod("equalUserData", function (expectedData: UserData) {
         const actualDataValue = actualData[key]
         const expectedDataValue = expectedData[key]
 
-        console.log(`${key} : ${actualDataValue.toString()}`)
+        console.log(`${key} : ${actualDataValue.toString()} in userData`)
 
         new Assertion(actualDataValue).to.be.eq(expectedDataValue,
             `Expected ${expectedDataValue} to be equal ${actualDataValue} in ${key}`)

@@ -15,6 +15,7 @@ export interface ReserveData {
     totalMoneyPoolATokenBalance: BigNumber;
     lTokenInterestIndex: BigNumber;
     dTokenInterestIndex: BigNumber;
+    // aTokenInterestIndexes: BigNumber[];
     averageATokenAPR: BigNumber;
     realAssetAPR: BigNumber;
     digitalAssetAPR: BigNumber;
@@ -69,6 +70,6 @@ export interface UserData {
 }
 interface ATokenInvestment {
     lastUpdatetimestamp: BigNumber;
-    averageSupplyAPR: BigNumber;
+    supplyAPR: BigNumber;
     aTokenBalance: BigNumber;
 }

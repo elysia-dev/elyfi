@@ -20,7 +20,7 @@ export async function getUserData({
     userData.lTokenBalance = contractUserData.lTokenBalance;
     userData.implicitLtokenBalance = contractUserData.implicitLtokenBalance;
     userData.dTokenBalance = contractUserData.dTokenBalance;
-    userData.implicitLtokenBalance = contractUserData.implicitDtokenBalance;
+    userData.implicitDtokenBalance = contractUserData.implicitDtokenBalance;
 
     return userData;
 }

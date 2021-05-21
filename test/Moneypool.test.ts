@@ -6,7 +6,7 @@ import { Connector, DataPipeline, DTokenTest, ERC20Test, InterestRateModel, LTok
 import { makeInterestRateModel, makeMoneyPool, makeLToken, makeDToken, makeUnderlyingAsset, makeConnector, makeTokenizer, makeDataPipeline } from './utils/MakeContract';
 import { defaultReserveData } from './utils/Interfaces';
 import { expect } from 'chai'
-import { expectedReserveDataAfterInvestMoneyPool } from './utils/Expect';
+import { expectedReserveDataAfterInvestMoneyPool, expectedUserDataAfterInvestMoneyPool } from './utils/Expect';
 import { getReserveData, getUserData } from './utils/Helpers';
 require("./assertions/equals")
 
@@ -92,7 +92,7 @@ describe("MoneyPool", () => {
     })
 
     describe("Invest", async () => {
-        it("Mints lToken and takes asset", async () => {
+        it("Mints lToken and takes asset ", async () => {
             const amountInvest = expandToDecimals(10000, 18);
 
             const contractReserveDataBeforeInvest = await getReserveData({
@@ -129,22 +129,16 @@ describe("MoneyPool", () => {
                 txTimestamp: await getTimestamp(investTx)
             })
 
-            // const expectedUserDataAfterInvest = expectedUserDataAfterInvestMoneyPool({
-            //     amountInvest: amountInvest,
-            //     userDataBefore: contractUserDataBeforeInvest,
-            //     reserveDataBefore: contractReserveDataBeforeInvest,
-            //     txTimeStamp: await getTimestamp(investTx)
-            // })
+            const expectedUserDataAfterInvest = expectedUserDataAfterInvestMoneyPool({
+                amountInvest: BigNumber.from(amountInvest),
+                userDataBefore: contractUserDataBeforeInvest,
+                reserveDataBefore: contractReserveDataBeforeInvest,
+                reserveDataAfter: contractReserveDataAfterInvest,
+                txTimestamp: await getTimestamp(investTx)
+            })
 
             expect(contractReserveDataAfterInvest).to.be.equalReserveData(expectedReserveDataAfterInvest)
-
-            // console.log(
-            //     1, contractReserveDataBeforeInvest,
-            //     2, contractUserDataBeforeInvest,
-            //     3, contractReserveDataAfterInvest,
-            //     4, contractUserDataAfterInvest,
-            //     5, expectedReserveDataAfterInvest)
-            // expect(contractReserveDataAfterInvest).to.be.eq(expectedReserveDataAfterInvest)
+            expect(contractUserDataAfterInvest).to.be.equalUserData(expectedUserDataAfterInvest)
         })
     })
 })

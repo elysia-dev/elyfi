@@ -1,5 +1,5 @@
 import { BigNumber } from "ethers";
-import { rayMul } from "./Ethereum";
+import { rayDiv, rayMul } from "./Ethereum";
 import { ReserveData, UserData } from "./Interfaces";
 import { calculateCompoundedInterest, calculateLinearInterest, calculateRateInInterestRateModel } from "./Math";
 
@@ -58,6 +58,9 @@ export function expectedReserveDataAfterInvestMoneyPool({
     expectedReserveData.digitalAssetAPR = interestRates[1];
     expectedReserveData.supplyAPR = interestRates[2];
 
+    // update aToken indexes
+    // need logic
+
     // Mint lToken
     expectedReserveData.implicitLTokenSupply = expectedReserveData.implicitLTokenSupply.add(amountInvest);
     expectedReserveData.totalLTokenSupply = totalLTokenSupply.add(amountInvest);
@@ -65,18 +68,32 @@ export function expectedReserveDataAfterInvestMoneyPool({
     return expectedReserveData;
 }
 
-// export function expectedUserDataAfterInvestMoneyPool({
-//     amountInvest,
-//     userDataBefore,
-//     reserveDataBefore,
-//     txTimestamp
-// }: {
-//     amountInvest: BigNumber,
-//     userDataBefore: UserData,
-//     reserveDataBefore: ReserveData,
-//     txTimestamp: BigNumber
-// }): UserData {
-//     let expectedUserData: UserData = userDataBefore;
+export function expectedUserDataAfterInvestMoneyPool({
+    amountInvest,
+    userDataBefore,
+    reserveDataBefore,
+    reserveDataAfter,
+    txTimestamp
+}: {
+    amountInvest: BigNumber,
+    userDataBefore: UserData,
+    reserveDataBefore: ReserveData,
+    reserveDataAfter: ReserveData,
+    txTimestamp: BigNumber
+}): UserData {
+    let expectedUserData: UserData = userDataBefore;
 
+    // transferFrom
+    expectedUserData.underlyingAssetBalance = userDataBefore.underlyingAssetBalance.sub(amountInvest)
+    // mint ltoken
+    expectedUserData.implicitLtokenBalance = userDataBefore.implicitLtokenBalance.add(
+        rayDiv(amountInvest, reserveDataAfter.lTokenInterestIndex))
+    // update lToken balance
+    expectedUserData.lTokenBalance = rayMul(expectedUserData.implicitLtokenBalance, reserveDataAfter.lTokenInterestIndex)
+    // update dtoken balance
+    expectedUserData.dTokenBalance = rayMul(userDataBefore.implicitDtokenBalance, reserveDataAfter.dTokenInterestIndex)
+    // update aToken investment
+    // need logic
 
-// }
+    return expectedUserData
+}
