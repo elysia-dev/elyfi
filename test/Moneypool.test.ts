@@ -3,7 +3,7 @@ import { ethers, waffle } from 'hardhat'
 import { smoddit } from '@eth-optimism/smock'
 import { address, advanceTime, ETH, expandToDecimals, getTimestamp, RAY, toIndex, toRate } from './utils/Ethereum';
 import { Connector, DataPipeline, DTokenTest, ERC20Test, InterestRateModel, LTokenTest, MoneyPoolTest, Tokenizer, TokenizerTest } from '../typechain';
-import { makeInterestRateModel, makeMoneyPool, makeLToken, makeDToken, makeUnderlyingAsset, makeConnector, makeTokenizer, makeDataPipeline } from './utils/MakeContract';
+import { makeInterestRateModel, makeMoneyPool, makeLToken, makeDToken, makeUnderlyingAsset, makeConnector, makeTokenizer, makeDataPipeline } from './utils/makeContract';
 import { defaultReserveData } from './utils/Interfaces';
 import { expect } from 'chai'
 import { expectedReserveDataAfterInvestMoneyPool, expectedUserDataAfterInvestMoneyPool } from './utils/Expect';

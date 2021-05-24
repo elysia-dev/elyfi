@@ -8,6 +8,7 @@ import "./libraries/DataStruct.sol";
 import "./libraries/Math.sol";
 import "./libraries/Role.sol";
 import "./logic/AssetBond.sol";
+import "./logic/Index.sol";
 import "./logic/Validation.sol";
 import "./interfaces/IMoneyPool.sol";
 import "./interfaces/ITokenizer.sol";
@@ -20,7 +21,8 @@ import "./TokenizerStorage.sol";
 contract Tokenizer is ITokenizer, ERC1155Upgradeable, TokenizerStorage {
     using WadRayMath for uint256;
     using AssetBond for DataStruct.TokenizerData;
-
+    using AssetBond for DataStruct.AssetBondData;
+    using Index for DataStruct.AssetBondData;
     /************ Initial Functions ************/
 
     function initialize(
@@ -48,22 +50,31 @@ contract Tokenizer is ITokenizer, ERC1155Upgradeable, TokenizerStorage {
             return super.balanceOf(account, tokenId);
         }
 
-        uint256 aTokenIndex = getATokenInterestIndex(
-            tokenId);
+        uint256 aTokenIndex = getATokenInterestIndex(tokenId);
 
         return super.balanceOf(account, tokenId).rayMul(aTokenIndex);
     }
 
     /**
      * @dev Returns AToken Interest index of assetBond
-     * @param asset The address of the underlying asset of the asset bond
      * @param tokenId The asset bond token id
      * @return The AToken interest index of asset bond
      */
     function getATokenInterestIndex(
         uint256 tokenId
-    ) external view override returns (uint256) {
+    ) public view override returns (uint256) {
         return _assetBond[tokenId].getATokenInterestIndex();
+    }
+
+    /**
+     * @dev Returns the state of the asset bond
+     * @param tokenId The asset bond token id
+     * @return The data of the asset bond
+     **/
+    function getAssetBondData(
+        uint256 tokenId
+    ) external view override returns (DataStruct.AssetBondData memory) {
+        return _assetBond[tokenId];
     }
 
     /**
@@ -164,6 +175,19 @@ contract Tokenizer is ITokenizer, ERC1155Upgradeable, TokenizerStorage {
         address signer
     ) external {}
 
+    function depositAssetBond(
+        uint256 tokenId,
+        uint256 borrowAmount,
+        uint256 realAssetAPR
+    ) external {
+        DataStruct.AssetBondData storage assetBond = _assetBond[tokenId];
+
+        assetBond.depositAssetBond(
+            borrowAmount,
+            realAssetAPR
+        );
+    }
+
     struct MintLocalVars {
         uint256 aTokenId;
         uint256 futureInterestAmount;
@@ -239,7 +263,7 @@ contract Tokenizer is ITokenizer, ERC1155Upgradeable, TokenizerStorage {
         if (_tokenType[tokenId] == Role.ATOKEN) {
             if (to == address(_moneyPool)) revert(); //// TransferATokenToMoneyPoolNotAllowed();
 
-            uint256 index = getATokenInterestIndex(id);
+            uint256 index = getATokenInterestIndex(tokenId);
 
             super.safeTransferFrom(
                 from,
@@ -313,19 +337,6 @@ contract Tokenizer is ITokenizer, ERC1155Upgradeable, TokenizerStorage {
             aTokenId,
             amount,
             rate);
-    }
-
-    function depositAssetBond(
-        uint256 tokenId,
-        uint256 borrowAmount,
-        uint256 realAssetAPR
-    ) external {
-        DataStruct.AssetBondData storage assetBond = _assetBond[tokenId];
-
-        assetBond.depositAssetBond(
-            borrowAmount,
-            realAssetAPR
-        );
     }
 
     // need logic : generate token id

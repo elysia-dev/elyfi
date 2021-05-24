@@ -66,7 +66,7 @@ library Validation {
      **/
     function validateInvestABToken(
         DataStruct.ReserveData storage reserve,
-        DataStruct.AssetBondData storage assetBond,
+        DataStruct.AssetBondData memory assetBond,
         uint256 amount,
         uint256 moneyPoolATokenBalance
     ) internal view {
@@ -80,12 +80,12 @@ library Validation {
     }
 
     function validateBorrowAgainstAssetBond(
-        DataStruct.AssetBondData storage assetBond,
         DataStruct.ReserveData storage reserve,
+        DataStruct.AssetBondData memory assetBond,
         address asset,
         uint256 borrowAmount,
         uint256 id
-    ) internal {
+    ) internal view {
         // moneypool validate logic : active, frozen
 
         // check settled logic
@@ -96,19 +96,6 @@ library Validation {
 
         uint256 availableLiquidity = IERC20Upgradeable(asset).balanceOf(reserve.lTokenAddress);
 
-    }
-
-    function validateTokenId(uint256 id) internal {
-        // validate id
-        //// error InvalidABTokenID(id)
-    }
-
-    function validateSettleABToken(
-        uint256 tokenId,
-        address lawfirm
-    ) internal view {
-        // checks whether lawfirm authorized
-        if (assetBond.)
     }
 
     function validateLTokenTrasfer() internal pure {}

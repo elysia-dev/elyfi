@@ -44,6 +44,14 @@ interface ITokenizer is IERC1155Upgradeable {
 
     function getTokenizerData() external view returns (DataStruct.TokenizerData memory);
 
+    function getAssetBondData(
+        uint256 tokenId
+    ) external view returns (DataStruct.AssetBondData memory);
+
+    function getATokenInterestIndex(
+        uint256 tokenId
+    ) external view returns (uint256);
+
     function increaseATokenBalanceOfMoneyPool(
         uint256 aTokenId,
         uint256 amount,

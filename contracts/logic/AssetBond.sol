@@ -69,8 +69,6 @@ library AssetBond {
         uint256 newBalance;
     }
 
-
-
     function increaseTotalAToken(
         DataStruct.TokenizerData storage tokenizer,
         uint256 amountIn,
@@ -151,7 +149,6 @@ library AssetBond {
         uint256 tokenId,
         uint256 supplyAPR
     ) internal {
-
     }
 
     function validateSettleABToken(
@@ -162,5 +159,10 @@ library AssetBond {
         // if (assetBond.state != AssetBondState.EMPTY) revert(); ////
 
         // access control : check lawfirm
+    }
+
+    function validateTokenId(uint256 id) internal {
+        // validate id
+        //// error InvalidABTokenID(id)
     }
 }

@@ -163,7 +163,7 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
         uint256 amount
     ) external override {
         DataStruct.ReserveData storage reserve = _reserves[asset];
-        DataStruct.AssetBondData storage assetBond = _assetBond[asset][id];
+        DataStruct.AssetBondData memory assetBond = ITokenizer(reserve.tokenizerAddress).getAssetBondData(id);
 
         address lToken = reserve.lTokenAddress;
         address tokenizer = reserve.tokenizerAddress;
@@ -270,19 +270,6 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
         return _reserves[asset];
     }
 
-    /**
-     * @dev Returns the state of the asset bond
-     * @param asset The address of the underlying asset of the reserve
-     * @param tokenId The asset bond token id
-     * @return The data of the asset bond
-     **/
-    function getAssetBondData(
-        address asset,
-        uint256 tokenId
-    ) external view override returns (DataStruct.AssetBondData memory) {
-        return _assetBond[asset][tokenId];
-    }
-
     /************ ABToken Formation Functions ************/
 
     // need access control signer: only lawfirm or asset owner
@@ -290,12 +277,12 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
 
     // need access control : only minter
     function borrowAgainstABToken(
-        DataStruct.AssetBondData storage assetBond,
         address asset,
         uint256 borrowAmount,
         uint256 id
-    ) external {
+    ) external override {
         DataStruct.ReserveData storage reserve = _reserves[asset];
+        DataStruct.AssetBondData memory assetBond = ITokenizer(reserve.tokenizerAddress).getAssetBondData(id);
 
         address lToken = reserve.lTokenAddress;
         address tokenizer = reserve.tokenizerAddress;
@@ -303,8 +290,8 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
         // Check if borrow amount exceeds collateral value
         // Check if borrow amount exceeds liquidity available
         Validation.validateBorrowAgainstAssetBond(
-            assetBond,
             reserve,
+            assetBond,
             asset,
             borrowAmount,
             id
@@ -330,16 +317,6 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
 
         // transfer asset bond
         // or lock NFT?
-
-        // update deposited asset bond list and count
-        // update totalAToken
-        // calculate future interest
-        ITokenizer.depositAssetBond(
-            assetBond,
-            reserve,
-            borrowAmount,
-            reserve.realAssetAPR
-        );
 
         // transfer Underlying asset
         ILToken(lToken).transferUnderlyingTo(

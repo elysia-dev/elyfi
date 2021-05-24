@@ -3,7 +3,7 @@ import { waffle } from 'hardhat'
 import { Connector, ERC20Test, InterestRateModel, LTokenTest, MoneyPoolTest } from '../typechain';
 import { expandToDecimals, toRate } from './utils/Ethereum';
 import { defaultInterestModelParams } from './utils/Interfaces';
-import { makeConnector, makeInterestRateModel, makeLToken, makeMoneyPool, makeUnderlyingAsset } from './utils/MakeContract'
+import { makeConnector, makeInterestRateModel, makeLToken, makeMoneyPool, makeUnderlyingAsset } from './utils/makeContract'
 
 describe("Rate", () => {
     let underlyingAsset: ERC20Test
