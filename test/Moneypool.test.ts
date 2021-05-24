@@ -199,40 +199,19 @@ describe("MoneyPool", () => {
             expect(contractReserveDataAfterInvest).to.be.equalReserveData(expectedReserveDataAfterInvest)
             expect(contractUserDataAfterInvest).to.be.equalUserData(expectedUserDataAfterInvest)
         })
+    })
 
-        xit("test", async() => {
-            const amountInvest = expandToDecimals(10000, 18);
-            await underlyingAsset.connect(account1).approve(moneyPool.address, RAY)
+    describe("Withdraw", async () => {
+        it("Withdraw without")
+    })
 
-            await moneyPool.connect(account1).investMoneyPool(
-                underlyingAsset.address,
-                account1.address,
-                amountInvest
-            )
-            await advanceTime(100);
-            await moneyPool.connect(account1).investMoneyPool(
-                underlyingAsset.address,
-                account1.address,
-                amountInvest
-            )
-            await advanceTime(100);
-            await moneyPool.connect(account1).investMoneyPool(
-                underlyingAsset.address,
-                account1.address,
-                amountInvest
-            )
-            await advanceTime(100);
-            await moneyPool.connect(account1).investMoneyPool(
-                underlyingAsset.address,
-                account1.address,
-                amountInvest
-            )
-            await advanceTime(100);
-            await moneyPool.connect(account1).investMoneyPool(
-                underlyingAsset.address,
-                account1.address,
-                amountInvest
-            )
+    describe("Mint Asset Bond", async () => {
+        it("Mint empty asset token")
+    })
+
+    describe("Borrow against asset bond", async () => {
+        it("Borrow against AB token", async () => {
+            
         })
     })
 })

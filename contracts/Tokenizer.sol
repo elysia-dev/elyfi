@@ -8,29 +8,18 @@ import "./libraries/DataStruct.sol";
 import "./libraries/Math.sol";
 import "./libraries/Role.sol";
 import "./logic/AssetBond.sol";
+import "./logic/Validation.sol";
 import "./interfaces/IMoneyPool.sol";
 import "./interfaces/ITokenizer.sol";
+import "./TokenizerStorage.sol";
 
 /**
  * @title ELYFI Tokenizer
  * @author ELYSIA
  */
-contract Tokenizer is ITokenizer, ERC1155Upgradeable {
+contract Tokenizer is ITokenizer, ERC1155Upgradeable, TokenizerStorage {
     using WadRayMath for uint256;
     using AssetBond for DataStruct.TokenizerData;
-
-    IMoneyPool internal _moneyPool;
-
-    mapping (uint256 => bytes32) internal _tokenType;
-
-    mapping (uint256 => address) internal _minter;
-
-    address internal _underlyingAsset;
-
-    // account supply APR and timestamp for each AToken
-    mapping (uint256 => mapping (address => DataStruct.UserAssetBondInvestData)) internal _userData;
-
-    DataStruct.TokenizerData internal _tokenizer;
 
     /************ Initial Functions ************/
 
@@ -59,11 +48,22 @@ contract Tokenizer is ITokenizer, ERC1155Upgradeable {
             return super.balanceOf(account, tokenId);
         }
 
-        uint256 aTokenIndex = _moneyPool.getATokenInterestIndex(
-            _underlyingAsset,
+        uint256 aTokenIndex = getATokenInterestIndex(
             tokenId);
 
         return super.balanceOf(account, tokenId).rayMul(aTokenIndex);
+    }
+
+    /**
+     * @dev Returns AToken Interest index of assetBond
+     * @param asset The address of the underlying asset of the asset bond
+     * @param tokenId The asset bond token id
+     * @return The AToken interest index of asset bond
+     */
+    function getATokenInterestIndex(
+        uint256 tokenId
+    ) external view override returns (uint256) {
+        return _assetBond[tokenId].getATokenInterestIndex();
     }
 
     /**
@@ -121,9 +121,48 @@ contract Tokenizer is ITokenizer, ERC1155Upgradeable {
         // mint ABToken to CSV
         _mint(account, id, 1, "");
 
+        // validate Id : Id should have information about
+        AssetBond.validateTokenId(id);
+
         _minter[id] = account;
         _tokenType[id] = Role.ABTOKEN;
     }
+
+    // Access control : only minter
+    /**
+     * @dev Asset Bond su
+     */
+    function settleABToken(
+        address asset,
+        address borrower, // borrower address
+        address lawfirm, // lawfirm address
+        uint256 id, // Token Id
+        uint256 collateralValue, // collateralValue in USD
+        uint256 dueDate,
+        string memory ipfsHash
+    ) external {
+        // Validate init asset bond
+        // lawfirm should be authorized
+        // Asset bond state should be empty
+        AssetBond.validateSettleABToken(
+            id,
+            lawfirm
+        );
+
+        _assetBond[id].settleAssetBond(
+            asset,
+            borrower,
+            lawfirm,
+            collateralValue,
+            dueDate,
+            ipfsHash
+        );
+    }
+
+    function signABToken(
+        uint256 id,
+        address signer
+    ) external {}
 
     struct MintLocalVars {
         uint256 aTokenId;
@@ -200,9 +239,7 @@ contract Tokenizer is ITokenizer, ERC1155Upgradeable {
         if (_tokenType[tokenId] == Role.ATOKEN) {
             if (to == address(_moneyPool)) revert(); //// TransferATokenToMoneyPoolNotAllowed();
 
-            uint256 index = _moneyPool.getATokenInterestIndex(
-                _underlyingAsset,
-                tokenId);
+            uint256 index = getATokenInterestIndex(id);
 
             super.safeTransferFrom(
                 from,
@@ -233,9 +270,7 @@ contract Tokenizer is ITokenizer, ERC1155Upgradeable {
             if (_tokenType[id] == Role.ATOKEN) {
                 if (to == address(_moneyPool)) revert(); //// TransferATokenToMoneyPoolNotAllowed();
 
-                uint256 index = _moneyPool.getATokenInterestIndex(
-                _underlyingAsset,
-                id);
+                uint256 index = getATokenInterestIndex(id);
 
                 amounts[i] = amount.rayDiv(index);
             }
@@ -278,6 +313,19 @@ contract Tokenizer is ITokenizer, ERC1155Upgradeable {
             aTokenId,
             amount,
             rate);
+    }
+
+    function depositAssetBond(
+        uint256 tokenId,
+        uint256 borrowAmount,
+        uint256 realAssetAPR
+    ) external {
+        DataStruct.AssetBondData storage assetBond = _assetBond[tokenId];
+
+        assetBond.depositAssetBond(
+            borrowAmount,
+            realAssetAPR
+        );
     }
 
     // need logic : generate token id

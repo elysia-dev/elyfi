@@ -17,7 +17,7 @@ library AssetBond {
         uint256 totalATokenBalanceOfMoneyPool
     );
 
-    function initAssetBond(
+    function settleAssetBond(
         DataStruct.AssetBondData storage assetBondData,
         address asset,
         address borrower,
@@ -33,9 +33,7 @@ library AssetBond {
         assetBondData.ipfsHash = ipfsHash;
         assetBondData.collateralValue = collateralValue;
         assetBondData.lastUpdateTimestamp = uint40(block.timestamp);
-        assetBondData.isSettled = true;
-        assetBondData.isDeposited = false;
-        assetBondData.isMatured = false;
+        assetBondData.state = DataStruct.AssetBondState.SETTLED;
     }
 
     struct DepositAssetBondLocalVars {
@@ -45,7 +43,6 @@ library AssetBond {
 
     function depositAssetBond(
         DataStruct.AssetBondData storage assetBondData,
-        DataStruct.ReserveData storage reserve,
         uint256 borrowAmount,
         uint256 realAssetAPR
         )
@@ -53,11 +50,11 @@ library AssetBond {
             DepositAssetBondLocalVars memory vars;
 
             // update tokenizer data
-            reserve.totalDepositedAssetBondCount += 1;
+            //reserve.totalDepositedAssetBondCount += 1;
 
             // set bond date data
             assetBondData.borrowAPR = realAssetAPR;
-            assetBondData.isDeposited = true;
+            assetBondData.state = DataStruct.AssetBondState.COLLATERALIZED;
             assetBondData.issuanceDate = block.timestamp;
             assetBondData.maturityDate = block.timestamp + (assetBondData.dueDate *  1 days);
 
@@ -71,6 +68,8 @@ library AssetBond {
         uint256 newAPR;
         uint256 newBalance;
     }
+
+
 
     function increaseTotalAToken(
         DataStruct.TokenizerData storage tokenizer,
@@ -152,6 +151,16 @@ library AssetBond {
         uint256 tokenId,
         uint256 supplyAPR
     ) internal {
-        
+
+    }
+
+    function validateSettleABToken(
+        uint256 tokenId,
+        address lawfirm
+    ) internal view {
+        // checks whether lawfirm authorized
+        // if (assetBond.state != AssetBondState.EMPTY) revert(); ////
+
+        // access control : check lawfirm
     }
 }

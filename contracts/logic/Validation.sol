@@ -74,8 +74,8 @@ library Validation {
         if(reserve.isPaused == true) revert(); //// ReservePaused();
         if(reserve.isActivated == false) revert(); //// ReserveInactivated();
 
-        if(assetBond.isMatured == true) revert(); //// MaturedABToken();
-        if(assetBond.isDeposited == false) revert(); //// NotDepositedABToken();
+        //if(assetBond.isMatured == true) revert(); //// MaturedABToken();
+        //if(assetBond.isDeposited == false) revert(); //// NotDepositedABToken();
         if(moneyPoolATokenBalance < amount) revert(); //// InsufficientATokenBalance(reserve.totalDepositedATokenBalance);
     }
 
@@ -89,10 +89,10 @@ library Validation {
         // moneypool validate logic : active, frozen
 
         // check settled logic
-        if (assetBond.isSettled == true) revert(); //// NotSettledABToken(id);
+        //if (assetBond.isSettled == true) revert(); //// NotSettledABToken(id);
 
         // check sign logic
-        if (assetBond.isSigned == false) revert(); ////NotSignedABToken(id);
+        //if (assetBond.isSigned == false) revert(); ////NotSignedABToken(id);
 
         uint256 availableLiquidity = IERC20Upgradeable(asset).balanceOf(reserve.lTokenAddress);
 
@@ -103,10 +103,12 @@ library Validation {
         //// error InvalidABTokenID(id)
     }
 
-    function validateInitABToken(
+    function validateSettleABToken(
+        uint256 tokenId,
         address lawfirm
     ) internal view {
         // checks whether lawfirm authorized
+        if (assetBond.)
     }
 
     function validateLTokenTrasfer() internal pure {}

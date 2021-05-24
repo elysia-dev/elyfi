@@ -21,6 +21,15 @@ library DataStruct {
         bool isActivated;
     }
 
+    enum AssetBondState {
+        EMPTY,
+        SETTLED,
+        CONFIRMED,
+        COLLATERALIZED,
+        MATURED,
+        NOT_PERFORMED
+    }
+
     struct AssetBondData {
         address asset;
         address borrower;
@@ -34,10 +43,7 @@ library DataStruct {
         uint256 dueDate;
         uint256 maturityDate;
         uint40 lastUpdateTimestamp;
-        bool isSettled; // refactor : need configuration
-        bool isSigned;
-        bool isDeposited; // refactor : need configuration
-        bool isMatured; // refactor : need configuration
+        AssetBondState state;
     }
 
     struct TokenizerData {

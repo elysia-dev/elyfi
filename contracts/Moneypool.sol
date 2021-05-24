@@ -260,19 +260,6 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
     }
 
     /**
-     * @dev Returns AToken Interest index of assetBond
-     * @param asset The address of the underlying asset of the asset bond
-     * @param tokenId The asset bond token id
-     * @return The AToken interest index of asset bond
-     */
-    function getATokenInterestIndex(
-        address asset,
-        uint256 tokenId
-    ) external view override returns (uint256) {
-        return _assetBond[asset][tokenId].getATokenInterestIndex();
-    }
-
-    /**
      * @dev Returns the state and configuration of the reserve
      * @param asset The address of the underlying asset of the reserve
      * @return The state of the reserve
@@ -298,67 +285,16 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
 
     /************ ABToken Formation Functions ************/
 
-    // Access control : only CSV
-    function mintABToken(
-        address asset,
-        address account, // ABToken owner address
-        uint256 id // information about Co and borrower
-    ) external {
-        DataStruct.ReserveData storage reserve = _reserves[asset];
-
-        address tokenizer = reserve.tokenizerAddress;
-
-        // validate Id : Id should have information about
-        Validation.validateTokenId(id);
-
-        ITokenizer(tokenizer).mintABToken(
-            account,
-            id
-        );
-    }
-
-    // Access control : only minter
-    /**
-     * @dev Asset Bond su
-     */
-    function settleABToken(
-        address asset,
-        address borrower, // borrower address
-        address lawfirm, // lawfirm address
-        uint256 id, // Token Id
-        uint256 collateralValue, // collateralValue in USD
-        uint256 dueDate,
-        string memory ipfsHash
-    ) external {
-        // Validate init asset bond
-        // lawfirm should be authorized
-        Validation.validateInitABToken(
-            lawfirm
-        );
-
-        _assetBond[asset][id].initAssetBond(
-            asset,
-            borrower,
-            lawfirm,
-            collateralValue,
-            dueDate,
-            ipfsHash
-        );
-    }
-
     // need access control signer: only lawfirm or asset owner
-    function signABToken(
-        uint256 id,
-        address signer
-    ) external {}
+
 
     // need access control : only minter
     function borrowAgainstABToken(
+        DataStruct.AssetBondData storage assetBond,
         address asset,
         uint256 borrowAmount,
         uint256 id
     ) external {
-        DataStruct.AssetBondData storage assetBond = _assetBond[asset][id];
         DataStruct.ReserveData storage reserve = _reserves[asset];
 
         address lToken = reserve.lTokenAddress;
@@ -398,7 +334,7 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
         // update deposited asset bond list and count
         // update totalAToken
         // calculate future interest
-        AssetBond.depositAssetBond(
+        ITokenizer.depositAssetBond(
             assetBond,
             reserve,
             borrowAmount,
