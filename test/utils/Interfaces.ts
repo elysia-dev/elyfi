@@ -7,6 +7,7 @@ export interface ReserveData {
     underlyingAssetName: string;
     underlyingAssetSymbol: string;
     underlyingAssetDecimals: BigNumber;
+    underlyingAssetBalance: BigNumber;
     totalLTokenSupply: BigNumber;
     implicitLTokenSupply: BigNumber;
     totalDTokenSupply: BigNumber;

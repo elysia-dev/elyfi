@@ -5,7 +5,7 @@ import "../libraries/DataStruct.sol";
 
 interface IConnector {
     event NewLawfirmAdded(address indexed account);
-    event NewCOAdded(address indexed account);
+    event NewCSVAdded(address indexed account);
     event UpdatePriceOracle(address indexed account);
     event UpdateAdmin(address indexed account);
 }

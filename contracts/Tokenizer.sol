@@ -112,13 +112,13 @@ contract Tokenizer is ITokenizer, ERC1155Upgradeable {
 
     // id : bitMask
     function mintABToken(
-        address account, // CO address
-        uint256 id // information about CO and borrower
+        address account, // CSV address
+        uint256 id // information about CSV and borrower
     ) external override onlyMoneyPool {
 
         if (_minter[id] != address(0)) revert(); ////error ABTokenIDAlreadyExist(id)
 
-        // mint ABToken to CO
+        // mint ABToken to CSV
         _mint(account, id, 1, "");
 
         _minter[id] = account;

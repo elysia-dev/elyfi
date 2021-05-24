@@ -1,5 +1,5 @@
 import { BigNumber, Wallet } from "ethers";
-import { DataPipeline, ERC20Test } from "../../typechain";
+import { DataPipeline, ERC20Test, LTokenTest } from "../../typechain";
 import { defaultInterestModelParams, ReserveData, UserData } from "./Interfaces";
 
 export async function getUserData({
@@ -27,10 +27,12 @@ export async function getUserData({
 
 export async function getReserveData({
     underlyingAsset,
-    dataPipeline
+    dataPipeline,
+    lToken,
 }: {
     underlyingAsset: ERC20Test
     dataPipeline: DataPipeline
+    lToken: LTokenTest
 }): Promise<ReserveData> {
     const reserveData = <ReserveData>{};
     const contractReserveData = await dataPipeline.getReserveData(
@@ -40,6 +42,7 @@ export async function getReserveData({
     reserveData.underlyingAssetName = await underlyingAsset.name()
     reserveData.underlyingAssetSymbol = await underlyingAsset.symbol();
     reserveData.underlyingAssetDecimals = BigNumber.from(await underlyingAsset.decimals());
+    reserveData.underlyingAssetBalance = await underlyingAsset.balanceOf(lToken.address);
     reserveData.totalLTokenSupply = contractReserveData.totalLTokenSupply;
     reserveData.implicitLTokenSupply = contractReserveData.implicitLTokenSupply;
     reserveData.totalDTokenSupply = contractReserveData.totalDTokenSupply;

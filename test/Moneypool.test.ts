@@ -84,7 +84,8 @@ describe("MoneyPool", () => {
         it("Sets reserveData properly", async () => {
             const initialContractReserveData = await getReserveData({
                 underlyingAsset: underlyingAsset,
-                dataPipeline: dataPipeline
+                dataPipeline: dataPipeline,
+                lToken: lToken
             })
 
             expect(initialContractReserveData.underlyingAssetName).to.be.equal(defaultReserveData.underlyingAssetName)
@@ -95,20 +96,20 @@ describe("MoneyPool", () => {
     })
 
     describe("Invest", async () => {
-        xit("Invest moneypool for the first time", async () => {
+        it("Invest moneypool for the first time", async () => {
             const amountInvest = expandToDecimals(10000, 18);
             await underlyingAsset.connect(account1).approve(moneyPool.address, RAY)
 
             const contractReserveDataBeforeInvest = await getReserveData({
                 underlyingAsset: underlyingAsset,
-                dataPipeline: dataPipeline
+                dataPipeline: dataPipeline,
+                lToken: lToken
             })
             const contractUserDataBeforeInvest = await getUserData({
                 underlyingAsset: underlyingAsset,
                 dataPipeline: dataPipeline,
                 user: account1
             })
-
 
             const investTx = await moneyPool.connect(account1).investMoneyPool(
                 underlyingAsset.address,
@@ -118,7 +119,8 @@ describe("MoneyPool", () => {
 
             const contractReserveDataAfterInvest = await getReserveData({
                 underlyingAsset: underlyingAsset,
-                dataPipeline: dataPipeline
+                dataPipeline: dataPipeline,
+                lToken: lToken
             })
             const contractUserDataAfterInvest = await getUserData({
                 underlyingAsset: underlyingAsset,
@@ -143,7 +145,7 @@ describe("MoneyPool", () => {
             expect(contractUserDataAfterInvest).to.be.equalUserData(expectedUserDataAfterInvest)
         })
 
-        xit("Invests moneypool for the second time", async () => {
+        it("Invests moneypool for the second time", async () => {
             const amountInvest = expandToDecimals(10000, 18);
             await underlyingAsset.connect(account1).approve(moneyPool.address, RAY)
 
@@ -155,7 +157,8 @@ describe("MoneyPool", () => {
 
             const contractReserveDataBeforeInvest = await getReserveData({
                 underlyingAsset: underlyingAsset,
-                dataPipeline: dataPipeline
+                dataPipeline: dataPipeline,
+                lToken: lToken
             })
             const contractUserDataBeforeInvest = await getUserData({
                 underlyingAsset: underlyingAsset,
@@ -171,7 +174,8 @@ describe("MoneyPool", () => {
 
             const contractReserveDataAfterInvest = await getReserveData({
                 underlyingAsset: underlyingAsset,
-                dataPipeline: dataPipeline
+                dataPipeline: dataPipeline,
+                lToken: lToken
             })
             const contractUserDataAfterInvest = await getUserData({
                 underlyingAsset: underlyingAsset,
@@ -196,7 +200,7 @@ describe("MoneyPool", () => {
             expect(contractUserDataAfterInvest).to.be.equalUserData(expectedUserDataAfterInvest)
         })
 
-        it("test", async() => {
+        xit("test", async() => {
             const amountInvest = expandToDecimals(10000, 18);
             await underlyingAsset.connect(account1).approve(moneyPool.address, RAY)
 

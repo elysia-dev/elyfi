@@ -298,7 +298,7 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
 
     /************ ABToken Formation Functions ************/
 
-    // Access control : only CO
+    // Access control : only CSV
     function mintABToken(
         address asset,
         address account, // ABToken owner address
