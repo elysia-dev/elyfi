@@ -1,7 +1,7 @@
 import { BigNumber } from 'ethers';
 import { ethers, waffle } from 'hardhat'
 import { smoddit } from '@eth-optimism/smock'
-import { address, ETH, expandToDecimals, getTimestamp, RAY, toIndex, toRate } from './utils/Ethereum';
+import { address, advanceTime, ETH, expandToDecimals, getTimestamp, RAY, toIndex, toRate } from './utils/Ethereum';
 import { Connector, DataPipeline, DTokenTest, ERC20Test, InterestRateModel, LTokenTest, MoneyPoolTest, Tokenizer, TokenizerTest } from '../typechain';
 import { makeInterestRateModel, makeMoneyPool, makeLToken, makeDToken, makeUnderlyingAsset, makeConnector, makeTokenizer, makeDataPipeline } from './utils/MakeContract';
 import { defaultReserveData } from './utils/Interfaces';
@@ -75,6 +75,9 @@ describe("MoneyPool", () => {
         await underlyingAsset.connect(deployer).transfer(
             account1.address,
             RAY);
+        await underlyingAsset.connect(deployer).transfer(
+            account2.address,
+            RAY);
     })
 
     describe("AddReserve", async () => {
@@ -92,8 +95,9 @@ describe("MoneyPool", () => {
     })
 
     describe("Invest", async () => {
-        it("Mints lToken and takes asset ", async () => {
+        xit("Invest moneypool for the first time", async () => {
             const amountInvest = expandToDecimals(10000, 18);
+            await underlyingAsset.connect(account1).approve(moneyPool.address, RAY)
 
             const contractReserveDataBeforeInvest = await getReserveData({
                 underlyingAsset: underlyingAsset,
@@ -105,7 +109,6 @@ describe("MoneyPool", () => {
                 user: account1
             })
 
-            await underlyingAsset.connect(account1).approve(moneyPool.address, RAY)
 
             const investTx = await moneyPool.connect(account1).investMoneyPool(
                 underlyingAsset.address,
@@ -128,7 +131,6 @@ describe("MoneyPool", () => {
                 reserveDataBefore: contractReserveDataBeforeInvest,
                 txTimestamp: await getTimestamp(investTx)
             })
-
             const expectedUserDataAfterInvest = expectedUserDataAfterInvestMoneyPool({
                 amountInvest: BigNumber.from(amountInvest),
                 userDataBefore: contractUserDataBeforeInvest,
@@ -139,6 +141,94 @@ describe("MoneyPool", () => {
 
             expect(contractReserveDataAfterInvest).to.be.equalReserveData(expectedReserveDataAfterInvest)
             expect(contractUserDataAfterInvest).to.be.equalUserData(expectedUserDataAfterInvest)
+        })
+
+        xit("Invests moneypool for the second time", async () => {
+            const amountInvest = expandToDecimals(10000, 18);
+            await underlyingAsset.connect(account1).approve(moneyPool.address, RAY)
+
+            const firstInvestTx = await moneyPool.connect(account1).investMoneyPool(
+                underlyingAsset.address,
+                account1.address,
+                amountInvest
+            )
+
+            const contractReserveDataBeforeInvest = await getReserveData({
+                underlyingAsset: underlyingAsset,
+                dataPipeline: dataPipeline
+            })
+            const contractUserDataBeforeInvest = await getUserData({
+                underlyingAsset: underlyingAsset,
+                dataPipeline: dataPipeline,
+                user: account1
+            })
+
+            const secondInvestTx = await moneyPool.connect(account1).investMoneyPool(
+                underlyingAsset.address,
+                account1.address,
+                amountInvest
+            )
+
+            const contractReserveDataAfterInvest = await getReserveData({
+                underlyingAsset: underlyingAsset,
+                dataPipeline: dataPipeline
+            })
+            const contractUserDataAfterInvest = await getUserData({
+                underlyingAsset: underlyingAsset,
+                dataPipeline: dataPipeline,
+                user: account1
+            })
+
+            const expectedReserveDataAfterInvest = expectedReserveDataAfterInvestMoneyPool({
+                amountInvest: BigNumber.from(amountInvest),
+                reserveDataBefore: contractReserveDataBeforeInvest,
+                txTimestamp: await getTimestamp(secondInvestTx)
+            })
+            const expectedUserDataAfterInvest = expectedUserDataAfterInvestMoneyPool({
+                amountInvest: BigNumber.from(amountInvest),
+                userDataBefore: contractUserDataBeforeInvest,
+                reserveDataBefore: contractReserveDataBeforeInvest,
+                reserveDataAfter: contractReserveDataAfterInvest,
+                txTimestamp: await getTimestamp(secondInvestTx)
+            })
+
+            expect(contractReserveDataAfterInvest).to.be.equalReserveData(expectedReserveDataAfterInvest)
+            expect(contractUserDataAfterInvest).to.be.equalUserData(expectedUserDataAfterInvest)
+        })
+
+        it("test", async() => {
+            const amountInvest = expandToDecimals(10000, 18);
+            await underlyingAsset.connect(account1).approve(moneyPool.address, RAY)
+
+            await moneyPool.connect(account1).investMoneyPool(
+                underlyingAsset.address,
+                account1.address,
+                amountInvest
+            )
+            await advanceTime(100);
+            await moneyPool.connect(account1).investMoneyPool(
+                underlyingAsset.address,
+                account1.address,
+                amountInvest
+            )
+            await advanceTime(100);
+            await moneyPool.connect(account1).investMoneyPool(
+                underlyingAsset.address,
+                account1.address,
+                amountInvest
+            )
+            await advanceTime(100);
+            await moneyPool.connect(account1).investMoneyPool(
+                underlyingAsset.address,
+                account1.address,
+                amountInvest
+            )
+            await advanceTime(100);
+            await moneyPool.connect(account1).investMoneyPool(
+                underlyingAsset.address,
+                account1.address,
+                amountInvest
+            )
         })
     })
 })

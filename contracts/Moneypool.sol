@@ -11,6 +11,7 @@ import "./logic/Rate.sol";
 import "./logic/AssetBond.sol";
 import "./logic/Validation.sol";
 import "./libraries/DataStruct.sol";
+import "hardhat/console.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
 
 contract MoneyPool is IMoneyPool, MoneyPoolStorage {
@@ -58,6 +59,13 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
 
         // update indexes and mintToReserve
         reserve.updateState();
+
+        // for test
+        console.log("hardhat updateIndex console:",
+            reserve.lTokenInterestIndex,
+            reserve.dTokenInterestIndex,
+            reserve.lastUpdateTimestamp
+        );
 
         // update rates
         reserve.updateRates(
