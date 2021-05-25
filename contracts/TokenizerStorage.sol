@@ -17,7 +17,7 @@ contract TokenizerStorage is Initializable {
 
     address internal _underlyingAsset;
 
-    DataStruct.TokenizerData internal _tokenizer;
+    DataStruct.TokenizerData internal _tokenizerData;
 
-    mapping(uint256 => DataStruct.AssetBondData) internal _assetBond;
+    mapping(uint256 => DataStruct.AssetBondData) internal _assetBondData;
 }

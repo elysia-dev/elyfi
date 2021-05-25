@@ -43,6 +43,7 @@ interface IMoneyPool {
 
     function borrowAgainstABToken(
         address asset,
+        address receiver,
         uint256 borrowAmount,
         uint256 id
     ) external;

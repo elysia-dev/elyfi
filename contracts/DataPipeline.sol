@@ -16,7 +16,7 @@ contract DataPipeline {
         moneyPool = IMoneyPool(moneyPool_);
     }
 
-    struct UserData {
+    struct UserDataLocalVars {
         uint256 underlyingAssetBalance;
         uint256 lTokenBalance;
         uint256 implicitLtokenBalance;
@@ -27,8 +27,8 @@ contract DataPipeline {
     function getUserData(
         address asset,
         address user
-    ) external view returns (UserData memory){
-        UserData memory vars;
+    ) external view returns (UserDataLocalVars memory){
+        UserDataLocalVars memory vars;
         DataStruct.ReserveData memory reserve = moneyPool.getReserveData(asset);
 
         vars.underlyingAssetBalance = IERC20(asset).balanceOf(user);
@@ -40,7 +40,7 @@ contract DataPipeline {
         return vars;
     }
 
-    struct ReserveData {
+    struct ReserveDataLocalVars {
         uint256 totalLTokenSupply;
         uint256 implicitLTokenSupply;
         uint256 totalDTokenSupply;
@@ -59,20 +59,20 @@ contract DataPipeline {
 
     function getReserveData(
         address asset
-    ) external view returns (ReserveData memory) {
-        ReserveData memory vars;
+    ) external view returns (ReserveDataLocalVars memory) {
+        ReserveDataLocalVars memory vars;
         DataStruct.ReserveData memory reserve = moneyPool.getReserveData(asset);
-        DataStruct.TokenizerData memory tokenizer = ITokenizer(reserve.tokenizerAddress).getTokenizerData();
+        DataStruct.TokenizerData memory tokenizerData = ITokenizer(reserve.tokenizerAddress).getTokenizerData();
 
         vars.totalLTokenSupply = ILToken(reserve.lTokenAddress).totalSupply();
         vars.implicitLTokenSupply = ILToken(reserve.lTokenAddress).implicitTotalSupply();
         vars.totalDTokenSupply = IDToken(reserve.dTokenAddress).totalSupply();
         vars.implicitDTokenSupply = IDToken(reserve.dTokenAddress).implicitTotalSupply();
-        vars.totalATokenSupply = tokenizer.totalATokenSupply;
-        vars.totalMoneyPoolATokenBalance = tokenizer.totalATokenBalanceOfMoneyPool;
+        vars.totalATokenSupply = tokenizerData.totalATokenSupply;
+        vars.totalMoneyPoolATokenBalance = tokenizerData.totalATokenBalanceOfMoneyPool;
         vars.lTokenInterestIndex = reserve.lTokenInterestIndex;
         vars.dTokenInterestIndex = reserve.dTokenInterestIndex;
-        vars.averageATokenAPR = tokenizer.averageATokenAPR;
+        vars.averageATokenAPR = tokenizerData.averageATokenAPR;
         vars.realAssetAPR = reserve.realAssetAPR;
         vars.digitalAssetAPR = reserve.digitalAssetAPR;
         vars.supplyAPR = reserve.supplyAPR;
@@ -80,5 +80,25 @@ contract DataPipeline {
         vars.tokenizerLastUpdateTimestamp = uint256(tokenizer.lastUpdateTimestamp);
 
         return vars;
+    }
+
+    struct AssetBondDataLocalVars {
+        uint256 tokenId;
+        uint256 aTokenBalance;
+        address tokenOwner;
+        DataStruct.AssetBondState state;
+    }
+
+    function getAssetBondData(
+        address asset,
+        uint256 tokenId
+    ) external view returns (AssetBondDataLocalVars memory) {
+        AssetBondDataLocalVars memory vars;
+        DataStruct.ReserveData memory reserve = moneyPool.getReserveData(asset);
+        ITokenizer tokenizer = ITokenizer(reserve.tokenizerAddress);
+        
+        vars.tokenId = tokenId;
+        vars.aTokenBalance = 
+        
     }
 }

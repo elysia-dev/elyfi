@@ -21,7 +21,7 @@ describe("MoneyPool", () => {
     let dataPipeline: DataPipeline
 
     const provider = waffle.provider
-    const [deployer, account1, account2, CSP] = provider.getWallets()
+    const [deployer, account1, account2, CSP, receiver] = provider.getWallets()
 
     const exampleTokenId_1 = BigNumber.from(1001002003004005)
     const exampleTokenId_2 = BigNumber.from(1001002003004006)
@@ -218,6 +218,7 @@ describe("MoneyPool", () => {
         it("Borrow against AB token", async () => {
             await moneyPool.connect(CSP).borrowAgainstABToken(
                 underlyingAsset.address,
+                receiver.address,
                 amountInvest.div(10),
                 exampleTokenId_1)
         })

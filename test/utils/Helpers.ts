@@ -1,6 +1,6 @@
 import { BigNumber, Wallet } from "ethers";
 import { DataPipeline, ERC20Test, LTokenTest } from "../../typechain";
-import { defaultInterestModelParams, ReserveData, UserData } from "./Interfaces";
+import { AssetBondData, defaultInterestModelParams, ReserveData, UserData } from "./Interfaces";
 
 export async function getUserData({
     underlyingAsset,
@@ -60,5 +60,28 @@ export async function getReserveData({
     reserveData.interestRateModelParams = defaultInterestModelParams;
 
     return reserveData;
+}
+
+export async function getAssetBondData({
+    underlyingAsset,
+    dataPipeline,
+    user
+}: {
+    underlyingAsset: ERC20Test
+    dataPipeline: DataPipeline
+    user: Wallet
+}): Promise<AssetBondData> {
+    const assetBondData = <AssetBondData>{};
+    const contractUserData = await dataPipeline.getUserData(
+        underlyingAsset.address,
+        user.address
+    )
+    userData.underlyingAssetBalance = contractUserData.underlyingAssetBalance;
+    userData.lTokenBalance = contractUserData.lTokenBalance;
+    userData.implicitLtokenBalance = contractUserData.implicitLtokenBalance;
+    userData.dTokenBalance = contractUserData.dTokenBalance;
+    userData.implicitDtokenBalance = contractUserData.implicitDtokenBalance;
+
+    return userData;
 }
 

@@ -23,7 +23,7 @@ contract Tokenizer is ITokenizer, ERC1155Upgradeable, TokenizerStorage {
     using AssetBond for DataStruct.TokenizerData;
     using AssetBond for DataStruct.AssetBondData;
     using Index for DataStruct.AssetBondData;
-    /************ Initial Functions ************/
+    /************ Initialize Functions ************/
 
     function initialize(
         address moneyPool,
@@ -36,10 +36,22 @@ contract Tokenizer is ITokenizer, ERC1155Upgradeable, TokenizerStorage {
     /************ View Functions ************/
 
     /**
-     * @dev Returns sum of previous balance and accrued interest of account
+     * @dev Returns AToken Interest index of assetBond
+     * @param tokenId The asset bond tokenId
+     * @return The AToken interest index of asset bond
+     */
+    function getATokenInterestIndex(
+        uint256 tokenId
+    ) public view override returns (uint256) {
+        return _assetBondData[tokenId].getATokenInterestIndex();
+    }
+
+    /**
+     * @dev This contract overrides `balanceOf` method for calculate increasing balance of
+     * securitized asset bond. It returns sum of previous balance and accrued interest of account.
      * If token is NFT, return 1
      * @param account Account address
-     * @param tokenId Token Id
+     * @param tokenId tokenId
      * @return The sum of previous balance and accrued interest
      */
     function balanceOf(
@@ -56,39 +68,17 @@ contract Tokenizer is ITokenizer, ERC1155Upgradeable, TokenizerStorage {
     }
 
     /**
-     * @dev Returns AToken Interest index of assetBond
-     * @param tokenId The asset bond token id
-     * @return The AToken interest index of asset bond
-     */
-    function getATokenInterestIndex(
-        uint256 tokenId
-    ) public view override returns (uint256) {
-        return _assetBond[tokenId].getATokenInterestIndex();
-    }
-
-    /**
-     * @dev Returns the state of the asset bond
-     * @param tokenId The asset bond token id
-     * @return The data of the asset bond
-     **/
-    function getAssetBondData(
-        uint256 tokenId
-    ) external view override returns (DataStruct.AssetBondData memory) {
-        return _assetBond[tokenId];
-    }
-
-    /**
      * @dev Returns sum of previous balance and accrued interest of moneypool
      * @return The sum of previous balance and accrued interest of moneypool
      */
     function totalATokenBalanceOfMoneyPool() public view override returns (uint256) {
         uint256 accruedInterest =
             Math.calculateLinearInterest(
-                _tokenizer.averageATokenAPR,
-                _tokenizer.lastUpdateTimestamp,
+                _tokenizerData.averageATokenAPR,
+                _tokenizerData.lastUpdateTimestamp,
                 block.timestamp);
 
-        return _tokenizer.totalATokenBalanceOfMoneyPool.rayMul(accruedInterest);
+        return _tokenizerData.totalATokenBalanceOfMoneyPool.rayMul(accruedInterest);
     }
 
     /**
@@ -98,46 +88,57 @@ contract Tokenizer is ITokenizer, ERC1155Upgradeable, TokenizerStorage {
     function totalATokenSupply() public view override returns (uint256) {
         uint256 accruedInterest =
             Math.calculateLinearInterest(
-                _tokenizer.averageATokenAPR,
-                _tokenizer.lastUpdateTimestamp,
+                _tokenizerData.averageATokenAPR,
+                _tokenizerData.lastUpdateTimestamp,
                 block.timestamp);
 
-        return _tokenizer.totalATokenSupply.rayMul(accruedInterest);
+        return _tokenizerData.totalATokenSupply.rayMul(accruedInterest);
     }
 
-    function getAverageATokenAPR() external view override returns (uint256) {
-        return _tokenizer.averageATokenAPR;
+    /**
+     * @dev Returns the state of the asset bond
+     * @param tokenId The asset bond tokenId
+     * @return The data of the asset bond
+     **/
+    function getAssetBondData(
+        uint256 tokenId
+    ) external view override returns (DataStruct.AssetBondData memory) {
+        return _assetBondData[tokenId];
     }
 
     function getTokenizerData() external view override returns (DataStruct.TokenizerData memory) {
-        return _tokenizer;
+        return _tokenizerData;
+    }
+
+    function getAverageATokenAPR() external view override returns (uint256) {
+        return _tokenizerData.averageATokenAPR;
     }
 
     function getMinter(
-        uint256 id
+        uint256 tokenId
     ) external view returns (address) {
-        return _minter[id];
+        return _minter[tokenId];
     }
 
     /************ ABToken Formation Functions ************/
 
-    // id : bitMask
+    // tokenId : bitMask
     // Need access control : only CSP
     function mintABToken(
         address account, // CSP address
-        uint256 id // information about CSP and borrower
+        uint256 tokenId // information about CSP and borrower
     ) external override {
 
-        if (_minter[id] != address(0)) revert(); ////error ABTokenIDAlreadyExist(id)
+        if (_minter[tokenId] != address(0)) revert(); ////error ABTokenIDAlreadyExist(tokenId)
 
         // mint ABToken to CSP
-        _mint(account, id, 1, "");
+        _mint(account, tokenId, 1, "");
 
-        // validate Id : Id should have information about
-        AssetBond.validateTokenId(id);
+        // validate tokenId : tokenId should have information about
+        AssetBond.validateTokenId(tokenId);
 
-        _minter[id] = account;
-        _tokenType[id] = Role.ABTOKEN;
+        _minter[tokenId] = account;
+        _tokenType[tokenId] = Role.ABTOKEN;
     }
 
     // Access control : only minter
@@ -148,7 +149,7 @@ contract Tokenizer is ITokenizer, ERC1155Upgradeable, TokenizerStorage {
         address asset,
         address borrower, // borrower address
         address lawfirm, // lawfirm address
-        uint256 id, // Token Id
+        uint256 tokenId, // tokenId
         uint256 collateralValue, // collateralValue in USD
         uint256 dueDate,
         string memory ipfsHash
@@ -157,11 +158,11 @@ contract Tokenizer is ITokenizer, ERC1155Upgradeable, TokenizerStorage {
         // lawfirm should be authorized
         // Asset bond state should be empty
         AssetBond.validateSettleABToken(
-            id,
+            tokenId,
             lawfirm
         );
 
-        _assetBond[id].settleAssetBond(
+        _assetBondData[tokenId].settleAssetBond(
             asset,
             borrower,
             lawfirm,
@@ -172,7 +173,7 @@ contract Tokenizer is ITokenizer, ERC1155Upgradeable, TokenizerStorage {
     }
 
     function signABToken(
-        uint256 id,
+        uint256 tokenId,
         address signer
     ) external {}
 
@@ -182,7 +183,7 @@ contract Tokenizer is ITokenizer, ERC1155Upgradeable, TokenizerStorage {
         uint256 borrowAmount,
         uint256 realAssetAPR
     ) external override onlyMoneyPool {
-        DataStruct.AssetBondData storage assetBond = _assetBond[tokenId];
+        DataStruct.AssetBondData storage assetBond = _assetBondData[tokenId];
 
         safeTransferFrom(
             account,
@@ -205,7 +206,6 @@ contract Tokenizer is ITokenizer, ERC1155Upgradeable, TokenizerStorage {
 
     struct MintLocalVars {
         uint256 aTokenId;
-        uint256 futureInterestAmount;
         uint256 newAverageATokenRate;
         uint256 newTotalATokenSupply;
     }
@@ -218,21 +218,21 @@ contract Tokenizer is ITokenizer, ERC1155Upgradeable, TokenizerStorage {
     ) internal {
         MintLocalVars memory vars;
 
-        // generate AToken Id based on the Id of asset bond
+        // generate AToken tokenId based on the tokenId of asset bond
         vars.aTokenId = _generateATokenId(assetBondId);
 
         // update total Atoken supply and average AToken rate
-        _tokenizer.increaseTotalAToken(
+        _tokenizerData.increaseTotalAToken(
             borrowAmount,
             realAssetAPR);
 
         // update moneyPool AToken supply and average AToken rate
-        _tokenizer.increaseATokenBalanceOfMoneyPool(
+        _tokenizerData.increaseATokenBalanceOfMoneyPool(
             vars.aTokenId,
             borrowAmount,
             realAssetAPR);
 
-        _mint(address(_moneyPool), vars.aTokenId, vars.futureInterestAmount, "");
+        _mint(address(_moneyPool), vars.aTokenId, borrowAmount, "");
 
         _tokenType[assetBondId] = Role.ATOKEN;
 
@@ -254,8 +254,8 @@ contract Tokenizer is ITokenizer, ERC1155Upgradeable, TokenizerStorage {
     //     // validation : only after maturation
 
     //     Math.calculateRateInDecreasingBalance(
-    //         _tokenizer.averageMoneyPoolAPR,
-    //         _tokenizer.totalATokenBalanceOfMoneyPool,
+    //         _tokenizerData.averageMoneyPoolAPR,
+    //         _tokenizerData.totalATokenBalanceOfMoneyPool,
     //         amount,
     //         );
     // }
@@ -263,7 +263,8 @@ contract Tokenizer is ITokenizer, ERC1155Upgradeable, TokenizerStorage {
     /************ Token Functions ************/
 
     /**
-     * @dev Overriding ERC1155 safeTransferFrom to transfer implicit balance
+     * @dev This contract overrides `safeTransferFrom` method
+    * in order to transfer implicit balance.
      * Transfer AToken to moneypool is not allowed in beta version
      */
     function safeTransferFrom(
@@ -301,13 +302,13 @@ contract Tokenizer is ITokenizer, ERC1155Upgradeable, TokenizerStorage {
     ) public override(ERC1155Upgradeable, IERC1155Upgradeable) {
 
         for (uint256 i = 0; i < ids.length; ++i) {
-            uint256 id = ids[i];
+            uint256 tokenId = ids[i];
             uint256 amount = amounts[i];
 
-            if (_tokenType[id] == Role.ATOKEN) {
+            if (_tokenType[tokenId] == Role.ATOKEN) {
                 if (to == address(_moneyPool)) revert(); //// TransferATokenToMoneyPoolNotAllowed();
 
-                uint256 index = getATokenInterestIndex(id);
+                uint256 index = getATokenInterestIndex(tokenId);
 
                 amounts[i] = amount.rayDiv(index);
             }
@@ -325,32 +326,32 @@ contract Tokenizer is ITokenizer, ERC1155Upgradeable, TokenizerStorage {
     /************ MoneyPool Total AToken Balance Manage Functions ************/
 
     function increaseATokenBalanceOfMoneyPool(
-        uint256 id,
+        uint256 tokenId,
         uint256 amount,
         uint256 rate
     ) external override {
-        uint256 aTokenId = _generateATokenId(id);
+        uint256 aTokenId = _generateATokenId(tokenId);
 
-        _tokenizer.increaseATokenBalanceOfMoneyPool(
+        _tokenizerData.increaseATokenBalanceOfMoneyPool(
             aTokenId,
             amount,
             rate);
     }
 
     function decreaseATokenBalanceOfMoneyPool(
-        uint256 id,
+        uint256 tokenId,
         uint256 amount,
         uint256 rate
     ) external override {
-        uint256 aTokenId = _generateATokenId(id);
+        uint256 aTokenId = _generateATokenId(tokenId);
 
-        _tokenizer.decreaseATokenBalanceOfMoneyPool(
+        _tokenizerData.decreaseATokenBalanceOfMoneyPool(
             aTokenId,
             amount,
             rate);
     }
 
-    // need logic : generate token id
+    // need logic : generate tokenId
     function _generateATokenId(
         uint256 assetBondId
     ) internal pure returns (uint256) {

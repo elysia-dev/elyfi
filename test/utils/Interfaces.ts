@@ -89,5 +89,7 @@ export enum AssetBondState {
 }
 export interface AssetBondData {
     tokenId: BigNumber;
+    aTokenBalance : BigNumber;
+    tokenOwner : string;
     state : AssetBondState;
 }
