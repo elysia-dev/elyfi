@@ -1,401 +1,319 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.4;
 
-import "./interfaces/ILToken.sol";
-import "./interfaces/IDToken.sol";
-import "./interfaces/IMoneyPool.sol";
-import "./interfaces/ITokenizer.sol";
-import "./MoneyPoolStorage.sol";
-import "./logic/Index.sol";
-import "./logic/Rate.sol";
-import "./logic/AssetBond.sol";
-import "./logic/Validation.sol";
-import "./libraries/DataStruct.sol";
-import "hardhat/console.sol";
-import "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/token/ERC1155/IERC1155ReceiverUpgradeable.sol";
+import './interfaces/ILToken.sol';
+import './interfaces/IDToken.sol';
+import './interfaces/IMoneyPool.sol';
+import './interfaces/ITokenizer.sol';
+import './MoneyPoolStorage.sol';
+import './logic/Index.sol';
+import './logic/Rate.sol';
+import './logic/AssetBond.sol';
+import './logic/Validation.sol';
+import './libraries/DataStruct.sol';
+import 'hardhat/console.sol';
+import '@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol';
+import '@openzeppelin/contracts-upgradeable/token/ERC1155/IERC1155ReceiverUpgradeable.sol';
 
 contract MoneyPool is IMoneyPool, IERC1155ReceiverUpgradeable, MoneyPoolStorage {
-    using SafeERC20Upgradeable for IERC20Upgradeable;
-    using Index for DataStruct.ReserveData;
-    using Index for DataStruct.AssetBondData;
-    using Validation for DataStruct.ReserveData;
-    using Rate for DataStruct.ReserveData;
-    using AssetBond for DataStruct.AssetBondData;
+  using SafeERC20Upgradeable for IERC20Upgradeable;
+  using Index for DataStruct.ReserveData;
+  using Index for DataStruct.AssetBondData;
+  using Validation for DataStruct.ReserveData;
+  using Rate for DataStruct.ReserveData;
+  using AssetBond for DataStruct.AssetBondData;
 
-    function initialize(
-        uint256 maxReserveCount_,
-        address connector
-    ) public initializer
-    {
-        _connector = connector;
-        _maxReserveCount = maxReserveCount_;
-        _reserveCount += 1;
+  function initialize(uint256 maxReserveCount_, address connector) public initializer {
+    _connector = connector;
+    _maxReserveCount = maxReserveCount_;
+    _reserveCount += 1;
+  }
+
+  /************ MoneyPool Investment Functions ************/
+
+  /**
+   * @dev Invests an amount of underlying asset and receive corresponding LTokens.
+   * @param asset The address of the underlying asset to invest
+   * @param account The address that will receive the LToken
+   * @param amount Investment amount
+   **/
+  function investMoneyPool(
+    address asset,
+    address account,
+    uint256 amount
+  ) external override {
+    DataStruct.ReserveData storage reserve = _reserves[asset];
+
+    address lToken = reserve.lTokenAddress;
+    address tokenizer = reserve.tokenizerAddress;
+
+    // validation
+    // Check pool activation
+    Validation.validateInvestMoneyPool(reserve, amount);
+
+    // update indexes and mintToReserve
+    reserve.updateState();
+
+    // for test
+    console.log(
+      'hardhat updateIndex console:',
+      reserve.lTokenInterestIndex,
+      reserve.dTokenInterestIndex,
+      reserve.lastUpdateTimestamp
+    );
+
+    // update rates
+    reserve.updateRates(asset, tokenizer, amount, 0);
+
+    // transfer underlying asset
+    // If transfer fail, reverts
+    IERC20Upgradeable(asset).safeTransferFrom(msg.sender, lToken, amount);
+
+    // Mint ltoken
+    ILToken(lToken).mint(account, amount, reserve.lTokenInterestIndex);
+
+    emit InvestMoneyPool(asset, account, amount);
+  }
+
+  function withdrawMoneyPool(
+    address asset,
+    address account,
+    uint256 amount
+  ) external override returns (uint256) {
+    DataStruct.ReserveData storage reserve = _reserves[asset];
+
+    address lToken = reserve.lTokenAddress;
+    address tokenizer = reserve.tokenizerAddress;
+
+    uint256 userLTokenBalance = ILToken(lToken).balanceOf(msg.sender);
+
+    uint256 amountToWithdraw = amount;
+
+    if (amount == type(uint256).max) {
+      amountToWithdraw == userLTokenBalance;
     }
 
-    /************ MoneyPool Investment Functions ************/
+    // validation
+    // Without digital asset borrow, validation might be quite simple.
+    Validation.validateWithdrawMoneyPool(
+      reserve,
+      _userInfo[msg.sender],
+      asset,
+      amount,
+      userLTokenBalance,
+      _reservesList,
+      _reserveCount
+    );
 
-    /**
-     * @dev Invests an amount of underlying asset and receive corresponding LTokens.
-     * @param asset The address of the underlying asset to invest
-     * @param account The address that will receive the LToken
-     * @param amount Investment amount
-     **/
-    function investMoneyPool(
-        address asset,
-        address account,
-        uint256 amount
-    ) external override {
-        DataStruct.ReserveData storage reserve = _reserves[asset];
+    // update indexes and mintToReserve
+    reserve.updateState();
 
-        address lToken = reserve.lTokenAddress;
-        address tokenizer = reserve.tokenizerAddress;
+    // update rates
+    reserve.updateRates(asset, tokenizer, 0, amount);
 
-        // validation
-        // Check pool activation
-        Validation.validateInvestMoneyPool(
-            reserve,
-            amount
-        );
+    // Burn ltoken
+    ILToken(lToken).burn(msg.sender, account, amount, reserve.lTokenInterestIndex);
 
-        // update indexes and mintToReserve
-        reserve.updateState();
+    emit WithdrawMoneyPool(asset, msg.sender, account, amountToWithdraw);
+  }
 
-        // for test
-        console.log("hardhat updateIndex console:",
-            reserve.lTokenInterestIndex,
-            reserve.dTokenInterestIndex,
-            reserve.lastUpdateTimestamp
-        );
+  /************ ABToken Investment Functions ************/
 
-        // update rates
-        reserve.updateRates(
-            asset,
-            tokenizer,
-            amount,
-            0
-        );
+  function investABToken(
+    address asset,
+    address account,
+    uint256 id, // token id
+    uint256 amount
+  ) external override {
+    DataStruct.ReserveData storage reserve = _reserves[asset];
+    DataStruct.AssetBondData memory assetBond =
+      ITokenizer(reserve.tokenizerAddress).getAssetBondData(id);
 
-        // transfer underlying asset
-        // If transfer fail, reverts
-        IERC20Upgradeable(asset).safeTransferFrom(
-            msg.sender,
-            lToken,
-            amount
-        );
+    address lToken = reserve.lTokenAddress;
+    address tokenizer = reserve.tokenizerAddress;
 
-        // Mint ltoken
-        ILToken(lToken).mint(
-            account,
-            amount,
-            reserve.lTokenInterestIndex
-        );
+    // validation : AToken Balance check
+    // validation : if token matured, reverts
+    Validation.validateInvestABToken(
+      reserve,
+      assetBond,
+      amount,
+      ITokenizer(tokenizer).totalATokenBalanceOfMoneyPool()
+    );
 
-        emit InvestMoneyPool(
-            asset,
-            account,
-            amount
-        );
-    }
+    // update indexes and mintToReserve
+    reserve.updateState();
 
-    function withdrawMoneyPool(
-        address asset,
-        address account,
-        uint256 amount
-    ) external override returns (uint256) {
-        DataStruct.ReserveData storage reserve = _reserves[asset];
+    // update rates
+    reserve.updateRates(asset, tokenizer, amount, 0);
 
-        address lToken = reserve.lTokenAddress;
-        address tokenizer = reserve.tokenizerAddress;
+    // transfer underlying asset
+    // If transfer fail, reverts
+    IERC20Upgradeable(asset).safeTransferFrom(msg.sender, lToken, amount);
 
-        uint256 userLTokenBalance = ILToken(lToken).balanceOf(msg.sender);
+    // decrease moneypool balance of AToken
+    ITokenizer(tokenizer).decreaseATokenBalanceOfMoneyPool(id, amount, assetBond.borrowAPR);
 
-        uint256 amountToWithdraw = amount;
+    // transfer AToken via tokenizer
+    ITokenizer(tokenizer).safeTransferFrom(address(tokenizer), account, id, amount, '');
 
-        if (amount == type(uint256).max) {
-            amountToWithdraw == userLTokenBalance;
-        }
+    emit InvestABToken(asset, account, id, amount);
+  }
 
-        // validation
-        // Without digital asset borrow, validation might be quite simple.
-        Validation.validateWithdrawMoneyPool(
-            reserve,
-            _userInfo[msg.sender],
-            asset,
-            amount,
-            userLTokenBalance,
-            _reservesList,
-            _reserveCount
-        );
+  function withdrawABTokenInvestment(
+    address asset,
+    address account,
+    uint256 id,
+    uint256 amount,
+    bool rewardClaim // if true, transfer all accrued reward
+  ) external override returns (uint256) {
+    // validation : AToken Balance check
+    // update states, rate
+    // transfer underlying asset
+    // transferFrom AToken -> need allowance
+    // if true, claim all rewards
+    // update ReserveData
+  }
 
-        // update indexes and mintToReserve
-        reserve.updateState();
+  /************ View Functions ************/
 
-        // update rates
-        reserve.updateRates(
-            asset,
-            tokenizer,
-            0,
-            amount
-        );
+  /**
+   * @dev Returns LToken Interest index of asset
+   * @param asset The address of the underlying asset of the reserve
+   * @return The LToken interest index of reserve
+   */
+  function getLTokenInterestIndex(address asset) external view override returns (uint256) {
+    return _reserves[asset].getLTokenInterestIndex();
+  }
 
-        // Burn ltoken
-        ILToken(lToken).burn(
-            msg.sender,
-            account,
-            amount,
-            reserve.lTokenInterestIndex
-        );
+  /**
+   * @dev Returns DToken Interest index of asset
+   * @param asset The address of the underlying asset of the reserve
+   * @return The DToken interest index of reserve
+   */
+  function getDTokenInterestIndex(address asset) external view override returns (uint256) {
+    return _reserves[asset].getDTokenInterestIndex();
+  }
 
-        emit WithdrawMoneyPool(
-            asset,
-            msg.sender,
-            account,
-            amountToWithdraw
-        );
-    }
+  /**
+   * @dev Returns the state and configuration of the reserve
+   * @param asset The address of the underlying asset of the reserve
+   * @return The state of the reserve
+   **/
+  function getReserveData(address asset)
+    external
+    view
+    override
+    returns (DataStruct.ReserveData memory)
+  {
+    return _reserves[asset];
+  }
 
-    /************ ABToken Investment Functions ************/
+  /************ ABToken Formation Functions ************/
 
-    function investABToken(
-        address asset,
-        address account,
-        uint256 id, // token id
-        uint256 amount
-    ) external override {
-        DataStruct.ReserveData storage reserve = _reserves[asset];
-        DataStruct.AssetBondData memory assetBond = ITokenizer(reserve.tokenizerAddress).getAssetBondData(id);
+  // need access control signer: only lawfirm or asset owner
 
-        address lToken = reserve.lTokenAddress;
-        address tokenizer = reserve.tokenizerAddress;
+  // need access control : only minter
+  function borrowAgainstABToken(
+    address asset,
+    address receiver,
+    uint256 borrowAmount,
+    uint256 id
+  ) external override {
+    DataStruct.ReserveData storage reserve = _reserves[asset];
+    DataStruct.AssetBondData memory assetBond =
+      ITokenizer(reserve.tokenizerAddress).getAssetBondData(id);
 
-        // validation : AToken Balance check
-        // validation : if token matured, reverts
-        Validation.validateInvestABToken(
-            reserve,
-            assetBond,
-            amount,
-            ITokenizer(tokenizer).totalATokenBalanceOfMoneyPool()
-        );
+    address lToken = reserve.lTokenAddress;
+    address tokenizer = reserve.tokenizerAddress;
 
-        // update indexes and mintToReserve
-        reserve.updateState();
+    // Check if borrow amount exceeds collateral value
+    // Check if borrow amount exceeds liquidity available
+    Validation.validateBorrowAgainstAssetBond(reserve, assetBond, asset, borrowAmount);
 
-        // update rates
-        reserve.updateRates(
-            asset,
-            tokenizer,
-            amount,
-            0
-        );
+    reserve.updateState();
 
-        // transfer underlying asset
-        // If transfer fail, reverts
-        IERC20Upgradeable(asset).safeTransferFrom(
-            msg.sender,
-            lToken,
-            amount
-        );
+    // update interest rate
+    reserve.updateRates(asset, tokenizer, 0, borrowAmount);
 
-        // decrease moneypool balance of AToken
-        ITokenizer(tokenizer).decreaseATokenBalanceOfMoneyPool(
-            id,
-            amount,
-            assetBond.borrowAPR
-        );
+    ITokenizer(tokenizer).depositAssetBond(msg.sender, id, borrowAmount, reserve.realAssetAPR);
 
-        // transfer AToken via tokenizer
-        ITokenizer(tokenizer).safeTransferFrom(
-            address(tokenizer),
-            account,
-            id,
-            amount,
-            ""
-        );
+    // transfer asset bond
+    // or lock NFT?
 
-        emit InvestABToken(
-            asset,
-            account,
-            id,
-            amount
-        );
-    }
+    // transfer Underlying asset
+    ILToken(lToken).transferUnderlyingTo(receiver, borrowAmount);
+  }
 
-    function withdrawABTokenInvestment(
-        address asset,
-        address account,
-        uint256 id,
-        uint256 amount,
-        bool rewardClaim // if true, transfer all accrued reward
-    ) external override returns (uint256) {
-        // validation : AToken Balance check
-        // update states, rate
-        // transfer underlying asset
-        // transferFrom AToken -> need allowance
-        // if true, claim all rewards
-        // update ReserveData
-    }
+  /************ External Functions ************/
 
-    /************ View Functions ************/
+  /**
+   * @dev Validate and finalize LToken transfer
+   * @notice In beta version, there's no need for validation
+   */
+  function validateLTokenTransfer(
+    address asset,
+    address from,
+    address to,
+    uint256 amount,
+    uint256 previousFromBalance,
+    uint256 previousToBalance
+  ) external override {
+    if (msg.sender == _reserves[asset].lTokenAddress) revert(); ////
 
-    /**
-     * @dev Returns LToken Interest index of asset
-     * @param asset The address of the underlying asset of the reserve
-     * @return The LToken interest index of reserve
-     */
-    function getLTokenInterestIndex(
-        address asset
-    ) external view override returns (uint256) {
-        return _reserves[asset].getLTokenInterestIndex();
-    }
+    // For beta version, there's no need for validate LToken transfer
+    Validation.validateLTokenTrasfer();
+  }
 
-    /**
-     * @dev Returns DToken Interest index of asset
-     * @param asset The address of the underlying asset of the reserve
-     * @return The DToken interest index of reserve
-     */
-    function getDTokenInterestIndex(
-        address asset
-    ) external view override returns (uint256) {
-        return _reserves[asset].getDTokenInterestIndex();
-    }
+  /************ Configuration Functions ************/
 
-    /**
-     * @dev Returns the state and configuration of the reserve
-     * @param asset The address of the underlying asset of the reserve
-     * @return The state of the reserve
-     **/
-    function getReserveData(
-        address asset
-    ) external view override returns (DataStruct.ReserveData memory) {
-        return _reserves[asset];
-    }
+  // Need access control, onlyConfigurator can add new reserve.
+  function addNewReserve(
+    address asset,
+    address lToken,
+    address dToken,
+    address interestModel,
+    address tokenizer,
+    uint256 moneyPoolFactor_
+  ) external override {
+    DataStruct.ReserveData memory newReserveData =
+      DataStruct.ReserveData({
+        moneyPoolFactor: moneyPoolFactor_,
+        lTokenInterestIndex: WadRayMath.ray(),
+        dTokenInterestIndex: WadRayMath.ray(),
+        realAssetAPR: 0,
+        digitalAssetAPR: 0,
+        supplyAPR: 0,
+        totalDepositedAssetBondCount: 0,
+        maturedAssetBondCount: 0,
+        lastUpdateTimestamp: uint40(block.timestamp),
+        lTokenAddress: lToken,
+        dTokenAddress: dToken,
+        interestModelAddress: interestModel,
+        tokenizerAddress: tokenizer,
+        id: 0,
+        isPaused: false,
+        isActivated: true
+      });
 
-    /************ ABToken Formation Functions ************/
+    _reserves[asset] = newReserveData;
+    _addNewReserveToList(asset);
+  }
 
-    // need access control signer: only lawfirm or asset owner
+  function _addNewReserveToList(address asset) internal {
+    uint256 reserveCount = _reserveCount;
 
+    if (reserveCount >= _maxReserveCount) revert(); ////MaxReserveCountExceeded();
 
-    // need access control : only minter
-    function borrowAgainstABToken(
-        address asset,
-        address receiver,
-        uint256 borrowAmount,
-        uint256 id
-    ) external override {
-        DataStruct.ReserveData storage reserve = _reserves[asset];
-        DataStruct.AssetBondData memory assetBond = ITokenizer(reserve.tokenizerAddress).getAssetBondData(id);
+    if (_reserves[asset].id != 0) revert(); ////DigitalAssetAlreadyAdded(address asset);
 
-        address lToken = reserve.lTokenAddress;
-        address tokenizer = reserve.tokenizerAddress;
+    _reserves[asset].id = uint8(reserveCount);
+    _reservesList[reserveCount] = asset;
 
-        // Check if borrow amount exceeds collateral value
-        // Check if borrow amount exceeds liquidity available
-        Validation.validateBorrowAgainstAssetBond(
-            reserve,
-            assetBond,
-            asset,
-            borrowAmount
-        );
+    _reserveCount = reserveCount + 1;
+  }
 
-        reserve.updateState();
-
-        // update interest rate
-        reserve.updateRates(
-            asset,
-            tokenizer,
-            0,
-            borrowAmount
-        );
-
-        ITokenizer(tokenizer).depositAssetBond(
-            msg.sender,
-            id,
-            borrowAmount,
-            reserve.realAssetAPR
-        );
-
-        // transfer asset bond
-        // or lock NFT?
-
-        // transfer Underlying asset
-        ILToken(lToken).transferUnderlyingTo(
-            receiver,
-            borrowAmount
-        );
-    }
-
-    /************ External Functions ************/
-
-    /**
-     * @dev Validate and finalize LToken transfer
-     * @notice In beta version, there's no need for validation
-     */
-    function validateLTokenTransfer(
-        address asset,
-        address from,
-        address to,
-        uint256 amount,
-        uint256 previousFromBalance,
-        uint256 previousToBalance
-    ) external override {
-        if (msg.sender == _reserves[asset].lTokenAddress) revert(); ////
-
-        // For beta version, there's no need for validate LToken transfer
-        Validation.validateLTokenTrasfer();
-    }
-
-    /************ Configuration Functions ************/
-
-    // Need access control, onlyConfigurator can add new reserve.
-    function addNewReserve(
-        address asset,
-        address lToken,
-        address dToken,
-        address interestModel,
-        address tokenizer,
-        uint256 moneyPoolFactor_
-    ) external override {
-        DataStruct.ReserveData memory newReserveData =
-            DataStruct.ReserveData({
-                moneyPoolFactor: moneyPoolFactor_,
-                lTokenInterestIndex: WadRayMath.ray(),
-                dTokenInterestIndex: WadRayMath.ray(),
-                realAssetAPR: 0,
-                digitalAssetAPR: 0,
-                supplyAPR: 0,
-                totalDepositedAssetBondCount: 0,
-                maturedAssetBondCount: 0,
-                lastUpdateTimestamp: uint40(block.timestamp),
-                lTokenAddress: lToken,
-                dTokenAddress: dToken,
-                interestModelAddress: interestModel,
-                tokenizerAddress: tokenizer,
-                id: 0,
-                isPaused: false,
-                isActivated: true
-            });
-
-        _reserves[asset] = newReserveData;
-        _addNewReserveToList(asset);
-    }
-
-    function _addNewReserveToList(
-        address asset
-    ) internal {
-        uint256 reserveCount = _reserveCount;
-
-        if (reserveCount >= _maxReserveCount) revert(); ////MaxReserveCountExceeded();
-
-        if (_reserves[asset].id != 0) revert(); ////DigitalAssetAlreadyAdded(address asset);
-
-        _reserves[asset].id = uint8(reserveCount);
-        _reservesList[reserveCount] = asset;
-
-        _reserveCount = reserveCount + 1;
-    }
-
-    /**
+  /**
         @dev Handles the receipt of a single ERC1155 token type. This function is
         called at the end of a `safeTransferFrom` after the balance has been updated.
         To accept the transfer, this must return
@@ -408,17 +326,17 @@ contract MoneyPool is IMoneyPool, IERC1155ReceiverUpgradeable, MoneyPoolStorage 
         @param data Additional data with no specified format
         @return `bytes4(keccak256("onERC1155Received(address,address,uint256,uint256,bytes)"))` if transfer is allowed
     */
-    function onERC1155Received(
-        address operator,
-        address from,
-        uint256 id,
-        uint256 value,
-        bytes calldata data
-    ) external override returns(bytes4) {
-        return bytes4(keccak256("onERC1155Received(address,address,uint256,uint256,bytes)"));
-    }
+  function onERC1155Received(
+    address operator,
+    address from,
+    uint256 id,
+    uint256 value,
+    bytes calldata data
+  ) external override returns (bytes4) {
+    return bytes4(keccak256('onERC1155Received(address,address,uint256,uint256,bytes)'));
+  }
 
-    /**
+  /**
         @dev Handles the receipt of a multiple ERC1155 token types. This function
         is called at the end of a `safeBatchTransferFrom` after the balances have
         been updated. To accept the transfer(s), this must return
@@ -431,20 +349,17 @@ contract MoneyPool is IMoneyPool, IERC1155ReceiverUpgradeable, MoneyPoolStorage 
         @param data Additional data with no specified format
         @return `bytes4(keccak256("onERC1155BatchReceived(address,address,uint256[],uint256[],bytes)"))` if transfer is allowed
     */
-    function onERC1155BatchReceived(
-        address operator,
-        address from,
-        uint256[] calldata ids,
-        uint256[] calldata values,
-        bytes calldata data
-    ) external override returns(bytes4) {
-        return bytes4(keccak256("onERC1155BatchReceived(address,address,uint256[],uint256[],bytes)"));
-    }
+  function onERC1155BatchReceived(
+    address operator,
+    address from,
+    uint256[] calldata ids,
+    uint256[] calldata values,
+    bytes calldata data
+  ) external override returns (bytes4) {
+    return bytes4(keccak256('onERC1155BatchReceived(address,address,uint256[],uint256[],bytes)'));
+  }
 
-    function supportsInterface(
-        bytes4 interfaceId
-    ) external view override returns (bool) {
-        return true;
-    }
-
+  function supportsInterface(bytes4 interfaceId) external view override returns (bool) {
+    return true;
+  }
 }

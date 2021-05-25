@@ -65,7 +65,7 @@ library WadRayMath {
    * @return The result of a/b, in wad
    **/
   function wadDiv(uint256 a, uint256 b) internal pure returns (uint256) {
-    require(b != 0, "Division by Zero");
+    require(b != 0, 'Division by Zero');
     uint256 halfB = b / 2;
     return (a * WAD + halfB) / b;
   }
@@ -90,7 +90,7 @@ library WadRayMath {
    * @return The result of a/b, in ray
    **/
   function rayDiv(uint256 a, uint256 b) internal pure returns (uint256) {
-    require(b != 0, "Division by Zero");
+    require(b != 0, 'Division by Zero');
     uint256 halfB = b / 2;
     return (a * RAY + halfB) / b;
   }
