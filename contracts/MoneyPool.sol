@@ -44,9 +44,6 @@ contract MoneyPool is IMoneyPool, IERC1155ReceiverUpgradeable, MoneyPoolStorage 
   ) external override {
     DataStruct.ReserveData storage reserve = _reserves[asset];
 
-    address lToken = reserve.lTokenAddress;
-    address tokenizer = reserve.tokenizerAddress;
-
     // validation
     // Check pool activation
     Validation.validateInvestMoneyPool(reserve, amount);
@@ -67,10 +64,10 @@ contract MoneyPool is IMoneyPool, IERC1155ReceiverUpgradeable, MoneyPoolStorage 
 
     // transfer underlying asset
     // If transfer fail, reverts
-    IERC20Upgradeable(asset).safeTransferFrom(msg.sender, lToken, amount);
+    IERC20Upgradeable(asset).safeTransferFrom(msg.sender, reserve.lTokenAddress, amount);
 
     // Mint ltoken
-    ILToken(lToken).mint(account, amount, reserve.lTokenInterestIndex);
+    ILToken(reserve.lTokenAddress).mint(account, amount, reserve.lTokenInterestIndex);
 
     emit InvestMoneyPool(asset, account, amount);
   }
