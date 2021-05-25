@@ -21,7 +21,10 @@ describe("MoneyPool", () => {
     let dataPipeline: DataPipeline
 
     const provider = waffle.provider
-    const [deployer, account1, account2] = provider.getWallets()
+    const [deployer, account1, account2, CSP] = provider.getWallets()
+
+    const exampleTokenId_1 = BigNumber.from(1001002003004005)
+    const exampleTokenId_2 = BigNumber.from(1001002003004006)
 
     beforeEach(async () => {
         underlyingAsset = await makeUnderlyingAsset({
@@ -149,12 +152,6 @@ describe("MoneyPool", () => {
             const amountInvest = expandToDecimals(10000, 18);
             await underlyingAsset.connect(account1).approve(moneyPool.address, RAY)
 
-            const firstInvestTx = await moneyPool.connect(account1).investMoneyPool(
-                underlyingAsset.address,
-                account1.address,
-                amountInvest
-            )
-
             const contractReserveDataBeforeInvest = await getReserveData({
                 underlyingAsset: underlyingAsset,
                 dataPipeline: dataPipeline,
@@ -206,8 +203,23 @@ describe("MoneyPool", () => {
     })
 
     describe("Borrow against asset bond", async () => {
+        const amountInvest = expandToDecimals(10000, 18);
+
+        beforeEach(async () => {
+            await tokenizer.connect(CSP).mintABToken(CSP.address, exampleTokenId_1)
+            await underlyingAsset.connect(account1).approve(moneyPool.address, RAY)
+            const firstInvestTx = await moneyPool.connect(account1).investMoneyPool(
+                underlyingAsset.address,
+                account1.address,
+                amountInvest
+            )
+        })
+
         it("Borrow against AB token", async () => {
-            
+            await moneyPool.connect(CSP).borrowAgainstABToken(
+                underlyingAsset.address,
+                amountInvest.div(10),
+                exampleTokenId_1)
         })
     })
 })

@@ -268,7 +268,7 @@ export function expectedReserveDataAfterBorrowAgainstABToken({
     return expectedReserveData;
 }
 
-export function expectedCSVDataAfterBorrowAgainstABToken({
+export function expectedCSPDataAfterBorrowAgainstABToken({
     amountBorrow,
     userDataBefore,
     reserveDataBefore,
@@ -285,10 +285,10 @@ export function expectedCSVDataAfterBorrowAgainstABToken({
 
     // burn lToken
     expectedUserData.implicitLtokenBalance = userDataBefore.implicitLtokenBalance.sub(
-        rayDiv(amountWithdraw, reserveDataAfter.lTokenInterestIndex))
+        rayDiv(amountBorrow, reserveDataAfter.lTokenInterestIndex))
 
     // transfer underlyingAsset
-    expectedUserData.underlyingAssetBalance = userDataBefore.underlyingAssetBalance.add(amountWithdraw)
+    expectedUserData.underlyingAssetBalance = userDataBefore.underlyingAssetBalance.add(amountBorrow)
     // update lToken balance
     expectedUserData.lTokenBalance = rayMul(expectedUserData.implicitLtokenBalance, reserveDataAfter.lTokenInterestIndex)
     // update dtoken balance

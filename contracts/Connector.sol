@@ -25,11 +25,11 @@ contract Connector is IConnector, ConnectorStorage {
         emit UpdatePriceOracle(account);
     }
 
-    function addCSV(
+    function addCSP(
         address account
     ) external {
-        _grantRole(Role.CSV, account);
-        emit NewCSVAdded(account);
+        _grantRole(Role.CSP, account);
+        emit NewCSPAdded(account);
     }
 
     function setAdmin(

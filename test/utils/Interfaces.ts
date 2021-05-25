@@ -75,7 +75,7 @@ interface ATokenInvestment {
     aTokenBalance: BigNumber;
 }
 
-export interface CSVData extends UserData {
+export interface CSPData extends UserData {
     assetBonds: AssetBondData[]
 }
 

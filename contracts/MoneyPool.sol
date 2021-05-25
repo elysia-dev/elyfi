@@ -300,7 +300,7 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
 
         // update interest rate
         reserve.updateRates(
-            assetBond.asset,
+            asset,
             tokenizer,
             0,
             borrowAmount

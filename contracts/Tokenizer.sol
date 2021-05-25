@@ -122,14 +122,15 @@ contract Tokenizer is ITokenizer, ERC1155Upgradeable, TokenizerStorage {
     /************ ABToken Formation Functions ************/
 
     // id : bitMask
+    // Need access control : only CSP
     function mintABToken(
-        address account, // CSV address
-        uint256 id // information about CSV and borrower
-    ) external override onlyMoneyPool {
+        address account, // CSP address
+        uint256 id // information about CSP and borrower
+    ) external override {
 
         if (_minter[id] != address(0)) revert(); ////error ABTokenIDAlreadyExist(id)
 
-        // mint ABToken to CSV
+        // mint ABToken to CSP
         _mint(account, id, 1, "");
 
         // validate Id : Id should have information about

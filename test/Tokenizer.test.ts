@@ -2,8 +2,8 @@ import { BigNumber } from 'ethers';
 import { ethers, waffle } from 'hardhat'
 import { ModifiableContract, ModifiableContractFactory, smockit, smoddit } from '@eth-optimism/smock'
 import { address, advanceBlock, ETH, expandToDecimals, getTimestamp, RAY, toIndex, toRate } from './utils/Ethereum';
-import { Connector, DTokenTest, ERC20Test, InterestRateModel, LTokenTest, MoneyPoolTest, Tokenizer, TokenizerTest } from '../typechain';
-import { makeInterestRateModel, makeMoneyPool, makeLToken, makeDToken, makeUnderlyingAsset, makeConnector, makeTokenizer } from './utils/makeContract';
+import { Connector, DataPipeline, DTokenTest, ERC20Test, InterestRateModel, LTokenTest, MoneyPoolTest, Tokenizer, TokenizerTest } from '../typechain';
+import { makeInterestRateModel, makeMoneyPool, makeLToken, makeDToken, makeUnderlyingAsset, makeConnector, makeTokenizer, makeDataPipeline } from './utils/makeContract';
 import { defaultReserveData } from './utils/Interfaces';
 import { expect } from 'chai'
 
@@ -15,11 +15,13 @@ describe("Tokenizer", () => {
     let lToken: LTokenTest
     let dToken: DTokenTest
     let tokenizer: TokenizerTest
-    let tokenizerMock: ModifiableContract
-    let tokenizerMockFactory: ModifiableContractFactory
+    let dataPipeline: DataPipeline
 
     const provider = waffle.provider
-    const [deployer, account1, account2] = provider.getWallets()
+    const [deployer, account1, CSP] = provider.getWallets()
+
+    const exampleTokenId_1 = BigNumber.from(1001002003004005)
+    const exampleTokenId_2 = BigNumber.from(1001002003004006)
 
     beforeEach(async () => {
         underlyingAsset = await makeUnderlyingAsset({
@@ -56,6 +58,11 @@ describe("Tokenizer", () => {
             moneyPool: moneyPool
         })
 
+        dataPipeline = await makeDataPipeline({
+            deployer: deployer,
+            moneyPool: moneyPool
+        })
+
         await moneyPool.addNewReserve(
             underlyingAsset.address,
             lToken.address,
@@ -64,32 +71,35 @@ describe("Tokenizer", () => {
             tokenizer.address,
             defaultReserveData.moneyPoolFactor
         )
+
+        await underlyingAsset.connect(deployer).transfer(
+            account1.address,
+            RAY);
+        await underlyingAsset.connect(deployer).transfer(
+            CSP.address,
+            RAY);
+
     })
 
-    describe("View Functions", async () => {
-        beforeEach(async () => {
-            tokenizerMockFactory = await smoddit('TokenizerTest');
+    // describe("View Functions", async () => {
 
-            tokenizerMock = await tokenizerMockFactory.deploy();
-            const initTx = await advanceBlock();
+    //     it("Mints AToken and updates states", async () => {
 
-            await tokenizerMock.smodify.put({
-                _averageATokenAPR: toRate(0.1),
-                _totalATokenBalanceOfMoneyPool: expandToDecimals(100, 18),
-                _lastUpdateTimestamp: await getTimestamp(initTx)
-            })
+    //     })
+    // })
+
+    describe("Mint ABToken", async () => {
+        it("Mints ABToken and set token states", async () => {
+            await tokenizer.connect(CSP).mintABToken(CSP.address, exampleTokenId_1)
+            expect(await tokenizer.getMinter(exampleTokenId_1)).to.be.equal(CSP.address)
         })
 
-        it("Mints AToken and updates states", async () => {
-
-        })
-    })
-
-    describe("Mint AToken", async () => {
-        beforeEach(async () => {
+        it("Reverts if mint already exist id", async () => {
+            await tokenizer.connect(CSP).mintABToken(CSP.address, exampleTokenId_1)
+            await expect(tokenizer.connect(CSP).mintABToken(CSP.address, exampleTokenId_1)).to.be.reverted
         })
 
-        it("Mints AToken and updates states", async () => {
+        it("Settles ABToken informations", async () => {
 
         })
     })
