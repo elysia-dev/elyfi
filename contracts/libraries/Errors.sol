@@ -7,8 +7,8 @@ pragma solidity 0.8.4;
  * @dev Custom error messages
  */
 library MoneyPoolErrors {
-  //// error MaxDigitalAssetCountExceeded();
   //// error DigitalAssetAlreadyAdded(address asset);
+  //// error MaxDigitalAssetCountExceeded();
   //// error ReservePaused();
   //// error ReserveInactivated();
   //// error InvalidAmount(uint256 amount);

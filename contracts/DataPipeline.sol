@@ -76,7 +76,7 @@ contract DataPipeline {
     vars.digitalAssetAPR = reserve.digitalAssetAPR;
     vars.supplyAPR = reserve.supplyAPR;
     vars.moneyPooLastUpdateTimestamp = uint256(reserve.lastUpdateTimestamp);
-    vars.tokenizerLastUpdateTimestamp = uint256(tokenizer.lastUpdateTimestamp);
+    vars.tokenizerLastUpdateTimestamp = uint256(tokenizerData.lastUpdateTimestamp);
 
     return vars;
   }
@@ -97,6 +97,8 @@ contract DataPipeline {
     DataStruct.ReserveData memory reserve = moneyPool.getReserveData(asset);
     ITokenizer tokenizer = ITokenizer(reserve.tokenizerAddress);
     vars.tokenId = tokenId;
-    //vars.aTokenBalance =
+    //vars.aTokenBalance
+
+    return vars;
   }
 }

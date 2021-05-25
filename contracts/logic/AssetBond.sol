@@ -5,12 +5,20 @@ import '../libraries/DataStruct.sol';
 import '../libraries/Errors.sol';
 import '../libraries/Math.sol';
 import '../interfaces/IDToken.sol';
+import '../libraries/WadRayMath.sol';
 
 library AssetBond {
   using WadRayMath for uint256;
   using AssetBond for DataStruct.AssetBondData;
 
-  event MoneyTotalATokenDataUpdated(
+  event MoneyPoolTotalATokenDataUpdated(
+    address underlyingAsset,
+    uint256 id,
+    uint256 averageMoneyPoolAPR,
+    uint256 totalATokenBalanceOfMoneyPool
+  );
+
+  event TotalATokenSupplyUpdated(
     address underlyingAsset,
     uint256 id,
     uint256 averageMoneyPoolAPR,
@@ -53,84 +61,13 @@ library AssetBond {
 
     // set bond date data
     assetBondData.borrowAPR = realAssetAPR;
+    assetBondData.aTokenInterestIndex = WadRayMath.RAY;
+    assetBondData.lastUpdateTimestamp = uint40(block.timestamp);
     assetBondData.state = DataStruct.AssetBondState.COLLATERALIZED;
     assetBondData.issuanceDate = block.timestamp;
     assetBondData.maturityDate = block.timestamp + (assetBondData.dueDate * 1 days);
 
-    // calculate amount reserve in tokenizer
-    vars.netAmount = borrowAmount.rayMul(realAssetAPR);
-
     return vars.netAmount;
-  }
-
-  struct IncreaseATokenBalanceLocalVars {
-    uint256 newAPR;
-    uint256 newBalance;
-  }
-
-  function increaseTotalAToken(
-    DataStruct.TokenizerData storage tokenizer,
-    uint256 amountIn,
-    uint256 rate
-  ) internal {
-    IncreaseATokenBalanceLocalVars memory vars;
-
-    (vars.newAPR, vars.newBalance) = Math.calculateRateInIncreasingBalance(
-      tokenizer.averageATokenAPR,
-      tokenizer.totalATokenSupply,
-      amountIn,
-      rate
-    );
-
-    tokenizer.averageATokenAPR = vars.newAPR;
-    tokenizer.totalATokenSupply = vars.newBalance;
-  }
-
-  function increaseATokenBalanceOfMoneyPool(
-    DataStruct.TokenizerData storage tokenizer,
-    uint256 aTokenId,
-    uint256 amountIn,
-    uint256 rate
-  ) internal {
-    IncreaseATokenBalanceLocalVars memory vars;
-
-    (vars.newAPR, vars.newBalance) = Math.calculateRateInIncreasingBalance(
-      tokenizer.averageATokenAPR,
-      tokenizer.totalATokenSupply,
-      amountIn,
-      rate
-    );
-
-    tokenizer.averageATokenAPR = vars.newAPR;
-    tokenizer.totalATokenBalanceOfMoneyPool = vars.newBalance;
-
-    emit MoneyTotalATokenDataUpdated(tokenizer.asset, aTokenId, vars.newAPR, vars.newBalance);
-  }
-
-  struct DecreaseATokenBalanceLocalVars {
-    uint256 newAPR;
-    uint256 newBalance;
-  }
-
-  function decreaseATokenBalanceOfMoneyPool(
-    DataStruct.TokenizerData storage tokenizer,
-    uint256 aTokenId,
-    uint256 amountOut,
-    uint256 rate
-  ) internal {
-    DecreaseATokenBalanceLocalVars memory vars;
-
-    (vars.newAPR, vars.newBalance) = Math.calculateRateInDecreasingBalance(
-      tokenizer.averageATokenAPR,
-      tokenizer.totalATokenSupply,
-      amountOut,
-      rate
-    );
-
-    tokenizer.averageATokenAPR = vars.newAPR;
-    tokenizer.totalATokenBalanceOfMoneyPool = vars.newBalance;
-
-    emit MoneyTotalATokenDataUpdated(tokenizer.asset, aTokenId, vars.newAPR, vars.newBalance);
   }
 
   function updateAccountATokenBalance(

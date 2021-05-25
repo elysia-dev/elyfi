@@ -8,11 +8,13 @@ import './libraries/DataStruct.sol';
 import './libraries/Math.sol';
 import './libraries/Role.sol';
 import './logic/AssetBond.sol';
+import './logic/TokenizerData.sol';
 import './logic/Index.sol';
 import './logic/Validation.sol';
 import './interfaces/IMoneyPool.sol';
 import './interfaces/ITokenizer.sol';
 import './TokenizerStorage.sol';
+import 'hardhat/console.sol';
 
 /**
  * @title ELYFI Tokenizer
@@ -20,7 +22,8 @@ import './TokenizerStorage.sol';
  */
 contract Tokenizer is ITokenizer, ERC1155Upgradeable, TokenizerStorage {
   using WadRayMath for uint256;
-  using AssetBond for DataStruct.TokenizerData;
+  using TokenizerData for DataStruct.TokenizerData;
+  using AssetBond for DataStruct.AssetBondData;
   using AssetBond for DataStruct.AssetBondData;
   using Index for DataStruct.AssetBondData;
 
@@ -77,6 +80,11 @@ contract Tokenizer is ITokenizer, ERC1155Upgradeable, TokenizerStorage {
         _tokenizerData.lastUpdateTimestamp,
         block.timestamp
       );
+
+    console.log(
+      'tokenizer: totalATokenBalanceOfMoneyPool:',
+      _tokenizerData.totalATokenBalanceOfMoneyPool.rayMul(accruedInterest)
+    );
 
     return _tokenizerData.totalATokenBalanceOfMoneyPool.rayMul(accruedInterest);
   }
@@ -180,9 +188,9 @@ contract Tokenizer is ITokenizer, ERC1155Upgradeable, TokenizerStorage {
   ) external override onlyMoneyPool {
     DataStruct.AssetBondData storage assetBond = _assetBondData[tokenId];
 
-    safeTransferFrom(account, address(_moneyPool), tokenId, 1, '');
-
     assetBond.depositAssetBond(borrowAmount, realAssetAPR);
+
+    safeTransferFrom(account, address(_moneyPool), tokenId, 1, '');
 
     _mintAToken(account, tokenId, borrowAmount, realAssetAPR);
   }
@@ -205,14 +213,14 @@ contract Tokenizer is ITokenizer, ERC1155Upgradeable, TokenizerStorage {
     vars.aTokenId = _generateATokenId(assetBondId);
 
     // update total Atoken supply and average AToken rate
-    _tokenizerData.increaseTotalAToken(borrowAmount, realAssetAPR);
+    _tokenizerData.increaseTotalATokenSupply(borrowAmount, realAssetAPR);
 
     // update moneyPool AToken supply and average AToken rate
     _tokenizerData.increaseATokenBalanceOfMoneyPool(vars.aTokenId, borrowAmount, realAssetAPR);
 
     _mint(address(_moneyPool), vars.aTokenId, borrowAmount, '');
 
-    _tokenType[assetBondId] = Role.ATOKEN;
+    _tokenType[vars.aTokenId] = Role.ATOKEN;
 
     emit MintAToken(
       account,
@@ -255,7 +263,8 @@ contract Tokenizer is ITokenizer, ERC1155Upgradeable, TokenizerStorage {
     if (_tokenType[tokenId] == Role.ATOKEN) {
       if (to == address(_moneyPool)) revert(); //// TransferATokenToMoneyPoolNotAllowed();
 
-      uint256 index = getATokenInterestIndex(tokenId);
+      _assetBondData[tokenId].updateATokenState();
+      uint256 index = _assetBondData[tokenId].aTokenInterestIndex;
 
       super.safeTransferFrom(from, to, tokenId, amount.rayDiv(index), data);
     }
@@ -279,7 +288,8 @@ contract Tokenizer is ITokenizer, ERC1155Upgradeable, TokenizerStorage {
       if (_tokenType[tokenId] == Role.ATOKEN) {
         if (to == address(_moneyPool)) revert(); //// TransferATokenToMoneyPoolNotAllowed();
 
-        uint256 index = getATokenInterestIndex(tokenId);
+        _assetBondData[tokenId].updateATokenState();
+        uint256 index = _assetBondData[tokenId].aTokenInterestIndex;
 
         amounts[i] = amount.rayDiv(index);
       }

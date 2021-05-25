@@ -76,12 +76,12 @@ export async function getAssetBondData({
         underlyingAsset.address,
         user.address
     )
-    userData.underlyingAssetBalance = contractUserData.underlyingAssetBalance;
-    userData.lTokenBalance = contractUserData.lTokenBalance;
-    userData.implicitLtokenBalance = contractUserData.implicitLtokenBalance;
-    userData.dTokenBalance = contractUserData.dTokenBalance;
-    userData.implicitDtokenBalance = contractUserData.implicitDtokenBalance;
+    // userData.underlyingAssetBalance = contractUserData.underlyingAssetBalance;
+    // userData.lTokenBalance = contractUserData.lTokenBalance;
+    // userData.implicitLtokenBalance = contractUserData.implicitLtokenBalance;
+    // userData.dTokenBalance = contractUserData.dTokenBalance;
+    // userData.implicitDtokenBalance = contractUserData.implicitDtokenBalance;
 
-    return userData;
+    return assetBondData;
 }
 

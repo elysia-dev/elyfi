@@ -222,5 +222,19 @@ describe("MoneyPool", () => {
                 amountInvest.div(10),
                 exampleTokenId_1)
         })
+
+        it("Borrow against AB token and invest", async () => {
+            await moneyPool.connect(CSP).borrowAgainstABToken(
+                underlyingAsset.address,
+                receiver.address,
+                amountInvest.div(10),
+                exampleTokenId_1)
+
+            const secondInvestTx = await moneyPool.connect(account1).investMoneyPool(
+                underlyingAsset.address,
+                account1.address,
+                amountInvest
+            )
+        })
     })
 })

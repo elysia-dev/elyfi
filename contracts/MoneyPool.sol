@@ -63,7 +63,7 @@ contract MoneyPool is IMoneyPool, IERC1155ReceiverUpgradeable, MoneyPoolStorage 
     );
 
     // update rates
-    reserve.updateRates(asset, tokenizer, amount, 0);
+    reserve.updateRates(asset, amount, 0);
 
     // transfer underlying asset
     // If transfer fail, reverts
@@ -109,7 +109,7 @@ contract MoneyPool is IMoneyPool, IERC1155ReceiverUpgradeable, MoneyPoolStorage 
     reserve.updateState();
 
     // update rates
-    reserve.updateRates(asset, tokenizer, 0, amount);
+    reserve.updateRates(asset, 0, amount);
 
     // Burn ltoken
     ILToken(lToken).burn(msg.sender, account, amount, reserve.lTokenInterestIndex);
@@ -122,12 +122,12 @@ contract MoneyPool is IMoneyPool, IERC1155ReceiverUpgradeable, MoneyPoolStorage 
   function investABToken(
     address asset,
     address account,
-    uint256 id, // token id
+    uint256 tokenId, // token tokenId
     uint256 amount
   ) external override {
     DataStruct.ReserveData storage reserve = _reserves[asset];
     DataStruct.AssetBondData memory assetBond =
-      ITokenizer(reserve.tokenizerAddress).getAssetBondData(id);
+      ITokenizer(reserve.tokenizerAddress).getAssetBondData(tokenId);
 
     address lToken = reserve.lTokenAddress;
     address tokenizer = reserve.tokenizerAddress;
@@ -145,25 +145,25 @@ contract MoneyPool is IMoneyPool, IERC1155ReceiverUpgradeable, MoneyPoolStorage 
     reserve.updateState();
 
     // update rates
-    reserve.updateRates(asset, tokenizer, amount, 0);
+    reserve.updateRates(asset, amount, 0);
 
     // transfer underlying asset
     // If transfer fail, reverts
     IERC20Upgradeable(asset).safeTransferFrom(msg.sender, lToken, amount);
 
     // decrease moneypool balance of AToken
-    ITokenizer(tokenizer).decreaseATokenBalanceOfMoneyPool(id, amount, assetBond.borrowAPR);
+    ITokenizer(tokenizer).decreaseATokenBalanceOfMoneyPool(tokenId, amount, assetBond.borrowAPR);
 
     // transfer AToken via tokenizer
-    ITokenizer(tokenizer).safeTransferFrom(address(tokenizer), account, id, amount, '');
+    ITokenizer(tokenizer).safeTransferFrom(address(tokenizer), account, tokenId, amount, '');
 
-    emit InvestABToken(asset, account, id, amount);
+    emit InvestABToken(asset, account, tokenId, amount);
   }
 
   function withdrawABTokenInvestment(
     address asset,
     address account,
-    uint256 id,
+    uint256 tokenId,
     uint256 amount,
     bool rewardClaim // if true, transfer all accrued reward
   ) external override returns (uint256) {
@@ -218,14 +218,11 @@ contract MoneyPool is IMoneyPool, IERC1155ReceiverUpgradeable, MoneyPoolStorage 
     address asset,
     address receiver,
     uint256 borrowAmount,
-    uint256 id
+    uint256 tokenId
   ) external override {
     DataStruct.ReserveData storage reserve = _reserves[asset];
     DataStruct.AssetBondData memory assetBond =
-      ITokenizer(reserve.tokenizerAddress).getAssetBondData(id);
-
-    address lToken = reserve.lTokenAddress;
-    address tokenizer = reserve.tokenizerAddress;
+      ITokenizer(reserve.tokenizerAddress).getAssetBondData(tokenId);
 
     // Check if borrow amount exceeds collateral value
     // Check if borrow amount exceeds liquidity available
@@ -234,15 +231,20 @@ contract MoneyPool is IMoneyPool, IERC1155ReceiverUpgradeable, MoneyPoolStorage 
     reserve.updateState();
 
     // update interest rate
-    reserve.updateRates(asset, tokenizer, 0, borrowAmount);
+    reserve.updateRates(asset, 0, borrowAmount);
 
-    ITokenizer(tokenizer).depositAssetBond(msg.sender, id, borrowAmount, reserve.realAssetAPR);
+    ITokenizer(reserve.tokenizerAddress).depositAssetBond(
+      msg.sender,
+      tokenId,
+      borrowAmount,
+      reserve.realAssetAPR
+    );
 
     // transfer asset bond
     // or lock NFT?
 
     // transfer Underlying asset
-    ILToken(lToken).transferUnderlyingTo(receiver, borrowAmount);
+    ILToken(reserve.lTokenAddress).transferUnderlyingTo(receiver, borrowAmount);
   }
 
   /************ External Functions ************/
@@ -321,7 +323,7 @@ contract MoneyPool is IMoneyPool, IERC1155ReceiverUpgradeable, MoneyPoolStorage 
         (i.e. 0xf23a6e61, or its own function selector).
         @param operator The address which initiated the transfer (i.e. msg.sender)
         @param from The address which previously owned the token
-        @param id The ID of the token being transferred
+        @param tokenId The tokenId of the token being transferred
         @param value The amount of tokens being transferred
         @param data Additional data with no specified format
         @return `bytes4(keccak256("onERC1155Received(address,address,uint256,uint256,bytes)"))` if transfer is allowed
@@ -329,7 +331,7 @@ contract MoneyPool is IMoneyPool, IERC1155ReceiverUpgradeable, MoneyPoolStorage 
   function onERC1155Received(
     address operator,
     address from,
-    uint256 id,
+    uint256 tokenId,
     uint256 value,
     bytes calldata data
   ) external override returns (bytes4) {

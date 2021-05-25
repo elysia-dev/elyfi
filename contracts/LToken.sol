@@ -5,9 +5,9 @@ import '@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeab
 import '@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol';
 import '@openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol';
 import './libraries/WadRayMath.sol';
+import './libraries/Errors.sol';
 import './interfaces/ILToken.sol';
 import './interfaces/IMoneyPool.sol';
-import './libraries/Errors.sol';
 
 /**
  * @title ELYFI LToken

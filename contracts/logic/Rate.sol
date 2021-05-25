@@ -36,7 +36,6 @@ library Rate {
   function updateRates(
     DataStruct.ReserveData storage reserve,
     address underlyingAssetAddress,
-    address tokenizer,
     uint256 investAmount,
     uint256 borrowAmount
   ) internal {
@@ -48,7 +47,7 @@ library Rate {
 
     vars.totalDToken = IDToken(reserve.dTokenAddress).totalSupply();
 
-    vars.averageRealAssetAPR = ITokenizer(tokenizer).getAverageATokenAPR();
+    vars.averageRealAssetAPR = ITokenizer(reserve.tokenizerAddress).getAverageATokenAPR();
 
     (vars.newRealAssetAPR, vars.newDigitalAssetAPR, vars.newSupplyAPR) = IInterestRateModel(
       reserve
