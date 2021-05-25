@@ -83,8 +83,7 @@ library Validation {
         DataStruct.ReserveData storage reserve,
         DataStruct.AssetBondData memory assetBond,
         address asset,
-        uint256 borrowAmount,
-        uint256 id
+        uint256 borrowAmount
     ) internal view {
         // moneypool validate logic : active, frozen
 

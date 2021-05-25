@@ -176,16 +176,30 @@ contract Tokenizer is ITokenizer, ERC1155Upgradeable, TokenizerStorage {
     ) external {}
 
     function depositAssetBond(
+        address account,
         uint256 tokenId,
         uint256 borrowAmount,
         uint256 realAssetAPR
-    ) external {
+    ) external override onlyMoneyPool {
         DataStruct.AssetBondData storage assetBond = _assetBond[tokenId];
+
+        safeTransferFrom(
+            account,
+            address(_moneyPool),
+            tokenId,
+            1,
+            "");
 
         assetBond.depositAssetBond(
             borrowAmount,
             realAssetAPR
         );
+
+        _mintAToken(
+            account,
+            tokenId,
+            borrowAmount,
+            realAssetAPR);
     }
 
     struct MintLocalVars {
@@ -195,26 +209,24 @@ contract Tokenizer is ITokenizer, ERC1155Upgradeable, TokenizerStorage {
         uint256 newTotalATokenSupply;
     }
 
-    function mintAToken(
+    function _mintAToken(
         address account,
         uint256 assetBondId,
         uint256 borrowAmount,
         uint256 realAssetAPR
-    ) external override onlyMoneyPool {
+    ) internal {
         MintLocalVars memory vars;
 
         // generate AToken Id based on the Id of asset bond
         vars.aTokenId = _generateATokenId(assetBondId);
 
         // update total Atoken supply and average AToken rate
-        AssetBond.increaseTotalAToken(
-            _tokenizer,
+        _tokenizer.increaseTotalAToken(
             borrowAmount,
             realAssetAPR);
 
         // update moneyPool AToken supply and average AToken rate
-        AssetBond.increaseATokenBalanceOfMoneyPool(
-            _tokenizer,
+        _tokenizer.increaseATokenBalanceOfMoneyPool(
             vars.aTokenId,
             borrowAmount,
             realAssetAPR);
@@ -318,8 +330,7 @@ contract Tokenizer is ITokenizer, ERC1155Upgradeable, TokenizerStorage {
     ) external override {
         uint256 aTokenId = _generateATokenId(id);
 
-        AssetBond.increaseATokenBalanceOfMoneyPool(
-            _tokenizer,
+        _tokenizer.increaseATokenBalanceOfMoneyPool(
             aTokenId,
             amount,
             rate);
@@ -332,8 +343,7 @@ contract Tokenizer is ITokenizer, ERC1155Upgradeable, TokenizerStorage {
     ) external override {
         uint256 aTokenId = _generateATokenId(id);
 
-        AssetBond.decreaseATokenBalanceOfMoneyPool(
-            _tokenizer,
+        _tokenizer.decreaseATokenBalanceOfMoneyPool(
             aTokenId,
             amount,
             rate);

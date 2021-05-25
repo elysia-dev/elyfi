@@ -74,3 +74,20 @@ interface ATokenInvestment {
     supplyAPR: BigNumber;
     aTokenBalance: BigNumber;
 }
+
+export interface CSVData extends UserData {
+    assetBonds: AssetBondData[]
+}
+
+export enum AssetBondState {
+    EMPTY,
+    SETTLED,
+    CONFIRMED,
+    COLLATERALIZED,
+    MATURED,
+    NOT_PERFORMED
+}
+export interface AssetBondData {
+    tokenId: BigNumber;
+    state : AssetBondState;
+}

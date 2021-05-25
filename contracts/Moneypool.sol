@@ -293,8 +293,7 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
             reserve,
             assetBond,
             asset,
-            borrowAmount,
-            id
+            borrowAmount
         );
 
         reserve.updateState();
@@ -307,9 +306,8 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
             borrowAmount
         );
 
-        // mintAToken to moneyPool
-        ITokenizer(tokenizer).mintAToken(
-            address(this),
+        ITokenizer(tokenizer).depositAssetBond(
+            msg.sender,
             id,
             borrowAmount,
             reserve.realAssetAPR

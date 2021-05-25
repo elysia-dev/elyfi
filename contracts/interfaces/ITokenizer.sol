@@ -29,13 +29,6 @@ interface ITokenizer is IERC1155Upgradeable {
         uint256 id // information about Co and borrower
     ) external;
 
-    function mintAToken(
-        address account,
-        uint256 id,
-        uint256 amount,
-        uint256 realAssetAPR
-    ) external;
-
     function totalATokenSupply() external view returns (uint256);
 
     function totalATokenBalanceOfMoneyPool() external view returns (uint256);
@@ -62,5 +55,12 @@ interface ITokenizer is IERC1155Upgradeable {
         uint256 aTokenId,
         uint256 amount,
         uint256 rate
+    ) external;
+
+    function depositAssetBond(
+        address account,
+        uint256 tokenId,
+        uint256 borrowAmount,
+        uint256 realAssetAPR
     ) external;
 }

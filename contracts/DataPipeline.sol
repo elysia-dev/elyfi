@@ -68,8 +68,8 @@ contract DataPipeline {
         vars.implicitLTokenSupply = ILToken(reserve.lTokenAddress).implicitTotalSupply();
         vars.totalDTokenSupply = IDToken(reserve.dTokenAddress).totalSupply();
         vars.implicitDTokenSupply = IDToken(reserve.dTokenAddress).implicitTotalSupply();
-        vars.totalATokenSupply = ITokenizer(reserve.tokenizerAddress).totalATokenSupply();
-        vars.totalMoneyPoolATokenBalance = ITokenizer(reserve.tokenizerAddress).totalATokenBalanceOfMoneyPool();
+        vars.totalATokenSupply = tokenizer.totalATokenSupply;
+        vars.totalMoneyPoolATokenBalance = tokenizer.totalATokenBalanceOfMoneyPool;
         vars.lTokenInterestIndex = reserve.lTokenInterestIndex;
         vars.dTokenInterestIndex = reserve.dTokenInterestIndex;
         vars.averageATokenAPR = tokenizer.averageATokenAPR;

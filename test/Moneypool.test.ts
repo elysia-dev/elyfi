@@ -205,10 +205,6 @@ describe("MoneyPool", () => {
         it("Withdraw without")
     })
 
-    describe("Mint Asset Bond", async () => {
-        it("Mint empty asset token")
-    })
-
     describe("Borrow against asset bond", async () => {
         it("Borrow against AB token", async () => {
             
