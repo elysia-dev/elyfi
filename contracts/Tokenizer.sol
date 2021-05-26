@@ -24,7 +24,6 @@ contract Tokenizer is ITokenizer, ERC1155Upgradeable, TokenizerStorage {
   using WadRayMath for uint256;
   using TokenizerData for DataStruct.TokenizerData;
   using AssetBond for DataStruct.AssetBondData;
-  using AssetBond for DataStruct.AssetBondData;
   using Index for DataStruct.AssetBondData;
 
   /************ Initialize Functions ************/
@@ -67,26 +66,6 @@ contract Tokenizer is ITokenizer, ERC1155Upgradeable, TokenizerStorage {
     uint256 aTokenIndex = getATokenInterestIndex(tokenId);
 
     return super.balanceOf(account, tokenId).rayMul(aTokenIndex);
-  }
-
-  /**
-   * @dev Returns sum of previous balance and accrued interest of moneypool
-   * @return The sum of previous balance and accrued interest of moneypool
-   */
-  function totalATokenBalanceOfMoneyPool() public view override returns (uint256) {
-    uint256 accruedInterest =
-      Math.calculateLinearInterest(
-        _tokenizerData.averageATokenAPR,
-        _tokenizerData.lastUpdateTimestamp,
-        block.timestamp
-      );
-
-    console.log(
-      'tokenizer: totalATokenBalanceOfMoneyPool:',
-      _tokenizerData.totalATokenBalanceOfMoneyPool.rayMul(accruedInterest)
-    );
-
-    return _tokenizerData.totalATokenBalanceOfMoneyPool.rayMul(accruedInterest);
   }
 
   /**
@@ -215,9 +194,6 @@ contract Tokenizer is ITokenizer, ERC1155Upgradeable, TokenizerStorage {
     // update total Atoken supply and average AToken rate
     _tokenizerData.increaseTotalATokenSupply(borrowAmount, realAssetAPR);
 
-    // update moneyPool AToken supply and average AToken rate
-    _tokenizerData.increaseATokenBalanceOfMoneyPool(vars.aTokenId, borrowAmount, realAssetAPR);
-
     _mint(address(_moneyPool), vars.aTokenId, borrowAmount, '');
 
     _tokenType[vars.aTokenId] = Role.ATOKEN;
@@ -299,26 +275,6 @@ contract Tokenizer is ITokenizer, ERC1155Upgradeable, TokenizerStorage {
   }
 
   /************ MoneyPool Total AToken Balance Manage Functions ************/
-
-  function increaseATokenBalanceOfMoneyPool(
-    uint256 tokenId,
-    uint256 amount,
-    uint256 rate
-  ) external override {
-    uint256 aTokenId = _generateATokenId(tokenId);
-
-    _tokenizerData.increaseATokenBalanceOfMoneyPool(aTokenId, amount, rate);
-  }
-
-  function decreaseATokenBalanceOfMoneyPool(
-    uint256 tokenId,
-    uint256 amount,
-    uint256 rate
-  ) external override {
-    uint256 aTokenId = _generateATokenId(tokenId);
-
-    _tokenizerData.decreaseATokenBalanceOfMoneyPool(aTokenId, amount, rate);
-  }
 
   // need logic : generate tokenId
   function _generateATokenId(uint256 assetBondId) internal pure returns (uint256) {

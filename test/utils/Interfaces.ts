@@ -10,21 +10,16 @@ export interface ReserveData {
     underlyingAssetBalance: BigNumber;
     totalLTokenSupply: BigNumber;
     implicitLTokenSupply: BigNumber;
-    totalDTokenSupply: BigNumber;
-    implicitDTokenSupply: BigNumber;
     totalATokenSupply: BigNumber;
     totalMoneyPoolATokenBalance: BigNumber;
     lTokenInterestIndex: BigNumber;
-    dTokenInterestIndex: BigNumber;
     // aTokenInterestIndexes: BigNumber[];
     averageATokenAPR: BigNumber;
-    realAssetAPR: BigNumber;
-    digitalAssetAPR: BigNumber;
+    borrowAPR: BigNumber;
     supplyAPR: BigNumber;
     moneyPoolLastUpdateTimestamp: BigNumber;
     tokenizerLastUpdateTimestamp: BigNumber;
     lTokenAddress: string;
-    dTokenAddress: string;
     interestRateModelAddress: string;
     tokenizerAddress: string;
     utilizationRate: BigNumber;
@@ -36,43 +31,27 @@ export const defaultReserveData: ReserveData = <ReserveData>{
     underlyingAssetName: "ELYSIA",
     underlyingAssetSymbol: "EL",
     lTokenInterestIndex: RAY,
-    dTokenInterestIndex: RAY,
-    realAssetAPR: BigNumber.from(0),
-    digitalAssetAPR: BigNumber.from(0),
+    borrowAPR: BigNumber.from(0),
     supplyAPR: BigNumber.from(0),
 }
 
 export interface InterestModelParams {
     optimalUtilizationRate: BigNumber;
-    digitalAssetBorrowRateBase: BigNumber;
-    digitalAssetBorrowRateOptimal: BigNumber;
-    digitalAssetBorrowRateMax: BigNumber;
-    realAssetBorrowRateBase: BigNumber;
-    realAssetBorrowRateOptimal: BigNumber;
-    realAssetBorrowRateMax: BigNumber;
+    borrowRateBase: BigNumber;
+    borrowRateOptimal: BigNumber;
+    borrowRateMax: BigNumber;
 }
 
 export const defaultInterestModelParams: InterestModelParams = <InterestModelParams>{
     optimalUtilizationRate: toRate(0.8),
-    digitalAssetBorrowRateBase: toRate(0.02),
-    digitalAssetBorrowRateOptimal: toRate(0.1),
-    digitalAssetBorrowRateMax: toRate(1),
-    realAssetBorrowRateBase: toRate(0.04),
-    realAssetBorrowRateOptimal: toRate(0.2),
-    realAssetBorrowRateMax: toRate(2),
+    borrowRateBase: toRate(0.02),
+    borrowRateOptimal: toRate(0.1),
+    borrowRateMax: toRate(1),
 }
 export interface UserData {
     underlyingAssetBalance: BigNumber;
     lTokenBalance: BigNumber;
     implicitLtokenBalance: BigNumber;
-    dTokenBalance: BigNumber;
-    implicitDtokenBalance: BigNumber;
-    aTokenInvestments: ATokenInvestment[];
-}
-interface ATokenInvestment {
-    lastUpdatetimestamp: BigNumber;
-    supplyAPR: BigNumber;
-    aTokenBalance: BigNumber;
 }
 
 export interface CSPData extends UserData {

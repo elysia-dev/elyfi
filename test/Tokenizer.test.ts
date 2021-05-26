@@ -3,7 +3,7 @@ import { ethers, waffle } from 'hardhat'
 import { ModifiableContract, ModifiableContractFactory, smockit, smoddit } from '@eth-optimism/smock'
 import { address, advanceBlock, ETH, expandToDecimals, getTimestamp, RAY, toIndex, toRate } from './utils/Ethereum';
 import { Connector, DataPipeline, DTokenTest, ERC20Test, InterestRateModel, LTokenTest, MoneyPoolTest, Tokenizer, TokenizerTest } from '../typechain';
-import { makeInterestRateModel, makeMoneyPool, makeLToken, makeDToken, makeUnderlyingAsset, makeConnector, makeTokenizer, makeDataPipeline } from './utils/makeContract';
+import { makeInterestRateModel, makeMoneyPool, makeLToken, makeUnderlyingAsset, makeConnector, makeTokenizer, makeDataPipeline } from './utils/makeContract';
 import { defaultReserveData } from './utils/Interfaces';
 import { expect } from 'chai'
 
@@ -47,12 +47,6 @@ describe("Tokenizer", () => {
             underlyingAsset: underlyingAsset,
         })
 
-        dToken = await makeDToken({
-            deployer: deployer,
-            moneyPool: moneyPool,
-            underlyingAsset: underlyingAsset,
-        })
-
         tokenizer = await makeTokenizer({
             deployer: deployer,
             moneyPool: moneyPool
@@ -66,7 +60,6 @@ describe("Tokenizer", () => {
         await moneyPool.addNewReserve(
             underlyingAsset.address,
             lToken.address,
-            dToken.address,
             interestModel.address,
             tokenizer.address,
             defaultReserveData.moneyPoolFactor

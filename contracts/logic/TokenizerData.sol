@@ -4,7 +4,6 @@ pragma solidity 0.8.4;
 import '../libraries/DataStruct.sol';
 import '../libraries/Errors.sol';
 import '../libraries/Math.sol';
-import '../interfaces/IDToken.sol';
 import '../libraries/WadRayMath.sol';
 
 library TokenizerData {
@@ -49,28 +48,6 @@ library TokenizerData {
     emit TotalATokenUpdated(tokenizerData.asset, vars.newAPR, vars.newBalance);
   }
 
-  function increaseATokenBalanceOfMoneyPool(
-    DataStruct.TokenizerData storage tokenizerData,
-    uint256 aTokenId,
-    uint256 amountIn,
-    uint256 rate
-  ) internal {
-    IncreaseATokenBalanceLocalVars memory vars;
-
-    (vars.newAPR, vars.newBalance) = Math.calculateRateInIncreasingBalance(
-      tokenizerData.averageATokenAPR,
-      tokenizerData.totalATokenBalanceOfMoneyPool,
-      amountIn,
-      rate
-    );
-
-    tokenizerData.averageATokenAPR = vars.newAPR;
-    tokenizerData.totalATokenBalanceOfMoneyPool = vars.newBalance;
-    tokenizerData.lastUpdateTimestamp = uint40(block.timestamp);
-
-    emit MoneyPoolATokenDataUpdated(tokenizerData.asset, aTokenId, vars.newAPR, vars.newBalance);
-  }
-
   struct DecreaseATokenBalanceLocalVars {
     uint256 newAPR;
     uint256 newBalance;
@@ -95,34 +72,6 @@ library TokenizerData {
 
     emit TotalATokenUpdated(tokenizerData.asset, vars.newAPR, vars.newBalance);
   }
-
-  function decreaseATokenBalanceOfMoneyPool(
-    DataStruct.TokenizerData storage tokenizerData,
-    uint256 aTokenId,
-    uint256 amountOut,
-    uint256 rate
-  ) internal {
-    DecreaseATokenBalanceLocalVars memory vars;
-
-    (vars.newAPR, vars.newBalance) = Math.calculateRateInDecreasingBalance(
-      tokenizerData.averageATokenAPR,
-      tokenizerData.totalATokenSupply,
-      amountOut,
-      rate
-    );
-
-    tokenizerData.averageATokenAPR = vars.newAPR;
-    tokenizerData.totalATokenBalanceOfMoneyPool = vars.newBalance;
-    tokenizerData.lastUpdateTimestamp = uint40(block.timestamp);
-
-    emit MoneyPoolATokenDataUpdated(tokenizerData.asset, aTokenId, vars.newAPR, vars.newBalance);
-  }
-
-  function updateAccountATokenBalance(
-    address account,
-    uint256 tokenId,
-    uint256 supplyAPR
-  ) internal {}
 
   function validateSettleABToken(uint256 tokenId, address lawfirm) internal view {
     // checks whether lawfirm authorized

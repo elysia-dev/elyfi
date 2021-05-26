@@ -13,8 +13,6 @@ interface IMoneyPool {
     uint256 amount
   );
 
-  event InvestABToken(address indexed asset, address indexed account, uint256 id, uint256 amount);
-
   function investMoneyPool(
     address asset,
     address account,
@@ -27,13 +25,6 @@ interface IMoneyPool {
     uint256 amount
   ) external returns (uint256);
 
-  function investABToken(
-    address asset,
-    address account,
-    uint256 id,
-    uint256 amount
-  ) external;
-
   function borrowAgainstABToken(
     address asset,
     address receiver,
@@ -41,17 +32,7 @@ interface IMoneyPool {
     uint256 id
   ) external;
 
-  function withdrawABTokenInvestment(
-    address asset,
-    address account,
-    uint256 id,
-    uint256 amount,
-    bool rewardClaim
-  ) external returns (uint256);
-
   function getLTokenInterestIndex(address asset) external view returns (uint256);
-
-  function getDTokenInterestIndex(address asset) external view returns (uint256);
 
   function getReserveData(address asset) external view returns (DataStruct.ReserveData memory);
 
@@ -67,7 +48,6 @@ interface IMoneyPool {
   function addNewReserve(
     address asset,
     address lToken,
-    address dToken,
     address interestModel,
     address tokenizer,
     uint256 moneyPoolFactor_

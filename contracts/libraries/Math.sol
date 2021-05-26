@@ -10,7 +10,7 @@ library Math {
 
   function calculateLinearInterest(
     uint256 rate,
-    uint40 lastUpdateTimestamp,
+    uint256 lastUpdateTimestamp,
     uint256 currentTimestamp
   ) internal pure returns (uint256) {
     uint256 timeDelta = currentTimestamp - uint256(lastUpdateTimestamp);
@@ -33,7 +33,7 @@ library Math {
    **/
   function calculateCompoundedInterest(
     uint256 rate,
-    uint40 lastUpdateTimestamp,
+    uint256 lastUpdateTimestamp,
     uint256 currentTimestamp
   ) internal pure returns (uint256) {
     //solium-disable-next-line

@@ -11,10 +11,6 @@ contract IndexTest is MoneyPoolStorage {
     return _reserves[asset].getLTokenInterestIndex();
   }
 
-  function getDTokenInterestIndex(address asset) public view returns (uint256) {
-    return _reserves[asset].getDTokenInterestIndex();
-  }
-
   function updateState(address asset) public {
     return _reserves[asset].updateState();
   }

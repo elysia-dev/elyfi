@@ -4,7 +4,6 @@ pragma solidity 0.8.4;
 import '../libraries/DataStruct.sol';
 import '../libraries/Errors.sol';
 import '../libraries/Math.sol';
-import '../interfaces/IDToken.sol';
 import '../interfaces/ILToken.sol';
 import '../interfaces/ITokenizer.sol';
 import '../interfaces/IInterestRateModel.sol';
@@ -16,20 +15,16 @@ library Rate {
   event MoneyPoolRatesUpdated(
     address indexed underlyingAssetAddress,
     uint256 lTokenIndex,
-    uint256 dTokenIndex,
-    uint256 realAssetAPR,
-    uint256 digitalAssetAPR,
+    uint256 borrowAPR,
     uint256 supplyAPR
   );
 
   struct UpdateRatesLocalVars {
     uint256 totalLToken;
     uint256 totalAToken;
-    uint256 totalDToken;
-    uint256 newRealAssetAPR;
-    uint256 newDigitalAssetAPR;
+    uint256 newBorrowAPR;
     uint256 newSupplyAPR;
-    uint256 averageRealAssetAPR;
+    uint256 averageATokenAPR;
     uint256 totalVariableDebt;
   }
 
@@ -43,37 +38,28 @@ library Rate {
 
     vars.totalLToken = ILToken(reserve.lTokenAddress).totalSupply();
 
-    vars.totalAToken = ITokenizer(reserve.tokenizerAddress).totalATokenBalanceOfMoneyPool();
+    vars.totalAToken = ITokenizer(reserve.tokenizerAddress).totalATokenSupply();
 
-    vars.totalDToken = IDToken(reserve.dTokenAddress).totalSupply();
+    vars.averageATokenAPR = ITokenizer(reserve.tokenizerAddress).getAverageATokenAPR();
 
-    vars.averageRealAssetAPR = ITokenizer(reserve.tokenizerAddress).getAverageATokenAPR();
-
-    (vars.newRealAssetAPR, vars.newDigitalAssetAPR, vars.newSupplyAPR) = IInterestRateModel(
-      reserve
-        .interestModelAddress
-    )
+    (vars.newBorrowAPR, vars.newSupplyAPR) = IInterestRateModel(reserve.interestModelAddress)
       .calculateRates(
       underlyingAssetAddress,
       reserve.lTokenAddress,
       vars.totalAToken,
-      vars.totalDToken,
       investAmount,
       borrowAmount,
-      vars.averageRealAssetAPR,
+      vars.averageATokenAPR,
       reserve.moneyPoolFactor
     );
 
-    reserve.realAssetAPR = vars.newRealAssetAPR;
-    reserve.digitalAssetAPR = vars.newDigitalAssetAPR;
+    reserve.borrowAPR = vars.newBorrowAPR;
     reserve.supplyAPR = vars.newSupplyAPR;
 
     emit MoneyPoolRatesUpdated(
       underlyingAssetAddress,
       reserve.lTokenInterestIndex,
-      reserve.dTokenInterestIndex,
-      vars.newRealAssetAPR,
-      vars.newDigitalAssetAPR,
+      vars.newBorrowAPR,
       vars.newSupplyAPR
     );
   }

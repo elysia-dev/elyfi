@@ -124,37 +124,6 @@ export async function makeLToken({
     return lTokenTest;
 }
 
-export async function makeDToken({
-    deployer,
-    moneyPool,
-    underlyingAsset,
-    dTokenName = "DToken",
-    dTokenSymbol = "DT"
-}: {
-    deployer: Wallet
-    moneyPool: MoneyPoolTest | Contract
-    underlyingAsset: Contract
-    dTokenName?: string
-    dTokenSymbol?: string
-}): Promise<DTokenTest> {
-
-    let dTokenTest: DTokenTest;
-
-    const dTokenFactory = (await ethers.getContractFactory(
-        "DTokenTest",
-        deployer
-    )) as DTokenTest__factory
-
-    dTokenTest = await dTokenFactory.deploy(
-        moneyPool.address,
-        underlyingAsset.address,
-        dTokenName,
-        dTokenSymbol
-    );
-
-    return dTokenTest;
-}
-
 export async function makeInterestRateModel({
     deployer,
     interestRateModelParam = defaultInterestModelParams
@@ -172,12 +141,9 @@ export async function makeInterestRateModel({
 
     interestRateModel = await interestRateModelFactory.deploy(
         interestRateModelParam.optimalUtilizationRate,
-        interestRateModelParam.digitalAssetBorrowRateBase,
-        interestRateModelParam.digitalAssetBorrowRateOptimal,
-        interestRateModelParam.digitalAssetBorrowRateMax,
-        interestRateModelParam.realAssetBorrowRateBase,
-        interestRateModelParam.realAssetBorrowRateOptimal,
-        interestRateModelParam.realAssetBorrowRateMax
+        interestRateModelParam.borrowRateBase,
+        interestRateModelParam.borrowRateOptimal,
+        interestRateModelParam.borrowRateMax,
     );
 
     return interestRateModel;

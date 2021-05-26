@@ -51,13 +51,11 @@ describe("Rate", () => {
                 0,
                 0,
                 0,
-                0,
                 0
             )
             // 0 : real , 1 : digital 2 : supply
-            expect(result[0]).to.be.equal(defaultInterestModelParams.realAssetBorrowRateBase)
-            expect(result[1]).to.be.equal(defaultInterestModelParams.digitalAssetBorrowRateBase)
-            expect(result[2]).to.be.equal(0)
+            expect(result[0]).to.be.equal(defaultInterestModelParams.borrowRateBase)
+            expect(result[1]).to.be.equal(0)
         })
 
         it("Returns optimal rates at optimal utilization rate", async () => {
@@ -69,12 +67,10 @@ describe("Rate", () => {
                 0,
                 0,
                 0,
-                0,
                 0
             )
 
-            expect(result[0]).to.be.equal(defaultInterestModelParams.realAssetBorrowRateOptimal)
-            expect(result[1]).to.be.equal(defaultInterestModelParams.digitalAssetBorrowRateOptimal)
+            expect(result[1]).to.be.equal(defaultInterestModelParams.borrowRateOptimal)
         })
 
         it("Returns optimal rates at optimal utilization rate with borrowing", async () => {
@@ -84,14 +80,12 @@ describe("Rate", () => {
                 lToken.address,
                 expandToDecimals(8, 18),
                 0,
-                0,
                 expandToDecimals(1, 18), //utilization rate after borrow '1' = 8/(8+(3-'1'))
                 0,
                 0
             )
 
-            expect(result[0]).to.be.equal(defaultInterestModelParams.realAssetBorrowRateOptimal)
-            expect(result[1]).to.be.equal(defaultInterestModelParams.digitalAssetBorrowRateOptimal)
+            expect(result[1]).to.be.equal(defaultInterestModelParams.borrowRateOptimal)
         })
 
         it("Returns optimal rates at optimal utilization rate with investment", async () => {
@@ -100,15 +94,13 @@ describe("Rate", () => {
                 underlyingAsset.address,
                 lToken.address,
                 expandToDecimals(8, 18),
-                0,
                 expandToDecimals(1, 18), //utilization rate after invest '1' = 8/(8+(1+1))
                 0,
                 0,
                 0
             )
 
-            expect(result[0]).to.be.equal(defaultInterestModelParams.realAssetBorrowRateOptimal)
-            expect(result[1]).to.be.equal(defaultInterestModelParams.digitalAssetBorrowRateOptimal)
+            expect(result[1]).to.be.equal(defaultInterestModelParams.borrowRateOptimal)
         })
     })
 
@@ -116,19 +108,18 @@ describe("Rate", () => {
         it("Returns half of the overall borrow APR when 50% utilization ratio", async () => {
             await underlyingAsset.connect(deployer).transfer(lToken.address, expandToDecimals(5, 18))
 
-            const averageRealAssetAPR = toRate(0.1)
+            const averageBorrowAPR = toRate(0.1)
             const result = await interestRateModel.calculateRates(
                 underlyingAsset.address,
                 lToken.address,
                 expandToDecimals(5, 18), //utilization rate = 5/(5+5)
                 0,
                 0,
-                0,
-                averageRealAssetAPR,
+                averageBorrowAPR,
                 0
             )
 
-            expect(result[2]).to.be.equal(averageRealAssetAPR.div(2))
+            expect(result[1]).to.be.equal(averageBorrowAPR.div(2))
         })
     })
 })

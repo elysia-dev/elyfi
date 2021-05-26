@@ -10,15 +10,9 @@ import '@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol';
 contract InterestRateModelStorage is Initializable {
   uint256 internal _optimalUtilizationRate;
 
-  uint256 internal _digitalAssetBorrowRateBase;
+  uint256 internal _borrowRateBase;
 
-  uint256 internal _digitalAssetBorrowRateOptimal;
+  uint256 internal _borrowRateOptimal;
 
-  uint256 internal _digitalAssetBorrowRateMax;
-
-  uint256 internal _realAssetBorrowRateBase;
-
-  uint256 internal _realAssetBorrowRateOptimal;
-
-  uint256 internal _realAssetBorrowRateMax;
+  uint256 internal _borrowRateMax;
 }

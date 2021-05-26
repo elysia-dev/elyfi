@@ -29,8 +29,6 @@ interface ITokenizer is IERC1155Upgradeable {
 
   function totalATokenSupply() external view returns (uint256);
 
-  function totalATokenBalanceOfMoneyPool() external view returns (uint256);
-
   function getAverageATokenAPR() external view returns (uint256);
 
   function getTokenizerData() external view returns (DataStruct.TokenizerData memory);
@@ -41,18 +39,6 @@ interface ITokenizer is IERC1155Upgradeable {
     returns (DataStruct.AssetBondData memory);
 
   function getATokenInterestIndex(uint256 tokenId) external view returns (uint256);
-
-  function increaseATokenBalanceOfMoneyPool(
-    uint256 aTokenId,
-    uint256 amount,
-    uint256 rate
-  ) external;
-
-  function decreaseATokenBalanceOfMoneyPool(
-    uint256 aTokenId,
-    uint256 amount,
-    uint256 rate
-  ) external;
 
   function depositAssetBond(
     address account,

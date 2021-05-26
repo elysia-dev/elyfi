@@ -1,11 +1,10 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.4;
 
+import './MoneyPoolStorage.sol';
 import './interfaces/ILToken.sol';
-import './interfaces/IDToken.sol';
 import './interfaces/IMoneyPool.sol';
 import './interfaces/ITokenizer.sol';
-import './MoneyPoolStorage.sol';
 import './logic/Index.sol';
 import './logic/Rate.sol';
 import './logic/AssetBond.sol';
@@ -55,7 +54,6 @@ contract MoneyPool is IMoneyPool, IERC1155ReceiverUpgradeable, MoneyPoolStorage 
     console.log(
       'hardhat updateIndex console:',
       reserve.lTokenInterestIndex,
-      reserve.dTokenInterestIndex,
       reserve.lastUpdateTimestamp
     );
 
@@ -94,7 +92,6 @@ contract MoneyPool is IMoneyPool, IERC1155ReceiverUpgradeable, MoneyPoolStorage 
     // Without digital asset borrow, validation might be quite simple.
     Validation.validateWithdrawMoneyPool(
       reserve,
-      _userInfo[msg.sender],
       asset,
       amount,
       userLTokenBalance,
@@ -114,64 +111,6 @@ contract MoneyPool is IMoneyPool, IERC1155ReceiverUpgradeable, MoneyPoolStorage 
     emit WithdrawMoneyPool(asset, msg.sender, account, amountToWithdraw);
   }
 
-  /************ ABToken Investment Functions ************/
-
-  function investABToken(
-    address asset,
-    address account,
-    uint256 tokenId, // token tokenId
-    uint256 amount
-  ) external override {
-    DataStruct.ReserveData storage reserve = _reserves[asset];
-    DataStruct.AssetBondData memory assetBond =
-      ITokenizer(reserve.tokenizerAddress).getAssetBondData(tokenId);
-
-    address lToken = reserve.lTokenAddress;
-    address tokenizer = reserve.tokenizerAddress;
-
-    // validation : AToken Balance check
-    // validation : if token matured, reverts
-    Validation.validateInvestABToken(
-      reserve,
-      assetBond,
-      amount,
-      ITokenizer(tokenizer).totalATokenBalanceOfMoneyPool()
-    );
-
-    // update indexes and mintToReserve
-    reserve.updateState();
-
-    // update rates
-    reserve.updateRates(asset, amount, 0);
-
-    // transfer underlying asset
-    // If transfer fail, reverts
-    IERC20Upgradeable(asset).safeTransferFrom(msg.sender, lToken, amount);
-
-    // decrease moneypool balance of AToken
-    ITokenizer(tokenizer).decreaseATokenBalanceOfMoneyPool(tokenId, amount, assetBond.borrowAPR);
-
-    // transfer AToken via tokenizer
-    ITokenizer(tokenizer).safeTransferFrom(address(tokenizer), account, tokenId, amount, '');
-
-    emit InvestABToken(asset, account, tokenId, amount);
-  }
-
-  function withdrawABTokenInvestment(
-    address asset,
-    address account,
-    uint256 tokenId,
-    uint256 amount,
-    bool rewardClaim // if true, transfer all accrued reward
-  ) external override returns (uint256) {
-    // validation : AToken Balance check
-    // update states, rate
-    // transfer underlying asset
-    // transferFrom AToken -> need allowance
-    // if true, claim all rewards
-    // update ReserveData
-  }
-
   /************ View Functions ************/
 
   /**
@@ -181,15 +120,6 @@ contract MoneyPool is IMoneyPool, IERC1155ReceiverUpgradeable, MoneyPoolStorage 
    */
   function getLTokenInterestIndex(address asset) external view override returns (uint256) {
     return _reserves[asset].getLTokenInterestIndex();
-  }
-
-  /**
-   * @dev Returns DToken Interest index of asset
-   * @param asset The address of the underlying asset of the reserve
-   * @return The DToken interest index of reserve
-   */
-  function getDTokenInterestIndex(address asset) external view override returns (uint256) {
-    return _reserves[asset].getDTokenInterestIndex();
   }
 
   /**
@@ -234,7 +164,7 @@ contract MoneyPool is IMoneyPool, IERC1155ReceiverUpgradeable, MoneyPoolStorage 
       msg.sender,
       tokenId,
       borrowAmount,
-      reserve.realAssetAPR
+      reserve.borrowAPR
     );
 
     // transfer asset bond
@@ -270,7 +200,6 @@ contract MoneyPool is IMoneyPool, IERC1155ReceiverUpgradeable, MoneyPoolStorage 
   function addNewReserve(
     address asset,
     address lToken,
-    address dToken,
     address interestModel,
     address tokenizer,
     uint256 moneyPoolFactor_
@@ -279,15 +208,11 @@ contract MoneyPool is IMoneyPool, IERC1155ReceiverUpgradeable, MoneyPoolStorage 
       DataStruct.ReserveData({
         moneyPoolFactor: moneyPoolFactor_,
         lTokenInterestIndex: WadRayMath.ray(),
-        dTokenInterestIndex: WadRayMath.ray(),
-        realAssetAPR: 0,
-        digitalAssetAPR: 0,
+        borrowAPR: 0,
         supplyAPR: 0,
         totalDepositedAssetBondCount: 0,
-        maturedAssetBondCount: 0,
         lastUpdateTimestamp: uint40(block.timestamp),
         lTokenAddress: lToken,
-        dTokenAddress: dToken,
         interestModelAddress: interestModel,
         tokenizerAddress: tokenizer,
         id: 0,

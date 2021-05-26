@@ -16,27 +16,20 @@ contract InterestRateModel is IInterestRateModel, InterestRateModelStorage {
 
   constructor(
     uint256 optimalUtilizationRate,
-    uint256 digitalAssetBorrowRateBase,
-    uint256 digitalAssetBorrowRateOptimal,
-    uint256 digitalAssetBorrowRateMax,
-    uint256 realAssetBorrowRateBase,
-    uint256 realAssetBorrowRateOptimal,
-    uint256 realAssetBorrowRateMax
+    uint256 borrowRateBase,
+    uint256 borrowRateOptimal,
+    uint256 borrowRateMax
   ) {
     _optimalUtilizationRate = optimalUtilizationRate;
-    _digitalAssetBorrowRateBase = digitalAssetBorrowRateBase;
-    _digitalAssetBorrowRateOptimal = digitalAssetBorrowRateOptimal;
-    _digitalAssetBorrowRateMax = digitalAssetBorrowRateMax;
-    _realAssetBorrowRateBase = realAssetBorrowRateBase;
-    _realAssetBorrowRateOptimal = realAssetBorrowRateOptimal;
-    _realAssetBorrowRateMax = realAssetBorrowRateMax;
+    _borrowRateBase = borrowRateBase;
+    _borrowRateOptimal = borrowRateOptimal;
+    _borrowRateMax = borrowRateMax;
   }
 
   struct calculateRatesLocalVars {
     uint256 totalDebt;
     uint256 utilizationRate;
-    uint256 newRealAssetAPR;
-    uint256 newDigitalAssetAPR;
+    uint256 newBorrowAPR;
     uint256 newSupplyAPR;
   }
 
@@ -44,32 +37,22 @@ contract InterestRateModel is IInterestRateModel, InterestRateModelStorage {
     address asset,
     address lToken,
     uint256 aTokenAmount,
-    uint256 dTokenAmount,
     uint256 investAmount,
     uint256 borrowAmount,
-    uint256 averageRealAssetAPR,
+    uint256 averageBorrowAPR,
     uint256 moneyPoolFactor
-  )
-    public
-    view
-    override
-    returns (
-      uint256,
-      uint256,
-      uint256
-    )
-  {
+  ) public view override returns (uint256, uint256) {
     calculateRatesLocalVars memory vars;
+
+    vars.totalDebt = aTokenAmount;
 
     uint256 availableLiquidity = IERC20(asset).balanceOf(lToken) + investAmount - borrowAmount;
 
-    vars.totalDebt = aTokenAmount + dTokenAmount;
     vars.utilizationRate = vars.totalDebt == 0
       ? 0
       : vars.totalDebt.rayDiv(availableLiquidity + vars.totalDebt);
 
-    vars.newRealAssetAPR = 0;
-    vars.newDigitalAssetAPR = 0;
+    vars.newBorrowAPR = 0;
 
     // Example
     // Case1: under optimal U
@@ -79,78 +62,49 @@ contract InterestRateModel is IInterestRateModel, InterestRateModelStorage {
     // optimalRate = 10%, util = 90%, maxRate = 100%, optimalUtil = 80%
     // result = 10+(90-80)*(100-10)/(100-80) = 55%
     if (vars.utilizationRate <= _optimalUtilizationRate) {
-      vars.newRealAssetAPR =
-        _realAssetBorrowRateBase +
+      vars.newBorrowAPR =
+        _borrowRateBase +
         (
-          (_realAssetBorrowRateOptimal - _realAssetBorrowRateBase)
-            .rayDiv(_optimalUtilizationRate)
-            .rayMul(vars.utilizationRate)
-        );
-
-      vars.newDigitalAssetAPR =
-        _digitalAssetBorrowRateBase +
-        (
-          (_digitalAssetBorrowRateOptimal - _digitalAssetBorrowRateBase)
-            .rayDiv(_optimalUtilizationRate)
-            .rayMul(vars.utilizationRate)
+          (_borrowRateOptimal - _borrowRateBase).rayDiv(_optimalUtilizationRate).rayMul(
+            vars.utilizationRate
+          )
         );
     } else {
-      vars.newRealAssetAPR =
-        _realAssetBorrowRateOptimal +
+      vars.newBorrowAPR =
+        _borrowRateOptimal +
         (
-          (_realAssetBorrowRateMax - _realAssetBorrowRateOptimal)
+          (_borrowRateMax - _borrowRateOptimal)
             .rayDiv(WadRayMath.ray() - _optimalUtilizationRate)
-            .rayMul(vars.utilizationRate - _realAssetBorrowRateOptimal)
-        );
-
-      vars.newDigitalAssetAPR =
-        _digitalAssetBorrowRateOptimal +
-        (
-          (_digitalAssetBorrowRateMax - _digitalAssetBorrowRateOptimal)
-            .rayDiv(WadRayMath.ray() - _optimalUtilizationRate)
-            .rayMul(vars.utilizationRate - _digitalAssetBorrowRateOptimal)
+            .rayMul(vars.utilizationRate - _borrowRateOptimal)
         );
     }
 
-    vars.newSupplyAPR = _overallBorrowAPR(
-      aTokenAmount,
-      dTokenAmount,
-      vars
-        .newDigitalAssetAPR,
-      averageRealAssetAPR
-    )
-      .rayMul(vars.utilizationRate);
+    vars.newSupplyAPR = _overallBorrowAPR(aTokenAmount, averageBorrowAPR).rayMul(
+      vars.utilizationRate
+    );
     // need reserveFactor calculation
 
     console.log('hardhat console: totalDebt-Util', vars.totalDebt, vars.utilizationRate);
 
-    console.log(
-      'hardhat console: RealAsset-Digital-Supply',
-      vars.newRealAssetAPR,
-      vars.newDigitalAssetAPR,
-      vars.newSupplyAPR
-    );
+    console.log('hardhat console: RealAsset-Digital-Supply', vars.newBorrowAPR, vars.newSupplyAPR);
 
-    return (vars.newRealAssetAPR, vars.newDigitalAssetAPR, vars.newSupplyAPR);
+    return (vars.newBorrowAPR, vars.newBorrowAPR);
   }
 
-  function _overallBorrowAPR(
-    uint256 aTokenAmount,
-    uint256 dTokenAmount,
-    uint256 digitalAssetAPR,
-    uint256 averageRealAssetAPR
-  ) internal pure returns (uint256) {
-    uint256 totalDebt = aTokenAmount + dTokenAmount;
+  function _overallBorrowAPR(uint256 aTokenAmount, uint256 averageBorrowAPR)
+    internal
+    pure
+    returns (uint256)
+  {
+    uint256 totalDebt = aTokenAmount;
 
     if (totalDebt == 0) {
       return 0;
     }
 
-    uint256 weightedRealAssetAPR = aTokenAmount.wadToRay().rayMul(averageRealAssetAPR);
+    uint256 weightedBorrowAPR = aTokenAmount.wadToRay().rayMul(averageBorrowAPR);
 
-    uint256 weightedDigitalAssetAPR = dTokenAmount.wadToRay().rayMul(digitalAssetAPR);
-
-    uint256 result = (weightedDigitalAssetAPR + weightedRealAssetAPR).rayDiv(totalDebt.wadToRay());
+    uint256 result = weightedBorrowAPR.rayDiv(totalDebt.wadToRay());
 
     return result;
   }

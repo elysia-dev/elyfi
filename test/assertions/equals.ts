@@ -26,7 +26,6 @@ Assertion.addMethod("equalReserveData", function (expectedData: ReserveData) {
             key === 'underlyingAssetSymbol' ||
             key === 'underlyingAssetDecimals' ||
             key === 'lTokenAddress' ||
-            key === 'dTokenAddress' ||
             key === 'interestRateModelAddress' ||
             key === 'tokenizerAddress' ||
             key === 'interestRateModelParams'
@@ -50,9 +49,6 @@ Assertion.addMethod("equalUserData", function (expectedData: UserData) {
     const keys : UserDataKey[] = Object.keys(expectedData) as UserDataKey []
 
     keys.forEach((key) => {
-        if (
-            key === 'aTokenInvestments'
-        ) {return}
         const actualDataValue = actualData[key]
         const expectedDataValue = expectedData[key]
 

@@ -4,19 +4,11 @@ pragma solidity 0.8.4;
 import '../libraries/DataStruct.sol';
 import '../libraries/Errors.sol';
 import '../libraries/Math.sol';
-import '../interfaces/IDToken.sol';
 import '../libraries/WadRayMath.sol';
 
 library AssetBond {
   using WadRayMath for uint256;
   using AssetBond for DataStruct.AssetBondData;
-
-  event MoneyPoolTotalATokenDataUpdated(
-    address underlyingAsset,
-    uint256 id,
-    uint256 averageMoneyPoolAPR,
-    uint256 totalATokenBalanceOfMoneyPool
-  );
 
   event TotalATokenSupplyUpdated(
     address underlyingAsset,
@@ -44,37 +36,22 @@ library AssetBond {
     assetBondData.state = DataStruct.AssetBondState.SETTLED;
   }
 
-  struct DepositAssetBondLocalVars {
-    uint256 netAmount;
-    uint256 futureInterest;
-  }
-
   function depositAssetBond(
     DataStruct.AssetBondData storage assetBondData,
     uint256 borrowAmount,
-    uint256 realAssetAPR
-  ) internal returns (uint256) {
-    DepositAssetBondLocalVars memory vars;
-
+    uint256 borrowAPR
+  ) internal {
     // update tokenizer data
     //reserve.totalDepositedAssetBondCount += 1;
 
     // set bond date data
-    assetBondData.borrowAPR = realAssetAPR;
+    assetBondData.borrowAPR = borrowAPR;
     assetBondData.aTokenInterestIndex = WadRayMath.RAY;
-    assetBondData.lastUpdateTimestamp = uint40(block.timestamp);
+    assetBondData.lastUpdateTimestamp = block.timestamp;
     assetBondData.state = DataStruct.AssetBondState.COLLATERALIZED;
     assetBondData.issuanceDate = block.timestamp;
     assetBondData.maturityDate = block.timestamp + (assetBondData.dueDate * 1 days);
-
-    return vars.netAmount;
   }
-
-  function updateAccountATokenBalance(
-    address account,
-    uint256 tokenId,
-    uint256 supplyAPR
-  ) internal {}
 
   function validateSettleABToken(uint256 tokenId, address lawfirm) internal view {
     // checks whether lawfirm authorized

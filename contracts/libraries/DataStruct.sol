@@ -5,15 +5,11 @@ library DataStruct {
   struct ReserveData {
     uint256 moneyPoolFactor;
     uint256 lTokenInterestIndex;
-    uint256 dTokenInterestIndex;
-    uint256 realAssetAPR;
-    uint256 digitalAssetAPR;
+    uint256 borrowAPR;
     uint256 supplyAPR;
     uint256 totalDepositedAssetBondCount; // need refactor: consider bitmask
-    uint256 maturedAssetBondCount; // need refactor: consider bitmask
-    uint40 lastUpdateTimestamp;
+    uint256 lastUpdateTimestamp;
     address lTokenAddress;
-    address dTokenAddress;
     address interestModelAddress;
     address tokenizerAddress;
     uint8 id;
@@ -35,7 +31,7 @@ library DataStruct {
     uint256 issuanceDate;
     uint256 dueDate;
     uint256 maturityDate;
-    uint40 lastUpdateTimestamp;
+    uint256 lastUpdateTimestamp;
     AssetBondState state;
   }
 
@@ -43,16 +39,6 @@ library DataStruct {
     address asset;
     uint256 averageATokenAPR;
     uint256 totalATokenSupply;
-    uint256 totalATokenBalanceOfMoneyPool;
     uint40 lastUpdateTimestamp;
-  }
-
-  struct UserInfo {
-    uint256 userData;
-  }
-
-  struct UserAssetBondInvestData {
-    uint256 averageAssetBondAPR;
-    uint40 updateTimestamp;
   }
 }

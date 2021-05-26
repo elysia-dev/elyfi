@@ -4,7 +4,7 @@ pragma solidity 0.8.4;
 import '../libraries/DataStruct.sol';
 import '../libraries/Errors.sol';
 import '../libraries/Math.sol';
-import '../interfaces/IDToken.sol';
+import '../interfaces/ILToken.sol';
 
 library Validation {
   using WadRayMath for uint256;
@@ -33,7 +33,6 @@ library Validation {
    * Check user amount
    * Check user total debt(later)
    * @param reserve The reserve object
-   * @param userInfo User info
    * @param underlyingAsset Underlying asset address
    * @param amount Withdraw amount
    * @param reserveList reserve list for calculating user total debt
@@ -41,7 +40,6 @@ library Validation {
    **/
   function validateWithdrawMoneyPool(
     DataStruct.ReserveData storage reserve,
-    DataStruct.UserInfo storage userInfo,
     address underlyingAsset,
     uint256 amount,
     uint256 userLTokenBalance,

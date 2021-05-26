@@ -24,19 +24,13 @@ export function expectedReserveDataAfterInvestMoneyPool({
             expectedReserveData.moneyPoolLastUpdateTimestamp,
             txTimestamp
         );
-        expectedReserveData.dTokenInterestIndex = calculateCompoundedInterest(
-            expectedReserveData.digitalAssetAPR,
-            expectedReserveData.moneyPoolLastUpdateTimestamp,
-            txTimestamp
-        );
 
         expectedReserveData.moneyPoolLastUpdateTimestamp = txTimestamp;
     }
 
     // update rates
-    // totalSupply of L, D, A tokens
+    // totalSupply of L, A tokens
     const totalLTokenSupply = rayMul(expectedReserveData.implicitLTokenSupply, expectedReserveData.lTokenInterestIndex);
-    const totalDTokenSupply = rayMul(expectedReserveData.implicitDTokenSupply, expectedReserveData.dTokenInterestIndex);
     const aTokenAccruedInterest = calculateLinearInterest(
         expectedReserveData.averageATokenAPR,
         expectedReserveData.tokenizerLastUpdateTimestamp,
@@ -47,16 +41,14 @@ export function expectedReserveDataAfterInvestMoneyPool({
     const interestRates = calculateRateInInterestRateModel(
         totalLTokenSupply,
         totalATokenSupply,
-        totalDTokenSupply,
         amountInvest,
         BigNumber.from(0),
         expectedReserveData.averageATokenAPR,
         expectedReserveData.interestRateModelParams
     );
 
-    expectedReserveData.realAssetAPR = interestRates[0];
-    expectedReserveData.digitalAssetAPR = interestRates[1];
-    expectedReserveData.supplyAPR = interestRates[2];
+    expectedReserveData.borrowAPR = interestRates[0];
+    expectedReserveData.supplyAPR = interestRates[1];
 
     // update aToken indexes
     // need logic
@@ -93,10 +85,6 @@ export function expectedUserDataAfterInvestMoneyPool({
         rayDiv(amountInvest, reserveDataAfter.lTokenInterestIndex))
     // update lToken balance
     expectedUserData.lTokenBalance = rayMul(expectedUserData.implicitLtokenBalance, reserveDataAfter.lTokenInterestIndex)
-    // update dtoken balance
-    expectedUserData.dTokenBalance = rayMul(userDataBefore.implicitDtokenBalance, reserveDataAfter.dTokenInterestIndex)
-    // update aToken investment
-    // need logic
 
     return expectedUserData
 }
@@ -122,11 +110,7 @@ export function expectedReserveDataAfterWithdrawMoneyPool({
             expectedReserveData.moneyPoolLastUpdateTimestamp,
             txTimestamp
         );
-        expectedReserveData.dTokenInterestIndex = calculateCompoundedInterest(
-            expectedReserveData.digitalAssetAPR,
-            expectedReserveData.moneyPoolLastUpdateTimestamp,
-            txTimestamp
-        );
+
 
         expectedReserveData.moneyPoolLastUpdateTimestamp = txTimestamp;
     }
@@ -134,7 +118,6 @@ export function expectedReserveDataAfterWithdrawMoneyPool({
     // update rates in withdraw
     // totalSupply of L, D, A tokens
     const totalLTokenSupply = rayMul(expectedReserveData.implicitLTokenSupply, expectedReserveData.lTokenInterestIndex);
-    const totalDTokenSupply = rayMul(expectedReserveData.implicitDTokenSupply, expectedReserveData.dTokenInterestIndex);
     const aTokenAccruedInterest = calculateLinearInterest(
         expectedReserveData.averageATokenAPR,
         expectedReserveData.tokenizerLastUpdateTimestamp,
@@ -145,16 +128,14 @@ export function expectedReserveDataAfterWithdrawMoneyPool({
     const interestRates = calculateRateInInterestRateModel(
         totalLTokenSupply,
         totalATokenSupply,
-        totalDTokenSupply,
         BigNumber.from(0),
         amountWithdraw,
         expectedReserveData.averageATokenAPR,
         expectedReserveData.interestRateModelParams
     );
 
-    expectedReserveData.realAssetAPR = interestRates[0];
-    expectedReserveData.digitalAssetAPR = interestRates[1];
-    expectedReserveData.supplyAPR = interestRates[2];
+    expectedReserveData.borrowAPR = interestRates[0];
+    expectedReserveData.supplyAPR = interestRates[1];
 
     // update aToken indexes
     // need logic
@@ -192,10 +173,6 @@ export function expectedUserDataAfterWithdrawMoneyPool({
     expectedUserData.underlyingAssetBalance = userDataBefore.underlyingAssetBalance.add(amountWithdraw)
     // update lToken balance
     expectedUserData.lTokenBalance = rayMul(expectedUserData.implicitLtokenBalance, reserveDataAfter.lTokenInterestIndex)
-    // update dtoken balance
-    expectedUserData.dTokenBalance = rayMul(userDataBefore.implicitDtokenBalance, reserveDataAfter.dTokenInterestIndex)
-    // update aToken investment
-    // need logic
 
     return expectedUserData
 }
@@ -221,11 +198,6 @@ export function expectedReserveDataAfterBorrowAgainstABToken({
             expectedReserveData.moneyPoolLastUpdateTimestamp,
             txTimestamp
         );
-        expectedReserveData.dTokenInterestIndex = calculateCompoundedInterest(
-            expectedReserveData.digitalAssetAPR,
-            expectedReserveData.moneyPoolLastUpdateTimestamp,
-            txTimestamp
-        );
 
         expectedReserveData.moneyPoolLastUpdateTimestamp = txTimestamp;
     }
@@ -233,7 +205,6 @@ export function expectedReserveDataAfterBorrowAgainstABToken({
     // update rates in borrow
     // totalSupply of L, D, A tokens
     const totalLTokenSupply = rayMul(expectedReserveData.implicitLTokenSupply, expectedReserveData.lTokenInterestIndex);
-    const totalDTokenSupply = rayMul(expectedReserveData.implicitDTokenSupply, expectedReserveData.dTokenInterestIndex);
     const aTokenAccruedInterest = calculateLinearInterest(
         expectedReserveData.averageATokenAPR,
         expectedReserveData.tokenizerLastUpdateTimestamp,
@@ -244,16 +215,14 @@ export function expectedReserveDataAfterBorrowAgainstABToken({
     const interestRates = calculateRateInInterestRateModel(
         totalLTokenSupply,
         totalATokenSupply,
-        totalDTokenSupply,
         BigNumber.from(0),
         amountBorrow,
         expectedReserveData.averageATokenAPR,
         expectedReserveData.interestRateModelParams
     );
 
-    expectedReserveData.realAssetAPR = interestRates[0];
-    expectedReserveData.digitalAssetAPR = interestRates[1];
-    expectedReserveData.supplyAPR = interestRates[2];
+    expectedReserveData.borrowAPR = interestRates[0];
+    expectedReserveData.supplyAPR = interestRates[1];
 
     // update aToken indexes
     // need logic
@@ -267,7 +236,6 @@ export function expectedReserveDataAfterBorrowAgainstABToken({
 
     return expectedReserveData;
 }
- 
 
 export function expectedCSPDataAfterBorrowAgainstABToken({
     amountBorrow,
@@ -292,10 +260,7 @@ export function expectedCSPDataAfterBorrowAgainstABToken({
     expectedUserData.underlyingAssetBalance = userDataBefore.underlyingAssetBalance.add(amountBorrow)
     // update lToken balance
     expectedUserData.lTokenBalance = rayMul(expectedUserData.implicitLtokenBalance, reserveDataAfter.lTokenInterestIndex)
-    // update dtoken balance
-    expectedUserData.dTokenBalance = rayMul(userDataBefore.implicitDtokenBalance, reserveDataAfter.dTokenInterestIndex)
-    // update aToken investment
-    // need logic
+
 
     return expectedUserData
 }

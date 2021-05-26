@@ -3,7 +3,7 @@ import { ethers, waffle } from 'hardhat'
 import { smoddit } from '@eth-optimism/smock'
 import { address, advanceTime, ETH, expandToDecimals, getTimestamp, RAY, toIndex, toRate } from './utils/Ethereum';
 import { Connector, DataPipeline, DTokenTest, ERC20Test, InterestRateModel, LTokenTest, MoneyPoolTest, Tokenizer, TokenizerTest } from '../typechain';
-import { makeInterestRateModel, makeMoneyPool, makeLToken, makeDToken, makeUnderlyingAsset, makeConnector, makeTokenizer, makeDataPipeline } from './utils/makeContract';
+import { makeInterestRateModel, makeMoneyPool, makeLToken, makeUnderlyingAsset, makeConnector, makeTokenizer, makeDataPipeline } from './utils/makeContract';
 import { defaultReserveData } from './utils/Interfaces';
 import { expect } from 'chai'
 import { expectedReserveDataAfterInvestMoneyPool, expectedUserDataAfterInvestMoneyPool } from './utils/Expect';
@@ -50,12 +50,6 @@ describe("MoneyPool", () => {
             underlyingAsset: underlyingAsset,
         })
 
-        dToken = await makeDToken({
-            deployer: deployer,
-            moneyPool: moneyPool,
-            underlyingAsset: underlyingAsset,
-        })
-
         tokenizer = await makeTokenizer({
             deployer: deployer,
             moneyPool: moneyPool
@@ -69,7 +63,6 @@ describe("MoneyPool", () => {
         await moneyPool.addNewReserve(
             underlyingAsset.address,
             lToken.address,
-            dToken.address,
             interestModel.address,
             tokenizer.address,
             defaultReserveData.moneyPoolFactor
@@ -94,7 +87,6 @@ describe("MoneyPool", () => {
             expect(initialContractReserveData.underlyingAssetName).to.be.equal(defaultReserveData.underlyingAssetName)
             expect(initialContractReserveData.underlyingAssetSymbol).to.be.equal(defaultReserveData.underlyingAssetSymbol)
             expect(initialContractReserveData.lTokenInterestIndex).to.be.equal(defaultReserveData.lTokenInterestIndex)
-            expect(initialContractReserveData.dTokenInterestIndex).to.be.equal(defaultReserveData.dTokenInterestIndex)
         })
     })
 
