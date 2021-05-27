@@ -143,6 +143,8 @@ export function calculateRateInInterestRateModel(
     utilizationRate
   );
 
+  console.log('testData borrowAPR | supplyAPR', newBorrowAPR.toString(), newSupplyAPR.toString());
+
   return [newBorrowAPR, newSupplyAPR];
 }
 

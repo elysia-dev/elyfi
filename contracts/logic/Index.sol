@@ -4,6 +4,7 @@ pragma solidity 0.8.4;
 import '../libraries/DataStruct.sol';
 import '../libraries/Errors.sol';
 import '../libraries/Math.sol';
+import 'hardhat/console.sol';
 
 library Index {
   using WadRayMath for uint256;
@@ -23,7 +24,7 @@ library Index {
   {
     uint256 lastUpdateTimestamp = reserve.lastUpdateTimestamp;
 
-    if (lastUpdateTimestamp == uint256(block.timestamp)) {
+    if (lastUpdateTimestamp == block.timestamp) {
       return reserve.lTokenInterestIndex;
     }
 
@@ -47,7 +48,7 @@ library Index {
   {
     uint256 lastUpdateTimestamp = assetBond.lastUpdateTimestamp;
 
-    if (lastUpdateTimestamp == uint256(block.timestamp)) {
+    if (lastUpdateTimestamp == block.timestamp) {
       return assetBond.aTokenInterestIndex;
     }
 
@@ -92,13 +93,19 @@ library Index {
     uint256 currentSupplyAPR = reserve.supplyAPR;
 
     if (currentSupplyAPR == 0) {
-      reserve.lastUpdateTimestamp = uint256(block.timestamp);
+      reserve.lastUpdateTimestamp = block.timestamp;
       return (lTokenIndex);
     }
 
     reserve.lTokenInterestIndex = getLTokenInterestIndex(reserve);
 
-    reserve.lastUpdateTimestamp = uint256(block.timestamp);
+    reserve.lastUpdateTimestamp = block.timestamp;
+
+    console.log(
+      'hardhat updateIndex console: lToken index | timestamp',
+      reserve.lTokenInterestIndex,
+      reserve.lastUpdateTimestamp
+    );
 
     return (reserve.lTokenInterestIndex);
   }

@@ -44,6 +44,6 @@ interface ITokenizer is IERC1155Upgradeable {
     address account,
     uint256 tokenId,
     uint256 borrowAmount,
-    uint256 realAssetAPR
+    uint256 borrowAPR
   ) external;
 }

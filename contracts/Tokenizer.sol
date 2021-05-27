@@ -163,15 +163,22 @@ contract Tokenizer is ITokenizer, ERC1155Upgradeable, TokenizerStorage {
     address account,
     uint256 tokenId,
     uint256 borrowAmount,
-    uint256 realAssetAPR
+    uint256 borrowAPR
   ) external override onlyMoneyPool {
     DataStruct.AssetBondData storage assetBond = _assetBondData[tokenId];
 
-    assetBond.depositAssetBond(borrowAmount, realAssetAPR);
+    assetBond.depositAssetBond(borrowAmount, borrowAPR);
 
     safeTransferFrom(account, address(_moneyPool), tokenId, 1, '');
 
-    _mintAToken(account, tokenId, borrowAmount, realAssetAPR);
+    _mintAToken(account, tokenId, borrowAmount, borrowAPR);
+
+    console.log(
+      'hardhat deposit ABToken Tokenizer | borrowAPR | totalSupply | averageATokenAPR',
+      borrowAPR,
+      _tokenizerData.totalATokenSupply,
+      _tokenizerData.averageATokenAPR
+    );
   }
 
   struct MintLocalVars {
@@ -184,7 +191,7 @@ contract Tokenizer is ITokenizer, ERC1155Upgradeable, TokenizerStorage {
     address account,
     uint256 assetBondId,
     uint256 borrowAmount,
-    uint256 realAssetAPR
+    uint256 borrowAPR
   ) internal {
     MintLocalVars memory vars;
 
@@ -192,7 +199,7 @@ contract Tokenizer is ITokenizer, ERC1155Upgradeable, TokenizerStorage {
     vars.aTokenId = _generateATokenId(assetBondId);
 
     // update total Atoken supply and average AToken rate
-    _tokenizerData.increaseTotalATokenSupply(borrowAmount, realAssetAPR);
+    _tokenizerData.increaseTotalATokenSupply(borrowAmount, borrowAPR);
 
     _mint(address(_moneyPool), vars.aTokenId, borrowAmount, '');
 

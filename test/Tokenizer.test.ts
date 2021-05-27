@@ -19,7 +19,6 @@ import {
 import {
   Connector,
   DataPipeline,
-  DTokenTest,
   ERC20Test,
   InterestRateModel,
   LTokenTest,
@@ -45,7 +44,6 @@ describe('Tokenizer', () => {
   let moneyPool: MoneyPoolTest;
   let interestModel: InterestRateModel;
   let lToken: LTokenTest;
-  let dToken: DTokenTest;
   let tokenizer: TokenizerTest;
   let dataPipeline: DataPipeline;
 

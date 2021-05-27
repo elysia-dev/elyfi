@@ -39,6 +39,6 @@ library DataStruct {
     address asset;
     uint256 averageATokenAPR;
     uint256 totalATokenSupply;
-    uint40 lastUpdateTimestamp;
+    uint256 lastUpdateTimestamp;
   }
 }

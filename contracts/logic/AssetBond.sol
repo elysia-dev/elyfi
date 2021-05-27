@@ -32,7 +32,7 @@ library AssetBond {
     assetBondData.dueDate = dueDate;
     assetBondData.ipfsHash = ipfsHash;
     assetBondData.collateralValue = collateralValue;
-    assetBondData.lastUpdateTimestamp = uint40(block.timestamp);
+    assetBondData.lastUpdateTimestamp = block.timestamp;
     assetBondData.state = DataStruct.AssetBondState.SETTLED;
   }
 

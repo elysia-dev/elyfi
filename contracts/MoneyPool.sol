@@ -50,13 +50,6 @@ contract MoneyPool is IMoneyPool, IERC1155ReceiverUpgradeable, MoneyPoolStorage 
     // update indexes and mintToReserve
     reserve.updateState();
 
-    // for test
-    console.log(
-      'hardhat updateIndex console:',
-      reserve.lTokenInterestIndex,
-      reserve.lastUpdateTimestamp
-    );
-
     // update rates
     reserve.updateRates(asset, amount, 0);
 
@@ -211,7 +204,7 @@ contract MoneyPool is IMoneyPool, IERC1155ReceiverUpgradeable, MoneyPoolStorage 
         borrowAPR: 0,
         supplyAPR: 0,
         totalDepositedAssetBondCount: 0,
-        lastUpdateTimestamp: uint40(block.timestamp),
+        lastUpdateTimestamp: block.timestamp,
         lTokenAddress: lToken,
         interestModelAddress: interestModel,
         tokenizerAddress: tokenizer,

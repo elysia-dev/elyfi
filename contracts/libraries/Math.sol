@@ -68,7 +68,8 @@ library Math {
     uint256 weightedAmountRate = amountIn.wadToRay().rayMul(rate);
 
     uint256 newTotalBalance = totalBalance + amountIn;
-    uint256 newAverageRate = (weightedAverageRate + weightedAmountRate).rayDiv(newTotalBalance);
+    uint256 newAverageRate =
+      (weightedAverageRate + weightedAmountRate).rayDiv(newTotalBalance.wadToRay());
 
     return (newTotalBalance, newAverageRate);
   }
@@ -94,7 +95,8 @@ library Math {
 
     uint256 newTotalBalance = totalBalance - amountOut;
 
-    uint256 newAverageRate = (weightedAverageRate - weightedAmountRate).rayDiv(newTotalBalance);
+    uint256 newAverageRate =
+      (weightedAverageRate - weightedAmountRate).rayDiv(newTotalBalance.wadToRay());
 
     return (newTotalBalance, newAverageRate);
   }

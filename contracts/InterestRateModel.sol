@@ -36,7 +36,7 @@ contract InterestRateModel is IInterestRateModel, InterestRateModelStorage {
   function calculateRates(
     address asset,
     address lToken,
-    uint256 aTokenAmount,
+    uint256 totalATokenSupply,
     uint256 investAmount,
     uint256 borrowAmount,
     uint256 averageBorrowAPR,
@@ -44,7 +44,7 @@ contract InterestRateModel is IInterestRateModel, InterestRateModelStorage {
   ) public view override returns (uint256, uint256) {
     calculateRatesLocalVars memory vars;
 
-    vars.totalDebt = aTokenAmount;
+    vars.totalDebt = totalATokenSupply;
 
     uint256 availableLiquidity = IERC20(asset).balanceOf(lToken) + investAmount - borrowAmount;
 
@@ -79,33 +79,21 @@ contract InterestRateModel is IInterestRateModel, InterestRateModelStorage {
         );
     }
 
-    vars.newSupplyAPR = _overallBorrowAPR(aTokenAmount, averageBorrowAPR).rayMul(
-      vars.utilizationRate
-    );
+    vars.newSupplyAPR = vars.newBorrowAPR.rayMul(vars.utilizationRate);
     // need reserveFactor calculation
 
-    console.log('hardhat console: totalDebt-Util', vars.totalDebt, vars.utilizationRate);
+    console.log(
+      'hardhat interest Rate Model console: totalDebt-Util',
+      vars.totalDebt,
+      vars.utilizationRate
+    );
 
-    console.log('hardhat console: RealAsset-Digital-Supply', vars.newBorrowAPR, vars.newSupplyAPR);
+    console.log(
+      'hardhat interest Rate Model console: Borrow | Supply',
+      vars.newBorrowAPR,
+      vars.newSupplyAPR
+    );
 
-    return (vars.newBorrowAPR, vars.newBorrowAPR);
-  }
-
-  function _overallBorrowAPR(uint256 aTokenAmount, uint256 averageBorrowAPR)
-    internal
-    pure
-    returns (uint256)
-  {
-    uint256 totalDebt = aTokenAmount;
-
-    if (totalDebt == 0) {
-      return 0;
-    }
-
-    uint256 weightedBorrowAPR = aTokenAmount.wadToRay().rayMul(averageBorrowAPR);
-
-    uint256 result = weightedBorrowAPR.rayDiv(totalDebt.wadToRay());
-
-    return result;
+    return (vars.newBorrowAPR, vars.newSupplyAPR);
   }
 }

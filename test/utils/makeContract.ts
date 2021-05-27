@@ -1,8 +1,6 @@
 import {
   LTokenTest,
   LTokenTest__factory,
-  DTokenTest,
-  DTokenTest__factory,
   MoneyPoolTest,
   MoneyPoolTest__factory,
   ERC20Test,

@@ -24,7 +24,7 @@ library TokenizerData {
   );
 
   struct IncreaseATokenBalanceLocalVars {
-    uint256 newAPR;
+    uint256 newAverageATokenAPR;
     uint256 newBalance;
   }
 
@@ -35,21 +35,22 @@ library TokenizerData {
   ) internal {
     IncreaseATokenBalanceLocalVars memory vars;
 
-    (vars.newAPR, vars.newBalance) = Math.calculateRateInIncreasingBalance(
+    (vars.newBalance, vars.newAverageATokenAPR) = Math.calculateRateInIncreasingBalance(
       tokenizerData.averageATokenAPR,
       tokenizerData.totalATokenSupply,
       amountIn,
       rate
     );
 
-    tokenizerData.averageATokenAPR = vars.newAPR;
+    tokenizerData.averageATokenAPR = vars.newAverageATokenAPR;
     tokenizerData.totalATokenSupply = vars.newBalance;
+    tokenizerData.lastUpdateTimestamp = block.timestamp;
 
-    emit TotalATokenUpdated(tokenizerData.asset, vars.newAPR, vars.newBalance);
+    emit TotalATokenUpdated(tokenizerData.asset, vars.newAverageATokenAPR, vars.newBalance);
   }
 
   struct DecreaseATokenBalanceLocalVars {
-    uint256 newAPR;
+    uint256 newAverageATokenAPR;
     uint256 newBalance;
   }
 
@@ -60,17 +61,17 @@ library TokenizerData {
   ) internal {
     IncreaseATokenBalanceLocalVars memory vars;
 
-    (vars.newAPR, vars.newBalance) = Math.calculateRateInDecreasingBalance(
+    (vars.newBalance, vars.newAverageATokenAPR) = Math.calculateRateInDecreasingBalance(
       tokenizerData.averageATokenAPR,
       tokenizerData.totalATokenSupply,
       amountOut,
       rate
     );
 
-    tokenizerData.averageATokenAPR = vars.newAPR;
+    tokenizerData.averageATokenAPR = vars.newAverageATokenAPR;
     tokenizerData.totalATokenSupply = vars.newBalance;
 
-    emit TotalATokenUpdated(tokenizerData.asset, vars.newAPR, vars.newBalance);
+    emit TotalATokenUpdated(tokenizerData.asset, vars.newAverageATokenAPR, vars.newBalance);
   }
 
   function validateSettleABToken(uint256 tokenId, address lawfirm) internal view {
