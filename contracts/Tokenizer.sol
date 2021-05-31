@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.4;
 
-import '@openzeppelin/contracts-upgradeable/token/ERC1155/ERC1155Upgradeable.sol';
+import '@openzeppelin/contracts-upgradeable/token/ERC721/ERC721Upgradeable.sol';
 import './libraries/WadRayMath.sol';
 import './libraries/Errors.sol';
 import './libraries/DataStruct.sol';
@@ -20,7 +20,7 @@ import 'hardhat/console.sol';
  * @title ELYFI Tokenizer
  * @author ELYSIA
  */
-contract Tokenizer is ITokenizer, ERC1155Upgradeable, TokenizerStorage {
+contract Tokenizer is ITokenizer, ERC721Upgradeable, TokenizerStorage {
   using WadRayMath for uint256;
   using TokenizerData for DataStruct.TokenizerData;
   using AssetBond for DataStruct.AssetBondData;
@@ -28,9 +28,13 @@ contract Tokenizer is ITokenizer, ERC1155Upgradeable, TokenizerStorage {
 
   /************ Initialize Functions ************/
 
-  function initialize(address moneyPool, string memory uri_) public initializer {
+  function initialize(
+    address moneyPool,
+    string memory name_,
+    string memory symbol_
+  ) public initializer {
     _moneyPool = IMoneyPool(moneyPool);
-    __ERC1155_init(uri_);
+    __ERC721_init(name_, symbol_);
   }
 
   /************ View Functions ************/
@@ -42,45 +46,6 @@ contract Tokenizer is ITokenizer, ERC1155Upgradeable, TokenizerStorage {
    */
   function getATokenInterestIndex(uint256 tokenId) public view override returns (uint256) {
     return _assetBondData[tokenId].getATokenInterestIndex();
-  }
-
-  /**
-   * @dev This contract overrides `balanceOf` method for calculate increasing balance of
-   * securitized asset bond. It returns sum of previous balance and accrued interest of account.
-   * If token is NFT, return 1
-   * @param account Account address
-   * @param tokenId tokenId
-   * @return The sum of previous balance and accrued interest
-   */
-  function balanceOf(address account, uint256 tokenId)
-    public
-    view
-    virtual
-    override(ERC1155Upgradeable, IERC1155Upgradeable)
-    returns (uint256)
-  {
-    if (_tokenType[tokenId] == Role.ABTOKEN) {
-      return super.balanceOf(account, tokenId);
-    }
-
-    uint256 aTokenIndex = getATokenInterestIndex(tokenId);
-
-    return super.balanceOf(account, tokenId).rayMul(aTokenIndex);
-  }
-
-  /**
-   * @dev Returns total AToken supply which is sum of previous balance and accrued interest
-   * @return The sum of previous balance and accrued interest
-   */
-  function totalATokenSupply() public view override returns (uint256) {
-    uint256 accruedInterest =
-      Math.calculateLinearInterest(
-        _tokenizerData.averageATokenAPR,
-        _tokenizerData.lastUpdateTimestamp,
-        block.timestamp
-      );
-
-    return _tokenizerData.totalATokenSupply.rayMul(accruedInterest);
   }
 
   /**
@@ -101,10 +66,6 @@ contract Tokenizer is ITokenizer, ERC1155Upgradeable, TokenizerStorage {
     return _tokenizerData;
   }
 
-  function getAverageATokenAPR() external view override returns (uint256) {
-    return _tokenizerData.averageATokenAPR;
-  }
-
   function getMinter(uint256 tokenId) external view returns (address) {
     return _minter[tokenId];
   }
@@ -120,7 +81,7 @@ contract Tokenizer is ITokenizer, ERC1155Upgradeable, TokenizerStorage {
     if (_minter[tokenId] != address(0)) revert(); ////error ABTokenIDAlreadyExist(tokenId)
 
     // mint ABToken to CSP
-    _mint(account, tokenId, 1, '');
+    _safeMint(account, tokenId, '');
 
     // validate tokenId : tokenId should have information about
     AssetBond.validateTokenId(tokenId);
@@ -159,7 +120,7 @@ contract Tokenizer is ITokenizer, ERC1155Upgradeable, TokenizerStorage {
 
   function signABToken(uint256 tokenId, address signer) external {}
 
-  function depositAssetBond(
+  function collateralizeAssetBond(
     address account,
     uint256 tokenId,
     uint256 borrowAmount,
@@ -167,11 +128,7 @@ contract Tokenizer is ITokenizer, ERC1155Upgradeable, TokenizerStorage {
   ) external override onlyMoneyPool {
     DataStruct.AssetBondData storage assetBond = _assetBondData[tokenId];
 
-    assetBond.depositAssetBond(borrowAmount, borrowAPR);
-
-    safeTransferFrom(account, address(_moneyPool), tokenId, 1, '');
-
-    _mintAToken(account, tokenId, borrowAmount, borrowAPR);
+    assetBond.collateralizeAssetBond(borrowAmount, borrowAPR);
 
     console.log(
       'hardhat deposit ABToken Tokenizer | borrowAPR | totalSupply | averageATokenAPR',
@@ -181,105 +138,11 @@ contract Tokenizer is ITokenizer, ERC1155Upgradeable, TokenizerStorage {
     );
   }
 
-  struct MintLocalVars {
-    uint256 aTokenId;
-    uint256 newAverageATokenRate;
-    uint256 newTotalATokenSupply;
+  function releaseAssetBond(address account, uint256 tokenId) external override onlyMoneyPool {
+    DataStruct.AssetBondData storage assetBond = _assetBondData[tokenId];
   }
-
-  function _mintAToken(
-    address account,
-    uint256 assetBondId,
-    uint256 borrowAmount,
-    uint256 borrowAPR
-  ) internal {
-    MintLocalVars memory vars;
-
-    // generate AToken tokenId based on the tokenId of asset bond
-    vars.aTokenId = _generateATokenId(assetBondId);
-
-    // update total Atoken supply and average AToken rate
-    _tokenizerData.increaseTotalATokenSupply(borrowAmount, borrowAPR);
-
-    _mint(address(_moneyPool), vars.aTokenId, borrowAmount, '');
-
-    _tokenType[vars.aTokenId] = Role.ATOKEN;
-
-    emit MintAToken(
-      account,
-      vars.aTokenId,
-      borrowAmount,
-      vars.newAverageATokenRate,
-      vars.newTotalATokenSupply
-    );
-  }
-
-  // function burnAToken(
-  //     address account,
-  //     uint256 assetBondId,
-  //     uint256 amount
-  // ) external {
-
-  //     // validation : only after maturation
-
-  //     Math.calculateRateInDecreasingBalance(
-  //         _tokenizerData.averageMoneyPoolAPR,
-  //         _tokenizerData.totalATokenBalanceOfMoneyPool,
-  //         amount,
-  //         );
-  // }
 
   /************ Token Functions ************/
-
-  /**
-   * @dev This contract overrides `safeTransferFrom` method
-   * in order to transfer implicit balance.
-   * Transfer AToken to moneypool is not allowed in beta version
-   */
-  function safeTransferFrom(
-    address from,
-    address to,
-    uint256 tokenId,
-    uint256 amount,
-    bytes memory data
-  ) public override(ERC1155Upgradeable, IERC1155Upgradeable) {
-    if (_tokenType[tokenId] == Role.ATOKEN) {
-      if (to == address(_moneyPool)) revert(); //// TransferATokenToMoneyPoolNotAllowed();
-
-      _assetBondData[tokenId].updateATokenState();
-      uint256 index = _assetBondData[tokenId].aTokenInterestIndex;
-
-      super.safeTransferFrom(from, to, tokenId, amount.rayDiv(index), data);
-    }
-  }
-
-  /**
-   * @dev Overriding ERC1155 safeBatchTransferFrom to transfer implicit balance
-   * Transfer AToken to moneypool is not allowed in beta version
-   */
-  function safeBatchTransferFrom(
-    address from,
-    address to,
-    uint256[] memory ids,
-    uint256[] memory amounts,
-    bytes memory data
-  ) public override(ERC1155Upgradeable, IERC1155Upgradeable) {
-    for (uint256 i = 0; i < ids.length; ++i) {
-      uint256 tokenId = ids[i];
-      uint256 amount = amounts[i];
-
-      if (_tokenType[tokenId] == Role.ATOKEN) {
-        if (to == address(_moneyPool)) revert(); //// TransferATokenToMoneyPoolNotAllowed();
-
-        _assetBondData[tokenId].updateATokenState();
-        uint256 index = _assetBondData[tokenId].aTokenInterestIndex;
-
-        amounts[i] = amount.rayDiv(index);
-      }
-    }
-
-    super.safeBatchTransferFrom(from, to, ids, amounts, data);
-  }
 
   /************ MoneyPool Total AToken Balance Manage Functions ************/
 

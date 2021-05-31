@@ -5,6 +5,7 @@ import '../libraries/DataStruct.sol';
 import '../libraries/Errors.sol';
 import '../libraries/Math.sol';
 import '../interfaces/ILToken.sol';
+import '../interfaces/IDToken.sol';
 import '../interfaces/ITokenizer.sol';
 import '../interfaces/IInterestRateModel.sol';
 
@@ -20,11 +21,10 @@ library Rate {
   );
 
   struct UpdateRatesLocalVars {
-    uint256 totalLToken;
-    uint256 totalAToken;
+    uint256 totalDToken;
     uint256 newBorrowAPR;
     uint256 newSupplyAPR;
-    uint256 averageATokenAPR;
+    uint256 averageBorrowAPR;
     uint256 totalVariableDebt;
   }
 
@@ -36,20 +36,18 @@ library Rate {
   ) internal {
     UpdateRatesLocalVars memory vars;
 
-    vars.totalLToken = ILToken(reserve.lTokenAddress).totalSupply();
+    vars.totalDToken = IDToken(reserve.dTokenAddress).totalSupply();
 
-    vars.totalAToken = ITokenizer(reserve.tokenizerAddress).totalATokenSupply();
-
-    vars.averageATokenAPR = ITokenizer(reserve.tokenizerAddress).getAverageATokenAPR();
+    vars.averageBorrowAPR = IDToken(reserve.dTokenAddress).getTotalAverageRealAssetBorrowRate();
 
     (vars.newBorrowAPR, vars.newSupplyAPR) = IInterestRateModel(reserve.interestModelAddress)
       .calculateRates(
       underlyingAssetAddress,
       reserve.lTokenAddress,
-      vars.totalAToken,
+      vars.totalDToken,
       investAmount,
       borrowAmount,
-      vars.averageATokenAPR,
+      vars.averageBorrowAPR,
       reserve.moneyPoolFactor
     );
 

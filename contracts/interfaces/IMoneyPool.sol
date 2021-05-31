@@ -13,6 +13,17 @@ interface IMoneyPool {
     uint256 amount
   );
 
+  event BorrowAgainstAssetBond(
+    address indexed asset,
+    address indexed borrower,
+    address indexed receiver,
+    uint256 tokenId,
+    uint256 borrowAPR,
+    uint256 borrowAmount
+  );
+
+  event RepayAgainstAssetBond();
+
   function investMoneyPool(
     address asset,
     address account,
@@ -29,7 +40,7 @@ interface IMoneyPool {
     address asset,
     address receiver,
     uint256 borrowAmount,
-    uint256 id
+    uint256 tokenID
   ) external;
 
   function getLTokenInterestIndex(address asset) external view returns (uint256);
@@ -48,6 +59,7 @@ interface IMoneyPool {
   function addNewReserve(
     address asset,
     address lToken,
+    address dToken,
     address interestModel,
     address tokenizer,
     uint256 moneyPoolFactor_

@@ -29,14 +29,14 @@ library AssetBond {
     assetBondData.asset = asset;
     assetBondData.borrower = borrower;
     assetBondData.lawfirm = lawfirm;
+    assetBondData.collateralValue = collateralValue;
     assetBondData.dueDate = dueDate;
     assetBondData.ipfsHash = ipfsHash;
-    assetBondData.collateralValue = collateralValue;
     assetBondData.lastUpdateTimestamp = block.timestamp;
     assetBondData.state = DataStruct.AssetBondState.SETTLED;
   }
 
-  function depositAssetBond(
+  function collateralizeAssetBond(
     DataStruct.AssetBondData storage assetBondData,
     uint256 borrowAmount,
     uint256 borrowAPR
@@ -47,10 +47,14 @@ library AssetBond {
     // set bond date data
     assetBondData.borrowAPR = borrowAPR;
     assetBondData.aTokenInterestIndex = WadRayMath.RAY;
-    assetBondData.lastUpdateTimestamp = block.timestamp;
     assetBondData.state = DataStruct.AssetBondState.COLLATERALIZED;
+    assetBondData.lastUpdateTimestamp = block.timestamp;
     assetBondData.issuanceDate = block.timestamp;
     assetBondData.maturityDate = block.timestamp + (assetBondData.dueDate * 1 days);
+  }
+
+  function releaseAssetBond(DataStruct.AssetBondData storage assetBondData) internal {
+    assetBondData.state = DataStruct.AssetBondState.MATURED;
   }
 
   function validateSettleABToken(uint256 tokenId, address lawfirm) internal view {

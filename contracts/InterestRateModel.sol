@@ -36,7 +36,7 @@ contract InterestRateModel is IInterestRateModel, InterestRateModelStorage {
   function calculateRates(
     address asset,
     address lToken,
-    uint256 totalATokenSupply,
+    uint256 totalDTokenBalance,
     uint256 investAmount,
     uint256 borrowAmount,
     uint256 averageBorrowAPR,
@@ -44,7 +44,7 @@ contract InterestRateModel is IInterestRateModel, InterestRateModelStorage {
   ) public view override returns (uint256, uint256) {
     calculateRatesLocalVars memory vars;
 
-    vars.totalDebt = totalATokenSupply;
+    vars.totalDebt = totalDTokenBalance;
 
     uint256 availableLiquidity = IERC20(asset).balanceOf(lToken) + investAmount - borrowAmount;
 

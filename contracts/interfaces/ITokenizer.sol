@@ -2,9 +2,9 @@
 pragma solidity 0.8.4;
 
 import '../libraries/DataStruct.sol';
-import '@openzeppelin/contracts-upgradeable/token/ERC1155/IERC1155Upgradeable.sol';
+import '@openzeppelin/contracts-upgradeable/token/ERC721/IERC721Upgradeable.sol';
 
-interface ITokenizer is IERC1155Upgradeable {
+interface ITokenizer is IERC721Upgradeable {
   event Invest(address indexed asset, address indexed account, uint256 amount);
 
   event Withdraw(
@@ -27,10 +27,6 @@ interface ITokenizer is IERC1155Upgradeable {
     uint256 id // information about Co and borrower
   ) external;
 
-  function totalATokenSupply() external view returns (uint256);
-
-  function getAverageATokenAPR() external view returns (uint256);
-
   function getTokenizerData() external view returns (DataStruct.TokenizerData memory);
 
   function getAssetBondData(uint256 tokenId)
@@ -40,10 +36,12 @@ interface ITokenizer is IERC1155Upgradeable {
 
   function getATokenInterestIndex(uint256 tokenId) external view returns (uint256);
 
-  function depositAssetBond(
+  function collateralizeAssetBond(
     address account,
     uint256 tokenId,
     uint256 borrowAmount,
     uint256 borrowAPR
   ) external;
+
+  function releaseAssetBond(address account, uint256 tokenId) external;
 }

@@ -259,9 +259,6 @@ export function expectedReserveDataAfterBorrowAgainstABToken({
 
   // mint AToken
   expectedReserveData.totalATokenSupply = totalATokenSupply.add(amountBorrow);
-  expectedReserveData.totalMoneyPoolATokenBalance = expectedReserveData.totalMoneyPoolATokenBalance.add(
-    amountBorrow
-  );
 
   // transfer underlying asset in burn logic
   expectedReserveData.underlyingAssetBalance = expectedReserveData.underlyingAssetBalance.sub(
@@ -271,7 +268,7 @@ export function expectedReserveDataAfterBorrowAgainstABToken({
   return expectedReserveData;
 }
 
-export function expectedCSPDataAfterBorrowAgainstABToken({
+export function expectedUserDataAfterBorrowAgainstABToken({
   amountBorrow,
   userDataBefore,
   reserveDataBefore,

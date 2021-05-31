@@ -11,7 +11,6 @@ export interface ReserveData {
   totalLTokenSupply: BigNumber;
   implicitLTokenSupply: BigNumber;
   totalATokenSupply: BigNumber;
-  totalMoneyPoolATokenBalance: BigNumber;
   lTokenInterestIndex: BigNumber;
   // aTokenInterestIndexes: BigNumber[];
   averageATokenAPR: BigNumber;

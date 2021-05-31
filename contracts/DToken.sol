@@ -1,0 +1,436 @@
+// SPDX-License-Identifier: agpl-3.0
+pragma solidity 0.8.4;
+
+import './libraries/WadRayMath.sol';
+import './interfaces/IDToken.sol';
+import './interfaces/IMoneyPool.sol';
+import './libraries/Math.sol';
+import '@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol';
+
+/**
+ * @title DToken
+ * @notice Implements a stable debt token to track the borrowing positions of users
+ * at stable rate mode
+ * @author Aave
+ **/
+contract DToken is IDToken, ContextUpgradeable {
+  using WadRayMath for uint256;
+
+  uint256 internal _totalAverageRealAssetBorrowRate;
+  mapping(address => uint256) internal _userLastUpdateTimestamp;
+  mapping(address => uint256) internal _userAverageRealAssetBorrowRate;
+  uint256 internal _totalSupplyTimestamp;
+
+  uint256 internal _totalSupply;
+  mapping(address => uint256) internal _balances;
+
+  string private _name;
+  string private _symbol;
+
+  IMoneyPool internal _moneyPool;
+  address internal _underlyingAsset;
+
+  function initialize(
+    IMoneyPool moneyPool,
+    address underlyingAsset_,
+    string memory name_,
+    string memory symbol_
+  ) public initializer {
+    _moneyPool = moneyPool;
+    _underlyingAsset = underlyingAsset_;
+
+    _name = name_;
+    _symbol = symbol_;
+  }
+
+  /**
+   * @dev Returns the name of the token.
+   */
+  function name() public view virtual override returns (string memory) {
+    return _name;
+  }
+
+  /**
+   * @dev Returns the symbol of the token, usually a shorter version of the
+   * name.
+   */
+  function symbol() public view virtual override returns (string memory) {
+    return _symbol;
+  }
+
+  /**
+   * @dev Returns the decimals of the token.
+   */
+  function decimals() public view virtual override returns (uint8) {
+    return 18;
+  }
+
+  function transfer(address recipient, uint256 amount) external override returns (bool) {
+    revert(); //// DTokenTransferNotAllowed();
+  }
+
+  function transferFrom(
+    address sender,
+    address recipient,
+    uint256 amount
+  ) external override returns (bool) {
+    revert(); ////DTokenTransferFromNotAllowed();
+  }
+
+  function allowance(address owner, address spender) external view override returns (uint256) {
+    revert(); //// DTokenAllowanceNotAllowed();
+  }
+
+  function approve(address spender, uint256 amount) external override returns (bool) {
+    revert(); //// DTokenApproveTransferNotAllowed();
+  }
+
+  /**
+   * @dev Returns the average stable rate across all the stable rate debt
+   * @return the average stable rate
+   **/
+  function getTotalAverageRealAssetBorrowRate() external view virtual override returns (uint256) {
+    return _totalAverageRealAssetBorrowRate;
+  }
+
+  /**
+   * @dev Returns the timestamp of the last account action
+   * @return The last update timestamp
+   **/
+  function getUserLastUpdateTimestamp(address account)
+    external
+    view
+    virtual
+    override
+    returns (uint256)
+  {
+    return _userLastUpdateTimestamp[account];
+  }
+
+  /**
+   * @dev Returns the stable rate of the account
+   * @param account The address of the account
+   * @return The stable rate of account
+   **/
+  function getUserAverageRealAssetBorrowRate(address account)
+    external
+    view
+    virtual
+    override
+    returns (uint256)
+  {
+    return _userAverageRealAssetBorrowRate[account];
+  }
+
+  /**
+   * @dev Calculates the current account debt balance
+   * @return The accumulated debt of the account
+   **/
+  function balanceOf(address account) public view virtual override returns (uint256) {
+    uint256 accountBalance = _balances[account];
+    uint256 stableRate = _userAverageRealAssetBorrowRate[account];
+    if (accountBalance == 0) {
+      return 0;
+    }
+    uint256 cumulatedInterest =
+      Math.calculateCompoundedInterest(
+        stableRate,
+        _userLastUpdateTimestamp[account],
+        block.timestamp
+      );
+    return accountBalance.rayMul(cumulatedInterest);
+  }
+
+  struct MintLocalVars {
+    uint256 previousSupply;
+    uint256 nextSupply;
+    uint256 amountInRay;
+    uint256 newStableRate;
+    uint256 currentAvgStableRate;
+  }
+
+  /**
+   * @dev Mints debt token to the `receiver` address.
+   * -  Only callable by the LendingPool
+   * - The resulting rate is the weighted average between the rate of the new debt
+   * and the rate of the previous debt
+   * @param account The address receiving the borrowed underlying, being the delegatee in case
+   * of credit delegate, or same as `receiver` otherwise
+   * @param receiver The address receiving the debt tokens
+   * @param amount The amount of debt tokens to mint
+   * @param rate The rate of the debt being minted
+   **/
+  function mint(
+    address account,
+    address receiver,
+    uint256 amount,
+    uint256 rate
+  ) external override onlyMoneyPool returns (bool) {
+    MintLocalVars memory vars;
+
+    (, uint256 currentBalance, uint256 balanceIncrease) = _calculateBalanceIncrease(receiver);
+
+    vars.previousSupply = totalSupply();
+    vars.currentAvgStableRate = _totalAverageRealAssetBorrowRate;
+    vars.nextSupply = _totalSupply = vars.previousSupply + amount;
+
+    vars.amountInRay = amount.wadToRay();
+
+    (, vars.newStableRate) = Math.calculateRateInIncreasingBalance(
+      _userAverageRealAssetBorrowRate[receiver],
+      currentBalance,
+      amount,
+      rate
+    );
+
+    _userAverageRealAssetBorrowRate[receiver] = vars.newStableRate;
+
+    //solium-disable-next-line
+    _totalSupplyTimestamp = _userLastUpdateTimestamp[receiver] = block.timestamp;
+
+    // Calculates the updated average stable rate
+    (, vars.currentAvgStableRate) = Math.calculateRateInIncreasingBalance(
+      vars.currentAvgStableRate,
+      vars.previousSupply,
+      amount,
+      rate
+    );
+
+    _totalAverageRealAssetBorrowRate = vars.currentAvgStableRate;
+
+    _mint(receiver, amount + balanceIncrease, vars.previousSupply);
+
+    emit Transfer(address(0), receiver, amount);
+
+    emit Mint(
+      account,
+      receiver,
+      amount,
+      currentBalance,
+      balanceIncrease,
+      vars.newStableRate,
+      vars.currentAvgStableRate,
+      vars.nextSupply
+    );
+
+    return currentBalance == 0;
+  }
+
+  /**
+   * @dev Burns debt of `account`
+   * @param account The address of the account getting his debt burned
+   * @param amount The amount of debt tokens getting burned
+   **/
+  function burn(address account, uint256 amount) external override onlyMoneyPool {
+    (, uint256 currentBalance, uint256 balanceIncrease) = _calculateBalanceIncrease(account);
+
+    uint256 previousSupply = totalSupply();
+    uint256 newAvgStableRate = 0;
+    uint256 nextSupply = 0;
+    uint256 userStableRate = _userAverageRealAssetBorrowRate[account];
+
+    // Since the total supply and each single account debt accrue separately,
+    // there might be accumulation errors so that the last borrower repaying
+    // mght actually try to repay more than the available debt supply.
+    // In this case we simply set the total supply and the avg stable rate to 0
+    if (previousSupply <= amount) {
+      _totalAverageRealAssetBorrowRate = 0;
+      _totalSupply = 0;
+    } else {
+      nextSupply = _totalSupply = previousSupply - amount;
+      uint256 firstTerm = _totalAverageRealAssetBorrowRate.rayMul(previousSupply.wadToRay());
+      uint256 secondTerm = userStableRate.rayMul(amount.wadToRay());
+
+      // For the same reason described above, when the last account is repaying it might
+      // happen that account rate * account balance > avg rate * total supply. In that case,
+      // we simply set the avg rate to 0
+      if (secondTerm >= firstTerm) {
+        newAvgStableRate = _totalAverageRealAssetBorrowRate = _totalSupply = 0;
+      } else {
+        newAvgStableRate = _totalAverageRealAssetBorrowRate = (firstTerm - secondTerm).rayDiv(
+          nextSupply.wadToRay()
+        );
+      }
+    }
+
+    if (amount == currentBalance) {
+      _userAverageRealAssetBorrowRate[account] = 0;
+      _userLastUpdateTimestamp[account] = 0;
+    } else {
+      //solium-disable-next-line
+      _userLastUpdateTimestamp[account] = block.timestamp;
+    }
+    //solium-disable-next-line
+    _totalSupplyTimestamp = block.timestamp;
+
+    if (balanceIncrease > amount) {
+      uint256 amountToMint = balanceIncrease - amount;
+      _mint(account, amountToMint, previousSupply);
+      emit Mint(
+        account,
+        account,
+        amountToMint,
+        currentBalance,
+        balanceIncrease,
+        userStableRate,
+        newAvgStableRate,
+        nextSupply
+      );
+    } else {
+      uint256 amountToBurn = amount - balanceIncrease;
+      _burn(account, amountToBurn, previousSupply);
+      emit Burn(
+        account,
+        amountToBurn,
+        currentBalance,
+        balanceIncrease,
+        newAvgStableRate,
+        nextSupply
+      );
+    }
+
+    emit Transfer(account, address(0), amount);
+  }
+
+  /**
+   * @dev Calculates the increase in balance since the last account interaction
+   * @param account The address of the account for which the interest is being accumulated
+   * @return The previous principal balance, the new principal balance and the balance increase
+   **/
+  function _calculateBalanceIncrease(address account)
+    internal
+    view
+    returns (
+      uint256,
+      uint256,
+      uint256
+    )
+  {
+    uint256 previousPrincipalBalance = _balances[account];
+
+    if (previousPrincipalBalance == 0) {
+      return (0, 0, 0);
+    }
+
+    // Calculation of the accrued interest since the last accumulation
+    uint256 balanceIncrease = balanceOf(account) - previousPrincipalBalance;
+
+    return (previousPrincipalBalance, previousPrincipalBalance + balanceIncrease, balanceIncrease);
+  }
+
+  /**
+   * @dev Returns the principal and total supply, the average borrow rate and the last supply update timestamp
+   **/
+  function getSupplyData()
+    public
+    view
+    override
+    returns (
+      uint256,
+      uint256,
+      uint256,
+      uint256
+    )
+  {
+    uint256 avgRate = _totalAverageRealAssetBorrowRate;
+    return (_totalSupply, _calcTotalSupply(avgRate), avgRate, _totalSupplyTimestamp);
+  }
+
+  /**
+   * @dev Returns the the total supply and the average stable rate
+   **/
+  function getTotalSupplyAndAvgRate() public view override returns (uint256, uint256) {
+    uint256 avgRate = _totalAverageRealAssetBorrowRate;
+    return (_calcTotalSupply(avgRate), avgRate);
+  }
+
+  /**
+   * @dev Returns the total supply
+   **/
+  function totalSupply() public view override returns (uint256) {
+    return _calcTotalSupply(_totalAverageRealAssetBorrowRate);
+  }
+
+  /**
+   * @dev Returns the timestamp at which the total supply was updated
+   **/
+  function getTotalSupplyLastUpdated() public view override returns (uint256) {
+    return _totalSupplyTimestamp;
+  }
+
+  /**
+   * @dev Returns the principal debt balance of the account from
+   * @param account The account's address
+   * @return The debt balance of the account since the last burn/mint action
+   **/
+  function principalBalanceOf(address account) external view virtual override returns (uint256) {
+    return _balances[account];
+  }
+
+  /**
+   * @dev Returns the address of the lending pool where this aToken is used
+   **/
+  function POOL() public view returns (IMoneyPool) {
+    return _moneyPool;
+  }
+
+  /**
+   * @dev For internal usage in the logic of the parent contracts
+   **/
+  function _getMoneyPool() internal view returns (IMoneyPool) {
+    return _moneyPool;
+  }
+
+  /**
+   * @dev Calculates the total supply
+   * @param avgRate The average rate at which the total supply increases
+   * @return The debt balance of the account since the last burn/mint action
+   **/
+  function _calcTotalSupply(uint256 avgRate) internal view virtual returns (uint256) {
+    uint256 principalSupply = _totalSupply;
+
+    if (principalSupply == 0) {
+      return 0;
+    }
+
+    uint256 cumulatedInterest =
+      Math.calculateCompoundedInterest(avgRate, _totalSupplyTimestamp, block.timestamp);
+
+    return principalSupply.rayMul(cumulatedInterest);
+  }
+
+  /**
+   * @dev Mints stable debt tokens to an account
+   * @param account The account receiving the debt tokens
+   * @param amount The amount being minted
+   * @param oldTotalSupply the total supply before the minting event
+   **/
+  function _mint(
+    address account,
+    uint256 amount,
+    uint256 oldTotalSupply
+  ) internal {
+    uint256 oldAccountBalance = _balances[account];
+    _balances[account] = oldAccountBalance + amount;
+  }
+
+  /**
+   * @dev Burns stable debt tokens of an account
+   * @param account The account getting his debt burned
+   * @param amount The amount being burned
+   * @param oldTotalSupply The total supply before the burning event
+   **/
+  function _burn(
+    address account,
+    uint256 amount,
+    uint256 oldTotalSupply
+  ) internal {
+    uint256 oldAccountBalance = _balances[account];
+    _balances[account] = oldAccountBalance - amount;
+  }
+
+  modifier onlyMoneyPool {
+    if (_msgSender() != address(_moneyPool)) revert(); ////OnlyMoneyPool();
+    _;
+  }
+}

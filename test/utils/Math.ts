@@ -105,9 +105,9 @@ export function calculateRateInInterestRateModel(
 
   if (totalDebt == BigNumber.from(0)) {
     utilizationRate = BigNumber.from(0);
+  } else {
+    utilizationRate = totalDebt.div(totalLiquidity);
   }
-
-  utilizationRate = totalDebt.div(totalLiquidity);
 
   // Example
   // Case1: under optimal U
