@@ -89,8 +89,8 @@ export function calculateRateInDecreasingBalance(
 }
 
 export function calculateRateInInterestRateModel(
-  lTokenAmount: BigNumber,
-  aTokenAmount: BigNumber,
+  underlyingAssetBalance: BigNumber,
+  dTokenAmount: BigNumber,
   investAmount: BigNumber,
   borrowAmount: BigNumber,
   averageBorrowAPR: BigNumber,
@@ -100,13 +100,13 @@ export function calculateRateInInterestRateModel(
   let newBorrowAPR: BigNumber;
   let newSupplyAPR: BigNumber;
 
-  const totalDebt = aTokenAmount;
-  const totalLiquidity = lTokenAmount.add(investAmount).sub(borrowAmount);
+  const totalDebt = dTokenAmount;
+  const totalLiquidity = underlyingAssetBalance.add(investAmount).sub(borrowAmount);
 
-  if (totalDebt == BigNumber.from(0)) {
+  if (totalDebt.eq(0)) {
     utilizationRate = BigNumber.from(0);
   } else {
-    utilizationRate = totalDebt.div(totalLiquidity);
+    utilizationRate = rayDiv(totalDebt, totalLiquidity.add(totalDebt));
   }
 
   // Example
@@ -121,7 +121,7 @@ export function calculateRateInInterestRateModel(
       rayMul(
         rayDiv(
           interestRateModelParams.borrowRateOptimal.sub(interestRateModelParams.borrowRateBase),
-          interestRateModelParams.borrowRateOptimal
+          interestRateModelParams.optimalUtilizationRate
         ),
         utilizationRate
       )
@@ -131,7 +131,7 @@ export function calculateRateInInterestRateModel(
       rayMul(
         rayDiv(
           interestRateModelParams.borrowRateMax.sub(interestRateModelParams.borrowRateOptimal),
-          RAY.sub(interestRateModelParams.borrowRateOptimal)
+          RAY.sub(interestRateModelParams.optimalUtilizationRate)
         ),
         utilizationRate.sub(interestRateModelParams.borrowRateOptimal)
       )
@@ -139,29 +139,36 @@ export function calculateRateInInterestRateModel(
   }
 
   newSupplyAPR = rayMul(
-    overallBorrowAPR(aTokenAmount, newBorrowAPR, averageBorrowAPR),
+    overallBorrowAPR(dTokenAmount, newBorrowAPR, averageBorrowAPR),
     utilizationRate
   );
 
-  console.log('testData borrowAPR | supplyAPR', newBorrowAPR.toString(), newSupplyAPR.toString());
+  console.log(
+    'testData borrowAPR | supplyAPR | U | totalL | dToken',
+    newBorrowAPR.toString(),
+    newSupplyAPR.toString(),
+    utilizationRate.toString(),
+    totalLiquidity.toString(),
+    dTokenAmount.toString()
+  );
 
   return [newBorrowAPR, newSupplyAPR];
 }
 
 function overallBorrowAPR(
-  aTokenAmount: BigNumber,
+  dTokenAmount: BigNumber,
   borrowAPR: BigNumber,
   averageBorrowAPR: BigNumber
 ): BigNumber {
   let result: BigNumber;
 
-  const totalDebt = aTokenAmount;
+  const totalDebt = dTokenAmount;
 
   if (totalDebt.eq(BigNumber.from(0))) {
     return BigNumber.from(0);
   }
 
-  const weightedBorrowAPR = rayMul(averageBorrowAPR, wadToRay(aTokenAmount));
+  const weightedBorrowAPR = rayMul(averageBorrowAPR, wadToRay(dTokenAmount));
 
   result = rayDiv(weightedBorrowAPR, wadToRay(totalDebt));
 

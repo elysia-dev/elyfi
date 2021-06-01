@@ -14,14 +14,6 @@ interface ITokenizer is IERC721Upgradeable {
     uint256 amount
   );
 
-  event MintAToken(
-    address indexed account,
-    uint256 aTokenID,
-    uint256 borrowAmount,
-    uint256 newAverageATokenRate,
-    uint256 newTotalATokenSupply
-  );
-
   function mintABToken(
     address account,
     uint256 id // information about Co and borrower
@@ -33,8 +25,6 @@ interface ITokenizer is IERC721Upgradeable {
     external
     view
     returns (DataStruct.AssetBondData memory);
-
-  function getATokenInterestIndex(uint256 tokenId) external view returns (uint256);
 
   function collateralizeAssetBond(
     address account,

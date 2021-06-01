@@ -91,7 +91,7 @@ interface IDToken is IERC20MetadataUpgradeable {
   /**
    * @dev Returns the principal, the total supply and the average stable rate
    **/
-  function getSupplyData()
+  function getDTokenData()
     external
     view
     returns (
@@ -116,5 +116,5 @@ interface IDToken is IERC20MetadataUpgradeable {
    * @dev Returns the principal debt balance of the account
    * @return The debt balance of the account since the last burn/mint action
    **/
-  function principalBalanceOf(address account) external view returns (uint256);
+  function previousBalanceOf(address account) external view returns (uint256);
 }

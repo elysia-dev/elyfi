@@ -10,15 +10,16 @@ export interface ReserveData {
   underlyingAssetBalance: BigNumber;
   totalLTokenSupply: BigNumber;
   implicitLTokenSupply: BigNumber;
-  totalATokenSupply: BigNumber;
   lTokenInterestIndex: BigNumber;
-  // aTokenInterestIndexes: BigNumber[];
-  averageATokenAPR: BigNumber;
+  principalDTokenSupply: BigNumber;
+  totalDTokenSupply: BigNumber;
+  averageRealAssetBorrowRate: BigNumber;
   borrowAPR: BigNumber;
   supplyAPR: BigNumber;
   moneyPoolLastUpdateTimestamp: BigNumber;
-  tokenizerLastUpdateTimestamp: BigNumber;
+  dTokenLastUpdateTimestamp: BigNumber;
   lTokenAddress: string;
+  dTokenAddress: string;
   interestRateModelAddress: string;
   tokenizerAddress: string;
   utilizationRate: BigNumber;
@@ -51,9 +52,13 @@ export interface UserData {
   underlyingAssetBalance: BigNumber;
   lTokenBalance: BigNumber;
   implicitLtokenBalance: BigNumber;
+  dTokenBalance: BigNumber;
+  previousDTokenBalance: BigNumber;
 }
 
-export interface CSPData extends UserData {
+export interface BorrowerData extends UserData {
+  userLastUpdateTimestamp: BigNumber;
+  userAverageRealAssetBorrowRate: BigNumber;
   assetBonds: AssetBondData[];
 }
 
@@ -67,7 +72,7 @@ export enum AssetBondState {
 }
 export interface AssetBondData {
   tokenId: BigNumber;
-  aTokenBalance: BigNumber;
+  dTokenBalance: BigNumber;
   tokenOwner: string;
   state: AssetBondState;
 }

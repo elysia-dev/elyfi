@@ -16,6 +16,8 @@ export async function getUserData({
   userData.underlyingAssetBalance = contractUserData.underlyingAssetBalance;
   userData.lTokenBalance = contractUserData.lTokenBalance;
   userData.implicitLtokenBalance = contractUserData.implicitLtokenBalance;
+  userData.dTokenBalance = contractUserData.dTokenBalance;
+  userData.previousDTokenBalance = contractUserData.previousDTokenBalance;
 
   return userData;
 }
@@ -38,14 +40,22 @@ export async function getReserveData({
   reserveData.underlyingAssetBalance = await underlyingAsset.balanceOf(lToken.address);
   reserveData.totalLTokenSupply = contractReserveData.totalLTokenSupply;
   reserveData.implicitLTokenSupply = contractReserveData.implicitLTokenSupply;
-  reserveData.totalATokenSupply = contractReserveData.totalATokenSupply;
   reserveData.lTokenInterestIndex = contractReserveData.lTokenInterestIndex;
-  reserveData.averageATokenAPR = contractReserveData.averageATokenAPR;
+  reserveData.principalDTokenSupply = contractReserveData.principalDTokenSupply;
+  reserveData.totalDTokenSupply = contractReserveData.totalDTokenSupply;
+  reserveData.averageRealAssetBorrowRate = contractReserveData.averageRealAssetBorrowRate;
   reserveData.borrowAPR = contractReserveData.borrowAPR;
   reserveData.supplyAPR = contractReserveData.supplyAPR;
   reserveData.moneyPoolLastUpdateTimestamp = contractReserveData.moneyPooLastUpdateTimestamp;
-  reserveData.tokenizerLastUpdateTimestamp = contractReserveData.tokenizerLastUpdateTimestamp;
+  reserveData.dTokenLastUpdateTimestamp = contractReserveData.dTokenLastUpdateTimestamp;
   reserveData.interestRateModelParams = defaultInterestModelParams;
+
+  console.log(
+    'Contract Helpers:',
+    contractReserveData.totalDTokenSupply.toString(),
+    contractReserveData.borrowAPR.toString(),
+    contractReserveData.supplyAPR.toString()
+  );
 
   return reserveData;
 }

@@ -63,7 +63,7 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
     console.log(
       'Invest finalize |amount|lTokenInterestIndex|borrowAPR',
       amount,
-      reserve.lTokenInterestIndex,
+      reserve.lastUpdateTimestamp,
       reserve.borrowAPR
     );
     emit InvestMoneyPool(asset, account, amount);
@@ -116,7 +116,7 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
     );
 
     console.log(
-      'Borrow finalize |amount|lTokenInterestIndex|borrowAPR',
+      'Borrow finalize |amount|lastUpdateTimestamp|borrowAPR',
       amountToWithdraw,
       reserve.lTokenInterestIndex,
       reserve.borrowAPR
@@ -147,7 +147,6 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
     reserve.updateState();
 
     // update interest rate
-    reserve.updateRates(asset, 0, borrowAmount);
 
     ITokenizer(reserve.tokenizerAddress).collateralizeAssetBond(
       msg.sender,
@@ -161,13 +160,15 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
 
     IDToken(reserve.dTokenAddress).mint(msg.sender, receiver, borrowAmount, reserve.borrowAPR);
 
+    reserve.updateRates(asset, 0, borrowAmount);
+
     // transfer Underlying asset
     ILToken(reserve.lTokenAddress).transferUnderlyingTo(receiver, borrowAmount);
 
     console.log(
-      'Borrow finalize |amount|lTokenInterestIndex|borrowAPR',
+      'Borrow finalize |amount|lastUpdateTimestamp|borrowAPR',
       borrowAmount,
-      reserve.lTokenInterestIndex,
+      reserve.lastUpdateTimestamp,
       reserve.borrowAPR
     );
 

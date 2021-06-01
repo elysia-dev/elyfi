@@ -40,15 +40,6 @@ contract Tokenizer is ITokenizer, ERC721Upgradeable, TokenizerStorage {
   /************ View Functions ************/
 
   /**
-   * @dev Returns AToken Interest index of assetBond
-   * @param tokenId The asset bond tokenId
-   * @return The AToken interest index of asset bond
-   */
-  function getATokenInterestIndex(uint256 tokenId) public view override returns (uint256) {
-    return _assetBondData[tokenId].getATokenInterestIndex();
-  }
-
-  /**
    * @dev Returns the state of the asset bond
    * @param tokenId The asset bond tokenId
    * @return The data of the asset bond

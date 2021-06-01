@@ -13,6 +13,8 @@ import {
   Connector__factory,
   DataPipeline,
   DataPipeline__factory,
+  DTokenTest,
+  DTokenTest__factory,
 } from '../../typechain';
 import { BigNumber, Contract, Wallet } from 'ethers';
 import { ethers } from 'hardhat';
@@ -106,6 +108,36 @@ export async function makeLToken({
   return lTokenTest;
 }
 
+export async function makeDToken({
+  deployer,
+  moneyPool,
+  underlyingAsset,
+  dTokenName = 'DToken',
+  dTokenSymbol = 'DT',
+}: {
+  deployer: Wallet;
+  moneyPool: MoneyPoolTest | Contract;
+  underlyingAsset: Contract;
+  dTokenName?: string;
+  dTokenSymbol?: string;
+}): Promise<DTokenTest> {
+  let dTokenTest: DTokenTest;
+
+  const dTokenFactory = (await ethers.getContractFactory(
+    'DTokenTest',
+    deployer
+  )) as DTokenTest__factory;
+
+  dTokenTest = await dTokenFactory.deploy(
+    moneyPool.address,
+    underlyingAsset.address,
+    dTokenName,
+    dTokenSymbol
+  );
+
+  return dTokenTest;
+}
+
 export async function makeInterestRateModel({
   deployer,
   interestRateModelParam = defaultInterestModelParams,
@@ -133,11 +165,13 @@ export async function makeInterestRateModel({
 export async function makeTokenizer({
   deployer,
   moneyPool,
-  uri = '',
+  name = '',
+  symbol = '',
 }: {
   deployer: Wallet;
   moneyPool: MoneyPoolTest | Contract;
-  uri?: string;
+  name?: string;
+  symbol?: string;
 }): Promise<TokenizerTest> {
   let tokenizerTest: TokenizerTest;
 
@@ -146,7 +180,7 @@ export async function makeTokenizer({
     deployer
   )) as TokenizerTest__factory;
 
-  tokenizerTest = await tokenizerFactory.deploy(moneyPool.address, uri);
+  tokenizerTest = await tokenizerFactory.deploy(moneyPool.address, name, symbol);
 
   return tokenizerTest;
 }

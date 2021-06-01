@@ -4,6 +4,8 @@ import { ReserveData, UserData } from './Interfaces';
 import {
   calculateCompoundedInterest,
   calculateLinearInterest,
+  calculateLTokenIndexAfterAction,
+  calculateRateInIncreasingBalance,
   calculateRateInInterestRateModel,
 } from './Math';
 
@@ -18,58 +20,74 @@ export function expectedReserveDataAfterInvestMoneyPool({
 }): ReserveData {
   let expectedReserveData: ReserveData = reserveDataBefore;
 
-  // update states
+  console.log(
+    'expect Timestamp: Before > Tx > DToken',
+    reserveDataBefore.dTokenLastUpdateTimestamp.toString(),
+    txTimestamp.toString(),
+    expectedReserveData.totalDTokenSupply.toString(),
+    expectedReserveData.borrowAPR.toString()
+  );
+
+  // update lTokenIndex and moneyPool timestamp
+  let lTokenInterestIndex = reserveDataBefore.lTokenInterestIndex;
   if (expectedReserveData.supplyAPR.eq(BigNumber.from(0))) {
     expectedReserveData.moneyPoolLastUpdateTimestamp = txTimestamp;
   }
   if (!expectedReserveData.moneyPoolLastUpdateTimestamp.eq(txTimestamp)) {
-    expectedReserveData.lTokenInterestIndex = calculateLinearInterest(
-      expectedReserveData.supplyAPR,
-      expectedReserveData.moneyPoolLastUpdateTimestamp,
+    lTokenInterestIndex = calculateLTokenIndexAfterAction(
+      reserveDataBefore.moneyPoolLastUpdateTimestamp,
+      reserveDataBefore.supplyAPR,
+      reserveDataBefore.lTokenInterestIndex,
       txTimestamp
     );
-
+    expectedReserveData.lTokenInterestIndex = lTokenInterestIndex;
     expectedReserveData.moneyPoolLastUpdateTimestamp = txTimestamp;
   }
 
-  // update rates
-  // totalSupply of L, A tokens
-  const totalLTokenSupply = rayMul(
-    expectedReserveData.implicitLTokenSupply,
-    expectedReserveData.lTokenInterestIndex
-  );
-  const aTokenAccruedInterest = calculateLinearInterest(
-    expectedReserveData.averageATokenAPR,
-    expectedReserveData.tokenizerLastUpdateTimestamp,
+  // update DToken balance
+  const dTokenAccruedInterest = calculateCompoundedInterest(
+    reserveDataBefore.averageRealAssetBorrowRate,
+    reserveDataBefore.dTokenLastUpdateTimestamp,
     txTimestamp
   );
-  const totalATokenSupply = rayMul(expectedReserveData.totalATokenSupply, aTokenAccruedInterest);
+  const totalDTokenSupply = rayMul(reserveDataBefore.principalDTokenSupply, dTokenAccruedInterest);
+  expectedReserveData.totalDTokenSupply = totalDTokenSupply;
 
+  // get updated lToken supply
+  const totalLTokenSupply = rayMul(reserveDataBefore.implicitLTokenSupply, lTokenInterestIndex);
+
+  // update interest rates
   const interestRates = calculateRateInInterestRateModel(
-    totalLTokenSupply,
-    totalATokenSupply,
+    reserveDataBefore.underlyingAssetBalance,
+    totalDTokenSupply,
     amountInvest,
     BigNumber.from(0),
-    expectedReserveData.averageATokenAPR,
-    expectedReserveData.interestRateModelParams
+    reserveDataBefore.averageRealAssetBorrowRate,
+    reserveDataBefore.interestRateModelParams
   );
 
   expectedReserveData.borrowAPR = interestRates[0];
   expectedReserveData.supplyAPR = interestRates[1];
 
-  // update aToken indexes
-  // need logic
-
-  // transferFrom
+  // transferFrom action
   expectedReserveData.underlyingAssetBalance = reserveDataBefore.underlyingAssetBalance.add(
     amountInvest
   );
 
   // Mint lToken
-  expectedReserveData.implicitLTokenSupply = expectedReserveData.implicitLTokenSupply.add(
-    amountInvest
+  const implicitLTokenSupply = reserveDataBefore.implicitLTokenSupply.add(
+    rayDiv(amountInvest, lTokenInterestIndex)
   );
-  expectedReserveData.totalLTokenSupply = totalLTokenSupply.add(amountInvest);
+  expectedReserveData.implicitLTokenSupply = implicitLTokenSupply;
+  expectedReserveData.totalLTokenSupply = rayMul(implicitLTokenSupply, lTokenInterestIndex);
+
+  console.log(
+    'Expected: totalL | totalD  | borrowAPR | supplyAPR | ',
+    totalLTokenSupply.toString(),
+    totalDTokenSupply.toString(),
+    expectedReserveData.borrowAPR.toString(),
+    expectedReserveData.supplyAPR.toString()
+  );
 
   return expectedReserveData;
 }
@@ -115,39 +133,41 @@ export function expectedReserveDataAfterWithdrawMoneyPool({
 }): ReserveData {
   let expectedReserveData: ReserveData = reserveDataBefore;
 
-  // update states
+  // update lTokenIndex and moneyPool timestamp
   if (expectedReserveData.supplyAPR.eq(BigNumber.from(0))) {
     expectedReserveData.moneyPoolLastUpdateTimestamp = txTimestamp;
   }
   if (!expectedReserveData.moneyPoolLastUpdateTimestamp.eq(txTimestamp)) {
-    expectedReserveData.lTokenInterestIndex = calculateLinearInterest(
+    expectedReserveData.lTokenInterestIndex = calculateLTokenIndexAfterAction(
+      reserveDataBefore.moneyPoolLastUpdateTimestamp,
       expectedReserveData.supplyAPR,
-      expectedReserveData.moneyPoolLastUpdateTimestamp,
+      expectedReserveData.lTokenInterestIndex,
       txTimestamp
     );
-
     expectedReserveData.moneyPoolLastUpdateTimestamp = txTimestamp;
   }
 
-  // update rates in withdraw
-  // totalSupply of L, D, A tokens
+  // update DToken balance
+  const dTokenAccruedInterest = calculateCompoundedInterest(
+    expectedReserveData.averageRealAssetBorrowRate,
+    expectedReserveData.dTokenLastUpdateTimestamp,
+    txTimestamp
+  );
+  const totalDTokenSupply = rayMul(expectedReserveData.totalDTokenSupply, dTokenAccruedInterest);
+  expectedReserveData.totalDTokenSupply = totalDTokenSupply;
+
+  // update LToken balance
   const totalLTokenSupply = rayMul(
     expectedReserveData.implicitLTokenSupply,
     expectedReserveData.lTokenInterestIndex
   );
-  const aTokenAccruedInterest = calculateLinearInterest(
-    expectedReserveData.averageATokenAPR,
-    expectedReserveData.tokenizerLastUpdateTimestamp,
-    txTimestamp
-  );
-  const totalATokenSupply = rayMul(expectedReserveData.totalATokenSupply, aTokenAccruedInterest);
 
   const interestRates = calculateRateInInterestRateModel(
-    totalLTokenSupply,
-    totalATokenSupply,
+    reserveDataBefore.underlyingAssetBalance,
+    totalDTokenSupply,
     BigNumber.from(0),
     amountWithdraw,
-    expectedReserveData.averageATokenAPR,
+    expectedReserveData.averageRealAssetBorrowRate,
     expectedReserveData.interestRateModelParams
   );
 
@@ -215,53 +235,63 @@ export function expectedReserveDataAfterBorrowAgainstABToken({
 }): ReserveData {
   let expectedReserveData: ReserveData = reserveDataBefore;
 
-  // update states
+  // update lTokenIndex and moneyPool timestamp
+  let lTokenInterestIndex = reserveDataBefore.lTokenInterestIndex;
   if (expectedReserveData.supplyAPR.eq(BigNumber.from(0))) {
+    expectedReserveData.lTokenInterestIndex = lTokenInterestIndex;
     expectedReserveData.moneyPoolLastUpdateTimestamp = txTimestamp;
   }
   if (!expectedReserveData.moneyPoolLastUpdateTimestamp.eq(txTimestamp)) {
-    expectedReserveData.lTokenInterestIndex = calculateLinearInterest(
-      expectedReserveData.supplyAPR,
-      expectedReserveData.moneyPoolLastUpdateTimestamp,
+    lTokenInterestIndex = calculateLTokenIndexAfterAction(
+      reserveDataBefore.moneyPoolLastUpdateTimestamp,
+      reserveDataBefore.supplyAPR,
+      reserveDataBefore.lTokenInterestIndex,
       txTimestamp
     );
-
+    expectedReserveData.lTokenInterestIndex = lTokenInterestIndex;
     expectedReserveData.moneyPoolLastUpdateTimestamp = txTimestamp;
   }
 
-  // update rates in borrow
-  // totalSupply of L, D, A tokens
-  const totalLTokenSupply = rayMul(
-    expectedReserveData.implicitLTokenSupply,
-    expectedReserveData.lTokenInterestIndex
-  );
-  const aTokenAccruedInterest = calculateLinearInterest(
-    expectedReserveData.averageATokenAPR,
-    expectedReserveData.tokenizerLastUpdateTimestamp,
+  // update LToken balance
+  const totalLTokenSupply = rayMul(reserveDataBefore.implicitLTokenSupply, lTokenInterestIndex);
+  expectedReserveData.totalLTokenSupply = totalLTokenSupply;
+
+  // update DToken supply
+  const dTokenAccruedInterest = calculateCompoundedInterest(
+    expectedReserveData.averageRealAssetBorrowRate,
+    expectedReserveData.dTokenLastUpdateTimestamp,
     txTimestamp
   );
-  const totalATokenSupply = rayMul(expectedReserveData.totalATokenSupply, aTokenAccruedInterest);
-
-  const interestRates = calculateRateInInterestRateModel(
-    totalLTokenSupply,
-    totalATokenSupply,
-    BigNumber.from(0),
-    amountBorrow,
-    expectedReserveData.averageATokenAPR,
-    expectedReserveData.interestRateModelParams
+  const previousUpdatedDTokenBalance = rayMul(
+    expectedReserveData.principalDTokenSupply,
+    dTokenAccruedInterest
   );
 
+  // update averageDTokenRate and dToken timestamp
+  const averageRealAssetBorrowRate = calculateRateInIncreasingBalance(
+    reserveDataBefore.averageRealAssetBorrowRate,
+    previousUpdatedDTokenBalance,
+    amountBorrow,
+    reserveDataBefore.borrowAPR
+  );
+  const totalDTokenSupply = previousUpdatedDTokenBalance.add(amountBorrow);
+  expectedReserveData.averageRealAssetBorrowRate = expectedReserveData.totalDTokenSupply = totalDTokenSupply;
+  expectedReserveData.dTokenLastUpdateTimestamp = txTimestamp;
+
+  // update rates in borrow
+  const interestRates = calculateRateInInterestRateModel(
+    reserveDataBefore.underlyingAssetBalance,
+    totalDTokenSupply,
+    BigNumber.from(0),
+    amountBorrow,
+    averageRealAssetBorrowRate,
+    reserveDataBefore.interestRateModelParams
+  );
   expectedReserveData.borrowAPR = interestRates[0];
   expectedReserveData.supplyAPR = interestRates[1];
 
-  // update aToken indexes
-  // need logic
-
-  // mint AToken
-  expectedReserveData.totalATokenSupply = totalATokenSupply.add(amountBorrow);
-
   // transfer underlying asset in burn logic
-  expectedReserveData.underlyingAssetBalance = expectedReserveData.underlyingAssetBalance.sub(
+  expectedReserveData.underlyingAssetBalance = reserveDataBefore.underlyingAssetBalance.sub(
     amountBorrow
   );
 

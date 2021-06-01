@@ -36,30 +36,6 @@ library Index {
     return newIndex;
   }
 
-  /**
-   * @dev Returns the ATokenInterestIndex increasing linearly.
-   * @param assetBond The assetBond object
-   * @return the normalized aToken index
-   */
-  function getATokenInterestIndex(DataStruct.AssetBondData storage assetBond)
-    internal
-    view
-    returns (uint256)
-  {
-    uint256 lastUpdateTimestamp = assetBond.lastUpdateTimestamp;
-
-    if (lastUpdateTimestamp == block.timestamp) {
-      return assetBond.aTokenInterestIndex;
-    }
-
-    uint256 newIndex =
-      Math
-        .calculateLinearInterest(assetBond.borrowAPR, lastUpdateTimestamp, block.timestamp)
-        .rayMul(assetBond.aTokenInterestIndex);
-
-    return newIndex;
-  }
-
   function updateState(DataStruct.ReserveData storage reserve) internal {
     uint256 previousLTokenIndex = reserve.lTokenInterestIndex;
     uint256 lastUpdateTimestamp = reserve.lastUpdateTimestamp;
@@ -67,16 +43,6 @@ library Index {
     updateIndexes(reserve, previousLTokenIndex, lastUpdateTimestamp);
 
     // _mintToReserveFactor
-  }
-
-  /**
-   * @dev AToken state should be updated in every user interaction
-   * Such as transfer, mint, invest, withdraw to reflect normalized income
-   * @param assetBond The assetBond data to be updated
-   */
-  function updateATokenState(DataStruct.AssetBondData storage assetBond) internal {
-    assetBond.aTokenInterestIndex = getATokenInterestIndex(assetBond);
-    assetBond.lastUpdateTimestamp = block.timestamp;
   }
 
   /**

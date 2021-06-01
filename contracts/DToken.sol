@@ -19,7 +19,7 @@ contract DToken is IDToken, ContextUpgradeable {
   uint256 internal _totalAverageRealAssetBorrowRate;
   mapping(address => uint256) internal _userLastUpdateTimestamp;
   mapping(address => uint256) internal _userAverageRealAssetBorrowRate;
-  uint256 internal _totalSupplyTimestamp;
+  uint256 internal _lastUpdateTimestamp;
 
   uint256 internal _totalSupply;
   mapping(address => uint256) internal _balances;
@@ -186,7 +186,7 @@ contract DToken is IDToken, ContextUpgradeable {
     _userAverageRealAssetBorrowRate[receiver] = vars.newStableRate;
 
     //solium-disable-next-line
-    _totalSupplyTimestamp = _userLastUpdateTimestamp[receiver] = block.timestamp;
+    _lastUpdateTimestamp = _userLastUpdateTimestamp[receiver] = block.timestamp;
 
     // Calculates the updated average stable rate
     (, vars.currentAvgStableRate) = Math.calculateRateInIncreasingBalance(
@@ -198,7 +198,7 @@ contract DToken is IDToken, ContextUpgradeable {
 
     _totalAverageRealAssetBorrowRate = vars.currentAvgStableRate;
 
-    _mint(receiver, amount + balanceIncrease, vars.previousSupply);
+    _mint(receiver, amount + balanceIncrease);
 
     emit Transfer(address(0), receiver, amount);
 
@@ -261,11 +261,11 @@ contract DToken is IDToken, ContextUpgradeable {
       _userLastUpdateTimestamp[account] = block.timestamp;
     }
     //solium-disable-next-line
-    _totalSupplyTimestamp = block.timestamp;
+    _lastUpdateTimestamp = block.timestamp;
 
     if (balanceIncrease > amount) {
       uint256 amountToMint = balanceIncrease - amount;
-      _mint(account, amountToMint, previousSupply);
+      _mint(account, amountToMint);
       emit Mint(
         account,
         account,
@@ -278,7 +278,7 @@ contract DToken is IDToken, ContextUpgradeable {
       );
     } else {
       uint256 amountToBurn = amount - balanceIncrease;
-      _burn(account, amountToBurn, previousSupply);
+      _burn(account, amountToBurn);
       emit Burn(
         account,
         amountToBurn,
@@ -321,7 +321,7 @@ contract DToken is IDToken, ContextUpgradeable {
   /**
    * @dev Returns the principal and total supply, the average borrow rate and the last supply update timestamp
    **/
-  function getSupplyData()
+  function getDTokenData()
     public
     view
     override
@@ -333,7 +333,7 @@ contract DToken is IDToken, ContextUpgradeable {
     )
   {
     uint256 avgRate = _totalAverageRealAssetBorrowRate;
-    return (_totalSupply, _calcTotalSupply(avgRate), avgRate, _totalSupplyTimestamp);
+    return (_totalSupply, _calcTotalSupply(avgRate), avgRate, _lastUpdateTimestamp);
   }
 
   /**
@@ -355,15 +355,15 @@ contract DToken is IDToken, ContextUpgradeable {
    * @dev Returns the timestamp at which the total supply was updated
    **/
   function getTotalSupplyLastUpdated() public view override returns (uint256) {
-    return _totalSupplyTimestamp;
+    return _lastUpdateTimestamp;
   }
 
   /**
-   * @dev Returns the principal debt balance of the account from
+   * @dev Returns the previous debt balance of the account from
    * @param account The account's address
    * @return The debt balance of the account since the last burn/mint action
    **/
-  function principalBalanceOf(address account) external view virtual override returns (uint256) {
+  function previousBalanceOf(address account) external view virtual override returns (uint256) {
     return _balances[account];
   }
 
@@ -394,7 +394,7 @@ contract DToken is IDToken, ContextUpgradeable {
     }
 
     uint256 cumulatedInterest =
-      Math.calculateCompoundedInterest(avgRate, _totalSupplyTimestamp, block.timestamp);
+      Math.calculateCompoundedInterest(avgRate, _lastUpdateTimestamp, block.timestamp);
 
     return principalSupply.rayMul(cumulatedInterest);
   }
@@ -403,13 +403,8 @@ contract DToken is IDToken, ContextUpgradeable {
    * @dev Mints stable debt tokens to an account
    * @param account The account receiving the debt tokens
    * @param amount The amount being minted
-   * @param oldTotalSupply the total supply before the minting event
    **/
-  function _mint(
-    address account,
-    uint256 amount,
-    uint256 oldTotalSupply
-  ) internal {
+  function _mint(address account, uint256 amount) internal {
     uint256 oldAccountBalance = _balances[account];
     _balances[account] = oldAccountBalance + amount;
   }
@@ -418,13 +413,8 @@ contract DToken is IDToken, ContextUpgradeable {
    * @dev Burns stable debt tokens of an account
    * @param account The account getting his debt burned
    * @param amount The amount being burned
-   * @param oldTotalSupply The total supply before the burning event
    **/
-  function _burn(
-    address account,
-    uint256 amount,
-    uint256 oldTotalSupply
-  ) internal {
+  function _burn(address account, uint256 amount) internal {
     uint256 oldAccountBalance = _balances[account];
     _balances[account] = oldAccountBalance - amount;
   }

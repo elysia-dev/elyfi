@@ -27,7 +27,6 @@ library DataStruct {
     string ipfsHash; // refactor : gas
     uint256 collateralValue;
     uint256 borrowAPR;
-    uint256 aTokenInterestIndex;
     uint256 sign; // refactor : apply oz - sign
     uint256 issuanceDate;
     uint256 dueDate;

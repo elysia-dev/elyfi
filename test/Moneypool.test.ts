@@ -14,6 +14,7 @@ import {
 import {
   Connector,
   DataPipeline,
+  DTokenTest,
   ERC20Test,
   InterestRateModel,
   LTokenTest,
@@ -29,6 +30,7 @@ import {
   makeConnector,
   makeTokenizer,
   makeDataPipeline,
+  makeDToken,
 } from './utils/makeContract';
 import { defaultReserveData } from './utils/Interfaces';
 import { expect } from 'chai';
@@ -47,6 +49,7 @@ describe('MoneyPool', () => {
   let moneyPool: MoneyPoolTest;
   let interestModel: InterestRateModel;
   let lToken: LTokenTest;
+  let dToken: DTokenTest;
   let tokenizer: TokenizerTest;
   let dataPipeline: DataPipeline;
 
@@ -80,6 +83,12 @@ describe('MoneyPool', () => {
       underlyingAsset: underlyingAsset,
     });
 
+    dToken = await makeDToken({
+      deployer: deployer,
+      moneyPool: moneyPool,
+      underlyingAsset: underlyingAsset,
+    });
+
     tokenizer = await makeTokenizer({
       deployer: deployer,
       moneyPool: moneyPool,
@@ -93,6 +102,7 @@ describe('MoneyPool', () => {
     await moneyPool.addNewReserve(
       underlyingAsset.address,
       lToken.address,
+      dToken.address,
       interestModel.address,
       tokenizer.address,
       defaultReserveData.moneyPoolFactor
@@ -154,12 +164,12 @@ describe('MoneyPool', () => {
       });
 
       const expectedReserveDataAfterInvest = expectedReserveDataAfterInvestMoneyPool({
-        amountInvest: BigNumber.from(amountInvest),
+        amountInvest: amountInvest,
         reserveDataBefore: contractReserveDataBeforeInvest,
         txTimestamp: await getTimestamp(investTx),
       });
       const expectedUserDataAfterInvest = expectedUserDataAfterInvestMoneyPool({
-        amountInvest: BigNumber.from(amountInvest),
+        amountInvest: amountInvest,
         userDataBefore: contractUserDataBeforeInvest,
         reserveDataBefore: contractReserveDataBeforeInvest,
         reserveDataAfter: contractReserveDataAfterInvest,
@@ -205,12 +215,12 @@ describe('MoneyPool', () => {
       });
 
       const expectedReserveDataAfterInvest = expectedReserveDataAfterInvestMoneyPool({
-        amountInvest: BigNumber.from(amountInvest),
+        amountInvest: amountInvest,
         reserveDataBefore: contractReserveDataBeforeInvest,
         txTimestamp: await getTimestamp(secondInvestTx),
       });
       const expectedUserDataAfterInvest = expectedUserDataAfterInvestMoneyPool({
-        amountInvest: BigNumber.from(amountInvest),
+        amountInvest: amountInvest,
         userDataBefore: contractUserDataBeforeInvest,
         reserveDataBefore: contractReserveDataBeforeInvest,
         reserveDataAfter: contractReserveDataAfterInvest,
@@ -271,12 +281,12 @@ describe('MoneyPool', () => {
       });
 
       const expectedReserveDataAfterBorrow = expectedReserveDataAfterBorrowAgainstABToken({
-        amountBorrow: BigNumber.from(amountBorrow),
+        amountBorrow: amountBorrow,
         reserveDataBefore: contractReserveDataBeforBorrow,
         txTimestamp: await getTimestamp(borrowTx),
       });
       const expectedUserDataAfterBorrow = expectedUserDataAfterBorrowAgainstABToken({
-        amountBorrow: BigNumber.from(amountBorrow),
+        amountBorrow: amountBorrow,
         userDataBefore: contractUserDataBeforeBorrow,
         reserveDataBefore: contractReserveDataBeforBorrow,
         reserveDataAfter: contractReserveDataAfterBorrow,
@@ -297,6 +307,16 @@ describe('MoneyPool', () => {
           exampleTokenId_1
         );
 
+      await getReserveData({
+        underlyingAsset: underlyingAsset,
+        dataPipeline: dataPipeline,
+        lToken: lToken,
+      });
+
+      const investTx1 = await moneyPool
+        .connect(account1)
+        .investMoneyPool(underlyingAsset.address, account1.address, amountInvest);
+
       const contractReserveDataBeforeInvest = await getReserveData({
         underlyingAsset: underlyingAsset,
         dataPipeline: dataPipeline,
@@ -308,7 +328,7 @@ describe('MoneyPool', () => {
         user: account1,
       });
 
-      const investTx = await moneyPool
+      const investTx2 = await moneyPool
         .connect(account1)
         .investMoneyPool(underlyingAsset.address, account1.address, amountInvest);
 
@@ -324,16 +344,16 @@ describe('MoneyPool', () => {
       });
 
       const expectedReserveDataAfterInvest = expectedReserveDataAfterInvestMoneyPool({
-        amountInvest: BigNumber.from(amountInvest),
+        amountInvest: amountInvest,
         reserveDataBefore: contractReserveDataBeforeInvest,
-        txTimestamp: await getTimestamp(investTx),
+        txTimestamp: await getTimestamp(investTx2),
       });
       const expectedUserDataAfterInvest = expectedUserDataAfterInvestMoneyPool({
-        amountInvest: BigNumber.from(amountInvest),
+        amountInvest: amountInvest,
         userDataBefore: contractUserDataBeforeInvest,
         reserveDataBefore: contractReserveDataBeforeInvest,
         reserveDataAfter: contractReserveDataAfterInvest,
-        txTimestamp: await getTimestamp(investTx),
+        txTimestamp: await getTimestamp(investTx2),
       });
 
       expect(contractReserveDataAfterInvest).to.be.equalReserveData(expectedReserveDataAfterInvest);

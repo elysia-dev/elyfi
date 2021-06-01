@@ -46,7 +46,6 @@ library AssetBond {
 
     // set bond date data
     assetBondData.borrowAPR = borrowAPR;
-    assetBondData.aTokenInterestIndex = WadRayMath.RAY;
     assetBondData.state = DataStruct.AssetBondState.COLLATERALIZED;
     assetBondData.lastUpdateTimestamp = block.timestamp;
     assetBondData.issuanceDate = block.timestamp;

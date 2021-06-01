@@ -1,61 +1,98 @@
-import { Assertion } from "chai"
-import { BigNumber } from "ethers"
-import { ReserveData, UserData } from "../utils/Interfaces"
+import { Assertion, use, util } from 'chai';
+import BN from 'bn.js';
+import { BigNumber } from 'ethers';
+import { ReserveData, UserData } from '../utils/Interfaces';
+use(require('chai-bn')(BN));
+
+const flag = util.flag;
 
 declare global {
-    export namespace Chai {
-        interface Assertion {
-            equalReserveData(expectedData: ReserveData): void;
-            equalUserData(expectedData: UserData): void;
-        }
+  export namespace Chai {
+    interface Assertion {
+      bigNumberCloseTo(expect: BigNumber, delta: number, msg: string): void;
+      equalReserveData(expectedData: ReserveData): void;
+      equalUserData(expectedData: UserData): void;
     }
+  }
 }
 
-type ReserveDataKey = keyof ReserveData
+Assertion.addMethod('bigNumberCloseTo', function (expected, delta, msg) {
+  if (msg) {
+    flag(this, 'message', msg);
+  }
+  const actualData = <BigNumber>this._obj;
 
-Assertion.addMethod("equalReserveData", function (expectedData: ReserveData) {
-    const actualData = <ReserveData>this._obj;
+  this.assert(
+    BigNumber.prototype.gte.bind(actualData)(expected.sub(delta)) &&
+      BigNumber.prototype.lte.bind(actualData)(expected.add(delta)),
+    `expected #{act} to be within '${delta}' of #{exp}`,
+    `expected #{act} to be further than '${delta}' from #{exp}`,
+    expected.toString(),
+    actualData.toString()
+  );
+});
 
-    const keys : ReserveDataKey[] = Object.keys(expectedData) as ReserveDataKey []
+// new Assertion(actualDataValue).to.be.bigNumberCloseTo(
+//     expectedDataValue,
+//     1000,
+//     `Expected ${expectedDataValue} to be equal ${actualDataValue} in ${key}`
+//   );
 
-    keys.forEach((key) => {
-        if (
-            key === 'moneyPoolFactor' ||
-            key === 'underlyingAssetAddress' ||
-            key === 'underlyingAssetName' ||
-            key === 'underlyingAssetSymbol' ||
-            key === 'underlyingAssetDecimals' ||
-            key === 'lTokenAddress' ||
-            key === 'interestRateModelAddress' ||
-            key === 'tokenizerAddress' ||
-            key === 'interestRateModelParams'
-        ) {return}
-        const actualDataValue = actualData[key]
-        const expectedDataValue = expectedData[key]
+type ReserveDataKey = keyof ReserveData;
 
-        console.log(`${key} : ${actualDataValue.toString()} in reserveData actual`)
-        console.log(`${key} : ${expectedDataValue.toString()} in reserveData expected`)
+Assertion.addMethod('equalReserveData', function (expectedData: ReserveData) {
+  const actualData = <ReserveData>this._obj;
 
-        new Assertion(actualDataValue).to.be.eq(expectedDataValue,
-            `Expected ${expectedDataValue} to be equal ${actualDataValue} in ${key}`)
-    })
-})
+  const keys: ReserveDataKey[] = Object.keys(expectedData) as ReserveDataKey[];
 
-type UserDataKey = keyof UserData
+  keys.forEach((key) => {
+    if (
+      key === 'moneyPoolFactor' ||
+      key === 'underlyingAssetAddress' ||
+      key === 'underlyingAssetName' ||
+      key === 'underlyingAssetSymbol' ||
+      key === 'underlyingAssetDecimals' ||
+      key === 'lTokenAddress' ||
+      key === 'dTokenAddress' ||
+      key === 'interestRateModelAddress' ||
+      key === 'dTokenLastUpdateTimestamp' ||
+      key === 'tokenizerAddress' ||
+      key === 'interestRateModelParams'
+    ) {
+      return;
+    }
+    const actualDataValue = actualData[key];
+    const expectedDataValue = expectedData[key];
 
-Assertion.addMethod("equalUserData", function (expectedData: UserData) {
-    const actualData = <UserData>this._obj;
+    console.log(`${key} : ${actualDataValue.toString()} in reserveData actual`);
+    console.log(`${key} : ${expectedDataValue.toString()} in reserveData expected`);
 
-    const keys : UserDataKey[] = Object.keys(expectedData) as UserDataKey []
+    new Assertion(actualDataValue).to.be.bigNumberCloseTo(
+      expectedDataValue,
+      10,
+      `Expected ${expectedDataValue} to be equal ${actualDataValue} in ${key}`
+    );
+  });
+});
 
-    keys.forEach((key) => {
-        const actualDataValue = actualData[key]
-        const expectedDataValue = expectedData[key]
+type UserDataKey = keyof UserData;
 
-        console.log(`${key} : ${actualDataValue.toString()} in userData actual`)
-        console.log(`${key} : ${expectedDataValue.toString()} in userData expected`)
+Assertion.addMethod('equalUserData', function (expectedData: UserData) {
+  const actualData = <UserData>this._obj;
 
-        new Assertion(actualDataValue).to.be.eq(expectedDataValue,
-            `Expected ${expectedDataValue} to be equal ${actualDataValue} in ${key}`)
-    })
-})
+  const keys: UserDataKey[] = Object.keys(expectedData) as UserDataKey[];
+
+  keys.forEach((key) => {
+    const actualDataValue = actualData[key];
+    const expectedDataValue = expectedData[key];
+
+    console.log(`${key} : ${actualDataValue.toString()} in userData actual`);
+    console.log(`${key} : ${expectedDataValue.toString()} in userData expected`);
+
+    new Assertion(actualDataValue).to.be.bigNumberCloseTo(
+      expectedDataValue,
+      10,
+      `Expected ${expectedDataValue} to be equal ${actualDataValue} in ${key}`
+    );
+  });
+});
