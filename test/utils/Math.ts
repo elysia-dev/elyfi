@@ -145,10 +145,7 @@ export function calculateRateInInterestRateModel(
     );
   }
 
-  newSupplyAPR = rayMul(
-    overallBorrowAPR(dTokenAmount, newBorrowAPR, averageBorrowAPR),
-    utilizationRate
-  );
+  newSupplyAPR = rayMul(newBorrowAPR, utilizationRate);
 
   console.log(
     'testData borrowAPR | supplyAPR | U | totalL | dToken',
