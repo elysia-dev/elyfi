@@ -24,7 +24,7 @@ import { defaultInterestModelParams, defaultReserveData, InterestModelParams } f
 
 export async function makeUnderlyingAsset({
   deployer,
-  totalSupply = expandToDecimals(1, 36).toString(),
+  totalSupply = expandToDecimals(1, 36),
   name = defaultReserveData.underlyingAssetName,
   symbol = defaultReserveData.underlyingAssetSymbol,
 }: {
@@ -154,10 +154,10 @@ export async function makeInterestRateModel({
   )) as InterestRateModel__factory;
 
   interestRateModel = await interestRateModelFactory.deploy(
-    interestRateModelParam.optimalUtilizationRate.toString(),
-    interestRateModelParam.borrowRateBase.toString(),
-    interestRateModelParam.borrowRateOptimal.toString(),
-    interestRateModelParam.borrowRateMax.toString()
+    interestRateModelParam.optimalUtilizationRate.toFixed(),
+    interestRateModelParam.borrowRateBase.toFixed(),
+    interestRateModelParam.borrowRateOptimal.toFixed(),
+    interestRateModelParam.borrowRateMax.toFixed()
   );
 
   return interestRateModel;

@@ -69,9 +69,9 @@ export async function getReserveData({
 
   console.log(
     'Contract Helpers:',
-    new BigNumber(contractReserveData.totalDTokenSupply.toString()),
-    new BigNumber(contractReserveData.borrowAPR.toString()),
-    new BigNumber(contractReserveData.supplyAPR.toString())
+    contractReserveData.totalDTokenSupply.toString(),
+    contractReserveData.borrowAPR.toString(),
+    contractReserveData.supplyAPR.toString()
   );
 
   return reserveData;

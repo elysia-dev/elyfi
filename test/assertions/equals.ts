@@ -1,6 +1,6 @@
 import { Assertion, use, util } from 'chai';
 import BN from 'bn.js';
-import { BigNumber } from 'ethers';
+import { BigNumber } from 'bignumber.js';
 import { ReserveData, UserData } from '../utils/Interfaces';
 use(require('chai-bn')(BN));
 
@@ -23,12 +23,12 @@ Assertion.addMethod('bigNumberCloseTo', function (expected, delta, msg) {
   const actualData = <BigNumber>this._obj;
 
   this.assert(
-    BigNumber.prototype.gte.bind(actualData)(expected.sub(delta)) &&
-      BigNumber.prototype.lte.bind(actualData)(expected.add(delta)),
+    BigNumber.prototype.gte.bind(actualData)(expected.minus(delta)) &&
+      BigNumber.prototype.lte.bind(actualData)(expected.plus(delta)),
     `expected #{act} to be within '${delta}' of #{exp}`,
     `expected #{act} to be further than '${delta}' from #{exp}`,
-    expected.toString(),
-    actualData.toString()
+    expected.toFixed(),
+    actualData.toFixed()
   );
 });
 
@@ -64,8 +64,8 @@ Assertion.addMethod('equalReserveData', function (expectedData: ReserveData) {
     const actualDataValue = actualData[key];
     const expectedDataValue = expectedData[key];
 
-    console.log(`${key} : ${actualDataValue.toString()} in reserveData actual`);
-    console.log(`${key} : ${expectedDataValue.toString()} in reserveData expected`);
+    console.log(`${key} : ${actualDataValue.toFixed()} in reserveData actual`);
+    console.log(`${key} : ${expectedDataValue.toFixed()} in reserveData expected`);
 
     new Assertion(actualDataValue).to.be.bigNumberCloseTo(
       expectedDataValue,
@@ -86,8 +86,8 @@ Assertion.addMethod('equalUserData', function (expectedData: UserData) {
     const actualDataValue = actualData[key];
     const expectedDataValue = expectedData[key];
 
-    console.log(`${key} : ${actualDataValue.toString()} in userData actual`);
-    console.log(`${key} : ${expectedDataValue.toString()} in userData expected`);
+    console.log(`${key} : ${actualDataValue.toFixed()} in userData actual`);
+    console.log(`${key} : ${expectedDataValue.toFixed()} in userData expected`);
 
     new Assertion(actualDataValue).to.be.bigNumberCloseTo(
       expectedDataValue,

@@ -1,4 +1,4 @@
-import { BigNumber } from 'ethers';
+import { BigNumber } from 'bignumber.js';
 import { ethers, waffle } from 'hardhat';
 import {
   ModifiableContract,
@@ -35,7 +35,7 @@ describe('Index', () => {
     lTokenInterestIndex: toIndex(1).toString(),
     borrowAPR: toRate(0.15).toString(),
     supplyAPR: toRate(0.2).toString(),
-    lastUpdateTimestamp: BigNumber.from(0),
+    lastUpdateTimestamp: new BigNumber(0),
   };
 
   beforeEach(async () => {
@@ -63,7 +63,7 @@ describe('Index', () => {
     expect(
       data[0].sub(
         calculateLinearInterest(
-          BigNumber.from(testData.supplyAPR),
+          new BigNumber(testData.supplyAPR),
           testData.lastUpdateTimestamp,
           await getTimestamp(updateTx)
         )
@@ -74,7 +74,7 @@ describe('Index', () => {
     expect(
       data[1].sub(
         calculateCompoundedInterest(
-          BigNumber.from(testData.borrowAPR),
+          new BigNumber(testData.borrowAPR),
           testData.lastUpdateTimestamp,
           await getTimestamp(updateTx)
         )

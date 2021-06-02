@@ -1,6 +1,5 @@
 import { BigNumber } from 'bignumber.js';
 import { waffle } from 'hardhat';
-import { BN } from 'hardhat/node_modules/ethereumjs-util';
 
 // Time
 
@@ -25,37 +24,45 @@ export async function getTimestamp(tx: any) {
 
 // Numbers
 
-export function expandToDecimals(n: number, m: number): BigNumber {
-  return new BigNumber(n).multipliedBy(new BigNumber(10).pow(m));
+export function expandToDecimals(m: number, n: number): string {
+  return new BigNumber(m).multipliedBy(new BigNumber(10).pow(n)).toFixed();
 }
 
 // Underflow error, need refactor
-export function toIndex(n: number): BigNumber {
-  return new BigNumber(n * 1000).multipliedBy(new BigNumber(10).pow(24));
+export function toIndex(m: number): BigNumber {
+  return new BigNumber(m * 1000).multipliedBy(new BigNumber(10).pow(24));
 }
 
 // Underflow error, need refactor
-export function toRate(n: number): BigNumber {
-  return new BigNumber(n * 1000).multipliedBy(new BigNumber(10).pow(24));
+export function toRate(m: number): BigNumber {
+  return new BigNumber(m * 1000).multipliedBy(new BigNumber(10).pow(24));
 }
 
-export function rayMul(n: BigNumber, m: BigNumber): BigNumber {
-  return n.multipliedBy(m).div(RAY);
+// ray calculation
+
+export function rayMul(m: BigNumber, n: BigNumber): BigNumber {
+  const halfRay = new BigNumber(RAY).div(2).decimalPlaces(0, BigNumber.ROUND_DOWN);
+  return m.multipliedBy(n).plus(halfRay).div(RAY).decimalPlaces(0, BigNumber.ROUND_DOWN);
 }
 
-export function rayDiv(n: BigNumber, m: BigNumber): BigNumber {
-  const half = new BN(m.multipliedBy(0.5).toString());
-  return n.multipliedBy(RAY).div(m);
+export function rayDiv(m: BigNumber, n: BigNumber): BigNumber {
+  const half = n.div(2).decimalPlaces(0, BigNumber.ROUND_DOWN);
+
+  return half
+    .plus(m.multipliedBy(RAY))
+    .decimalPlaces(0, BigNumber.ROUND_DOWN)
+    .div(n)
+    .decimalPlaces(0, BigNumber.ROUND_DOWN);
 }
 
-export function wadToRay(n: BigNumber): BigNumber {
-  return n.multipliedBy(RAY).div(WAD);
+export function wadToRay(m: BigNumber): BigNumber {
+  return m.multipliedBy(RAY).div(WAD).decimalPlaces(0, BigNumber.ROUND_DOWN);
 }
 
 // Addresses
 
-export function address(n: number) {
-  return `0x${n.toString(16).padStart(40, '0')}`;
+export function address(m: number) {
+  return `0x${m.toString(16).padStart(40, '0')}`;
 }
 
 // Constants
@@ -68,7 +75,7 @@ export const PERCENTAGE_FACTOR = '10000';
 export const HALF_PERCENTAGE = '5000';
 export const WAD = expandToDecimals(1, 18);
 
-export const SECONDSPERYEAR = 31536000;
+export const SECONDSPERYEAR = '31536000';
 export const ETH = '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE';
 
 // Getter

@@ -34,7 +34,10 @@ export function calculateCompoundedInterest(
     .multipliedBy(basePowerThree)
     .div(6);
 
-  return RAY.plus(ratePerSecond.multipliedBy(timeDelta)).plus(secondTerm).plus(thirdTerm);
+  return new BigNumber(RAY)
+    .plus(ratePerSecond.multipliedBy(timeDelta))
+    .plus(secondTerm)
+    .plus(thirdTerm);
 }
 
 /******************* updateState functions *******************/
@@ -135,7 +138,7 @@ export function calculateRateInInterestRateModel(
       rayMul(
         rayDiv(
           interestRateModelParams.borrowRateMax.minus(interestRateModelParams.borrowRateOptimal),
-          RAY.minus(interestRateModelParams.optimalUtilizationRate)
+          new BigNumber(RAY).minus(interestRateModelParams.optimalUtilizationRate)
         ),
         utilizationRate.minus(interestRateModelParams.borrowRateOptimal)
       )
@@ -149,11 +152,11 @@ export function calculateRateInInterestRateModel(
 
   console.log(
     'testData borrowAPR | supplyAPR | U | totalL | dToken',
-    newBorrowAPR.toString(),
-    newSupplyAPR.toString(),
-    utilizationRate.toString(),
-    totalLiquidity.toString(),
-    dTokenAmount.toString()
+    newBorrowAPR.toFixed(),
+    newSupplyAPR.toFixed(),
+    utilizationRate.toFixed(),
+    totalLiquidity.toFixed(),
+    dTokenAmount.toFixed()
   );
 
   return [newBorrowAPR, newSupplyAPR];

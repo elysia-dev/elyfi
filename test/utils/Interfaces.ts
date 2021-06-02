@@ -30,7 +30,7 @@ export const defaultReserveData: ReserveData = <ReserveData>{
   moneyPoolFactor: toRate(0.03),
   underlyingAssetName: 'ELYSIA',
   underlyingAssetSymbol: 'EL',
-  lTokenInterestIndex: RAY,
+  lTokenInterestIndex: new BigNumber(RAY),
   borrowAPR: new BigNumber(0),
   supplyAPR: new BigNumber(0),
 };
