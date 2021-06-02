@@ -3,7 +3,6 @@ import { rayDiv, rayMul } from './Ethereum';
 import { ReserveData, UserData } from './Interfaces';
 import {
   calculateCompoundedInterest,
-  calculateLinearInterest,
   calculateLTokenIndexAfterAction,
   calculateRateInIncreasingBalance,
   calculateRateInInterestRateModel,

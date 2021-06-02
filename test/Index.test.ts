@@ -1,17 +1,10 @@
 import { BigNumber } from 'bignumber.js';
 import { ethers, waffle } from 'hardhat';
-import {
-  ModifiableContract,
-  ModifiableContractFactory,
-  smockit,
-  smoddit,
-} from '@eth-optimism/smock';
+import { ModifiableContract, ModifiableContractFactory, smoddit } from '@eth-optimism/smock';
 import {
   address,
   advanceBlock,
   advanceTime,
-  ETH,
-  expandToDecimals,
   getTimestamp,
   toIndex,
   toRate,

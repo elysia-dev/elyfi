@@ -1,8 +1,6 @@
-import { Assertion, use, util } from 'chai';
-import BN from 'bn.js';
+import { Assertion, util } from 'chai';
 import { BigNumber } from 'bignumber.js';
 import { ReserveData, UserData } from '../utils/Interfaces';
-use(require('chai-bn')(BN));
 
 const flag = util.flag;
 

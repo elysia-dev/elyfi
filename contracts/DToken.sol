@@ -2,9 +2,9 @@
 pragma solidity 0.8.4;
 
 import './libraries/WadRayMath.sol';
+import './libraries/Math.sol';
 import './interfaces/IDToken.sol';
 import './interfaces/IMoneyPool.sol';
-import './libraries/Math.sol';
 import '@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol';
 
 /**

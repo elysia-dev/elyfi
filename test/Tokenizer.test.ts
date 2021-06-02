@@ -1,29 +1,14 @@
 import { BigNumber } from 'ethers';
 import { ethers, waffle } from 'hardhat';
-import {
-  ModifiableContract,
-  ModifiableContractFactory,
-  smockit,
-  smoddit,
-} from '@eth-optimism/smock';
-import {
-  address,
-  advanceBlock,
-  ETH,
-  expandToDecimals,
-  getTimestamp,
-  RAY,
-  toIndex,
-  toRate,
-} from './utils/Ethereum';
+import { RAY } from './utils/Ethereum';
 import {
   Connector,
   DataPipeline,
+  DTokenTest,
   ERC20Test,
   InterestRateModel,
   LTokenTest,
   MoneyPoolTest,
-  Tokenizer,
   TokenizerTest,
 } from '../typechain';
 import {
@@ -34,6 +19,7 @@ import {
   makeConnector,
   makeTokenizer,
   makeDataPipeline,
+  makeDToken,
 } from './utils/makeContract';
 import { defaultReserveData } from './utils/Interfaces';
 import { expect } from 'chai';
@@ -44,6 +30,7 @@ describe('Tokenizer', () => {
   let moneyPool: MoneyPoolTest;
   let interestModel: InterestRateModel;
   let lToken: LTokenTest;
+  let dToken: DTokenTest;
   let tokenizer: TokenizerTest;
   let dataPipeline: DataPipeline;
 
@@ -77,6 +64,12 @@ describe('Tokenizer', () => {
       underlyingAsset: underlyingAsset,
     });
 
+    dToken = await makeDToken({
+      deployer: deployer,
+      moneyPool: moneyPool,
+      underlyingAsset: underlyingAsset,
+    });
+
     tokenizer = await makeTokenizer({
       deployer: deployer,
       moneyPool: moneyPool,
@@ -90,9 +83,10 @@ describe('Tokenizer', () => {
     await moneyPool.addNewReserve(
       underlyingAsset.address,
       lToken.address,
+      dToken.address,
       interestModel.address,
       tokenizer.address,
-      defaultReserveData.moneyPoolFactor
+      defaultReserveData.moneyPoolFactor.toFixed()
     );
 
     await underlyingAsset.connect(deployer).transfer(account1.address, RAY);
