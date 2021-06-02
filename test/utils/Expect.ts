@@ -1,4 +1,4 @@
-import { BigNumber } from 'ethers';
+import { BigNumber } from 'bignumber.js';
 import { rayDiv, rayMul } from './Ethereum';
 import { ReserveData, UserData } from './Interfaces';
 import {
@@ -30,7 +30,7 @@ export function expectedReserveDataAfterInvestMoneyPool({
 
   // update lTokenIndex and moneyPool timestamp
   let lTokenInterestIndex = reserveDataBefore.lTokenInterestIndex;
-  if (expectedReserveData.supplyAPR.eq(BigNumber.from(0))) {
+  if (expectedReserveData.supplyAPR.eq(new BigNumber(0))) {
     expectedReserveData.moneyPoolLastUpdateTimestamp = txTimestamp;
   }
   if (!expectedReserveData.moneyPoolLastUpdateTimestamp.eq(txTimestamp)) {
@@ -61,7 +61,7 @@ export function expectedReserveDataAfterInvestMoneyPool({
     reserveDataBefore.underlyingAssetBalance,
     totalDTokenSupply,
     amountInvest,
-    BigNumber.from(0),
+    new BigNumber(0),
     reserveDataBefore.averageRealAssetBorrowRate,
     reserveDataBefore.interestRateModelParams
   );
@@ -70,12 +70,12 @@ export function expectedReserveDataAfterInvestMoneyPool({
   expectedReserveData.supplyAPR = interestRates[1];
 
   // transferFrom action
-  expectedReserveData.underlyingAssetBalance = reserveDataBefore.underlyingAssetBalance.add(
+  expectedReserveData.underlyingAssetBalance = reserveDataBefore.underlyingAssetBalance.plus(
     amountInvest
   );
 
   // Mint lToken
-  const implicitLTokenSupply = reserveDataBefore.implicitLTokenSupply.add(
+  const implicitLTokenSupply = reserveDataBefore.implicitLTokenSupply.plus(
     rayDiv(amountInvest, lTokenInterestIndex)
   );
   expectedReserveData.implicitLTokenSupply = implicitLTokenSupply;
@@ -108,9 +108,11 @@ export function expectedUserDataAfterInvestMoneyPool({
   let expectedUserData: UserData = userDataBefore;
 
   // transferFrom
-  expectedUserData.underlyingAssetBalance = userDataBefore.underlyingAssetBalance.sub(amountInvest);
+  expectedUserData.underlyingAssetBalance = userDataBefore.underlyingAssetBalance.minus(
+    amountInvest
+  );
   // mint ltoken
-  expectedUserData.implicitLtokenBalance = userDataBefore.implicitLtokenBalance.add(
+  expectedUserData.implicitLtokenBalance = userDataBefore.implicitLtokenBalance.plus(
     rayDiv(amountInvest, reserveDataAfter.lTokenInterestIndex)
   );
   // update lToken balance
@@ -134,7 +136,7 @@ export function expectedReserveDataAfterWithdrawMoneyPool({
   let expectedReserveData: ReserveData = reserveDataBefore;
 
   // update lTokenIndex and moneyPool timestamp
-  if (expectedReserveData.supplyAPR.eq(BigNumber.from(0))) {
+  if (expectedReserveData.supplyAPR.eq(new BigNumber(0))) {
     expectedReserveData.moneyPoolLastUpdateTimestamp = txTimestamp;
   }
   if (!expectedReserveData.moneyPoolLastUpdateTimestamp.eq(txTimestamp)) {
@@ -165,7 +167,7 @@ export function expectedReserveDataAfterWithdrawMoneyPool({
   const interestRates = calculateRateInInterestRateModel(
     reserveDataBefore.underlyingAssetBalance,
     totalDTokenSupply,
-    BigNumber.from(0),
+    new BigNumber(0),
     amountWithdraw,
     expectedReserveData.averageRealAssetBorrowRate,
     expectedReserveData.interestRateModelParams
@@ -178,13 +180,13 @@ export function expectedReserveDataAfterWithdrawMoneyPool({
   // need logic
 
   // Burn lToken
-  expectedReserveData.implicitLTokenSupply = expectedReserveData.implicitLTokenSupply.sub(
+  expectedReserveData.implicitLTokenSupply = expectedReserveData.implicitLTokenSupply.minus(
     amountWithdraw
   );
-  expectedReserveData.totalLTokenSupply = totalLTokenSupply.sub(amountWithdraw);
+  expectedReserveData.totalLTokenSupply = totalLTokenSupply.minus(amountWithdraw);
 
   // transfer underlying asset in burn logic
-  expectedReserveData.underlyingAssetBalance = expectedReserveData.underlyingAssetBalance.sub(
+  expectedReserveData.underlyingAssetBalance = expectedReserveData.underlyingAssetBalance.minus(
     amountWithdraw
   );
 
@@ -207,12 +209,12 @@ export function expectedUserDataAfterWithdrawMoneyPool({
   let expectedUserData: UserData = userDataBefore;
 
   // burn lToken
-  expectedUserData.implicitLtokenBalance = userDataBefore.implicitLtokenBalance.sub(
+  expectedUserData.implicitLtokenBalance = userDataBefore.implicitLtokenBalance.minus(
     rayDiv(amountWithdraw, reserveDataAfter.lTokenInterestIndex)
   );
 
   // transfer underlyingAsset
-  expectedUserData.underlyingAssetBalance = userDataBefore.underlyingAssetBalance.add(
+  expectedUserData.underlyingAssetBalance = userDataBefore.underlyingAssetBalance.plus(
     amountWithdraw
   );
   // update lToken balance
@@ -237,7 +239,7 @@ export function expectedReserveDataAfterBorrowAgainstABToken({
 
   // update lTokenIndex and moneyPool timestamp
   let lTokenInterestIndex = reserveDataBefore.lTokenInterestIndex;
-  if (expectedReserveData.supplyAPR.eq(BigNumber.from(0))) {
+  if (expectedReserveData.supplyAPR.eq(new BigNumber(0))) {
     expectedReserveData.lTokenInterestIndex = lTokenInterestIndex;
     expectedReserveData.moneyPoolLastUpdateTimestamp = txTimestamp;
   }
@@ -274,7 +276,7 @@ export function expectedReserveDataAfterBorrowAgainstABToken({
     amountBorrow,
     reserveDataBefore.borrowAPR
   );
-  const totalDTokenSupply = previousUpdatedDTokenBalance.add(amountBorrow);
+  const totalDTokenSupply = previousUpdatedDTokenBalance.plus(amountBorrow);
   expectedReserveData.averageRealAssetBorrowRate = expectedReserveData.totalDTokenSupply = totalDTokenSupply;
   expectedReserveData.dTokenLastUpdateTimestamp = txTimestamp;
 
@@ -282,7 +284,7 @@ export function expectedReserveDataAfterBorrowAgainstABToken({
   const interestRates = calculateRateInInterestRateModel(
     reserveDataBefore.underlyingAssetBalance,
     totalDTokenSupply,
-    BigNumber.from(0),
+    new BigNumber(0),
     amountBorrow,
     averageRealAssetBorrowRate,
     reserveDataBefore.interestRateModelParams
@@ -291,7 +293,7 @@ export function expectedReserveDataAfterBorrowAgainstABToken({
   expectedReserveData.supplyAPR = interestRates[1];
 
   // transfer underlying asset in burn logic
-  expectedReserveData.underlyingAssetBalance = reserveDataBefore.underlyingAssetBalance.sub(
+  expectedReserveData.underlyingAssetBalance = reserveDataBefore.underlyingAssetBalance.minus(
     amountBorrow
   );
 
@@ -314,12 +316,14 @@ export function expectedUserDataAfterBorrowAgainstABToken({
   let expectedUserData: UserData = userDataBefore;
 
   // burn lToken
-  expectedUserData.implicitLtokenBalance = userDataBefore.implicitLtokenBalance.sub(
+  expectedUserData.implicitLtokenBalance = userDataBefore.implicitLtokenBalance.minus(
     rayDiv(amountBorrow, reserveDataAfter.lTokenInterestIndex)
   );
 
   // transfer underlyingAsset
-  expectedUserData.underlyingAssetBalance = userDataBefore.underlyingAssetBalance.add(amountBorrow);
+  expectedUserData.underlyingAssetBalance = userDataBefore.underlyingAssetBalance.plus(
+    amountBorrow
+  );
   // update lToken balance
   expectedUserData.lTokenBalance = rayMul(
     expectedUserData.implicitLtokenBalance,

@@ -1,4 +1,4 @@
-import { BigNumber } from 'ethers';
+import { BigNumber } from 'bignumber.js';
 import { ethers, waffle } from 'hardhat';
 import { smoddit } from '@eth-optimism/smock';
 import {
@@ -56,8 +56,8 @@ describe('MoneyPool', () => {
   const provider = waffle.provider;
   const [deployer, account1, account2, CSP, receiver] = provider.getWallets();
 
-  const exampleTokenId_1 = BigNumber.from(1001002003004005);
-  const exampleTokenId_2 = BigNumber.from(1001002003004006);
+  const exampleTokenId_1 = new BigNumber(1001002003004005);
+  const exampleTokenId_2 = new BigNumber(1001002003004006);
 
   beforeEach(async () => {
     underlyingAsset = await makeUnderlyingAsset({
@@ -105,11 +105,11 @@ describe('MoneyPool', () => {
       dToken.address,
       interestModel.address,
       tokenizer.address,
-      defaultReserveData.moneyPoolFactor
+      defaultReserveData.moneyPoolFactor.toString()
     );
 
-    await underlyingAsset.connect(deployer).transfer(account1.address, RAY);
-    await underlyingAsset.connect(deployer).transfer(account2.address, RAY);
+    await underlyingAsset.connect(deployer).transfer(account1.address, RAY.toString());
+    await underlyingAsset.connect(deployer).transfer(account2.address, RAY.toString());
   });
 
   describe('AddReserve', async () => {
@@ -135,7 +135,7 @@ describe('MoneyPool', () => {
   describe('Invest', async () => {
     it('Invest moneypool for the first time', async () => {
       const amountInvest = expandToDecimals(10000, 18);
-      await underlyingAsset.connect(account1).approve(moneyPool.address, RAY);
+      await underlyingAsset.connect(account1).approve(moneyPool.address, RAY.toString());
 
       const contractReserveDataBeforeInvest = await getReserveData({
         underlyingAsset: underlyingAsset,
@@ -150,7 +150,7 @@ describe('MoneyPool', () => {
 
       const investTx = await moneyPool
         .connect(account1)
-        .investMoneyPool(underlyingAsset.address, account1.address, amountInvest);
+        .investMoneyPool(underlyingAsset.address, account1.address, amountInvest.toString());
 
       const contractReserveDataAfterInvest = await getReserveData({
         underlyingAsset: underlyingAsset,
@@ -182,11 +182,11 @@ describe('MoneyPool', () => {
 
     it('Invests moneypool for the second time', async () => {
       const amountInvest = expandToDecimals(10000, 18);
-      await underlyingAsset.connect(account1).approve(moneyPool.address, RAY);
+      await underlyingAsset.connect(account1).approve(moneyPool.address, RAY.toString());
 
       const investTx = await moneyPool
         .connect(account1)
-        .investMoneyPool(underlyingAsset.address, account1.address, amountInvest);
+        .investMoneyPool(underlyingAsset.address, account1.address, amountInvest.toString());
 
       const contractReserveDataBeforeInvest = await getReserveData({
         underlyingAsset: underlyingAsset,
@@ -201,7 +201,7 @@ describe('MoneyPool', () => {
 
       const secondInvestTx = await moneyPool
         .connect(account1)
-        .investMoneyPool(underlyingAsset.address, account1.address, amountInvest);
+        .investMoneyPool(underlyingAsset.address, account1.address, amountInvest.toString());
 
       const contractReserveDataAfterInvest = await getReserveData({
         underlyingAsset: underlyingAsset,
@@ -241,11 +241,11 @@ describe('MoneyPool', () => {
     const amountBorrow = expandToDecimals(1000, 18);
 
     beforeEach(async () => {
-      await tokenizer.connect(CSP).mintABToken(CSP.address, exampleTokenId_1);
-      await underlyingAsset.connect(account1).approve(moneyPool.address, RAY);
+      await tokenizer.connect(CSP).mintABToken(CSP.address, exampleTokenId_1.toString());
+      await underlyingAsset.connect(account1).approve(moneyPool.address, RAY.toString());
       const firstInvestTx = await moneyPool
         .connect(account1)
-        .investMoneyPool(underlyingAsset.address, account1.address, amountInvest);
+        .investMoneyPool(underlyingAsset.address, account1.address, amountInvest.toString());
     });
 
     it('Borrow against AB token', async () => {
@@ -265,8 +265,8 @@ describe('MoneyPool', () => {
         .borrowAgainstABToken(
           underlyingAsset.address,
           receiver.address,
-          amountBorrow,
-          exampleTokenId_1
+          amountBorrow.toString(),
+          exampleTokenId_1.toString()
         );
 
       const contractReserveDataAfterBorrow = await getReserveData({
@@ -303,8 +303,8 @@ describe('MoneyPool', () => {
         .borrowAgainstABToken(
           underlyingAsset.address,
           receiver.address,
-          amountBorrow,
-          exampleTokenId_1
+          amountBorrow.toString(),
+          exampleTokenId_1.toString()
         );
 
       await getReserveData({
@@ -315,7 +315,7 @@ describe('MoneyPool', () => {
 
       const investTx1 = await moneyPool
         .connect(account1)
-        .investMoneyPool(underlyingAsset.address, account1.address, amountInvest);
+        .investMoneyPool(underlyingAsset.address, account1.address, amountInvest.toString());
 
       const contractReserveDataBeforeInvest = await getReserveData({
         underlyingAsset: underlyingAsset,
@@ -330,7 +330,7 @@ describe('MoneyPool', () => {
 
       const investTx2 = await moneyPool
         .connect(account1)
-        .investMoneyPool(underlyingAsset.address, account1.address, amountInvest);
+        .investMoneyPool(underlyingAsset.address, account1.address, amountInvest.toString());
 
       const contractReserveDataAfterInvest = await getReserveData({
         underlyingAsset: underlyingAsset,

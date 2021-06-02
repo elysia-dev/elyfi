@@ -19,6 +19,7 @@
     "@types/chai": "^4.2.17",
     "@types/mocha": "^8.2.2",
     "@types/node": "^15.0.1",
+    "bignumber.js": "^9.0.1",
     "chai": "^4.3.4",
     "chai-bignumber": "^3.0.0",
     "chai-bn": "^0.2.1",

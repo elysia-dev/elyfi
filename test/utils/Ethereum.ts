@@ -1,5 +1,6 @@
-import { BigNumber, ContractReceipt } from 'ethers';
+import { BigNumber } from 'bignumber.js';
 import { waffle } from 'hardhat';
+import { BN } from 'hardhat/node_modules/ethereumjs-util';
 
 // Time
 
@@ -19,35 +20,36 @@ export async function advanceBlockTo(to: number) {
 }
 
 export async function getTimestamp(tx: any) {
-  return BigNumber.from((await waffle.provider.getBlock(tx.blockNumber)).timestamp);
+  return new BigNumber((await waffle.provider.getBlock(tx.blockNumber)).timestamp);
 }
 
 // Numbers
 
 export function expandToDecimals(n: number, m: number): BigNumber {
-  return BigNumber.from(n).mul(BigNumber.from(10).pow(m));
+  return new BigNumber(n).multipliedBy(new BigNumber(10).pow(m));
 }
 
 // Underflow error, need refactor
 export function toIndex(n: number): BigNumber {
-  return BigNumber.from(n * 1000).mul(BigNumber.from(10).pow(24));
+  return new BigNumber(n * 1000).multipliedBy(new BigNumber(10).pow(24));
 }
 
 // Underflow error, need refactor
 export function toRate(n: number): BigNumber {
-  return BigNumber.from(n * 1000).mul(BigNumber.from(10).pow(24));
+  return new BigNumber(n * 1000).multipliedBy(new BigNumber(10).pow(24));
 }
 
 export function rayMul(n: BigNumber, m: BigNumber): BigNumber {
-  return n.mul(m).div(RAY);
+  return n.multipliedBy(m).div(RAY);
 }
 
 export function rayDiv(n: BigNumber, m: BigNumber): BigNumber {
-  return n.mul(RAY).div(m);
+  const half = new BN(m.multipliedBy(0.5).toString());
+  return n.multipliedBy(RAY).div(m);
 }
 
 export function wadToRay(n: BigNumber): BigNumber {
-  return n.mul(RAY).div(WAD);
+  return n.multipliedBy(RAY).div(WAD);
 }
 
 // Addresses
@@ -58,7 +60,7 @@ export function address(n: number) {
 
 // Constants
 
-export const MAXUINT = BigNumber.from(
+export const MAXUINT = new BigNumber(
   '115792089237316195423570985008687907853269984665640564039457584007913129639935'
 );
 export const RAY = expandToDecimals(1, 27);

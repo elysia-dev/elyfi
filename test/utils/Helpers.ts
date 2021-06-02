@@ -1,4 +1,5 @@
-import { BigNumber, Wallet } from 'ethers';
+import { BigNumber } from 'bignumber.js';
+import { Wallet } from 'ethers';
 import { DataPipeline, ERC20Test, LTokenTest } from '../../typechain';
 import { AssetBondData, defaultInterestModelParams, ReserveData, UserData } from './Interfaces';
 
@@ -13,11 +14,13 @@ export async function getUserData({
 }): Promise<UserData> {
   const userData = <UserData>{};
   const contractUserData = await dataPipeline.getUserData(underlyingAsset.address, user.address);
-  userData.underlyingAssetBalance = contractUserData.underlyingAssetBalance;
-  userData.lTokenBalance = contractUserData.lTokenBalance;
-  userData.implicitLtokenBalance = contractUserData.implicitLtokenBalance;
-  userData.dTokenBalance = contractUserData.dTokenBalance;
-  userData.previousDTokenBalance = contractUserData.previousDTokenBalance;
+  userData.underlyingAssetBalance = new BigNumber(
+    contractUserData.underlyingAssetBalance.toString()
+  );
+  userData.lTokenBalance = new BigNumber(contractUserData.lTokenBalance.toString());
+  userData.implicitLtokenBalance = new BigNumber(contractUserData.implicitLtokenBalance.toString());
+  userData.dTokenBalance = new BigNumber(contractUserData.dTokenBalance.toString());
+  userData.previousDTokenBalance = new BigNumber(contractUserData.previousDTokenBalance.toString());
 
   return userData;
 }
@@ -36,25 +39,39 @@ export async function getReserveData({
   reserveData.underlyingAssetAddress = underlyingAsset.address;
   reserveData.underlyingAssetName = await underlyingAsset.name();
   reserveData.underlyingAssetSymbol = await underlyingAsset.symbol();
-  reserveData.underlyingAssetDecimals = BigNumber.from(await underlyingAsset.decimals());
-  reserveData.underlyingAssetBalance = await underlyingAsset.balanceOf(lToken.address);
-  reserveData.totalLTokenSupply = contractReserveData.totalLTokenSupply;
-  reserveData.implicitLTokenSupply = contractReserveData.implicitLTokenSupply;
-  reserveData.lTokenInterestIndex = contractReserveData.lTokenInterestIndex;
-  reserveData.principalDTokenSupply = contractReserveData.principalDTokenSupply;
-  reserveData.totalDTokenSupply = contractReserveData.totalDTokenSupply;
-  reserveData.averageRealAssetBorrowRate = contractReserveData.averageRealAssetBorrowRate;
-  reserveData.borrowAPR = contractReserveData.borrowAPR;
-  reserveData.supplyAPR = contractReserveData.supplyAPR;
-  reserveData.moneyPoolLastUpdateTimestamp = contractReserveData.moneyPooLastUpdateTimestamp;
-  reserveData.dTokenLastUpdateTimestamp = contractReserveData.dTokenLastUpdateTimestamp;
+  reserveData.underlyingAssetDecimals = new BigNumber(await underlyingAsset.decimals());
+  reserveData.underlyingAssetBalance = new BigNumber(
+    await (await underlyingAsset.balanceOf(lToken.address)).toString()
+  );
+  reserveData.totalLTokenSupply = new BigNumber(contractReserveData.totalLTokenSupply.toString());
+  reserveData.implicitLTokenSupply = new BigNumber(
+    contractReserveData.implicitLTokenSupply.toString()
+  );
+  reserveData.lTokenInterestIndex = new BigNumber(
+    contractReserveData.lTokenInterestIndex.toString()
+  );
+  reserveData.principalDTokenSupply = new BigNumber(
+    contractReserveData.principalDTokenSupply.toString()
+  );
+  reserveData.totalDTokenSupply = new BigNumber(contractReserveData.totalDTokenSupply.toString());
+  reserveData.averageRealAssetBorrowRate = new BigNumber(
+    contractReserveData.averageRealAssetBorrowRate.toString()
+  );
+  reserveData.borrowAPR = new BigNumber(contractReserveData.borrowAPR.toString());
+  reserveData.supplyAPR = new BigNumber(contractReserveData.supplyAPR.toString());
+  reserveData.moneyPoolLastUpdateTimestamp = new BigNumber(
+    contractReserveData.moneyPooLastUpdateTimestamp.toString()
+  );
+  reserveData.dTokenLastUpdateTimestamp = new BigNumber(
+    contractReserveData.dTokenLastUpdateTimestamp.toString()
+  );
   reserveData.interestRateModelParams = defaultInterestModelParams;
 
   console.log(
     'Contract Helpers:',
-    contractReserveData.totalDTokenSupply.toString(),
-    contractReserveData.borrowAPR.toString(),
-    contractReserveData.supplyAPR.toString()
+    new BigNumber(contractReserveData.totalDTokenSupply.toString()),
+    new BigNumber(contractReserveData.borrowAPR.toString()),
+    new BigNumber(contractReserveData.supplyAPR.toString())
   );
 
   return reserveData;
@@ -71,11 +88,11 @@ export async function getAssetBondData({
 }): Promise<AssetBondData> {
   const assetBondData = <AssetBondData>{};
   const contractUserData = await dataPipeline.getUserData(underlyingAsset.address, user.address);
-  // userData.underlyingAssetBalance = contractUserData.underlyingAssetBalance;
-  // userData.lTokenBalance = contractUserData.lTokenBalance;
-  // userData.implicitLtokenBalance = contractUserData.implicitLtokenBalance;
-  // userData.dTokenBalance = contractUserData.dTokenBalance;
-  // userData.implicitDtokenBalance = contractUserData.implicitDtokenBalance;
+  // userData.underlyingAssetBalance = new BigNumber(contractUserData.underlyingAssetBalance.toString());
+  // userData.lTokenBalance = new BigNumber(contractUserData.lTokenBalance.toString());
+  // userData.implicitLtokenBalance = new BigNumber(contractUserData.implicitLtokenBalance.toString());
+  // userData.dTokenBalance = new BigNumber(contractUserData.dTokenBalance.toString());
+  // userData.implicitDtokenBalance = new BigNumber(contractUserData.implicitDtokenBalance.toString());
 
   return assetBondData;
 }
