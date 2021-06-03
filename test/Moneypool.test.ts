@@ -114,15 +114,6 @@ describe('MoneyPool', () => {
       expect(initialContractReserveData.underlyingAssetSymbol).to.be.equal(
         defaultReserveData.underlyingAssetSymbol
       );
-      console.log(
-        '@@@@@@@',
-        defaultReserveData.lTokenInterestIndex,
-        initialContractReserveData.lTokenInterestIndex,
-        RAY
-      );
-      // expect(initialContractReserveData.lTokenInterestIndex).to.be.equal(
-      //   defaultReserveData.lTokenInterestIndex
-      // );
     });
   });
 
@@ -258,7 +249,7 @@ describe('MoneyPool', () => {
         .connect(CSP)
         .borrowAgainstABToken(
           underlyingAsset.address,
-          receiver.address,
+          account1.address,
           amountBorrow.toFixed(),
           exampleTokenId_1.toFixed()
         );
@@ -288,7 +279,7 @@ describe('MoneyPool', () => {
       });
 
       expect(expectedReserveDataAfterBorrow).to.be.equalReserveData(expectedReserveDataAfterBorrow);
-      //=expect(contractUserDataAfterBorrow).to.be.equalUserData(expectedUserDataAfterBorrow);
+      expect(contractUserDataAfterBorrow).to.be.equalUserData(expectedUserDataAfterBorrow);
     });
 
     it('Borrow against AB token and invest', async () => {
@@ -296,17 +287,10 @@ describe('MoneyPool', () => {
         .connect(CSP)
         .borrowAgainstABToken(
           underlyingAsset.address,
-          receiver.address,
+          account1.address,
           amountBorrow.toFixed(),
           exampleTokenId_1.toFixed()
         );
-
-      await getReserveData({
-        underlyingAsset: underlyingAsset,
-        dataPipeline: dataPipeline,
-        lToken: lToken,
-      });
-
       const investTx1 = await moneyPool
         .connect(account1)
         .investMoneyPool(underlyingAsset.address, account1.address, amountInvest.toFixed());
@@ -351,7 +335,7 @@ describe('MoneyPool', () => {
       });
 
       expect(contractReserveDataAfterInvest).to.be.equalReserveData(expectedReserveDataAfterInvest);
-      //expect(contractUserDataAfterInvest).to.be.equalUserData(expectedUserDataAfterInvest);
+      expect(contractUserDataAfterInvest).to.be.equalUserData(expectedUserDataAfterInvest);
     });
   });
 });

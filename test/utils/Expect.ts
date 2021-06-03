@@ -330,20 +330,40 @@ export function expectedUserDataAfterBorrowAgainstABToken({
 }): UserData {
   let expectedUserData: UserData = userDataBefore;
 
-  // burn lToken
-  expectedUserData.implicitLtokenBalance = userDataBefore.implicitLtokenBalance.minus(
-    rayDiv(amountBorrow, reserveDataAfter.lTokenInterestIndex)
-  );
-
-  // transfer underlyingAsset
-  expectedUserData.underlyingAssetBalance = userDataBefore.underlyingAssetBalance.plus(
-    amountBorrow
-  );
   // update lToken balance
-  expectedUserData.lTokenBalance = rayMul(
-    expectedUserData.implicitLtokenBalance,
+  const lTokenBalance = rayMul(
+    userDataBefore.implicitLtokenBalance,
     reserveDataAfter.lTokenInterestIndex
   );
+  expectedUserData.lTokenBalance = lTokenBalance;
 
+  // update  and mint dToken balance
+  const dTokenAccruedInterest = calculateCompoundedInterest(
+    userDataBefore.averageRealAssetBorrowRate,
+    userDataBefore.userLastUpdateTimestamp,
+    txTimestamp
+  );
+  const previousUpdatedDTokenBalance = rayMul(
+    userDataBefore.principalDTokenBalance,
+    dTokenAccruedInterest
+  );
+  const dTokenBalance = previousUpdatedDTokenBalance.plus(amountBorrow);
+
+  expectedUserData.dTokenBalance = dTokenBalance;
+  expectedUserData.principalDTokenBalance = dTokenBalance;
+
+  // update average Borrow rate and timestamp
+  const averageRealAssetBorrowRate = calculateRateInIncreasingBalance(
+    userDataBefore.averageRealAssetBorrowRate,
+    previousUpdatedDTokenBalance,
+    amountBorrow,
+    reserveDataBefore.borrowAPR
+  );
+  expectedUserData.userLastUpdateTimestamp = txTimestamp;
+  expectedUserData.averageRealAssetBorrowRate = averageRealAssetBorrowRate;
+
+  // transferFrom
+  const underlyingAssetBalance = userDataBefore.underlyingAssetBalance.plus(amountBorrow);
+  expectedUserData.underlyingAssetBalance = underlyingAssetBalance;
   return expectedUserData;
 }
