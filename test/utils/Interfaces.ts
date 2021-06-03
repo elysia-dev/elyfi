@@ -53,13 +53,9 @@ export interface UserData {
   lTokenBalance: BigNumber;
   implicitLtokenBalance: BigNumber;
   dTokenBalance: BigNumber;
-  previousDTokenBalance: BigNumber;
-}
-
-export interface BorrowerData extends UserData {
+  principalDTokenBalance: BigNumber;
+  averageRealAssetBorrowRate: BigNumber;
   userLastUpdateTimestamp: BigNumber;
-  userAverageRealAssetBorrowRate: BigNumber;
-  assetBonds: AssetBondData[];
 }
 
 export enum AssetBondState {

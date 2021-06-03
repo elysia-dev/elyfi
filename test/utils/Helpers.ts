@@ -20,7 +20,13 @@ export async function getUserData({
   userData.lTokenBalance = new BigNumber(contractUserData.lTokenBalance.toString());
   userData.implicitLtokenBalance = new BigNumber(contractUserData.implicitLtokenBalance.toString());
   userData.dTokenBalance = new BigNumber(contractUserData.dTokenBalance.toString());
-  userData.previousDTokenBalance = new BigNumber(contractUserData.previousDTokenBalance.toString());
+  userData.principalDTokenBalance = new BigNumber(
+    contractUserData.principalDTokenBalance.toString()
+  );
+  userData.averageRealAssetBorrowRate = new BigNumber(
+    contractUserData.averageRealAssetBorrowRate.toString()
+  );
+  userData.userLastUpdateTimestamp = new BigNumber(contractUserData.lastUpdateTimestamp.toString());
 
   return userData;
 }
@@ -41,7 +47,7 @@ export async function getReserveData({
   reserveData.underlyingAssetSymbol = await underlyingAsset.symbol();
   reserveData.underlyingAssetDecimals = new BigNumber(await underlyingAsset.decimals());
   reserveData.underlyingAssetBalance = new BigNumber(
-    await (await underlyingAsset.balanceOf(lToken.address)).toString()
+    (await underlyingAsset.balanceOf(lToken.address)).toString()
   );
   reserveData.totalLTokenSupply = new BigNumber(contractReserveData.totalLTokenSupply.toString());
   reserveData.implicitLTokenSupply = new BigNumber(
@@ -87,12 +93,5 @@ export async function getAssetBondData({
   user: Wallet;
 }): Promise<AssetBondData> {
   const assetBondData = <AssetBondData>{};
-  const contractUserData = await dataPipeline.getUserData(underlyingAsset.address, user.address);
-  // userData.underlyingAssetBalance = new BigNumber(contractUserData.underlyingAssetBalance.toString());
-  // userData.lTokenBalance = new BigNumber(contractUserData.lTokenBalance.toString());
-  // userData.implicitLtokenBalance = new BigNumber(contractUserData.implicitLtokenBalance.toString());
-  // userData.dTokenBalance = new BigNumber(contractUserData.dTokenBalance.toString());
-  // userData.implicitDtokenBalance = new BigNumber(contractUserData.implicitDtokenBalance.toString());
-
   return assetBondData;
 }

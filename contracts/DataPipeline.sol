@@ -20,7 +20,9 @@ contract DataPipeline {
     uint256 lTokenBalance;
     uint256 implicitLtokenBalance;
     uint256 dTokenBalance;
-    uint256 previousDTokenBalance;
+    uint256 principalDTokenBalance;
+    uint256 averageRealAssetBorrowRate;
+    uint256 lastUpdateTimestamp;
   }
 
   function getUserData(address asset, address user)
@@ -35,7 +37,10 @@ contract DataPipeline {
     vars.lTokenBalance = ILToken(reserve.lTokenAddress).balanceOf(user);
     vars.implicitLtokenBalance = ILToken(reserve.lTokenAddress).implicitBalanceOf(user);
     vars.dTokenBalance = IDToken(reserve.dTokenAddress).balanceOf(user);
-    vars.previousDTokenBalance = IDToken(reserve.dTokenAddress).previousBalanceOf(user);
+    vars.principalDTokenBalance = IDToken(reserve.dTokenAddress).principalBalanceOf(user);
+    vars.averageRealAssetBorrowRate = IDToken(reserve.dTokenAddress)
+      .getUserAverageRealAssetBorrowRate(user);
+    vars.lastUpdateTimestamp = IDToken(reserve.dTokenAddress).getUserLastUpdateTimestamp(user);
 
     return vars;
   }

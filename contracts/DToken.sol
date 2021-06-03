@@ -153,7 +153,7 @@ contract DToken is IDToken, ContextUpgradeable {
    * @dev Mints debt token to the `receiver` address.
    * -  Only callable by the LendingPool
    * - The resulting rate is the weighted average between the rate of the new debt
-   * and the rate of the previous debt
+   * and the rate of the principal debt
    * @param account The address receiving the borrowed underlying, being the delegatee in case
    * of credit delegate, or same as `receiver` otherwise
    * @param receiver The address receiving the debt tokens
@@ -295,7 +295,7 @@ contract DToken is IDToken, ContextUpgradeable {
   /**
    * @dev Calculates the increase in balance since the last account interaction
    * @param account The address of the account for which the interest is being accumulated
-   * @return The previous principal balance, the new principal balance and the balance increase
+   * @return The principal principal balance, the new principal balance and the balance increase
    **/
   function _calculateBalanceIncrease(address account)
     internal
@@ -359,11 +359,11 @@ contract DToken is IDToken, ContextUpgradeable {
   }
 
   /**
-   * @dev Returns the previous debt balance of the account from
+   * @dev Returns the principal debt balance of the account from
    * @param account The account's address
    * @return The debt balance of the account since the last burn/mint action
    **/
-  function previousBalanceOf(address account) external view virtual override returns (uint256) {
+  function principalBalanceOf(address account) external view virtual override returns (uint256) {
     return _balances[account];
   }
 
