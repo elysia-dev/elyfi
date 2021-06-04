@@ -10,14 +10,9 @@ import './interfaces/IConnector.sol';
  * @author ELYSIA
  */
 contract Connector is IConnector, ConnectorStorage {
-  function addLawfirm(address account) external {
-    _grantRole(Role.LAWFIRM, account);
-    emit NewLawfirmAdded(account);
-  }
-
-  function setPriceOracle(address account) external {
-    _grantRole(Role.PRICE_ORACLE, account);
-    emit UpdatePriceOracle(account);
+  function addCouncil(address account) external {
+    _grantRole(Role.COUNCIL, account);
+    emit NewCouncilAdded(account);
   }
 
   function addCSP(address account) external {
@@ -41,4 +36,10 @@ contract Connector is IConnector, ConnectorStorage {
   function _hasRole(bytes32 role, address account) internal view returns (bool) {
     return _roles[role].participants[account];
   }
+
+  function isMoneyPool(address account) external view override returns (bool) {}
+
+  function isCSP(address account) external view override returns (bool) {}
+
+  function isCouncil(address account) external view override returns (bool) {}
 }

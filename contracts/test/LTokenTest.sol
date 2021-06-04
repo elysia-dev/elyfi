@@ -9,7 +9,5 @@ contract LTokenTest is LToken {
     address underlyingAsset_,
     string memory name_,
     string memory symbol_
-  ) {
-    initialize(moneyPool, underlyingAsset_, name_, symbol_);
-  }
+  ) LToken(moneyPool, underlyingAsset_, name_, symbol_) {}
 }

@@ -9,7 +9,5 @@ contract DTokenTest is DToken {
     address underlyingAsset_,
     string memory name_,
     string memory symbol_
-  ) {
-    initialize(moneyPool, underlyingAsset_, name_, symbol_);
-  }
+  ) DToken(moneyPool, underlyingAsset_, name_, symbol_) {}
 }
