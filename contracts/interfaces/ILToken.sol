@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.4;
 
-import '@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol';
+import '@openzeppelin/contracts/token/ERC20/IERC20.sol';
 
-interface ILToken is IERC20Upgradeable {
+interface ILToken is IERC20 {
   /**
    * @dev Emitted after lTokens are minted
    * @param account The receiver of minted lToken

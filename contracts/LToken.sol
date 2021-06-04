@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.4;
 
-import '@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol';
-import '@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol';
-import '@openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol';
+import '@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol';
+import '@openzeppelin/contracts/token/ERC20/ERC20.sol';
+import '@openzeppelin/contracts/utils/Address.sol';
 import './libraries/WadRayMath.sol';
 import './libraries/Errors.sol';
 import './interfaces/ILToken.sol';
@@ -13,23 +13,21 @@ import './interfaces/IMoneyPool.sol';
  * @title ELYFI LToken
  * @author ELYSIA
  */
-contract LToken is ILToken, ERC20Upgradeable {
-  using SafeERC20Upgradeable for IERC20Upgradeable;
+contract LToken is ILToken, ERC20 {
+  using SafeERC20 for IERC20;
   using WadRayMath for uint256;
 
   IMoneyPool internal _moneyPool;
   address internal _underlyingAsset;
 
-  function initialize(
+  constructor(
     IMoneyPool moneyPool,
     address underlyingAsset_,
     string memory name_,
     string memory symbol_
-  ) public initializer {
+  ) ERC20(name_, symbol_) {
     _moneyPool = moneyPool;
     _underlyingAsset = underlyingAsset_;
-
-    __ERC20_init(name_, symbol_);
   }
 
   function mint(
@@ -59,7 +57,7 @@ contract LToken is ILToken, ERC20Upgradeable {
 
     _burn(account, implicitBalance);
 
-    IERC20Upgradeable(_underlyingAsset).safeTransfer(receiver, amount);
+    IERC20(_underlyingAsset).safeTransfer(receiver, amount);
 
     emit Burn(account, receiver, amount, index);
   }
@@ -67,12 +65,7 @@ contract LToken is ILToken, ERC20Upgradeable {
   /**
    * @return Returns implicit balance multipied by ltoken interest index
    **/
-  function balanceOf(address account)
-    public
-    view
-    override(ERC20Upgradeable, IERC20Upgradeable)
-    returns (uint256)
-  {
+  function balanceOf(address account) public view override(IERC20, ERC20) returns (uint256) {
     return super.balanceOf(account).rayMul(_moneyPool.getLTokenInterestIndex(_underlyingAsset));
   }
 
@@ -84,12 +77,7 @@ contract LToken is ILToken, ERC20Upgradeable {
     return super.totalSupply();
   }
 
-  function totalSupply()
-    public
-    view
-    override(ERC20Upgradeable, IERC20Upgradeable)
-    returns (uint256)
-  {
+  function totalSupply() public view override(IERC20, ERC20) returns (uint256) {
     return super.totalSupply().rayMul(_moneyPool.getLTokenInterestIndex(_underlyingAsset));
   }
 
@@ -105,7 +93,7 @@ contract LToken is ILToken, ERC20Upgradeable {
     onlyMoneyPool
     returns (uint256)
   {
-    IERC20Upgradeable(_underlyingAsset).safeTransfer(receiver, amount);
+    IERC20(_underlyingAsset).safeTransfer(receiver, amount);
     return amount;
   }
 

@@ -12,17 +12,24 @@ import './logic/AssetBond.sol';
 import './logic/Validation.sol';
 import './libraries/DataStruct.sol';
 import 'hardhat/console.sol';
-import '@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol';
+import '@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol';
 
+/**
+ * @title Main contract for ELYFI beta. This contract manages the ability
+ * to invest and withdraw cryptocurrency and create NFT-backed loans.
+ * @author ELYSIA
+ * @notice This contract is beta version of ELYFI. The investor and borrower
+ * should approve the ELYFI moneypool contract to move their AssetBond token
+ * or ERC20 tokens on their behalf.
+ **/
 contract MoneyPool is IMoneyPool, MoneyPoolStorage {
-  using SafeERC20Upgradeable for IERC20Upgradeable;
+  using SafeERC20 for IERC20;
   using Index for DataStruct.ReserveData;
-  using Index for DataStruct.AssetBondData;
   using Validation for DataStruct.ReserveData;
   using Rate for DataStruct.ReserveData;
   using AssetBond for DataStruct.AssetBondData;
 
-  function initialize(uint256 maxReserveCount_, address connector) public initializer {
+  constructor(uint256 maxReserveCount_, address connector) {
     _connector = connector;
     _maxReserveCount = maxReserveCount_;
     _reserveCount += 1;
@@ -55,7 +62,7 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
 
     // transfer underlying asset
     // If transfer fail, reverts
-    IERC20Upgradeable(asset).safeTransferFrom(msg.sender, reserve.lTokenAddress, amount);
+    IERC20(asset).safeTransferFrom(msg.sender, reserve.lTokenAddress, amount);
 
     // Mint ltoken
     ILToken(reserve.lTokenAddress).mint(account, amount, reserve.lTokenInterestIndex);
@@ -128,8 +135,15 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
   /************ ABToken Formation Functions ************/
 
   // need access control signer: only lawfirm or asset owner
-
   // need access control : only minter
+
+  /**
+   * @dev Withdraws an amount of underlying asset from the reserve and burns the corresponding lTokens.
+   * @notice
+   * @param asset The address of the underlying asset to withdraw
+   * @param receiver The address that will receive the underlying asset
+   * @param borrowAmount borrowAmount
+   **/
   function borrowAgainstABToken(
     address asset,
     address receiver,

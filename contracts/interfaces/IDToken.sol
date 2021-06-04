@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.4;
 
-import '@openzeppelin/contracts-upgradeable/token/ERC20/extensions/IERC20MetadataUpgradeable.sol';
+import '@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol';
 
-interface IDToken is IERC20MetadataUpgradeable {
+interface IDToken is IERC20Metadata {
   /**
    * @dev Emitted when new stable debt is minted
    * @param account The address of the account who triggered the minting

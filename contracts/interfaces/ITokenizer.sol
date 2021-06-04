@@ -2,9 +2,10 @@
 pragma solidity 0.8.4;
 
 import '../libraries/DataStruct.sol';
-import '@openzeppelin/contracts-upgradeable/token/ERC721/IERC721Upgradeable.sol';
 
-interface ITokenizer is IERC721Upgradeable {
+interface ITokenizer {
+  event EmptyABTokenMinted(address indexed account, uint256 tokenId);
+
   event Invest(address indexed asset, address indexed account, uint256 amount);
 
   event Withdraw(

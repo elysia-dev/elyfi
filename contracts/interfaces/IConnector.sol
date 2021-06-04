@@ -8,4 +8,10 @@ interface IConnector {
   event NewCSPAdded(address indexed account);
   event UpdatePriceOracle(address indexed account);
   event UpdateAdmin(address indexed account);
+
+  function isMoneyPool(address account) external view returns (bool);
+
+  function isCSP(address account) external view returns (bool);
+
+  function isCouncil(address account) external view returns (bool);
 }

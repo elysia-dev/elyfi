@@ -2,12 +2,15 @@
 pragma solidity 0.8.4;
 
 library DataStruct {
+  /**
+    @notice The main reserve data struct.
+   */
   struct ReserveData {
     uint256 moneyPoolFactor;
     uint256 lTokenInterestIndex;
     uint256 borrowAPR;
     uint256 supplyAPR;
-    uint256 totalDepositedAssetBondCount; // need refactor: consider bitmask
+    uint256 totalDepositedAssetBondCount;
     uint256 lastUpdateTimestamp;
     address lTokenAddress;
     address dTokenAddress;
@@ -18,8 +21,14 @@ library DataStruct {
     bool isActivated;
   }
 
-  enum AssetBondState {EMPTY, SETTLED, CONFIRMED, COLLATERALIZED, MATURED, NOT_PERFORMED}
-
+  /**
+   * @notice The asset bond data struct.
+   * @param ipfsHash The IPFS hash that contains the informations and contracts
+   * between Collateral Service Provider and lender.
+   * @param maturityDate The amount of time measured in seconds that can elapse
+   * before the NPL company liquidate the loan and seize the asset bond collateral.
+   * @param borrower The address of the borrower.
+   */
   struct AssetBondData {
     address asset;
     address borrower;
@@ -34,6 +43,16 @@ library DataStruct {
     uint256 lastUpdateTimestamp;
     AssetBondState state;
   }
+
+  /**
+    @notice The states of asset bond
+    * EMPTY: After
+    * SETTLED:
+    * CONFIRMED:
+    * COLLATERALIZED:
+    * MATURED:
+   */
+  enum AssetBondState {EMPTY, SETTLED, CONFIRMED, COLLATERALIZED, MATURED, NOT_PERFORMED}
 
   struct TokenizerData {
     address asset;

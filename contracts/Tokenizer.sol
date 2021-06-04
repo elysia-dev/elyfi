@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.4;
 
-import '@openzeppelin/contracts-upgradeable/token/ERC721/ERC721Upgradeable.sol';
+import '@openzeppelin/contracts/token/ERC721/ERC721.sol';
 import './libraries/WadRayMath.sol';
 import './libraries/Errors.sol';
 import './libraries/DataStruct.sol';
@@ -13,6 +13,7 @@ import './logic/Index.sol';
 import './logic/Validation.sol';
 import './interfaces/IMoneyPool.sol';
 import './interfaces/ITokenizer.sol';
+import './interfaces/IConnector.sol';
 import './TokenizerStorage.sol';
 import 'hardhat/console.sol';
 
@@ -20,7 +21,7 @@ import 'hardhat/console.sol';
  * @title ELYFI Tokenizer
  * @author ELYSIA
  */
-contract Tokenizer is ITokenizer, ERC721Upgradeable, TokenizerStorage {
+contract Tokenizer is ITokenizer, TokenizerStorage, ERC721 {
   using WadRayMath for uint256;
   using TokenizerData for DataStruct.TokenizerData;
   using AssetBond for DataStruct.AssetBondData;
@@ -28,13 +29,12 @@ contract Tokenizer is ITokenizer, ERC721Upgradeable, TokenizerStorage {
 
   /************ Initialize Functions ************/
 
-  function initialize(
-    address moneyPool,
+  constructor(
+    address connector,
     string memory name_,
     string memory symbol_
-  ) public initializer {
-    _moneyPool = IMoneyPool(moneyPool);
-    __ERC721_init(name_, symbol_);
+  ) ERC721(name_, symbol_) {
+    _connector = IConnector(connector);
   }
 
   /************ View Functions ************/
@@ -64,33 +64,45 @@ contract Tokenizer is ITokenizer, ERC721Upgradeable, TokenizerStorage {
   /************ ABToken Formation Functions ************/
 
   // tokenId : bitMask
-  // Need access control : only CSP
-  function mintABToken(
-    address account, // CSP address
-    uint256 tokenId // information about CSP and borrower
-  ) external override {
-    if (_minter[tokenId] != address(0)) revert(); ////error ABTokenIDAlreadyExist(tokenId)
-
-    // mint ABToken to CSP
-    _safeMint(account, tokenId, '');
+  /**
+   * @notice This function can be called by collateral service providers when they want to sign a contract.
+   * Borrowers who wants to take out a loan backed by real asset must enter into a contract
+   * with a collateral service provider to obtain a loan. Borrowers should submit various documents necessary for evaluating a loan secured by
+   * real assets to the collateral service provider.
+   * @param account CSP address
+   * @param tokenId The tokenId is a unique identifier for asset bond.
+   */
+  function mintABToken(address account, uint256 tokenId) external override onlyCSP {
+    if (_minter[tokenId] != address(0)) revert(); ////error ABTokenIDAlreadyExist(tokenId);
+    if (!_connector.isCSP(account)) revert(); ////error MintedABTokenReceiverNotAllowed(account, tokenId);
 
     // validate tokenId : tokenId should have information about
     AssetBond.validateTokenId(tokenId);
 
+    // mint ABToken to CSP
+    _safeMint(account, tokenId, '');
+
     _minter[tokenId] = account;
-    _tokenType[tokenId] = Role.ABTOKEN;
+
+    emit EmptyABTokenMinted(account, tokenId);
   }
 
   // Access control : only minter
   /**
-   * @dev Asset Bond su
+   * @notice This function is called after Based on the documents submitted by the loan applicant,
+   * risk analysis for the relevant asset is conducted, and the loan availability,
+   * maximum loanable amount and the interest rate between collateral service provider
+   * and borrower are calculated.
+   * @param borrower borrower
+   * @param tokenId tokenId
+   * @param collateralValue collateralValue in USD
    */
   function settleABToken(
     address asset,
-    address borrower, // borrower address
-    address lawfirm, // lawfirm address
-    uint256 tokenId, // tokenId
-    uint256 collateralValue, // collateralValue in USD
+    address borrower,
+    address lawfirm,
+    uint256 tokenId,
+    uint256 collateralValue,
     uint256 dueDate,
     string memory ipfsHash
   ) external {
@@ -143,7 +155,17 @@ contract Tokenizer is ITokenizer, ERC721Upgradeable, TokenizerStorage {
   }
 
   modifier onlyMoneyPool {
-    if (_msgSender() != address(_moneyPool)) revert(); ////OnlyMoneyPool();
+    if (!_connector.isMoneyPool((msg.sender))) revert(); ////OnlyMoneyPool();
+    _;
+  }
+
+  modifier onlyCSP {
+    if (!_connector.isCSP(msg.sender)) revert(); ////OnlyCSP();
+    _;
+  }
+
+  modifier onlyCouncil {
+    if (!_connector.isCouncil(msg.sender)) revert(); ////OnlyCouncil();
     _;
   }
 }

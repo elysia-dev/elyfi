@@ -5,15 +5,16 @@ import './libraries/WadRayMath.sol';
 import './libraries/Math.sol';
 import './interfaces/IDToken.sol';
 import './interfaces/IMoneyPool.sol';
-import '@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol';
+import '@openzeppelin/contracts/utils/Context.sol';
 
 /**
  * @title DToken
- * @notice Implements a stable debt token to track the borrowing positions of users
- * at stable rate mode
+ * @notice The DToken balance of borrower is the amount of money that the borrower
+ * would be required to repay and seize the collateralized asset bond token.
+ *
  * @author Aave
  **/
-contract DToken is IDToken, ContextUpgradeable {
+contract DToken is IDToken, Context {
   using WadRayMath for uint256;
 
   uint256 internal _totalAverageRealAssetBorrowRate;
@@ -30,12 +31,12 @@ contract DToken is IDToken, ContextUpgradeable {
   IMoneyPool internal _moneyPool;
   address internal _underlyingAsset;
 
-  function initialize(
+  constructor(
     IMoneyPool moneyPool,
     address underlyingAsset_,
     string memory name_,
     string memory symbol_
-  ) public initializer {
+  ) {
     _moneyPool = moneyPool;
     _underlyingAsset = underlyingAsset_;
 
