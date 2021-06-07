@@ -30,7 +30,7 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
   using AssetBond for DataStruct.AssetBondData;
 
   constructor(uint256 maxReserveCount_, address connector) {
-    _connector = connector;
+    _connector = IConnector(connector);
     _maxReserveCount = maxReserveCount_;
     _reserveCount += 1;
   }
@@ -149,7 +149,7 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
     address receiver,
     uint256 borrowAmount,
     uint256 tokenId
-  ) external override {
+  ) external override onlyCSP {
     DataStruct.ReserveData storage reserve = _reserves[asset];
     DataStruct.AssetBondData memory assetBond =
       ITokenizer(reserve.tokenizerAddress).getAssetBondData(tokenId);
@@ -232,26 +232,6 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
     return _reserves[asset];
   }
 
-  /************ External Functions ************/
-
-  /**
-   * @dev Validate and finalize LToken transfer
-   * @notice In beta version, there's no need for validation
-   */
-  function validateLTokenTransfer(
-    address asset,
-    address from,
-    address to,
-    uint256 amount,
-    uint256 previousFromBalance,
-    uint256 previousToBalance
-  ) external override {
-    if (msg.sender == _reserves[asset].lTokenAddress) revert MoneyPoolErrors.OnlyLToken();
-
-    // For beta version, there's no need for validate LToken transfer
-    Validation.validateLTokenTrasfer();
-  }
-
   /************ Configuration Functions ************/
 
   // Need access control, onlyConfigurator can add new reserve.
@@ -295,5 +275,17 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
     _reservesList[reserveCount] = asset;
 
     _reserveCount = reserveCount + 1;
+  }
+
+  modifier onlyCSP {
+    if (!_connector.isCSP(msg.sender)) revert();
+    revert TokenizerErrors.OnlyCSP();
+    _;
+  }
+
+  modifier onlyCouncil {
+    if (!_connector.isCouncil(msg.sender)) revert();
+    revert TokenizerErrors.OnlyCouncil();
+    _;
   }
 }

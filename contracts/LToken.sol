@@ -34,7 +34,7 @@ contract LToken is ILToken, ERC20 {
     address account,
     uint256 amount,
     uint256 index
-  ) external override onlyMoneyPool returns (bool) {
+  ) external override onlyMoneyPool {
     uint256 implicitBalance = amount.rayDiv(index);
 
     if (amount == 0) revert TokenErrors.LTokenInvalidMintAmount(implicitBalance);
@@ -112,21 +112,7 @@ contract LToken is ILToken, ERC20 {
   ) internal {
     uint256 index = _moneyPool.getLTokenInterestIndex(_underlyingAsset);
 
-    uint256 previousFromBalance = super.balanceOf(from).rayMul(index);
-    uint256 previousToBalance = super.balanceOf(to).rayMul(index);
-
     super._transfer(from, to, amount.rayDiv(index));
-
-    if (validate) {
-      _moneyPool.validateLTokenTransfer(
-        _underlyingAsset,
-        from,
-        to,
-        amount,
-        previousFromBalance,
-        previousToBalance
-      );
-    }
   }
 
   /**

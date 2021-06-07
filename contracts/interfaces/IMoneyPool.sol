@@ -47,15 +47,6 @@ interface IMoneyPool {
 
   function getReserveData(address asset) external view returns (DataStruct.ReserveData memory);
 
-  function validateLTokenTransfer(
-    address asset,
-    address from,
-    address to,
-    uint256 amount,
-    uint256 previousFromBalance,
-    uint256 previousToBalance
-  ) external;
-
   function addNewReserve(
     address asset,
     address lToken,

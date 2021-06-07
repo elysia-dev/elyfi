@@ -3,6 +3,7 @@ pragma solidity 0.8.4;
 
 import './libraries/DataStruct.sol';
 import './logic/Index.sol';
+import './interfaces/IConnector.sol';
 
 contract MoneyPoolStorage {
   using Index for DataStruct.ReserveData;
@@ -15,5 +16,5 @@ contract MoneyPoolStorage {
 
   uint256 internal _maxReserveCount;
 
-  address internal _connector;
+  IConnector internal _connector;
 }

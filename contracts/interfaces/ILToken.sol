@@ -39,7 +39,7 @@ interface ILToken is IERC20 {
     address account,
     uint256 amount,
     uint256 index
-  ) external returns (bool);
+  ) external;
 
   /**
    * @dev Burns lTokens account `account` and sends the equivalent amount of underlying to `receiver`

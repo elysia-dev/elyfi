@@ -4,27 +4,25 @@ pragma solidity 0.8.4;
 import './libraries/Role.sol';
 import './ConnectorStorage.sol';
 import './interfaces/IConnector.sol';
+import '@openzeppelin/contracts/access/Ownable.sol';
 
 /**
  * @title ELYFI Connector
  * @author ELYSIA
  */
-contract Connector is IConnector, ConnectorStorage {
-  constructor() {}
+contract Connector is IConnector, ConnectorStorage, Ownable {
+  constructor(address moneyPool) {
+    _moneyPool = IMoneyPool(moneyPool);
+  }
 
-  function addCouncil(address account) external {
+  function addCouncil(address account) external onlyOwner {
     _grantRole(Role.COUNCIL, account);
     emit NewCouncilAdded(account);
   }
 
-  function addCSP(address account) external {
+  function addCSP(address account) external onlyOwner {
     _grantRole(Role.CSP, account);
     emit NewCSPAdded(account);
-  }
-
-  function setAdmin(address account) external {
-    _grantRole(Role.MONEYPOOL_ADMIN, account);
-    emit UpdateAdmin(account);
   }
 
   function _grantRole(bytes32 role, address account) internal {
@@ -39,9 +37,15 @@ contract Connector is IConnector, ConnectorStorage {
     return _roles[role].participants[account];
   }
 
-  function isMoneyPool(address account) external view override returns (bool) {}
+  function isCSP(address account) external view override returns (bool) {
+    return _hasRole(Role.CSP, account);
+  }
 
-  function isCSP(address account) external view override returns (bool) {}
+  function isCouncil(address account) external view override returns (bool) {
+    return _hasRole(Role.COUNCIL, account);
+  }
 
-  function isCouncil(address account) external view override returns (bool) {}
+  function activateMoneyPool(address asset) external onlyOwner {}
+
+  function deactivateMoneyPool(address asset) external onlyOwner {}
 }

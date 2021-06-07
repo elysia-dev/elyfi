@@ -1,3 +1,5 @@
+import './interfaces/IMoneyPool.sol';
+
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.4;
 
@@ -12,4 +14,6 @@ contract ConnectorStorage {
   }
 
   mapping(bytes32 => RoleData) internal _roles;
+
+  IMoneyPool internal _moneyPool;
 }
