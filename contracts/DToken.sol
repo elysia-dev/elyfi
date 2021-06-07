@@ -3,6 +3,7 @@ pragma solidity 0.8.4;
 
 import './libraries/WadRayMath.sol';
 import './libraries/Math.sol';
+import './libraries/Errors.sol';
 import './interfaces/IDToken.sol';
 import './interfaces/IMoneyPool.sol';
 import '@openzeppelin/contracts/utils/Context.sol';
@@ -67,7 +68,7 @@ contract DToken is IDToken, Context {
   }
 
   function transfer(address recipient, uint256 amount) external override returns (bool) {
-    revert(); //// DTokenTransferNotAllowed();
+    revert TokenErrors.DTokenTransferNotAllowed();
   }
 
   function transferFrom(
@@ -75,15 +76,15 @@ contract DToken is IDToken, Context {
     address recipient,
     uint256 amount
   ) external override returns (bool) {
-    revert(); ////DTokenTransferFromNotAllowed();
+    revert TokenErrors.DTokenTransferFromNotAllowed();
   }
 
   function allowance(address owner, address spender) external view override returns (uint256) {
-    revert(); //// DTokenAllowanceNotAllowed();
+    revert TokenErrors.DTokenAllowanceNotAllowed();
   }
 
   function approve(address spender, uint256 amount) external override returns (bool) {
-    revert(); //// DTokenApproveTransferNotAllowed();
+    revert TokenErrors.DTokenApproveNotAllowed();
   }
 
   /**
@@ -421,7 +422,7 @@ contract DToken is IDToken, Context {
   }
 
   modifier onlyMoneyPool {
-    if (_msgSender() != address(_moneyPool)) revert(); ////OnlyMoneyPool();
+    if (_msgSender() != address(_moneyPool)) revert TokenErrors.OnlyMoneyPool();
     _;
   }
 }

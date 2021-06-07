@@ -16,8 +16,6 @@ contract TokenizerStorage {
 
   address internal _underlyingAsset;
 
-  DataStruct.TokenizerData internal _tokenizerData;
-
   /// @notice A mapping from an asset bond's identifier to the asset bond data struct.
   /// The token id is a unique identifier for asset bond.
   mapping(uint256 => DataStruct.AssetBondData) internal _assetBondData;

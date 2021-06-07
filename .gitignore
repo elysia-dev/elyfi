@@ -45,6 +45,9 @@ jspm_packages/
 artifacts/
 cache/
 
+# Deployement files
+deployments/
+
 # Snowpack dependency directory (https://snowpack.dev/)
 web_modules/
 

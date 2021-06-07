@@ -8,7 +8,6 @@ import './libraries/DataStruct.sol';
 import './libraries/Math.sol';
 import './libraries/Role.sol';
 import './logic/AssetBond.sol';
-import './logic/TokenizerData.sol';
 import './logic/Index.sol';
 import './logic/Validation.sol';
 import './interfaces/IMoneyPool.sol';
@@ -23,7 +22,6 @@ import 'hardhat/console.sol';
  */
 contract Tokenizer is ITokenizer, TokenizerStorage, ERC721 {
   using WadRayMath for uint256;
-  using TokenizerData for DataStruct.TokenizerData;
   using AssetBond for DataStruct.AssetBondData;
   using Index for DataStruct.AssetBondData;
 
@@ -53,10 +51,6 @@ contract Tokenizer is ITokenizer, TokenizerStorage, ERC721 {
     return _assetBondData[tokenId];
   }
 
-  function getTokenizerData() external view override returns (DataStruct.TokenizerData memory) {
-    return _tokenizerData;
-  }
-
   function getMinter(uint256 tokenId) external view returns (address) {
     return _minter[tokenId];
   }
@@ -73,8 +67,9 @@ contract Tokenizer is ITokenizer, TokenizerStorage, ERC721 {
    * @param tokenId The tokenId is a unique identifier for asset bond.
    */
   function mintABToken(address account, uint256 tokenId) external override onlyCSP {
-    if (_minter[tokenId] != address(0)) revert(); ////error ABTokenIDAlreadyExist(tokenId);
-    if (!_connector.isCSP(account)) revert(); ////error MintedABTokenReceiverNotAllowed(account, tokenId);
+    if (_minter[tokenId] != address(0)) revert TokenizerErrors.ABTokenIDAlreadyExists(tokenId);
+    if (!_connector.isCSP(account))
+      revert TokenizerErrors.MintedABTokenReceiverNotAllowed(account, tokenId);
 
     // validate tokenId : tokenId should have information about
     AssetBond.validateTokenId(tokenId);
@@ -132,13 +127,6 @@ contract Tokenizer is ITokenizer, TokenizerStorage, ERC721 {
     DataStruct.AssetBondData storage assetBond = _assetBondData[tokenId];
 
     assetBond.collateralizeAssetBond(borrowAmount, borrowAPR);
-
-    console.log(
-      'hardhat deposit ABToken Tokenizer | borrowAPR | totalSupply | averageATokenAPR',
-      borrowAPR,
-      _tokenizerData.totalATokenSupply,
-      _tokenizerData.averageATokenAPR
-    );
   }
 
   function releaseAssetBond(address account, uint256 tokenId) external override onlyMoneyPool {
@@ -155,17 +143,20 @@ contract Tokenizer is ITokenizer, TokenizerStorage, ERC721 {
   }
 
   modifier onlyMoneyPool {
-    if (!_connector.isMoneyPool((msg.sender))) revert(); ////OnlyMoneyPool();
+    if (!_connector.isMoneyPool((msg.sender))) revert();
+    revert TokenizerErrors.OnlyMoneyPool();
     _;
   }
 
   modifier onlyCSP {
-    if (!_connector.isCSP(msg.sender)) revert(); ////OnlyCSP();
+    if (!_connector.isCSP(msg.sender)) revert();
+    revert TokenizerErrors.OnlyCSP();
     _;
   }
 
   modifier onlyCouncil {
-    if (!_connector.isCouncil(msg.sender)) revert(); ////OnlyCouncil();
+    if (!_connector.isCouncil(msg.sender)) revert();
+    revert TokenizerErrors.OnlyCouncil();
     _;
   }
 }

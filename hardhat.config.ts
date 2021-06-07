@@ -27,10 +27,8 @@ const config: HardhatUserConfig = {
       },
     },
   },
-  namedAccount: {
-    deployer: {
-      default: 0,
-    },
+  namedAccounts: {
+    deployer: 0,
   },
   networks: {
     hardhat: {},
@@ -62,9 +60,9 @@ const config: HardhatUserConfig = {
       accounts: [process.env.ADMIN || ''],
     },
   },
-  etherscan: {
-    apiKey: process.env.ETHERSCAN_API_KEY,
-  },
+  // etherscan: {
+  //   apiKey: process.env.ETHERSCAN_API_KEY,
+  // },
   paths: {
     sources: './contracts',
     tests: './test',

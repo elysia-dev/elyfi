@@ -20,11 +20,11 @@ library Validation {
     internal
     view
   {
-    if (amount == 0) revert(); //// InvalidAmount(amount)
+    if (amount == 0) revert MoneyPoolErrors.InvalidAmount(amount);
 
-    if (reserve.isPaused == true) revert(); //// ReservePaused();
+    if (reserve.isPaused == true) revert MoneyPoolErrors.ReservePaused();
 
-    if (reserve.isActivated == false) revert(); //// ReserveInactivated();
+    if (reserve.isActivated == false) revert MoneyPoolErrors.ReserveInactivated();
   }
 
   /**
@@ -46,10 +46,11 @@ library Validation {
     mapping(uint256 => address) storage reserveList,
     uint256 reserveCount
   ) internal view {
-    if (amount == 0) revert(); //// InvalidAmount(amount)
-    if (reserve.isPaused == true) revert(); //// ReservePaused();
-    if (reserve.isActivated == false) revert(); //// ReserveInactivated();
-    if (amount > userLTokenBalance) revert(); //// WithdrawInsufficientBalance(amount, userLTokenBalance);
+    if (amount == 0) revert MoneyPoolErrors.InvalidAmount(amount);
+    if (reserve.isPaused == true) revert MoneyPoolErrors.ReservePaused();
+    if (reserve.isActivated == false) revert MoneyPoolErrors.ReserveInactivated();
+    if (amount > userLTokenBalance)
+      revert MoneyPoolErrors.WithdrawInsufficientBalance(amount, userLTokenBalance);
   }
 
   /**
@@ -68,13 +69,12 @@ library Validation {
     uint256 amount,
     uint256 moneyPoolATokenBalance
   ) internal view {
-    if (amount == 0) revert(); //// InvalidAmount(amount)
-    if (reserve.isPaused == true) revert(); //// ReservePaused();
-    if (reserve.isActivated == false) revert(); //// ReserveInactivated();
+    if (amount == 0) revert MoneyPoolErrors.InvalidAmount(amount);
+    if (reserve.isPaused == true) revert MoneyPoolErrors.ReservePaused();
+    if (reserve.isActivated == false) revert MoneyPoolErrors.ReserveInactivated();
 
-    //if(assetBond.isMatured == true) revert(); //// MaturedABToken();
-    //if(assetBond.isDeposited == false) revert(); //// NotDepositedABToken();
-    if (moneyPoolATokenBalance < amount) revert(); //// InsufficientATokenBalance(reserve.totalDepositedATokenBalance);
+    //if(assetBond.isMatured == true) revert MoneyPoolErrors.MaturedABToken();
+    //if(assetBond.isDeposited == false) revert MoneyPoolErrors.NotDepositedABToken();
   }
 
   function validateBorrowAgainstAssetBond(
@@ -86,10 +86,10 @@ library Validation {
     // moneypool validate logic : active, frozen
 
     // check settled logic
-    //if (assetBond.isSettled == true) revert(); //// NotSettledABToken(id);
+    //if (assetBond.isSettled == true) revert MoneyPoolErrors.NotSettledABToken(id);
 
     // check sign logic
-    //if (assetBond.isSigned == false) revert(); ////NotSignedABToken(id);
+    //if (assetBond.isSigned == false) revertNValidationErrors.otSignedABToken(id);
 
     uint256 availableLiquidity = IERC20(asset).balanceOf(reserve.lTokenAddress);
   }
