@@ -1,29 +1,36 @@
-import "dotenv/config";
-import "@nomiclabs/hardhat-waffle";
-import "@nomiclabs/hardhat-solhint";
-import "@nomiclabs/hardhat-etherscan";
-import "@openzeppelin/hardhat-upgrades";
-import "hardhat-typechain";
+import 'dotenv/config';
+import '@nomiclabs/hardhat-waffle';
+import '@nomiclabs/hardhat-solhint';
+import '@nomiclabs/hardhat-etherscan';
+import '@openzeppelin/hardhat-upgrades';
+import 'hardhat-typechain';
+import 'hardhat-deploy-ethers';
+import 'hardhat-deploy';
 // import "solidity-coverage"
 // Gas-reporter's parser dependency makes Warning:
 // Accessing non-existent property 'INVALID_ALT_NUMBER' of module exports inside circular dependency
-import "hardhat-gas-reporter";
+import 'hardhat-gas-reporter';
 
-import { HardhatUserConfig } from "hardhat/types";
+import { HardhatUserConfig } from 'hardhat/types';
 
 const config: HardhatUserConfig = {
   solidity: {
-    version: "0.8.4",
+    version: '0.8.4',
     settings: {
       outputSelection: {
-        "*": {
-          "*": ["storageLayout"],
-        }
+        '*': {
+          '*': ['storageLayout'],
+        },
       },
       optimizer: {
-        enabled: true
-      }
-    }
+        enabled: true,
+      },
+    },
+  },
+  namedAccount: {
+    deployer: {
+      default: 0,
+    },
   },
   networks: {
     hardhat: {},
@@ -43,33 +50,33 @@ const config: HardhatUserConfig = {
       chainId: 42,
     },
     binanceTestnet: {
-      url: "https://data-seed-prebsc-1-s1.binance.org:8545",
+      url: 'https://data-seed-prebsc-1-s1.binance.org:8545',
       chainId: 97,
       gasPrice: 20000000000,
       accounts: [process.env.ADMIN || ''],
     },
     binanceMainnet: {
-      url: "https://bsc-dataseed.binance.org/",
+      url: 'https://bsc-dataseed.binance.org/',
       chainId: 56,
       gasPrice: 20000000000,
       accounts: [process.env.ADMIN || ''],
-    }
+    },
   },
   etherscan: {
-    apiKey: process.env.ETHERSCAN_API_KEY
+    apiKey: process.env.ETHERSCAN_API_KEY,
   },
   paths: {
-    sources: "./contracts",
-    tests: "./test",
-    cache: "./cache",
+    sources: './contracts',
+    tests: './test',
+    cache: './cache',
   },
   mocha: {
     reporter: 'eth-gas-reporter',
     reporterOptions: {
       currency: 'KRW',
-      showTimeSpent: true
-    }
-  }
+      showTimeSpent: true,
+    },
+  },
 };
 
 export default config;

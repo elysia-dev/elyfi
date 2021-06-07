@@ -5,10 +5,8 @@ import '../Tokenizer.sol';
 
 contract TokenizerTest is Tokenizer {
   constructor(
-    address moneyPool,
+    address connector,
     string memory name_,
     string memory symbol_
-  ) {
-    initialize(moneyPool, name_, symbol_);
-  }
+  ) Tokenizer(connector, name_, symbol_) {}
 }

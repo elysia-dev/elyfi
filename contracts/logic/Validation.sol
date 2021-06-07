@@ -91,7 +91,7 @@ library Validation {
     // check sign logic
     //if (assetBond.isSigned == false) revert(); ////NotSignedABToken(id);
 
-    uint256 availableLiquidity = IERC20Upgradeable(asset).balanceOf(reserve.lTokenAddress);
+    uint256 availableLiquidity = IERC20(asset).balanceOf(reserve.lTokenAddress);
   }
 
   function validateLTokenTrasfer() internal pure {}
