@@ -20,13 +20,6 @@ interface ITokenizer {
     uint256 id // information about Co and borrower
   ) external;
 
-  function getTokenizerData() external view returns (DataStruct.TokenizerData memory);
-
-  function getAssetBondData(uint256 tokenId)
-    external
-    view
-    returns (DataStruct.AssetBondData memory);
-
   function collateralizeAssetBond(
     address account,
     uint256 tokenId,
@@ -35,4 +28,6 @@ interface ITokenizer {
   ) external;
 
   function releaseAssetBond(address account, uint256 tokenId) external;
+
+  function getAssetBondData(uint256 tokenId) external returns (DataStruct.AssetBondData memory);
 }

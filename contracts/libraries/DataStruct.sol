@@ -53,11 +53,4 @@ library DataStruct {
     * MATURED:
    */
   enum AssetBondState {EMPTY, SETTLED, CONFIRMED, COLLATERALIZED, MATURED, NOT_PERFORMED}
-
-  struct TokenizerData {
-    address asset;
-    uint256 averageATokenAPR;
-    uint256 totalATokenSupply;
-    uint256 lastUpdateTimestamp;
-  }
 }

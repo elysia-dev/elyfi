@@ -246,7 +246,7 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
     uint256 previousFromBalance,
     uint256 previousToBalance
   ) external override {
-    if (msg.sender == _reserves[asset].lTokenAddress) revert(); ////
+    if (msg.sender == _reserves[asset].lTokenAddress) revert MoneyPoolErrors.OnlyLToken();
 
     // For beta version, there's no need for validate LToken transfer
     Validation.validateLTokenTrasfer();
@@ -287,9 +287,9 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
   function _addNewReserveToList(address asset) internal {
     uint256 reserveCount = _reserveCount;
 
-    if (reserveCount >= _maxReserveCount) revert(); ////MaxReserveCountExceeded();
+    if (reserveCount >= _maxReserveCount) revert MoneyPoolErrors.MaxReserveCountExceeded();
 
-    if (_reserves[asset].id != 0) revert(); ////DigitalAssetAlreadyAdded(address asset);
+    if (_reserves[asset].id != 0) revert MoneyPoolErrors.DigitalAssetAlreadyAdded(asset);
 
     _reserves[asset].id = uint8(reserveCount);
     _reservesList[reserveCount] = asset;

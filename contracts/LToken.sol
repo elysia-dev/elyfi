@@ -37,7 +37,7 @@ contract LToken is ILToken, ERC20 {
   ) external override onlyMoneyPool returns (bool) {
     uint256 implicitBalance = amount.rayDiv(index);
 
-    if (amount == 0) revert(); ////InvalidMintAmount(uint256 implicitBalance);
+    if (amount == 0) revert TokenErrors.LTokenInvalidMintAmount(implicitBalance);
 
     _mint(account, implicitBalance);
 
@@ -53,7 +53,7 @@ contract LToken is ILToken, ERC20 {
   ) external override onlyMoneyPool {
     uint256 implicitBalance = amount.rayDiv(index);
 
-    if (amount == 0) revert(); ////InvalidBurnAmount(uint256 implicitBalance);
+    if (amount == 0) revert TokenErrors.LTokenInvalidBurnAmount(implicitBalance);
 
     _burn(account, implicitBalance);
 
@@ -151,7 +151,7 @@ contract LToken is ILToken, ERC20 {
   }
 
   modifier onlyMoneyPool {
-    if (_msgSender() != address(_moneyPool)) revert(); ////OnlyMoneyPool();
+    if (_msgSender() != address(_moneyPool)) revert TokenErrors.OnlyMoneyPool();
     _;
   }
 }

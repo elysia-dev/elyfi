@@ -3,10 +3,9 @@ import { join } from 'path';
 import { HardhatRuntimeEnvironment } from 'hardhat/types';
 import { DeployFunction } from 'hardhat-deploy/types';
 import { defaultInterestModelParams, defaultReserveData } from '../test/utils/Interfaces';
-import ERC20Test_ABI from '../artifacts/contracts/test/ERC20Test.sol/ERC20Test.json';
 import TestnetEL_ABI from '../dependencies/TestnetEL.json';
 import ELToken_ABI from '../dependencies/ELToken.json';
-import { getContractAt, getContract } from 'hardhat-deploy-ethers/dist/src/helpers';
+import { getContractAt } from 'hardhat-deploy-ethers/dist/src/helpers';
 import { MoneyPool } from '../typechain';
 import { expandToDecimals } from '../test/utils/Ethereum';
 
@@ -80,7 +79,6 @@ const deployTest: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
 
   const elysia = await getElysia(hre, deployer);
 
-  hre.network;
   const connector = await deploy('Connector', {
     from: deployer,
     log: true,

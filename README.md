@@ -36,3 +36,13 @@ or
 yarn hardhat test test/Index.test.ts
 
 ```
+
+## Deploy
+
+```
+## Deploy local network
+yarn hardhat deploy
+
+## Deploy test network
+yarn hardhat --network networkName deploy
+```
