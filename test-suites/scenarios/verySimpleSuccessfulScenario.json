@@ -11,14 +11,14 @@
     {
       "description": "Account1 borrow 5 USD with secure NFT",
       "actionType": "borrowAgainstABToken",
-      "actionMaker": 0,
+      "actionMaker": 1,
       "value": 5,
       "expected": true
     },
     {
       "description": "Account1 repay all",
       "actionType": "repayAgainstABToken",
-      "actionMaker": 0,
+      "actionMaker": 1,
       "value": 10,
       "expected": true
     },
@@ -26,7 +26,7 @@
       "description": "Account0 withdraw all",
       "actionType": "withdrawMoneyPool",
       "actionMaker": 0,
-      "value": 20,
+      "value": 10,
       "expected": true
     }
   ]
