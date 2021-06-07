@@ -10,6 +10,8 @@ import './interfaces/IConnector.sol';
  * @author ELYSIA
  */
 contract Connector is IConnector, ConnectorStorage {
+  constructor() {}
+
   function addCouncil(address account) external {
     _grantRole(Role.COUNCIL, account);
     emit NewCouncilAdded(account);
