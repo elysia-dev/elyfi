@@ -9,7 +9,7 @@ import { getTimestamp } from "../../test/utils/Ethereum";
 import { ethers } from 'hardhat';
 import BigNumber from "bignumber.js";
 import { expect } from "chai";
-import ActionType from "../enums/actinoType";
+import ActionType from "../enums/actionType";
 import Story from "../types/story";
 import ElyfiContracts from "../types/ElyfiContracts";
 import takeDataSnapshot from "./takeDataSnapshot";
