@@ -1,4 +1,4 @@
-import ActionType from "../enums/actinoType"
+import ActionType from "../enums/actionType"
 
 type Story = {
   description: string,
