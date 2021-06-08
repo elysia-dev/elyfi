@@ -1,7 +1,7 @@
 import { Wallet } from "@ethersproject/wallet";
-import { getReserveData, getUserData } from "../../test/utils/Helpers";
+import { getReserveData, getUserData } from "./Helpers";
 import ElyfiContracts from "../types/ElyfiContracts";
-import { ReserveData, UserData } from "../../test/utils/Interfaces";
+import { ReserveData, UserData } from "./Interfaces";
 
 const takeDataSnapshot: (account: Wallet, elyfiContracts: ElyfiContracts) => Promise<[ReserveData, UserData]> = async (
   account,

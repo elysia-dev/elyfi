@@ -21,6 +21,7 @@ import { Contract, Wallet } from 'ethers';
 import { ethers } from 'hardhat';
 import { expandToDecimals, toRate } from './Ethereum';
 import { defaultInterestModelParams, defaultReserveData, InterestModelParams } from './Interfaces';
+import ElyfiContracts from '../types/ElyfiContracts';
 
 export async function makeUnderlyingAsset({
   deployer,
@@ -205,4 +206,65 @@ export async function makeDataPipeline({
   dataPipeline = await dataPipelineFactory.deploy(moneyPool.address);
 
   return dataPipeline;
+}
+
+export async function makeAllContracts(deployer: Wallet): Promise<ElyfiContracts> {
+  const underlyingAsset = await makeUnderlyingAsset({
+    deployer,
+  });
+
+  const connector = await makeConnector({
+    deployer,
+  });
+
+  const moneyPool = await makeMoneyPool({
+    deployer,
+    connector,
+  });
+
+  const interestModel = await makeInterestRateModel({
+    deployer,
+  });
+
+  const lToken = await makeLToken({
+    deployer,
+    moneyPool,
+    underlyingAsset,
+  });
+
+  const dToken = await makeDToken({
+    deployer,
+    moneyPool,
+    underlyingAsset,
+  });
+
+  const tokenizer = await makeTokenizer({
+    deployer,
+    moneyPool,
+  });
+
+  const dataPipeline = await makeDataPipeline({
+    deployer,
+    moneyPool,
+  });
+
+  await moneyPool.addNewReserve(
+    underlyingAsset.address,
+    lToken.address,
+    dToken.address,
+    interestModel.address,
+    tokenizer.address,
+    defaultReserveData.moneyPoolFactor.toFixed()
+  );
+
+  return {
+    underlyingAsset,
+    connector,
+    moneyPool,
+    interestModel,
+    lToken,
+    dToken,
+    tokenizer,
+    dataPipeline,
+  }
 }

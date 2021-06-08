@@ -11,8 +11,8 @@ import BigNumber from "bignumber.js";
 import { expect } from "chai";
 import ActionType from "../enums/ActionType";
 import Story from "../types/Story";
-import ElyfiContracts from "../types/ElyfiContracts";
-import takeDataSnapshot from "./takeDataSnapshot";
+import ElyfiContracts from "../../test/types/ElyfiContracts";
+import takeDataSnapshot from "../../test/utils/takeDataSnapshot";
 import { ContractTransaction } from "@ethersproject/contracts";
 import { ReserveData, UserData } from "../../test/utils/Interfaces";
 require('../../test/assertions/equals')
