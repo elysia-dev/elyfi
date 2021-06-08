@@ -143,20 +143,17 @@ contract Tokenizer is ITokenizer, TokenizerStorage, ERC721 {
   }
 
   modifier onlyMoneyPool {
-    if (!_connector.isMoneyPool((msg.sender))) revert();
-    revert TokenizerErrors.OnlyMoneyPool();
+    if (_msgSender() != address(_moneyPool)) revert TokenizerErrors.OnlyMoneyPool();
     _;
   }
 
   modifier onlyCSP {
-    if (!_connector.isCSP(msg.sender)) revert();
-    revert TokenizerErrors.OnlyCSP();
+    if (!_connector.isCSP(msg.sender)) revert TokenizerErrors.OnlyCSP();
     _;
   }
 
   modifier onlyCouncil {
-    if (!_connector.isCouncil(msg.sender)) revert();
-    revert TokenizerErrors.OnlyCouncil();
+    if (!_connector.isCouncil(msg.sender)) revert TokenizerErrors.OnlyCouncil();
     _;
   }
 }
