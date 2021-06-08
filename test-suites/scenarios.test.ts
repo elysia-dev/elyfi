@@ -1,7 +1,7 @@
 import fs from "fs";
 import hre from 'hardhat';
 import ElyfiContracts from "./types/ElyfiContracts";
-import Scenario from "./types/scenario";
+import Scenario from "./types/Scenario";
 import excuteStory from "./utils/excuteStory";
 import makeTestSuiteContracts from "./utils/makeTestSuiteContracts";
 
