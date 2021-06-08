@@ -19,6 +19,7 @@ export function expectedReserveDataAfterInvestMoneyPool({
 }): ReserveData {
   let expectedReserveData: ReserveData = reserveDataBefore;
 
+  /*
   console.log(
     'expect Timestamp: Before > Tx > DToken',
     reserveDataBefore.dTokenLastUpdateTimestamp.toFixed(),
@@ -26,6 +27,7 @@ export function expectedReserveDataAfterInvestMoneyPool({
     expectedReserveData.totalDTokenSupply.toFixed(),
     expectedReserveData.borrowAPR.toFixed()
   );
+  */
 
   // update lTokenIndex and moneyPool timestamp
   let lTokenInterestIndex = reserveDataBefore.lTokenInterestIndex;
@@ -80,6 +82,7 @@ export function expectedReserveDataAfterInvestMoneyPool({
   expectedReserveData.implicitLTokenSupply = implicitLTokenSupply;
   expectedReserveData.totalLTokenSupply = rayMul(implicitLTokenSupply, lTokenInterestIndex);
 
+  /*
   console.log(
     'Expected: totalL | totalD  | borrowAPR | supplyAPR | ',
     totalLTokenSupply.toFixed(),
@@ -87,6 +90,7 @@ export function expectedReserveDataAfterInvestMoneyPool({
     expectedReserveData.borrowAPR.toFixed(),
     expectedReserveData.supplyAPR.toFixed()
   );
+  */
 
   return expectedReserveData;
 }

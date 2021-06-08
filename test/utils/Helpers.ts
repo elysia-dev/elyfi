@@ -73,12 +73,14 @@ export async function getReserveData({
   );
   reserveData.interestRateModelParams = defaultInterestModelParams;
 
+  /*
   console.log(
     'Contract Helpers:',
     contractReserveData.totalDTokenSupply.toString(),
     contractReserveData.borrowAPR.toString(),
     contractReserveData.supplyAPR.toString()
   );
+  */
 
   return reserveData;
 }

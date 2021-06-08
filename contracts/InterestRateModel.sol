@@ -82,6 +82,7 @@ contract InterestRateModel is IInterestRateModel, InterestRateModelStorage {
     vars.newSupplyAPR = vars.newBorrowAPR.rayMul(vars.utilizationRate);
     // need reserveFactor calculation
 
+    /*
     console.log(
       'hardhat interest Rate Model console: totalDebt-Util',
       vars.totalDebt,
@@ -93,6 +94,7 @@ contract InterestRateModel is IInterestRateModel, InterestRateModelStorage {
       vars.newBorrowAPR,
       vars.newSupplyAPR
     );
+    */
 
     return (vars.newBorrowAPR, vars.newSupplyAPR);
   }
