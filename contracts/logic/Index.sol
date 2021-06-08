@@ -67,11 +67,13 @@ library Index {
 
     reserve.lastUpdateTimestamp = block.timestamp;
 
+    /*
     console.log(
       'hardhat updateIndex console: lToken index | timestamp',
       reserve.lTokenInterestIndex,
       reserve.lastUpdateTimestamp
     );
+    */
 
     return (reserve.lTokenInterestIndex);
   }

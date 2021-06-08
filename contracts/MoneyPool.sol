@@ -67,12 +67,14 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
     // Mint ltoken
     ILToken(reserve.lTokenAddress).mint(account, amount, reserve.lTokenInterestIndex);
 
+    /*
     console.log(
       'Invest finalize |amount|lTokenInterestIndex|borrowAPR',
       amount,
       reserve.lastUpdateTimestamp,
       reserve.borrowAPR
     );
+    */
     emit InvestMoneyPool(asset, account, amount);
   }
 
@@ -122,12 +124,14 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
       reserve.lTokenInterestIndex
     );
 
+    /*
     console.log(
       'Borrow finalize |amount|lastUpdateTimestamp|borrowAPR',
       amountToWithdraw,
       reserve.lTokenInterestIndex,
       reserve.borrowAPR
     );
+    */
 
     emit WithdrawMoneyPool(asset, msg.sender, account, amountToWithdraw);
   }
@@ -179,12 +183,14 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
     // transfer Underlying asset
     ILToken(reserve.lTokenAddress).transferUnderlyingTo(receiver, borrowAmount);
 
+    /*
     console.log(
       'Borrow finalize |amount|lastUpdateTimestamp|borrowAPR',
       borrowAmount,
       reserve.lastUpdateTimestamp,
       reserve.borrowAPR
     );
+    */
 
     emit BorrowAgainstAssetBond(
       asset,

@@ -147,6 +147,7 @@ export function calculateRateInInterestRateModel(
 
   newSupplyAPR = rayMul(newBorrowAPR, utilizationRate);
 
+  /*
   console.log(
     'testData borrowAPR | supplyAPR | U | totalL | dToken',
     newBorrowAPR.toFixed(),
@@ -155,6 +156,7 @@ export function calculateRateInInterestRateModel(
     totalLiquidity.toFixed(),
     dTokenAmount.toFixed()
   );
+  */
 
   return [newBorrowAPR, newSupplyAPR];
 }

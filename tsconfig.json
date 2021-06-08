@@ -69,6 +69,6 @@
     "skipLibCheck": true,                           /* Skip type checking of declaration files. */
     "forceConsistentCasingInFileNames": true        /* Disallow inconsistently-cased references to the same file. */
   },
-  "include": ["./scripts/**/*.ts", "./test", "./deploy"],
+  "include": ["./scripts/**/*.ts", "./test", "./deploy", "./test-suites"],
   "files": ["./hardhat.config.ts"]
 }
