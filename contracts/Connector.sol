@@ -11,9 +11,7 @@ import '@openzeppelin/contracts/access/Ownable.sol';
  * @author ELYSIA
  */
 contract Connector is IConnector, ConnectorStorage, Ownable {
-  constructor(address moneyPool) {
-    _moneyPool = IMoneyPool(moneyPool);
-  }
+  constructor() {}
 
   function addCouncil(address account) external onlyOwner {
     _grantRole(Role.COUNCIL, account);

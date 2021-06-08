@@ -63,15 +63,18 @@ const excuteStory = async (
         amount,
         elyfiContracts,
         async () => {
+          await elyfiContracts.underlyingAsset.connect(account).approve(elyfiContracts.moneyPool.address, ethers.utils.parseEther('1000'));
+
           try {
             const tx = await elyfiContracts.moneyPool
               .connect(account)
-              .withdrawMoneyPool(elyfiContracts.underlyingAsset.address, account.address, amount.toString());
+              .investMoneyPool(elyfiContracts.underlyingAsset.address, account.address, amount.toString());
 
             expect(story.expected).to.be.true
 
             return tx
           } catch (e) {
+            console.log(e)
             expect(story.expected).to.be.false
           }
         },
@@ -101,16 +104,15 @@ const excuteStory = async (
         elyfiContracts,
         async () => {
           try {
-            await elyfiContracts.underlyingAsset.connect(account).approve(elyfiContracts.moneyPool.address, ethers.utils.parseEther('1000'));
-
             const tx = await elyfiContracts.moneyPool
               .connect(account)
-              .investMoneyPool(elyfiContracts.underlyingAsset.address, account.address, amount.toString());
+              .withdrawMoneyPool(elyfiContracts.underlyingAsset.address, account.address, amount.toString());
 
             expect(story.expected).to.be.true
 
             return tx
           } catch (e) {
+            console.log(e)
             expect(story.expected).to.be.false
           }
         },
