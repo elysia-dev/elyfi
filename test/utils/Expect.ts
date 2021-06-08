@@ -8,7 +8,7 @@ import {
   calculateRateInInterestRateModel,
 } from './Math';
 
-export function expectedReserveDataAfterInvestMoneyPool({
+export function expectedReserveDataAfterInvest({
   amountInvest,
   reserveDataBefore,
   txTimestamp,
@@ -95,7 +95,7 @@ export function expectedReserveDataAfterInvestMoneyPool({
   return expectedReserveData;
 }
 
-export function expectedUserDataAfterInvestMoneyPool({
+export function expectedUserDataAfterInvest({
   amountInvest,
   userDataBefore,
   reserveDataBefore,
@@ -136,7 +136,7 @@ export function expectedUserDataAfterInvestMoneyPool({
   return expectedUserData;
 }
 
-export function expectedReserveDataAfterWithdrawMoneyPool({
+export function expectedReserveDataAfterWithdraw({
   amountWithdraw,
   reserveDataBefore,
   txTimestamp,
@@ -202,7 +202,7 @@ export function expectedReserveDataAfterWithdrawMoneyPool({
   return expectedReserveData;
 }
 
-export function expectedUserDataAfterWithdrawMoneyPool({
+export function expectedUserDataAfterWithdraw({
   amountWithdraw,
   userDataBefore,
   reserveDataBefore,
@@ -245,7 +245,7 @@ export function expectedUserDataAfterWithdrawMoneyPool({
   return expectedUserData;
 }
 
-export function expectedReserveDataAfterBorrowAgainstABToken({
+export function expectedReserveDataAfterBorrow({
   amountBorrow,
   reserveDataBefore,
   txTimestamp,
@@ -324,7 +324,7 @@ export function expectedReserveDataAfterBorrowAgainstABToken({
   return expectedReserveData;
 }
 
-export function expectedUserDataAfterBorrowAgainstABToken({
+export function expectedUserDataAfterBorrow({
   amountBorrow,
   userDataBefore,
   reserveDataBefore,

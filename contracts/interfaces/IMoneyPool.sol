@@ -4,16 +4,16 @@ pragma solidity 0.8.4;
 import '../libraries/DataStruct.sol';
 
 interface IMoneyPool {
-  event InvestMoneyPool(address indexed asset, address indexed account, uint256 amount);
+  event Invest(address indexed asset, address indexed account, uint256 amount);
 
-  event WithdrawMoneyPool(
+  event Withdraw(
     address indexed asset,
     address indexed account,
     address indexed to,
     uint256 amount
   );
 
-  event BorrowAgainstAssetBond(
+  event Borrow(
     address indexed asset,
     address indexed borrower,
     address indexed receiver,
@@ -22,21 +22,19 @@ interface IMoneyPool {
     uint256 borrowAmount
   );
 
-  event RepayAgainstAssetBond();
-
-  function investMoneyPool(
+  function invest(
     address asset,
     address account,
     uint256 amount
   ) external;
 
-  function withdrawMoneyPool(
+  function withdraw(
     address asset,
     address account,
     uint256 amount
   ) external returns (uint256);
 
-  function borrowAgainstAssetBond(
+  function borrow(
     address asset,
     address receiver,
     uint256 borrowAmount,

@@ -1,8 +1,8 @@
 enum ActionType {
-  investMoneyPool = 'investMoneyPool',
-  withdrawMoneyPool = 'withdrawMoneyPool',
-  borrowAgainstABToken = 'borrowAgainstABToken',
-  repayAgainstABToken = 'repayAgainstABToken'
+  invest = 'invest',
+  withdraw = 'withdraw',
+  borrow = 'borrow',
+  repay = 'repay'
 }
 
 export default ActionType

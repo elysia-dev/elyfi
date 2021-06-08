@@ -24,10 +24,10 @@ import {
 import { defaultReserveData } from './utils/Interfaces';
 import { expect } from 'chai';
 import {
-  expectedReserveDataAfterBorrowAgainstABToken,
-  expectedReserveDataAfterInvestMoneyPool,
-  expectedUserDataAfterBorrowAgainstABToken,
-  expectedUserDataAfterInvestMoneyPool,
+  expectedReserveDataAfterBorrow,
+  expectedReserveDataAfterInvest,
+  expectedUserDataAfterBorrow,
+  expectedUserDataAfterInvest,
 } from './utils/Expect';
 import { getReserveData, getUserData } from './utils/Helpers';
 require('./assertions/equals');
@@ -136,7 +136,7 @@ describe('MoneyPool', () => {
 
       const investTx = await moneyPool
         .connect(account1)
-        .investMoneyPool(underlyingAsset.address, account1.address, amountInvest.toFixed());
+        .invest(underlyingAsset.address, account1.address, amountInvest.toFixed());
 
       const contractReserveDataAfterInvest = await getReserveData({
         underlyingAsset: underlyingAsset,
@@ -149,12 +149,12 @@ describe('MoneyPool', () => {
         user: account1,
       });
 
-      const expectedReserveDataAfterInvest = expectedReserveDataAfterInvestMoneyPool({
+      const expectedReserveData = expectedReserveDataAfterInvest({
         amountInvest: amountInvest,
         reserveDataBefore: contractReserveDataBeforeInvest,
         txTimestamp: await getTimestamp(investTx),
       });
-      const expectedUserDataAfterInvest = expectedUserDataAfterInvestMoneyPool({
+      const expectedUserData = expectedUserDataAfterInvest({
         amountInvest: amountInvest,
         userDataBefore: contractUserDataBeforeInvest,
         reserveDataBefore: contractReserveDataBeforeInvest,
@@ -162,8 +162,8 @@ describe('MoneyPool', () => {
         txTimestamp: await getTimestamp(investTx),
       });
 
-      expect(contractReserveDataAfterInvest).to.be.equalReserveData(expectedReserveDataAfterInvest);
-      expect(contractUserDataAfterInvest).to.be.equalUserData(expectedUserDataAfterInvest);
+      expect(contractReserveDataAfterInvest).to.be.equalReserveData(expectedReserveData);
+      expect(contractUserDataAfterInvest).to.be.equalUserData(expectedUserData);
     });
 
     it('Invests moneypool for the second time', async () => {
@@ -172,7 +172,7 @@ describe('MoneyPool', () => {
 
       const investTx = await moneyPool
         .connect(account1)
-        .investMoneyPool(underlyingAsset.address, account1.address, amountInvest.toFixed());
+        .invest(underlyingAsset.address, account1.address, amountInvest.toFixed());
 
       const contractReserveDataBeforeInvest = await getReserveData({
         underlyingAsset: underlyingAsset,
@@ -187,7 +187,7 @@ describe('MoneyPool', () => {
 
       const secondInvestTx = await moneyPool
         .connect(account1)
-        .investMoneyPool(underlyingAsset.address, account1.address, amountInvest.toFixed());
+        .invest(underlyingAsset.address, account1.address, amountInvest.toFixed());
 
       const contractReserveDataAfterInvest = await getReserveData({
         underlyingAsset: underlyingAsset,
@@ -200,12 +200,12 @@ describe('MoneyPool', () => {
         user: account1,
       });
 
-      const expectedReserveDataAfterInvest = expectedReserveDataAfterInvestMoneyPool({
+      const expectedReserveData = expectedReserveDataAfterInvest({
         amountInvest: amountInvest,
         reserveDataBefore: contractReserveDataBeforeInvest,
         txTimestamp: await getTimestamp(secondInvestTx),
       });
-      const expectedUserDataAfterInvest = expectedUserDataAfterInvestMoneyPool({
+      const expectedUserData = expectedUserDataAfterInvest({
         amountInvest: amountInvest,
         userDataBefore: contractUserDataBeforeInvest,
         reserveDataBefore: contractReserveDataBeforeInvest,
@@ -213,8 +213,8 @@ describe('MoneyPool', () => {
         txTimestamp: await getTimestamp(secondInvestTx),
       });
 
-      expect(contractReserveDataAfterInvest).to.be.equalReserveData(expectedReserveDataAfterInvest);
-      expect(contractUserDataAfterInvest).to.be.equalUserData(expectedUserDataAfterInvest);
+      expect(contractReserveDataAfterInvest).to.be.equalReserveData(expectedReserveData);
+      expect(contractUserDataAfterInvest).to.be.equalUserData(expectedUserData);
     });
   });
 
@@ -232,7 +232,7 @@ describe('MoneyPool', () => {
       await underlyingAsset.connect(account1).approve(moneyPool.address, RAY);
       const firstInvestTx = await moneyPool
         .connect(account1)
-        .investMoneyPool(underlyingAsset.address, account1.address, amountInvest.toFixed());
+        .invest(underlyingAsset.address, account1.address, amountInvest.toFixed());
     });
 
     it('Borrow against AB token', async () => {
@@ -249,7 +249,7 @@ describe('MoneyPool', () => {
 
       const borrowTx = await moneyPool
         .connect(CSP)
-        .borrowAgainstABToken(
+        .borrow(
           underlyingAsset.address,
           account1.address,
           amountBorrow.toFixed(),
@@ -268,13 +268,12 @@ describe('MoneyPool', () => {
         user: account1,
       });
 
-      const expectedReserveDataAfterBorrow = expectedReserveDataAfterBorrowAgainstABToken({
+      const expectedReserveData = expectedReserveDataAfterBorrow({
         amountBorrow: amountBorrow,
         reserveDataBefore: contractReserveDataBeforeBorrow,
         txTimestamp: await getTimestamp(borrowTx),
       });
-      console.log('expect reserve', contractReserveDataBeforeBorrow.borrowAPR.toFixed());
-      const expectedUserDataAfterBorrow = expectedUserDataAfterBorrowAgainstABToken({
+      const expectedUserData = expectedUserDataAfterBorrow({
         amountBorrow: amountBorrow,
         userDataBefore: contractUserDataBeforeBorrow,
         reserveDataBefore: contractReserveDataBeforeBorrow,
@@ -282,14 +281,14 @@ describe('MoneyPool', () => {
         txTimestamp: await getTimestamp(borrowTx),
       });
 
-      expect(expectedReserveDataAfterBorrow).to.be.equalReserveData(expectedReserveDataAfterBorrow);
-      expect(contractUserDataAfterBorrow).to.be.equalUserData(expectedUserDataAfterBorrow);
+      expect(expectedReserveDataAfterBorrow).to.be.equalReserveData(expectedReserveData);
+      expect(contractUserDataAfterBorrow).to.be.equalUserData(expectedUserData);
     });
 
     it('Borrow against AB token and invest', async () => {
       await moneyPool
         .connect(CSP)
-        .borrowAgainstABToken(
+        .borrow(
           underlyingAsset.address,
           account1.address,
           amountBorrow.toFixed(),
@@ -297,7 +296,7 @@ describe('MoneyPool', () => {
         );
       const investTx1 = await moneyPool
         .connect(account1)
-        .investMoneyPool(underlyingAsset.address, account1.address, amountInvest.toFixed());
+        .invest(underlyingAsset.address, account1.address, amountInvest.toFixed());
 
       const contractReserveDataBeforeInvest = await getReserveData({
         underlyingAsset: underlyingAsset,
@@ -312,7 +311,7 @@ describe('MoneyPool', () => {
 
       const investTx2 = await moneyPool
         .connect(account1)
-        .investMoneyPool(underlyingAsset.address, account1.address, amountInvest.toFixed());
+        .invest(underlyingAsset.address, account1.address, amountInvest.toFixed());
 
       const contractReserveDataAfterInvest = await getReserveData({
         underlyingAsset: underlyingAsset,
@@ -325,12 +324,12 @@ describe('MoneyPool', () => {
         user: account1,
       });
 
-      const expectedReserveDataAfterInvest = expectedReserveDataAfterInvestMoneyPool({
+      const expectedReserveData = expectedReserveDataAfterInvest({
         amountInvest: amountInvest,
         reserveDataBefore: contractReserveDataBeforeInvest,
         txTimestamp: await getTimestamp(investTx2),
       });
-      const expectedUserDataAfterInvest = expectedUserDataAfterInvestMoneyPool({
+      const expectedUserData = expectedUserDataAfterInvest({
         amountInvest: amountInvest,
         userDataBefore: contractUserDataBeforeInvest,
         reserveDataBefore: contractReserveDataBeforeInvest,
@@ -338,8 +337,8 @@ describe('MoneyPool', () => {
         txTimestamp: await getTimestamp(investTx2),
       });
 
-      expect(contractReserveDataAfterInvest).to.be.equalReserveData(expectedReserveDataAfterInvest);
-      expect(contractUserDataAfterInvest).to.be.equalUserData(expectedUserDataAfterInvest);
+      expect(contractReserveDataAfterInvest).to.be.equalReserveData(expectedReserveData);
+      expect(contractUserDataAfterInvest).to.be.equalUserData(expectedUserData);
     });
   });
 });

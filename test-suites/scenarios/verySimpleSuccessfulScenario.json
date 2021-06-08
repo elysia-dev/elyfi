@@ -3,28 +3,28 @@
   "stories": [
     {
       "description": "Account0 invest 10 USD",
-      "actionType": "investMoneyPool",
+      "actionType": "invest",
       "actionMaker": 0,
       "value": 10,
       "expected": true
     },
     {
       "description": "Account1 borrow 5 USD with secure NFT",
-      "actionType": "borrowAgainstABToken",
+      "actionType": "borrow",
       "actionMaker": 1,
       "value": 5,
       "expected": true
     },
     {
       "description": "Account1 repay all",
-      "actionType": "repayAgainstABToken",
+      "actionType": "repay",
       "actionMaker": 1,
       "value": 10,
       "expected": true
     },
     {
       "description": "Account0 withdraw all",
-      "actionType": "withdrawMoneyPool",
+      "actionType": "withdraw",
       "actionMaker": 0,
       "value": 10,
       "expected": true

@@ -43,7 +43,7 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
    * @param account The address that will receive the LToken
    * @param amount Investment amount
    **/
-  function investMoneyPool(
+  function invest(
     address asset,
     address account,
     uint256 amount
@@ -52,7 +52,7 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
 
     // validation
     // Check pool activation
-    Validation.validateInvestMoneyPool(reserve, amount);
+    Validation.validateInvest(reserve, amount);
 
     // update indexes and mintToReserve
     reserve.updateState();
@@ -75,7 +75,7 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
       reserve.borrowAPR
     );
     */
-    emit InvestMoneyPool(asset, account, amount);
+    emit Invest(asset, account, amount);
   }
 
   /**
@@ -84,7 +84,7 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
    * @param account The address that will receive the underlying asset
    * @param amount Withdrawl amount
    **/
-  function withdrawMoneyPool(
+  function withdraw(
     address asset,
     address account,
     uint256 amount
@@ -101,7 +101,7 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
 
     // validation
     // Without digital asset borrow, validation might be quite simple.
-    Validation.validateWithdrawMoneyPool(
+    Validation.validateWithdraw(
       reserve,
       asset,
       amount,
@@ -133,7 +133,7 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
     );
     */
 
-    emit WithdrawMoneyPool(asset, msg.sender, account, amountToWithdraw);
+    emit Withdraw(asset, msg.sender, account, amountToWithdraw);
   }
 
   /************ AssetBond Formation Functions ************/
@@ -148,7 +148,7 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
    * @param receiver The address that will receive the underlying asset
    * @param borrowAmount borrowAmount
    **/
-  function borrowAgainstAssetBond(
+  function borrow(
     address asset,
     address receiver,
     uint256 borrowAmount,
@@ -160,7 +160,7 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
 
     // Check if borrow amount exceeds collateral value
     // Check if borrow amount exceeds liquidity available
-    Validation.validateBorrowAgainstAssetBond(reserve, assetBond, asset, borrowAmount);
+    Validation.validateBorrow(reserve, assetBond, asset, borrowAmount);
 
     reserve.updateState();
 
@@ -192,25 +192,7 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
     );
     */
 
-    emit BorrowAgainstAssetBond(
-      asset,
-      msg.sender,
-      receiver,
-      tokenId,
-      reserve.borrowAPR,
-      borrowAmount
-    );
-  }
-
-  function retrieveAssetBond(
-    address asset,
-    address receiver,
-    uint256 repayAmount,
-    uint256 tokenId
-  ) external {
-    DataStruct.ReserveData storage reserve = _reserves[asset];
-    DataStruct.AssetBondData memory assetBond =
-      ITokenizer(reserve.tokenizerAddress).getAssetBondData(tokenId);
+    emit Borrow(asset, msg.sender, receiver, tokenId, reserve.borrowAPR, borrowAmount);
   }
 
   /************ View Functions ************/

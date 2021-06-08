@@ -1,9 +1,9 @@
 import { Wallet } from "@ethersproject/wallet";
 import {
-  expectedReserveDataAfterInvestMoneyPool,
-  expectedUserDataAfterInvestMoneyPool,
-  expectedReserveDataAfterWithdrawMoneyPool,
-  expectedUserDataAfterWithdrawMoneyPool,
+  expectedReserveDataAfterInvest,
+  expectedUserDataAfterInvest,
+  expectedReserveDataAfterWithdraw,
+  expectedUserDataAfterWithdraw,
 } from "../../test/utils/Expect";
 import { getTimestamp } from "../../test/utils/Ethereum";
 import { ethers } from 'hardhat';
@@ -57,7 +57,7 @@ const excuteStory = async (
   const amount = new BigNumber(ethers.utils.parseEther(story.value.toFixed()).toString())
 
   switch (story.actionType) {
-    case ActionType.investMoneyPool:
+    case ActionType.invest:
       await excuteInvestor(
         account,
         amount,
@@ -68,7 +68,7 @@ const excuteStory = async (
           try {
             const tx = await elyfiContracts.moneyPool
               .connect(account)
-              .investMoneyPool(elyfiContracts.underlyingAsset.address, account.address, amount.toString());
+              .invest(elyfiContracts.underlyingAsset.address, account.address, amount.toString());
 
             expect(story.expected).to.be.true
 
@@ -79,14 +79,14 @@ const excuteStory = async (
           }
         },
         (amountInvest, reserveDataBefore, txTimestamp) => {
-          return expectedReserveDataAfterInvestMoneyPool({
+          return expectedReserveDataAfterInvest({
             amountInvest,
             reserveDataBefore,
             txTimestamp,
           });
         },
         (amountInvest, userDataBefore, reserveDataBefore, reserveDataAfter, txTimestamp) => {
-          return expectedUserDataAfterInvestMoneyPool({
+          return expectedUserDataAfterInvest({
             amountInvest,
             userDataBefore,
             reserveDataBefore,
@@ -97,7 +97,7 @@ const excuteStory = async (
       )
       break;
 
-    case ActionType.withdrawMoneyPool:
+    case ActionType.withdraw:
       await excuteInvestor(
         account,
         amount,
@@ -106,7 +106,7 @@ const excuteStory = async (
           try {
             const tx = await elyfiContracts.moneyPool
               .connect(account)
-              .withdrawMoneyPool(elyfiContracts.underlyingAsset.address, account.address, amount.toString());
+              .withdraw(elyfiContracts.underlyingAsset.address, account.address, amount.toString());
 
             expect(story.expected).to.be.true
 
@@ -117,14 +117,14 @@ const excuteStory = async (
           }
         },
         (amountWithdraw, reserveDataBefore, txTimestamp) => {
-          return expectedReserveDataAfterWithdrawMoneyPool({
+          return expectedReserveDataAfterWithdraw({
             amountWithdraw,
             reserveDataBefore,
             txTimestamp,
           });
         },
         (amountWithdraw, userDataBefore, reserveDataBefore, reserveDataAfter, txTimestamp) => {
-          return expectedUserDataAfterWithdrawMoneyPool({
+          return expectedUserDataAfterWithdraw({
             amountWithdraw,
             userDataBefore,
             reserveDataBefore,
@@ -135,9 +135,9 @@ const excuteStory = async (
       )
       break;
 
-    case ActionType.borrowAgainstABToken:
+    case ActionType.borrow:
       break
-    case ActionType.repayAgainstABToken:
+    case ActionType.repay:
       break
     default:
   }

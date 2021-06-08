@@ -16,10 +16,7 @@ library Validation {
    * @param reserve The reserve object
    * @param amount Investment amount
    **/
-  function validateInvestMoneyPool(DataStruct.ReserveData storage reserve, uint256 amount)
-    internal
-    view
-  {
+  function validateInvest(DataStruct.ReserveData storage reserve, uint256 amount) internal view {
     if (amount == 0) revert MoneyPoolErrors.InvalidAmount(amount);
 
     if (reserve.isPaused == true) revert MoneyPoolErrors.ReservePaused();
@@ -28,7 +25,7 @@ library Validation {
   }
 
   /**
-   * @dev Validate WithdrawMoneyPool
+   * @dev Validate Withdraw
    * Check reserve state
    * Check user amount
    * Check user total debt(later)
@@ -38,7 +35,7 @@ library Validation {
    * @param reserveList reserve list for calculating user total debt
    * @param reserveCount reserve count for iteration
    **/
-  function validateWithdrawMoneyPool(
+  function validateWithdraw(
     DataStruct.ReserveData storage reserve,
     address underlyingAsset,
     uint256 amount,
@@ -53,7 +50,7 @@ library Validation {
       revert MoneyPoolErrors.WithdrawInsufficientBalance(amount, userLTokenBalance);
   }
 
-  function validateBorrowAgainstAssetBond(
+  function validateBorrow(
     DataStruct.ReserveData storage reserve,
     DataStruct.AssetBondData memory assetBond,
     address asset,
