@@ -1,6 +1,6 @@
 import { BigNumber } from 'ethers';
 import { ethers, waffle } from 'hardhat';
-import { RAY } from './utils/Ethereum';
+import { RAY } from '../utils/Ethereum';
 import {
   Connector,
   DataPipeline,
@@ -10,7 +10,7 @@ import {
   LTokenTest,
   MoneyPoolTest,
   TokenizerTest,
-} from '../typechain';
+} from '../../typechain';
 import {
   makeInterestRateModel,
   makeMoneyPool,
@@ -20,8 +20,8 @@ import {
   makeTokenizer,
   makeDataPipeline,
   makeDToken,
-} from './utils/makeContract';
-import { defaultReserveData } from './utils/Interfaces';
+} from '../utils/makeContract';
+import { defaultReserveData } from '../utils/Interfaces';
 import { expect } from 'chai';
 
 describe('Tokenizer', () => {
@@ -38,7 +38,6 @@ describe('Tokenizer', () => {
   const [deployer, account1, CSP] = provider.getWallets();
 
   const exampleTokenId_1 = BigNumber.from(1001002003004005);
-  const exampleTokenId_2 = BigNumber.from(1001002003004006);
 
   beforeEach(async () => {
     underlyingAsset = await makeUnderlyingAsset({
@@ -94,13 +93,6 @@ describe('Tokenizer', () => {
     await underlyingAsset.connect(deployer).transfer(CSP.address, RAY);
   });
 
-  // describe("View Functions", async () => {
-
-  //     it("Mints AToken and updates states", async () => {
-
-  //     })
-  // })
-
   describe('Mint ABToken', async () => {
     it('Mints ABToken and set token states', async () => {
       await tokenizer.connect(CSP).mintABToken(CSP.address, exampleTokenId_1);
@@ -113,6 +105,6 @@ describe('Tokenizer', () => {
         .reverted;
     });
 
-    it('Settles ABToken informations', async () => {});
+    it('Settles ABToken informations', async () => { });
   });
 });

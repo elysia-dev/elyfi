@@ -1,5 +1,5 @@
 import { BigNumber } from 'bignumber.js';
-import { ethers, waffle } from 'hardhat';
+import { waffle } from 'hardhat';
 import { ModifiableContract, ModifiableContractFactory, smoddit } from '@eth-optimism/smock';
 import {
   address,
@@ -8,8 +8,8 @@ import {
   getTimestamp,
   toIndex,
   toRate,
-} from './utils/Ethereum';
-import { calculateCompoundedInterest, calculateLinearInterest } from './utils/Math';
+} from '../utils/Ethereum';
+import { calculateCompoundedInterest, calculateLinearInterest } from '../utils/Math';
 import { expect } from 'chai';
 
 describe('Index', () => {
@@ -18,7 +18,6 @@ describe('Index', () => {
   let underlyingAssetAddress: string;
 
   const provider = waffle.provider;
-  const [deployer, account1, account2] = provider.getWallets();
 
   underlyingAssetAddress = address(1);
 
