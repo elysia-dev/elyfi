@@ -95,13 +95,13 @@ describe('Tokenizer', () => {
 
   describe('Mint ABToken', async () => {
     it('Mints ABToken and set token states', async () => {
-      await tokenizer.connect(CSP).mintABToken(CSP.address, exampleTokenId_1);
+      await tokenizer.connect(CSP).mintAssetBond(CSP.address, exampleTokenId_1);
       expect(await tokenizer.getMinter(exampleTokenId_1)).to.be.equal(CSP.address);
     });
 
     it('Reverts if mint already exist id', async () => {
-      await tokenizer.connect(CSP).mintABToken(CSP.address, exampleTokenId_1);
-      await expect(tokenizer.connect(CSP).mintABToken(CSP.address, exampleTokenId_1)).to.be
+      await tokenizer.connect(CSP).mintAssetBond(CSP.address, exampleTokenId_1);
+      await expect(tokenizer.connect(CSP).mintAssetBond(CSP.address, exampleTokenId_1)).to.be
         .reverted;
     });
 
