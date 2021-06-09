@@ -136,7 +136,7 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
     emit WithdrawMoneyPool(asset, msg.sender, account, amountToWithdraw);
   }
 
-  /************ ABToken Formation Functions ************/
+  /************ AssetBond Formation Functions ************/
 
   // need access control signer: only lawfirm or asset owner
   // need access control : only minter
@@ -148,7 +148,7 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
    * @param receiver The address that will receive the underlying asset
    * @param borrowAmount borrowAmount
    **/
-  function borrowAgainstABToken(
+  function borrowAgainstAssetBond(
     address asset,
     address receiver,
     uint256 borrowAmount,

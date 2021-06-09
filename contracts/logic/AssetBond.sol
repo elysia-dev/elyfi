@@ -36,51 +36,51 @@ library AssetBond {
   // uint256 constant COLLATERAL_CATEGOR_START= 60;
   function settleAssetBond(
     DataStruct.AssetBondData storage assetBondData,
-    address asset,
     address borrower,
-    address lawfirm,
-    uint256 collateralValue,
-    uint256 dueDate,
+    address signer,
+    uint256 principal,
+    uint256 couponRate,
+    uint256 overdueInterestRate,
+    uint256 maturityTimestamp,
+    uint8 gracePeriod,
     string memory ipfsHash
   ) internal {
-    assetBondData.asset = asset;
-    assetBondData.borrower = borrower;
-    assetBondData.lawfirm = lawfirm;
-    assetBondData.collateralValue = collateralValue;
-    assetBondData.dueDate = dueDate;
-    assetBondData.ipfsHash = ipfsHash;
-    assetBondData.lastUpdateTimestamp = block.timestamp;
+    uint256 _gracePeriod = uint256(gracePeriod);
+    uint256 liquidationTimestamp = maturityTimestamp + (_gracePeriod * 1 days);
+
     assetBondData.state = DataStruct.AssetBondState.SETTLED;
+    assetBondData.borrower = borrower;
+    assetBondData.signer = signer;
+    assetBondData.principal = principal;
+    assetBondData.couponRate = couponRate;
+    assetBondData.maturityTimestamp = maturityTimestamp;
+    assetBondData.overdueInterestRate = overdueInterestRate;
+    assetBondData.liquidationTimestamp = liquidationTimestamp;
+    assetBondData.ipfsHash = ipfsHash;
+  }
+
+  function signAssetBond(
+    DataStruct.AssetBondData storage assetBondData,
+    string memory signerOpinionHash
+  ) internal {
+    assetBondData.state = DataStruct.AssetBondState.CONFIRMED;
+    assetBondData.signerOpinionHash = signerOpinionHash;
   }
 
   function collateralizeAssetBond(
     DataStruct.AssetBondData storage assetBondData,
-    uint256 borrowAmount,
-    uint256 borrowAPR
+    uint256 interestRate
   ) internal {
+    assetBondData.state = DataStruct.AssetBondState.COLLATERALIZED;
     // update tokenizer data
     //reserve.totalDepositedAssetBondCount += 1;
 
     // set bond date data
-    assetBondData.borrowAPR = borrowAPR;
-    assetBondData.state = DataStruct.AssetBondState.COLLATERALIZED;
-    assetBondData.lastUpdateTimestamp = block.timestamp;
-    assetBondData.issuanceDate = block.timestamp;
-    assetBondData.maturityDate = block.timestamp + (assetBondData.dueDate * 1 days);
+    assetBondData.interestRate = interestRate;
+    assetBondData.collateralizeTimestamp = block.timestamp;
   }
 
   function releaseAssetBond(DataStruct.AssetBondData storage assetBondData) internal {
     assetBondData.state = DataStruct.AssetBondState.MATURED;
-  }
-
-  function validateSettleABToken(uint256 tokenId, address lawfirm) internal view {
-    // checks whether lawfirm authorized
-    // if (assetBond.state != AssetBondState.EMPTY) revert(); ////
-    // access control : check lawfirm
-  }
-
-  function validateTokenId(uint256 id) internal {
-    // validate id
-    //// error InvalidABTokenID(id)
   }
 }

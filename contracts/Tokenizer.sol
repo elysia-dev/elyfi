@@ -7,6 +7,7 @@ import './libraries/Errors.sol';
 import './libraries/DataStruct.sol';
 import './libraries/Math.sol';
 import './libraries/Role.sol';
+import './libraries/TimeConverter.sol';
 import './logic/AssetBond.sol';
 import './logic/Index.sol';
 import './logic/Validation.sol';
@@ -23,6 +24,7 @@ import 'hardhat/console.sol';
 contract Tokenizer is ITokenizer, TokenizerStorage, ERC721 {
   using WadRayMath for uint256;
   using AssetBond for DataStruct.AssetBondData;
+  using Validation for DataStruct.AssetBondData;
   using Index for DataStruct.AssetBondData;
 
   /************ Initialize Functions ************/
@@ -57,7 +59,7 @@ contract Tokenizer is ITokenizer, TokenizerStorage, ERC721 {
     return _minter[tokenId];
   }
 
-  /************ ABToken Formation Functions ************/
+  /************ AssetBond Formation Functions ************/
 
   // tokenId : bitMask
   /**
@@ -68,20 +70,32 @@ contract Tokenizer is ITokenizer, TokenizerStorage, ERC721 {
    * @param account CSP address
    * @param tokenId The tokenId is a unique identifier for asset bond.
    */
-  function mintABToken(address account, uint256 tokenId) external override onlyCSP {
-    if (_minter[tokenId] != address(0)) revert TokenizerErrors.ABTokenIDAlreadyExists(tokenId);
+  function mintAssetBond(address account, uint256 tokenId) external override onlyCSP {
+    if (_minter[tokenId] != address(0)) revert TokenizerErrors.AssetBondIDAlreadyExists(tokenId);
     if (!_connector.isCSP(account))
-      revert TokenizerErrors.MintedABTokenReceiverNotAllowed(account, tokenId);
+      revert TokenizerErrors.MintedAssetBondReceiverNotAllowed(account, tokenId);
+
+    DataStruct.AssetBondData storage assetBond = _assetBondData[tokenId];
 
     // validate tokenId : tokenId should have information about
-    AssetBond.validateTokenId(tokenId);
+    Validation.validateTokenId(tokenId);
 
-    // mint ABToken to CSP
+    // mint AssetBond to CSP
     _safeMint(account, tokenId, '');
 
     _minter[tokenId] = account;
 
-    emit EmptyABTokenMinted(account, tokenId);
+    emit EmptyAssetBondMinted(account, tokenId);
+  }
+
+  struct SettleAssetBondLocalVars {
+    uint256 maturityTimestamp;
+    uint256 liquidationTimestamp;
+    uint256 _gracePeriod;
+    uint16 _year;
+    uint8 year;
+    uint8 month;
+    uint8 day;
   }
 
   // Access control : only minter
@@ -91,44 +105,85 @@ contract Tokenizer is ITokenizer, TokenizerStorage, ERC721 {
    * maximum loanable amount and the interest rate between collateral service provider
    * and borrower are calculated.
    * @param borrower borrower
-   * @param tokenId tokenId
-   * @param collateralValue collateralValue in USD
+   * @param signer A third-party agency address that reviews entities listed on the asset bond data
+   * @param tokenId Token Id to settle
+   The interest rate paid on a bond by its issuer for the term of the security
+   * @param gracePeriod gracePeriod
+   * @param maturityDate maturityDate in year, month, day.
    */
-  function settleABToken(
-    address asset,
+  function settleAssetBond(
     address borrower,
-    address lawfirm,
+    address signer,
     uint256 tokenId,
-    uint256 collateralValue,
-    uint256 dueDate,
+    uint256 principal,
+    uint256 couponRate,
+    uint256 overdueInterestRate,
+    uint256 debtCeiling,
+    uint8 gracePeriod,
+    uint8[3] memory maturityDate,
     string memory ipfsHash
   ) external {
-    // Validate init asset bond
-    // lawfirm should be authorized
-    // Asset bond state should be empty
-    AssetBond.validateSettleABToken(tokenId, lawfirm);
+    SettleAssetBondLocalVars memory vars;
 
-    _assetBondData[tokenId].settleAssetBond(
-      asset,
+    (vars.year, vars.month, vars.day) = (maturityDate[0], maturityDate[1], maturityDate[2]);
+
+    vars._year = vars.year + 2000;
+
+    vars.maturityTimestamp = TimeConverter.toTimestamp(vars._year, vars.month, vars.day);
+
+    vars._gracePeriod = uint256(gracePeriod);
+
+    vars.liquidationTimestamp = vars.maturityTimestamp + (vars._gracePeriod * 1 days);
+
+    Validation.validateSettleAssetBond(tokenId, vars.maturityTimestamp, debtCeiling);
+
+    DataStruct.AssetBondData memory newAssetBond =
+      DataStruct.AssetBondData({
+        state: DataStruct.AssetBondState.SETTLED,
+        borrower: borrower,
+        signer: signer,
+        principal: principal,
+        couponRate: couponRate,
+        interestRate: 0,
+        overdueInterestRate: overdueInterestRate,
+        maturityTimestamp: vars.maturityTimestamp,
+        liquidationTimestamp: vars.liquidationTimestamp,
+        collateralizeTimestamp: 0,
+        ipfsHash: ipfsHash,
+        signerOpinionHash: ''
+      });
+
+    _assetBondData[tokenId] = newAssetBond;
+
+    emit AssetBondSettled(
       borrower,
-      lawfirm,
-      collateralValue,
-      dueDate,
-      ipfsHash
+      signer,
+      tokenId,
+      principal,
+      couponRate,
+      overdueInterestRate,
+      debtCeiling,
+      vars.maturityTimestamp,
+      vars.liquidationTimestamp
     );
   }
 
-  function signABToken(uint256 tokenId, address signer) external {}
+  function signAssetBond(uint256 tokenId, string memory signerOpinionHash) external {
+    DataStruct.AssetBondData storage assetBond = _assetBondData[tokenId];
+    Validation.validateSignAssetBond(assetBond);
+
+    assetBond.signAssetBond(signerOpinionHash);
+  }
 
   function collateralizeAssetBond(
     address account,
     uint256 tokenId,
     uint256 borrowAmount,
-    uint256 borrowAPR
+    uint256 interestRate
   ) external override onlyMoneyPool {
     DataStruct.AssetBondData storage assetBond = _assetBondData[tokenId];
 
-    assetBond.collateralizeAssetBond(borrowAmount, borrowAPR);
+    assetBond.collateralizeAssetBond(interestRate);
   }
 
   function releaseAssetBond(address account, uint256 tokenId) external override onlyMoneyPool {

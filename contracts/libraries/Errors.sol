@@ -14,10 +14,10 @@ library MoneyPoolErrors {
   error ReserveInactivated();
   error InvalidAmount(uint256 amount);
   error WithdrawInsufficientBalance(uint256 amount, uint256 userLTokenBalance);
-  error MaturedABToken();
-  error NotDepositedABToken();
-  error NotSettledABToken(uint256 id);
-  error NotSignedABToken(uint256 id);
+  error MaturedAssetBond();
+  error NotDepositedAssetBond();
+  error NotSettledAssetBond(uint256 id);
+  error NotSignedAssetBond(uint256 id);
   error LTokenTransferNotAllowed(address from, address to);
   error OnlyLToken();
 }
@@ -36,6 +36,6 @@ library TokenizerErrors {
   error OnlyMoneyPool();
   error OnlyCSP();
   error OnlyCouncil();
-  error ABTokenIDAlreadyExists(uint256 tokenId);
-  error MintedABTokenReceiverNotAllowed(address account, uint256 tokenId);
+  error AssetBondIDAlreadyExists(uint256 tokenId);
+  error MintedAssetBondReceiverNotAllowed(address account, uint256 tokenId);
 }

@@ -53,30 +53,6 @@ library Validation {
       revert MoneyPoolErrors.WithdrawInsufficientBalance(amount, userLTokenBalance);
   }
 
-  /**
-   * @dev Validate invest ABToken
-   * Check reserve state
-   * Check ABToken state
-   * Check user amount
-   * Check user total debt(later)
-   * @param reserve The reserve object
-   * @param assetBond The assetBond object
-   * @param amount Withdraw amount
-   **/
-  function validateInvestABToken(
-    DataStruct.ReserveData storage reserve,
-    DataStruct.AssetBondData memory assetBond,
-    uint256 amount,
-    uint256 moneyPoolATokenBalance
-  ) internal view {
-    if (amount == 0) revert MoneyPoolErrors.InvalidAmount(amount);
-    if (reserve.isPaused == true) revert MoneyPoolErrors.ReservePaused();
-    if (reserve.isActivated == false) revert MoneyPoolErrors.ReserveInactivated();
-
-    //if(assetBond.isMatured == true) revert MoneyPoolErrors.MaturedABToken();
-    //if(assetBond.isDeposited == false) revert MoneyPoolErrors.NotDepositedABToken();
-  }
-
   function validateBorrowAgainstAssetBond(
     DataStruct.ReserveData storage reserve,
     DataStruct.AssetBondData memory assetBond,
@@ -86,13 +62,30 @@ library Validation {
     // moneypool validate logic : active, frozen
 
     // check settled logic
-    //if (assetBond.isSettled == true) revert MoneyPoolErrors.NotSettledABToken(id);
+    //if (assetBond.isSettled == true) revert MoneyPoolErrors.NotSettledAssetBond(id);
 
     // check sign logic
-    //if (assetBond.isSigned == false) revertNValidationErrors.otSignedABToken(id);
+    //if (assetBond.isSigned == false) revertNValidationErrors.otSignedAssetBond(id);
 
     uint256 availableLiquidity = IERC20(asset).balanceOf(reserve.lTokenAddress);
   }
 
   function validateLTokenTrasfer() internal pure {}
+
+  function validateSignAssetBond(DataStruct.AssetBondData storage assetBond) internal view {}
+
+  function validateSettleAssetBond(
+    uint256 tokenId,
+    uint256 maturityTimestamp,
+    uint256 debtCeiling
+  ) internal view {
+    // checks whether signer authorized
+    // if (assetBond.state != AssetBondState.EMPTY) revert(); ////
+    // access control : check signer
+  }
+
+  function validateTokenId(uint256 tokenId) internal {
+    // validate id
+    //// error InvalidAssetBondID(id)
+  }
 }

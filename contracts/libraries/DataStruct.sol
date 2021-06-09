@@ -25,23 +25,23 @@ library DataStruct {
    * @notice The asset bond data struct.
    * @param ipfsHash The IPFS hash that contains the informations and contracts
    * between Collateral Service Provider and lender.
-   * @param maturityDate The amount of time measured in seconds that can elapse
+   * @param maturityTimestamp The amount of time measured in seconds that can elapse
    * before the NPL company liquidate the loan and seize the asset bond collateral.
    * @param borrower The address of the borrower.
    */
   struct AssetBondData {
-    address asset;
-    address borrower;
-    address lawfirm;
-    string ipfsHash; // refactor : gas
-    uint256 collateralValue;
-    uint256 borrowAPR;
-    uint256 sign; // refactor : apply oz - sign
-    uint256 issuanceDate;
-    uint256 dueDate;
-    uint256 maturityDate;
-    uint256 lastUpdateTimestamp;
     AssetBondState state;
+    address borrower;
+    address signer;
+    uint256 principal;
+    uint256 couponRate;
+    uint256 interestRate;
+    uint256 overdueInterestRate;
+    uint256 maturityTimestamp;
+    uint256 liquidationTimestamp;
+    uint256 collateralizeTimestamp;
+    string ipfsHash; // refactor : gas
+    string signerOpinionHash;
   }
 
   /**
