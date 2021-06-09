@@ -170,6 +170,7 @@ export function expectedReserveDataAfterWithdraw({
     txTimestamp
   );
   const totalDTokenSupply = rayMul(reserveDataBefore.principalDTokenSupply, dTokenAccruedInterest);
+  expectedReserveData.principalDTokenSupply = totalDTokenSupply;
   expectedReserveData.totalDTokenSupply = totalDTokenSupply;
 
   // get updated lToken supply
@@ -258,11 +259,11 @@ export function expectedReserveDataAfterBorrow({
 
   // update lTokenIndex and moneyPool timestamp
   let lTokenInterestIndex = reserveDataBefore.lTokenInterestIndex;
-  if (expectedReserveData.supplyAPR.eq(new BigNumber(0))) {
+  if (reserveDataBefore.supplyAPR.eq(new BigNumber(0))) {
     expectedReserveData.lTokenInterestIndex = lTokenInterestIndex;
     expectedReserveData.moneyPoolLastUpdateTimestamp = txTimestamp;
   }
-  if (!expectedReserveData.moneyPoolLastUpdateTimestamp.eq(txTimestamp)) {
+  if (!reserveDataBefore.moneyPoolLastUpdateTimestamp.eq(txTimestamp)) {
     lTokenInterestIndex = calculateLTokenIndexAfterAction(
       reserveDataBefore.moneyPoolLastUpdateTimestamp,
       reserveDataBefore.supplyAPR,
@@ -279,12 +280,12 @@ export function expectedReserveDataAfterBorrow({
 
   // update DToken supply
   const dTokenAccruedInterest = calculateCompoundedInterest(
-    expectedReserveData.averageRealAssetBorrowRate,
-    expectedReserveData.dTokenLastUpdateTimestamp,
+    reserveDataBefore.averageRealAssetBorrowRate,
+    reserveDataBefore.dTokenLastUpdateTimestamp,
     txTimestamp
   );
   const previousUpdatedDTokenBalance = rayMul(
-    expectedReserveData.principalDTokenSupply,
+    reserveDataBefore.principalDTokenSupply,
     dTokenAccruedInterest
   );
 
@@ -301,7 +302,9 @@ export function expectedReserveDataAfterBorrow({
     averageRealAssetBorrowRate.toString()
   );
   const totalDTokenSupply = previousUpdatedDTokenBalance.plus(amountBorrow);
-  expectedReserveData.averageRealAssetBorrowRate = expectedReserveData.totalDTokenSupply = totalDTokenSupply;
+  expectedReserveData.averageRealAssetBorrowRate = averageRealAssetBorrowRate;
+  expectedReserveData.principalDTokenSupply = totalDTokenSupply;
+  expectedReserveData.totalDTokenSupply = totalDTokenSupply;
   expectedReserveData.dTokenLastUpdateTimestamp = txTimestamp;
 
   // update rates in borrow
