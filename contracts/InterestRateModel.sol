@@ -10,6 +10,13 @@ import 'hardhat/console.sol';
 /**
  * @title ELYFI InterestRateModel
  * @author ELYSIA
+ * @notice Interest rates model in ELYFI. ELYFI's interest rates are determined by algorithms.
+ * When borrowing demand increases, borrowing interest and MoneyPool ROI increase,
+ * suppressing excessove borrowing demand and inducing investors to supply liquidity.
+ * Therefore, ELYFI's interest rates are influenced by the Money Pool `utilizationRatio`.
+ * The Money Pool utilization ratio is a variable representing the current borrowing
+ * and investment status of the Money Pool. The interest rates of ELYFI exhibits some form of kink.
+ * They sharply change at some defined threshold, `optimalUtilazationRate`.
  */
 contract InterestRateModel is IInterestRateModel, InterestRateModelStorage {
   using WadRayMath for uint256;

@@ -72,6 +72,7 @@ describe('Tokenizer', () => {
 
     tokenizer = await makeTokenizer({
       deployer: deployer,
+      connector: connector,
       moneyPool: moneyPool,
     });
 

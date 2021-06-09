@@ -165,11 +165,13 @@ export async function makeInterestRateModel({
 
 export async function makeTokenizer({
   deployer,
+  connector,
   moneyPool,
   name = '',
   symbol = '',
 }: {
   deployer: Wallet;
+  connector: Connector | Contract;
   moneyPool: MoneyPoolTest | Contract;
   name?: string;
   symbol?: string;
@@ -181,7 +183,7 @@ export async function makeTokenizer({
     deployer
   )) as TokenizerTest__factory;
 
-  tokenizerTest = await tokenizerFactory.deploy(moneyPool.address, name, symbol);
+  tokenizerTest = await tokenizerFactory.deploy(connector.address, moneyPool.address, name, symbol);
 
   return tokenizerTest;
 }

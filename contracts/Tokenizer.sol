@@ -29,10 +29,12 @@ contract Tokenizer is ITokenizer, TokenizerStorage, ERC721 {
 
   constructor(
     address connector,
+    address moneyPool,
     string memory name_,
     string memory symbol_
   ) ERC721(name_, symbol_) {
     _connector = IConnector(connector);
+    _moneyPool = IMoneyPool(moneyPool);
   }
 
   /************ View Functions ************/

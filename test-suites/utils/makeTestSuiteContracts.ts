@@ -48,8 +48,9 @@ const makeTestSuiteContracts = async (provider: MockProvider): Promise<ElyfiCont
   });
 
   const tokenizer = await makeTokenizer({
-    deployer,
-    moneyPool,
+    deployer: deployer,
+    connector: connector,
+    moneyPool: moneyPool,
   });
 
   const dataPipeline = await makeDataPipeline({
@@ -66,9 +67,13 @@ const makeTestSuiteContracts = async (provider: MockProvider): Promise<ElyfiCont
     defaultReserveData.moneyPoolFactor.toFixed()
   );
 
-  [UserType.Account0, UserType.Account1, UserType.Account2, UserType.Account3].forEach(async (user) => {
-    await underlyingAsset.connect(deployer).transfer(wallets[user].address, ethers.utils.formatEther(1000));
-  })
+  [UserType.Account0, UserType.Account1, UserType.Account2, UserType.Account3].forEach(
+    async (user) => {
+      await underlyingAsset
+        .connect(deployer)
+        .transfer(wallets[user].address, ethers.utils.formatEther(1000));
+    }
+  );
 
   return {
     underlyingAsset,
@@ -79,7 +84,7 @@ const makeTestSuiteContracts = async (provider: MockProvider): Promise<ElyfiCont
     dToken,
     tokenizer,
     dataPipeline,
-  }
-}
+  };
+};
 
-export default makeTestSuiteContracts
+export default makeTestSuiteContracts;
