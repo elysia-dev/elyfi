@@ -295,6 +295,11 @@ export function expectedReserveDataAfterBorrowAgainstABToken({
     amountBorrow,
     reserveDataBefore.borrowAPR
   );
+  console.log(
+    'reserve',
+    reserveDataBefore.averageRealAssetBorrowRate.toString(),
+    averageRealAssetBorrowRate.toString()
+  );
   const totalDTokenSupply = previousUpdatedDTokenBalance.plus(amountBorrow);
   expectedReserveData.averageRealAssetBorrowRate = expectedReserveData.totalDTokenSupply = totalDTokenSupply;
   expectedReserveData.dTokenLastUpdateTimestamp = txTimestamp;
@@ -341,7 +346,7 @@ export function expectedUserDataAfterBorrowAgainstABToken({
   );
   expectedUserData.lTokenBalance = lTokenBalance;
 
-  // update  and mint dToken balance
+  // update and mint dToken balance
   const dTokenAccruedInterest = calculateCompoundedInterest(
     userDataBefore.averageRealAssetBorrowRate,
     userDataBefore.userLastUpdateTimestamp,
@@ -365,6 +370,7 @@ export function expectedUserDataAfterBorrowAgainstABToken({
   );
   expectedUserData.userLastUpdateTimestamp = txTimestamp;
   expectedUserData.averageRealAssetBorrowRate = averageRealAssetBorrowRate;
+  console.log('user', averageRealAssetBorrowRate.toString());
 
   // transferFrom
   const underlyingAssetBalance = userDataBefore.underlyingAssetBalance.plus(amountBorrow);

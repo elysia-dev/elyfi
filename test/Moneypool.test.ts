@@ -227,6 +227,7 @@ describe('MoneyPool', () => {
     const amountBorrow = new BigNumber(expandToDecimals(1000, 18));
 
     beforeEach(async () => {
+      await connector.connect(deployer).addCSP(CSP.address);
       await tokenizer.connect(CSP).mintABToken(CSP.address, exampleTokenId_1.toFixed());
       await underlyingAsset.connect(account1).approve(moneyPool.address, RAY);
       const firstInvestTx = await moneyPool

@@ -67,7 +67,10 @@ export function calculateRateInIncreasingBalance(
   const weightedAmountRate = rayMul(wadToRay(amount), rate);
 
   const newTotalBalance = totalBalanceBefore.plus(amount);
-  const newAverageRate = rayDiv(weightedAmountRate.plus(weightedAverageRate), newTotalBalance);
+  const newAverageRate = rayDiv(
+    weightedAmountRate.plus(weightedAverageRate),
+    wadToRay(newTotalBalance)
+  );
 
   return newAverageRate;
 }
