@@ -13,7 +13,7 @@ interface ElyfiContracts {
   underlyingAsset: ERC20Test,
   connector: Connector,
   moneyPool: MoneyPoolTest,
-  interestModel: InterestRateModel,
+  interestRateModel: InterestRateModel,
   lToken: LTokenTest,
   dToken: DTokenTest,
   tokenizer: TokenizerTest,

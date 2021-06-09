@@ -222,7 +222,7 @@ export async function makeAllContracts(deployer: Wallet): Promise<ElyfiContracts
     connector,
   });
 
-  const interestModel = await makeInterestRateModel({
+  const interestRateModel = await makeInterestRateModel({
     deployer,
   });
 
@@ -253,7 +253,7 @@ export async function makeAllContracts(deployer: Wallet): Promise<ElyfiContracts
     underlyingAsset.address,
     lToken.address,
     dToken.address,
-    interestModel.address,
+    interestRateModel.address,
     tokenizer.address,
     defaultReserveData.moneyPoolFactor.toFixed()
   );
@@ -262,7 +262,7 @@ export async function makeAllContracts(deployer: Wallet): Promise<ElyfiContracts
     underlyingAsset,
     connector,
     moneyPool,
-    interestModel,
+    interestRateModel,
     lToken,
     dToken,
     tokenizer,
