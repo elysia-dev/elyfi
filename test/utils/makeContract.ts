@@ -240,6 +240,7 @@ export async function makeAllContracts(deployer: Wallet): Promise<ElyfiContracts
 
   const tokenizer = await makeTokenizer({
     deployer,
+    connector,
     moneyPool,
   });
 
