@@ -52,7 +52,7 @@ describe('MoneyPool.invest', () => {
       txTimestamp: await getTimestamp(investTx),
     });
 
-    expect(reserveDataAfter).to.be.equalReserveData(expectedReserveData);
-    expect(userDataAfter).to.be.equalUserData(expectedUserData);
+    expect(reserveDataAfter).to.be.deep.eq(expectedReserveData);
+    expect(userDataAfter).to.deep.eq(expectedUserData);
   });
 });

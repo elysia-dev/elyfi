@@ -31,7 +31,7 @@ describe('MoneyPool.borrow', () => {
   describe('when AB token is minted by CSP', async () => {
     before(async () => {
       await elyfiContracts.connector.connect(deployer).addCSP(CSP.address);
-      await elyfiContracts.tokenizer.connect(CSP).mintABToken(CSP.address, abTokenId);
+      await elyfiContracts.tokenizer.connect(CSP).mintAssetBond(CSP.address, abTokenId);
     })
 
     describe('when moneypool enough reserve', async () => {
@@ -62,6 +62,7 @@ describe('MoneyPool.borrow', () => {
           reserveDataBefore,
           txTimestamp: await getTimestamp(tx),
         });
+
         const expectedUserData = expectedUserDataAfterBorrow({
           amountBorrow: new BigNumber(amount.toString()),
           userDataBefore,
@@ -70,8 +71,8 @@ describe('MoneyPool.borrow', () => {
           txTimestamp: await getTimestamp(tx),
         });
 
-        expect(reserveDataAfter).to.be.equalReserveData(expectedReserveData);
-        expect(userDataAfter).to.be.equalUserData(expectedUserData);
+        expect(reserveDataAfter).to.be.deep.eq(expectedReserveData);
+        expect(userDataAfter).to.be.deep.eq(expectedUserData);
       });
     })
   })

@@ -45,8 +45,8 @@ const excuteInvestor = async (
     await getTimestamp(tx),
   );
 
-  expect(reserveDataAfter).to.be.equalReserveData(expectedReserveDataAfter);
-  expect(userDataAfter).to.be.equalUserData(expectedUserDataAfter);
+  expect(reserveDataAfter).to.deep.eq(expectedReserveDataAfter);
+  expect(userDataAfter).to.deep.eq(expectedUserDataAfter)
 }
 
 const excuteStory = async (
