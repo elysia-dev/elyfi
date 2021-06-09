@@ -236,7 +236,7 @@ describe('MoneyPool', () => {
     });
 
     it('Borrow against AB token', async () => {
-      const contractReserveDataBeforBorrow = await getReserveData({
+      const contractReserveDataBeforeBorrow = await getReserveData({
         underlyingAsset: underlyingAsset,
         dataPipeline: dataPipeline,
         lToken: lToken,
@@ -256,6 +256,7 @@ describe('MoneyPool', () => {
           exampleTokenId_1.toFixed()
         );
 
+      console.log('expect reserve', contractReserveDataBeforeBorrow.borrowAPR.toFixed());
       const contractReserveDataAfterBorrow = await getReserveData({
         underlyingAsset: underlyingAsset,
         dataPipeline: dataPipeline,
@@ -269,13 +270,14 @@ describe('MoneyPool', () => {
 
       const expectedReserveDataAfterBorrow = expectedReserveDataAfterBorrowAgainstABToken({
         amountBorrow: amountBorrow,
-        reserveDataBefore: contractReserveDataBeforBorrow,
+        reserveDataBefore: contractReserveDataBeforeBorrow,
         txTimestamp: await getTimestamp(borrowTx),
       });
+      console.log('expect reserve', contractReserveDataBeforeBorrow.borrowAPR.toFixed());
       const expectedUserDataAfterBorrow = expectedUserDataAfterBorrowAgainstABToken({
         amountBorrow: amountBorrow,
         userDataBefore: contractUserDataBeforeBorrow,
-        reserveDataBefore: contractReserveDataBeforBorrow,
+        reserveDataBefore: contractReserveDataBeforeBorrow,
         reserveDataAfter: contractReserveDataAfterBorrow,
         txTimestamp: await getTimestamp(borrowTx),
       });

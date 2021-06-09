@@ -361,6 +361,13 @@ export function expectedUserDataAfterBorrowAgainstABToken({
   expectedUserData.dTokenBalance = dTokenBalance;
   expectedUserData.principalDTokenBalance = dTokenBalance;
 
+  console.log(
+    'user',
+    userDataBefore.averageRealAssetBorrowRate.toString(),
+    previousUpdatedDTokenBalance.toString(),
+    amountBorrow.toString(),
+    reserveDataBefore.borrowAPR.toString()
+  );
   // update average Borrow rate and timestamp
   const averageRealAssetBorrowRate = calculateRateInIncreasingBalance(
     userDataBefore.averageRealAssetBorrowRate,
