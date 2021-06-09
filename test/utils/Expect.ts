@@ -17,7 +17,7 @@ export function expectedReserveDataAfterInvest({
   reserveDataBefore: ReserveData;
   txTimestamp: BigNumber;
 }): ReserveData {
-  let expectedReserveData: ReserveData = reserveDataBefore;
+  const expectedReserveData: ReserveData = { ...reserveDataBefore };
 
   /*
   console.log(
@@ -108,7 +108,7 @@ export function expectedUserDataAfterInvest({
   reserveDataAfter: ReserveData;
   txTimestamp: BigNumber;
 }): UserData {
-  let expectedUserData: UserData = userDataBefore;
+  const expectedUserData: UserData = { ...userDataBefore };
 
   // transferFrom
   const underlyingAssetBalance = userDataBefore.underlyingAssetBalance.minus(amountInvest);
@@ -145,7 +145,7 @@ export function expectedReserveDataAfterWithdraw({
   reserveDataBefore: ReserveData;
   txTimestamp: BigNumber;
 }): ReserveData {
-  let expectedReserveData: ReserveData = reserveDataBefore;
+  const expectedReserveData: ReserveData = { ...reserveDataBefore };
 
   // update lTokenIndex and moneyPool timestamp
   let lTokenInterestIndex = reserveDataBefore.lTokenInterestIndex;
@@ -215,7 +215,7 @@ export function expectedUserDataAfterWithdraw({
   reserveDataAfter: ReserveData;
   txTimestamp: BigNumber;
 }): UserData {
-  let expectedUserData: UserData = userDataBefore;
+  const expectedUserData: UserData = { ...userDataBefore };
 
   // burn lToken
   const implicitLTokenBalance = userDataBefore.implicitLtokenBalance.minus(
@@ -254,7 +254,7 @@ export function expectedReserveDataAfterBorrow({
   reserveDataBefore: ReserveData;
   txTimestamp: BigNumber;
 }): ReserveData {
-  let expectedReserveData: ReserveData = reserveDataBefore;
+  const expectedReserveData: ReserveData = { ...reserveDataBefore };
 
   // update lTokenIndex and moneyPool timestamp
   let lTokenInterestIndex = reserveDataBefore.lTokenInterestIndex;
@@ -337,7 +337,7 @@ export function expectedUserDataAfterBorrow({
   reserveDataAfter: ReserveData;
   txTimestamp: BigNumber;
 }): UserData {
-  let expectedUserData: UserData = userDataBefore;
+  const expectedUserData: UserData = { ...userDataBefore };
 
   // update lToken balance
   const lTokenBalance = rayMul(
