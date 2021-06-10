@@ -16,20 +16,19 @@ import {
   DTokenTest,
   DTokenTest__factory,
 } from '../../typechain';
-import { BigNumber } from 'bignumber.js';
-import { Contract, Wallet } from 'ethers';
-import { ethers } from 'hardhat';
+import { Contract, Wallet, BigNumber, utils } from 'ethers';
+import { ethers } from 'hardhat'
 import { defaultInterestModelParams, defaultReserveData, InterestModelParams } from './Interfaces';
 import ElyfiContracts from '../types/ElyfiContracts';
 
 export async function makeUnderlyingAsset({
   deployer,
-  totalSupply = ethers.utils.parseUnits('1', 36).toString(),
+  totalSupply = utils.parseUnits('1', 36),
   name = defaultReserveData.underlyingAssetName,
   symbol = defaultReserveData.underlyingAssetSymbol,
 }: {
   deployer: Wallet;
-  totalSupply?: string;
+  totalSupply?: BigNumber;
   name?: string;
   symbol?: string;
 }): Promise<ERC20Test> {
@@ -60,7 +59,7 @@ export async function makeConnector({ deployer }: { deployer: Wallet }): Promise
 
 export async function makeMoneyPool({
   deployer,
-  maxReserveCount_ = new BigNumber(16).toString(),
+  maxReserveCount_ = BigNumber.from(16).toString(),
   connector,
 }: {
   deployer: Wallet;
@@ -154,10 +153,10 @@ export async function makeInterestRateModel({
   )) as InterestRateModel__factory;
 
   interestRateModel = await interestRateModelFactory.deploy(
-    interestRateModelParam.optimalUtilizationRate.toFixed(),
-    interestRateModelParam.borrowRateBase.toFixed(),
-    interestRateModelParam.borrowRateOptimal.toFixed(),
-    interestRateModelParam.borrowRateMax.toFixed()
+    interestRateModelParam.optimalUtilizationRate,
+    interestRateModelParam.borrowRateBase,
+    interestRateModelParam.borrowRateOptimal,
+    interestRateModelParam.borrowRateMax
   );
 
   return interestRateModel;
@@ -254,7 +253,7 @@ export async function makeAllContracts(deployer: Wallet): Promise<ElyfiContracts
     dToken.address,
     interestRateModel.address,
     tokenizer.address,
-    defaultReserveData.moneyPoolFactor.toFixed()
+    defaultReserveData.moneyPoolFactor
   );
 
   return {

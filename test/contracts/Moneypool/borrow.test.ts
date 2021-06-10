@@ -1,4 +1,3 @@
-import { BigNumber } from 'bignumber.js';
 import { waffle } from 'hardhat';
 import { getTimestamp } from '../../utils/Ethereum';
 import { makeAllContracts } from '../../utils/makeContract';
@@ -9,7 +8,7 @@ import takeDataSnapshot from '../../utils/takeDataSnapshot';
 import { utils } from 'ethers';
 require('../../assertions/equals.ts');
 
-// TODO : Mockup user & reserve data
+// TODO: Mockup user & reserve data
 describe('MoneyPool.borrow', () => {
   let elyfiContracts: ElyfiContracts;
 
@@ -56,21 +55,21 @@ describe('MoneyPool.borrow', () => {
         const [reserveDataAfter, userDataAfter] = await takeDataSnapshot(borrower, elyfiContracts);
 
         const expectedReserveData = expectedReserveDataAfterBorrow({
-          amountBorrow: new BigNumber(amount.toString()),
+          amountBorrow: amount,
           reserveDataBefore,
           txTimestamp: await getTimestamp(tx),
         });
 
         const expectedUserData = expectedUserDataAfterBorrow({
-          amountBorrow: new BigNumber(amount.toString()),
+          amountBorrow: amount,
           userDataBefore,
           reserveDataBefore,
           reserveDataAfter,
           txTimestamp: await getTimestamp(tx),
         });
 
-        expect(reserveDataAfter).to.be.deep.eq(expectedReserveData);
-        expect(userDataAfter).to.be.deep.eq(expectedUserData);
+        expect(reserveDataAfter).equalReserveData(expectedReserveData);
+        expect(userDataAfter).equalUserData(expectedUserData);
       });
     });
   });

@@ -1,4 +1,4 @@
-import { BigNumber } from 'bignumber.js';
+import { BigNumber } from 'ethers';
 import { rayDiv, rayMul, wadToRay } from './Ethereum';
 import { RAY, SECONDSPERYEAR } from './constants';
 import { InterestModelParams } from './Interfaces';
@@ -8,9 +8,9 @@ export function calculateLinearInterest(
   lastUpdateTimestamp: BigNumber,
   currentTimestamp: BigNumber
 ): BigNumber {
-  const timeDelta = currentTimestamp.minus(lastUpdateTimestamp);
+  const timeDelta = currentTimestamp.sub(lastUpdateTimestamp);
 
-  return rate.multipliedBy(timeDelta).div(SECONDSPERYEAR).plus(RAY);
+  return rate.mul(timeDelta).div(SECONDSPERYEAR).add(RAY);
 }
 
 export function calculateCompoundedInterest(
@@ -18,27 +18,27 @@ export function calculateCompoundedInterest(
   lastUpdateTimestamp: BigNumber,
   currentTimestamp: BigNumber
 ): BigNumber {
-  const timeDelta = currentTimestamp.minus(lastUpdateTimestamp);
+  const timeDelta = currentTimestamp.sub(lastUpdateTimestamp);
 
-  const expMinusOne = timeDelta.minus(1);
-  const expMinusTwo = timeDelta.gt(2) ? timeDelta.minus(2) : 0;
+  const expMinusOne = timeDelta.sub(1);
+  const expMinusTwo = timeDelta.gt(2) ? timeDelta.sub(2) : 0;
 
   const ratePerSecond = rate.div(SECONDSPERYEAR);
 
   const basePowerTwo = rayMul(ratePerSecond, ratePerSecond);
   const basePowerThree = rayMul(basePowerTwo, ratePerSecond);
 
-  const secondTerm = timeDelta.multipliedBy(expMinusOne).multipliedBy(basePowerTwo).div(2);
+  const secondTerm = timeDelta.mul(expMinusOne).mul(basePowerTwo).div(2);
   const thirdTerm = timeDelta
-    .multipliedBy(expMinusOne)
-    .multipliedBy(expMinusTwo)
-    .multipliedBy(basePowerThree)
+    .mul(expMinusOne)
+    .mul(expMinusTwo)
+    .mul(basePowerThree)
     .div(6);
 
-  return new BigNumber(RAY)
-    .plus(ratePerSecond.multipliedBy(timeDelta))
-    .plus(secondTerm)
-    .plus(thirdTerm);
+  return BigNumber.from(RAY)
+    .add(ratePerSecond.mul(timeDelta))
+    .add(secondTerm)
+    .add(thirdTerm);
 }
 
 /******************* updateState functions *******************/
@@ -67,9 +67,9 @@ export function calculateRateInIncreasingBalance(
   const weightedAverageRate = rayMul(wadToRay(totalBalanceBefore), averageRateBefore);
   const weightedAmountRate = rayMul(wadToRay(amount), rate);
 
-  const newTotalBalance = totalBalanceBefore.plus(amount);
+  const newTotalBalance = totalBalanceBefore.add(amount);
   const newAverageRate = rayDiv(
-    weightedAmountRate.plus(weightedAverageRate),
+    weightedAmountRate.add(weightedAverageRate),
     wadToRay(newTotalBalance)
   );
 
@@ -83,18 +83,18 @@ export function calculateRateInDecreasingBalance(
   rate: BigNumber
 ): BigNumber {
   if (totalBalanceBefore.lte(amount)) {
-    return new BigNumber(0);
+    return BigNumber.from(0);
   }
 
   const weightedAverageRate = rayMul(wadToRay(totalBalanceBefore), averageRateBefore);
   const weightedAmountRate = rayMul(wadToRay(amount), rate);
 
   if (weightedAverageRate.lte(weightedAmountRate)) {
-    return new BigNumber(0);
+    return BigNumber.from(0);
   }
 
-  const newTotalBalance = totalBalanceBefore.plus(amount);
-  const newAverageRate = rayDiv(weightedAmountRate.plus(weightedAverageRate), newTotalBalance);
+  const newTotalBalance = totalBalanceBefore.add(amount);
+  const newAverageRate = rayDiv(weightedAmountRate.add(weightedAverageRate), newTotalBalance);
 
   return newAverageRate;
 }
@@ -112,12 +112,12 @@ export function calculateRateInInterestRateModel(
   let newSupplyAPR: BigNumber;
 
   const totalDebt = dTokenAmount;
-  const totalLiquidity = underlyingAssetBalance.plus(investAmount).minus(borrowAmount);
+  const totalLiquidity = underlyingAssetBalance.add(investAmount).sub(borrowAmount);
 
   if (totalDebt.eq(0)) {
-    utilizationRate = new BigNumber(0);
+    utilizationRate = BigNumber.from(0);
   } else {
-    utilizationRate = rayDiv(totalDebt, totalLiquidity.plus(totalDebt));
+    utilizationRate = rayDiv(totalDebt, totalLiquidity.add(totalDebt));
   }
 
   // Example
@@ -128,23 +128,23 @@ export function calculateRateInInterestRateModel(
   // optimalRate = 10%, util = 90%, maxRate = 100%, optimalUtil = 80%
   // result = 10+(90-80)*(100-10)/(100-80) = 55%
   if (utilizationRate.lte(interestRateModelParams.optimalUtilizationRate)) {
-    newBorrowAPR = interestRateModelParams.borrowRateBase.plus(
+    newBorrowAPR = interestRateModelParams.borrowRateBase.add(
       rayMul(
         rayDiv(
-          interestRateModelParams.borrowRateOptimal.minus(interestRateModelParams.borrowRateBase),
+          interestRateModelParams.borrowRateOptimal.sub(interestRateModelParams.borrowRateBase),
           interestRateModelParams.optimalUtilizationRate
         ),
         utilizationRate
       )
     );
   } else {
-    newBorrowAPR = interestRateModelParams.borrowRateOptimal.plus(
+    newBorrowAPR = interestRateModelParams.borrowRateOptimal.add(
       rayMul(
         rayDiv(
-          interestRateModelParams.borrowRateMax.minus(interestRateModelParams.borrowRateOptimal),
-          new BigNumber(RAY).minus(interestRateModelParams.optimalUtilizationRate)
+          interestRateModelParams.borrowRateMax.sub(interestRateModelParams.borrowRateOptimal),
+          BigNumber.from(RAY).sub(interestRateModelParams.optimalUtilizationRate)
         ),
-        utilizationRate.minus(interestRateModelParams.borrowRateOptimal)
+        utilizationRate.sub(interestRateModelParams.borrowRateOptimal)
       )
     );
   }
@@ -163,24 +163,4 @@ export function calculateRateInInterestRateModel(
   */
 
   return [newBorrowAPR, newSupplyAPR];
-}
-
-function overallBorrowAPR(
-  dTokenAmount: BigNumber,
-  borrowAPR: BigNumber,
-  averageBorrowAPR: BigNumber
-): BigNumber {
-  let result: BigNumber;
-
-  const totalDebt = dTokenAmount;
-
-  if (totalDebt.eq(new BigNumber(0))) {
-    return new BigNumber(0);
-  }
-
-  const weightedBorrowAPR = rayMul(averageBorrowAPR, wadToRay(dTokenAmount));
-
-  result = rayDiv(weightedBorrowAPR, wadToRay(totalDebt));
-
-  return result;
 }

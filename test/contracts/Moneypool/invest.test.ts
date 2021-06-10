@@ -1,4 +1,3 @@
-import { BigNumber } from 'bignumber.js';
 import { ethers, waffle } from 'hardhat';
 import { getTimestamp } from '../../utils/Ethereum';
 import { RAY } from '../../utils/constants';
@@ -29,14 +28,14 @@ describe('MoneyPool.invest', () => {
   });
 
   it('update user data & reserve data', async () => {
-    const amountInvest = new BigNumber(ethers.utils.parseEther('10000').toString());
+    const amountInvest = ethers.utils.parseEther('10000');
     await elyfiContracts.underlyingAsset.connect(account1).approve(elyfiContracts.moneyPool.address, RAY);
 
     const [reserveDataBefore, userDataBefore] = await takeDataSnapshot(account1, elyfiContracts)
 
     const investTx = await elyfiContracts.moneyPool
       .connect(account1)
-      .invest(elyfiContracts.underlyingAsset.address, account1.address, amountInvest.toFixed());
+      .invest(elyfiContracts.underlyingAsset.address, account1.address, amountInvest);
 
     const [reserveDataAfter, userDataAfter] = await takeDataSnapshot(account1, elyfiContracts)
 
@@ -53,7 +52,7 @@ describe('MoneyPool.invest', () => {
       txTimestamp: await getTimestamp(investTx),
     });
 
-    expect(reserveDataAfter).to.be.deep.eq(expectedReserveData);
-    expect(userDataAfter).to.deep.eq(expectedUserData);
+    expect(reserveDataAfter).to.equalReserveData(expectedReserveData);
+    expect(userDataAfter).to.equalUserData(expectedUserData);
   });
 });

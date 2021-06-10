@@ -12,7 +12,7 @@ const makeTestSuiteContracts = async (provider: MockProvider): Promise<ElyfiCont
   const elyfiContracts = await makeAllContracts(deployer);
 
   [UserType.Account0, UserType.Account1, UserType.Account2, UserType.Account3].forEach(async (user) => {
-    await elyfiContracts.underlyingAsset.connect(deployer).transfer(wallets[user].address, ethers.utils.formatEther(1000));
+    await elyfiContracts.underlyingAsset.connect(deployer).transfer(wallets[user].address, ethers.utils.parseEther('1000'));
   })
 
   return elyfiContracts

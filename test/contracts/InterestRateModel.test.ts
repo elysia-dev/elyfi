@@ -28,7 +28,7 @@ describe('Rate', () => {
       0
     );
 
-    expect(borrowAPR).to.be.equal(ethers.BigNumber.from(defaultInterestModelParams.borrowRateBase.toFixed()));
+    expect(borrowAPR).to.be.equal(defaultInterestModelParams.borrowRateBase);
     expect(supplyAPR).to.be.equal(0);
   });
 
@@ -44,7 +44,7 @@ describe('Rate', () => {
       0
     );
 
-    expect(borrowAPR).to.be.equal(ethers.BigNumber.from(defaultInterestModelParams.borrowRateOptimal.toFixed()));
+    expect(borrowAPR).to.be.equal(defaultInterestModelParams.borrowRateOptimal);
   });
 
   it('returns optimal rates at optimal utilization rate with borrowing', async () => {
@@ -59,7 +59,7 @@ describe('Rate', () => {
       0
     );
 
-    expect(borrowAPR).to.be.equal(ethers.BigNumber.from(defaultInterestModelParams.borrowRateOptimal.toFixed()));
+    expect(borrowAPR).to.be.equal(defaultInterestModelParams.borrowRateOptimal);
   });
 
   it('returns optimal rates at optimal utilization rate with investment', async () => {
@@ -74,6 +74,6 @@ describe('Rate', () => {
       0
     );
 
-    expect(borrowAPR).to.be.equal(ethers.BigNumber.from(defaultInterestModelParams.borrowRateOptimal.toFixed()));
+    expect(borrowAPR).to.be.equal(defaultInterestModelParams.borrowRateOptimal);
   });
 });

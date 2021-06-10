@@ -1,4 +1,4 @@
-import { BigNumber } from 'bignumber.js';
+import { BigNumber } from 'ethers';
 import { waffle } from 'hardhat';
 import { RAY, WAD } from './constants';
 
@@ -20,38 +20,42 @@ export async function advanceBlockTo(to: number) {
 }
 
 export async function getTimestamp(tx: any) {
-  return new BigNumber((await waffle.provider.getBlock(tx.blockNumber)).timestamp);
+  return BigNumber.from((await waffle.provider.getBlock(tx.blockNumber)).timestamp);
 }
 
 // Underflow error, need refactor
 export function toIndex(m: number): BigNumber {
-  return new BigNumber(m * 1000).multipliedBy(new BigNumber(10).pow(24));
+  return BigNumber.from(m * 1000).mul(BigNumber.from(10).pow(24));
 }
 
 // Underflow error, need refactor
 export function toRate(m: number): BigNumber {
-  return new BigNumber(m * 1000).multipliedBy(new BigNumber(10).pow(24));
+  return BigNumber.from(m * 1000).mul(BigNumber.from(10).pow(24));
 }
 
 // ray calculation
-
+//     return (a * b + halfRAY) / RAY;
 export function rayMul(m: BigNumber, n: BigNumber): BigNumber {
-  const halfRay = new BigNumber(RAY).div(2).decimalPlaces(0, BigNumber.ROUND_DOWN);
-  return m.multipliedBy(n).plus(halfRay).div(RAY).decimalPlaces(0, BigNumber.ROUND_DOWN);
+  const halfRay = BigNumber.from(RAY).div(2);
+
+  return m.mul(n).add(halfRay).div(RAY);
 }
 
+//rayDiv(uint256 a, uint256 b)
+/*
+require(b != 0, 'Division by Zero');
+uint256 halfB = b / 2;
+return (a * RAY + halfB) / b;
+}
+*/
 export function rayDiv(m: BigNumber, n: BigNumber): BigNumber {
-  const half = n.div(2).decimalPlaces(0, BigNumber.ROUND_DOWN);
+  const half = n.div(2);
 
-  return half
-    .plus(m.multipliedBy(RAY))
-    .decimalPlaces(0, BigNumber.ROUND_DOWN)
-    .div(n)
-    .decimalPlaces(0, BigNumber.ROUND_DOWN);
+  return half.add(m.mul(RAY)).div(n);
 }
 
 export function wadToRay(m: BigNumber): BigNumber {
-  return m.multipliedBy(RAY).div(WAD).decimalPlaces(0, BigNumber.ROUND_DOWN);
+  return m.mul(RAY).div(WAD)
 }
 
 // Addresses

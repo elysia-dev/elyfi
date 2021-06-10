@@ -1,4 +1,4 @@
-import { BigNumber } from 'bignumber.js';
+import { BigNumber } from 'ethers';
 import { toRate } from './Ethereum';
 import { RAY } from './constants';
 
@@ -31,9 +31,9 @@ export const defaultReserveData: ReserveData = <ReserveData>{
   moneyPoolFactor: toRate(0.03),
   underlyingAssetName: 'ELYSIA',
   underlyingAssetSymbol: 'EL',
-  lTokenInterestIndex: new BigNumber(RAY),
-  borrowAPR: new BigNumber(0),
-  supplyAPR: new BigNumber(0),
+  lTokenInterestIndex: BigNumber.from(RAY),
+  borrowAPR: BigNumber.from(0),
+  supplyAPR: BigNumber.from(0),
 };
 
 export interface InterestModelParams {

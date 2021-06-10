@@ -1,5 +1,6 @@
-import { Assertion, util } from 'chai';
-import { BigNumber } from 'bignumber.js';
+import { Assertion, util, expect } from 'chai';
+import { BigNumber } from 'ethers'
+import { ReserveData, UserData } from '../utils/Interfaces';
 
 const flag = util.flag;
 
@@ -7,6 +8,8 @@ declare global {
   export namespace Chai {
     interface Assertion {
       bigNumberCloseTo(expect: BigNumber, delta: number, msg: string): void;
+      equalUserData(expectedData: UserData): void;
+      equalReserveData(expect: ReserveData): void;
     }
   }
 }
@@ -22,7 +25,23 @@ Assertion.addMethod('bigNumberCloseTo', function (expected, delta, msg) {
     BigNumber.prototype.lte.bind(actualData)(expected.plus(delta)),
     `expected #{act} to be within '${delta}' of #{exp}`,
     `expected #{act} to be further than '${delta}' from #{exp}`,
-    expected.toFixed(),
-    actualData.toFixed()
+    expected.toString(),
+    actualData.toString(),
   );
+});
+
+Assertion.addMethod('equalReserveData', function (expectedData: ReserveData) {
+  const actualData = <ReserveData>this._obj;
+
+  (Object.keys(actualData) as (keyof ReserveData)[]).forEach((key) => {
+    expect(expectedData[key]).to.eq(expectedData[key])
+  });
+});
+
+Assertion.addMethod('equalUserData', function (expectedData: UserData) {
+  const actualData = <UserData>this._obj;
+
+  (Object.keys(actualData) as (keyof UserData)[]).forEach((key) => {
+    expect(expectedData[key]).to.eq(expectedData[key])
+  });
 });

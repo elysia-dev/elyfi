@@ -86,7 +86,7 @@ describe('Tokenizer', () => {
       dToken.address,
       interestModel.address,
       tokenizer.address,
-      defaultReserveData.moneyPoolFactor.toFixed()
+      defaultReserveData.moneyPoolFactor
     );
 
     await underlyingAsset.connect(deployer).transfer(account1.address, RAY);

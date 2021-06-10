@@ -6,8 +6,7 @@ import {
   expectedUserDataAfterWithdraw,
 } from "../../test/utils/Expect";
 import { getTimestamp } from "../../test/utils/Ethereum";
-import { ethers } from 'hardhat';
-import BigNumber from "bignumber.js";
+import { BigNumber, utils } from 'ethers';
 import { expect } from "chai";
 import ActionType from "../enums/ActionType";
 import Story from "../types/Story";
@@ -45,8 +44,8 @@ const excuteInvestor = async (
     await getTimestamp(tx),
   );
 
-  expect(reserveDataAfter).to.deep.eq(expectedReserveDataAfter);
-  expect(userDataAfter).to.deep.eq(expectedUserDataAfter)
+  expect(reserveDataAfter).to.equalReserveData(expectedReserveDataAfter);
+  expect(userDataAfter).to.equalUserData(expectedUserDataAfter)
 }
 
 const excuteStory = async (
@@ -54,7 +53,7 @@ const excuteStory = async (
   account: Wallet,
   elyfiContracts: ElyfiContracts,
 ) => {
-  const amount = new BigNumber(ethers.utils.parseEther(story.value.toFixed()).toString())
+  const amount = utils.parseEther(story.value.toFixed());
 
   switch (story.actionType) {
     case ActionType.invest:
@@ -63,7 +62,7 @@ const excuteStory = async (
         amount,
         elyfiContracts,
         async () => {
-          await elyfiContracts.underlyingAsset.connect(account).approve(elyfiContracts.moneyPool.address, ethers.utils.parseEther('1000'));
+          await elyfiContracts.underlyingAsset.connect(account).approve(elyfiContracts.moneyPool.address, utils.parseEther('1000'));
 
           try {
             const tx = await elyfiContracts.moneyPool
