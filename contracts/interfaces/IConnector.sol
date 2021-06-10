@@ -5,9 +5,9 @@ import '../libraries/DataStruct.sol';
 
 interface IConnector {
   event NewCouncilAdded(address indexed account);
-  event NewCSPAdded(address indexed account);
+  event NewCollateralServiceProviderAdded(address indexed account);
 
-  function isCSP(address account) external view returns (bool);
+  function isCollateralServiceProvider(address account) external view returns (bool);
 
   function isCouncil(address account) external view returns (bool);
 }

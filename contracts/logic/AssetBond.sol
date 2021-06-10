@@ -18,7 +18,7 @@ library AssetBond {
   );
 
   //   uint256 constant COUNTRY_CODE =
-  //   uint256 constant CSP_IDENTIFICATION_NUMBER = ;
+  //   uint256 constant CollateralServiceProvider_IDENTIFICATION_NUMBER = ;
   //   uint256 constant COLLATERAL_LATITUDE = ;
   //   uint256 constant COLLATERAL_LONGITUDE = ;
   //   uint256 constant COLLATERAL_DETAILS = ;
@@ -27,7 +27,7 @@ library AssetBond {
   //   uint256 constant COLLATERAL_CATEGORY = ;
 
   // uint256 constant COUNTRY_CODE_START= 0;
-  // uint256 constant CSP_IDENTIFICATION_NUMBER_START= 3;
+  // uint256 constant CollateralServiceProvider_IDENTIFICATION_NUMBER_START= 3;
   // uint256 constant COLLATERAL_LATITUDE_START= 18;
   // uint256 constant COLLATERAL_LONGITUDE_START= 30;
   // uint256 constant COLLATERAL_DETAILS_START= 42;

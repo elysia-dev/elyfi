@@ -22,6 +22,14 @@ interface IMoneyPool {
     uint256 borrowAmount
   );
 
+  event Repay(
+    address indexed asset,
+    address indexed borrower,
+    uint256 tokenId,
+    uint256 userDTokenBalance,
+    uint256 feeOnCollateralServiceProvider
+  );
+
   function invest(
     address asset,
     address account,

@@ -35,7 +35,7 @@ library TokenErrors {
 
 library TokenizerErrors {
   error OnlyMoneyPool();
-  error OnlyCSP();
+  error OnlyCollateralServiceProvider();
   error OnlyCouncil();
   error AssetBondIDAlreadyExists(uint256 tokenId);
   error MintedAssetBondReceiverNotAllowed(address account, uint256 tokenId);

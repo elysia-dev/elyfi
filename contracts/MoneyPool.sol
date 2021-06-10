@@ -153,7 +153,7 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
     address receiver,
     uint256 borrowAmount,
     uint256 tokenId
-  ) external override onlyCSP {
+  ) external override onlyCollateralServiceProvider {
     DataStruct.ReserveData storage reserve = _reserves[asset];
     DataStruct.AssetBondData memory assetBond =
       ITokenizer(reserve.tokenizerAddress).getAssetBondData(tokenId);
@@ -242,12 +242,12 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
 
     reserve.updateState();
 
-    // update interest rate
     IDToken(reserve.dTokenAddress).burn(borrower, userDTokenBalance);
-    // transfer asset bond
 
+    // update interest rate
     reserve.updateRates(asset, totalRetrieveAmount, 0);
 
+    // transfer asset bond
     IERC20(asset).safeTransferFrom(msg.sender, reserve.lTokenAddress, totalRetrieveAmount);
 
     ITokenizer(reserve.tokenizerAddress).releaseAssetBond(borrower, tokenId);
@@ -268,7 +268,7 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
     );
     */
 
-    emit Borrow(asset, msg.sender, borrower, tokenId, reserve.borrowAPR, amount);
+    emit Repay(asset, borrower, tokenId, userDTokenBalance, feeOnCollateralServiceProvider);
   }
 
   /************ View Functions ************/
@@ -341,8 +341,9 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
     _reserveCount = reserveCount + 1;
   }
 
-  modifier onlyCSP {
-    if (!_connector.isCSP(msg.sender)) revert TokenizerErrors.OnlyCSP();
+  modifier onlyCollateralServiceProvider {
+    if (!_connector.isCollateralServiceProvider(msg.sender))
+      revert TokenizerErrors.OnlyCollateralServiceProvider();
     _;
   }
 

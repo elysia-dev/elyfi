@@ -18,9 +18,9 @@ contract Connector is IConnector, ConnectorStorage, Ownable {
     emit NewCouncilAdded(account);
   }
 
-  function addCSP(address account) external onlyOwner {
-    _grantRole(Role.CSP, account);
-    emit NewCSPAdded(account);
+  function addCollateralServiceProvider(address account) external onlyOwner {
+    _grantRole(Role.CollateralServiceProvider, account);
+    emit NewCollateralServiceProviderAdded(account);
   }
 
   function _grantRole(bytes32 role, address account) internal {
@@ -35,8 +35,8 @@ contract Connector is IConnector, ConnectorStorage, Ownable {
     return _roles[role].participants[account];
   }
 
-  function isCSP(address account) external view override returns (bool) {
-    return _hasRole(Role.CSP, account);
+  function isCollateralServiceProvider(address account) external view override returns (bool) {
+    return _hasRole(Role.CollateralServiceProvider, account);
   }
 
   function isCouncil(address account) external view override returns (bool) {

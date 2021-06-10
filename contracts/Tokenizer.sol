@@ -67,12 +67,16 @@ contract Tokenizer is ITokenizer, TokenizerStorage, ERC721 {
    * Borrowers who wants to take out a loan backed by real asset must enter into a contract
    * with a collateral service provider to obtain a loan. Borrowers should submit various documents necessary for evaluating a loan secured by
    * real assets to the collateral service provider.
-   * @param account CSP address
+   * @param account CollateralServiceProvider address
    * @param tokenId The tokenId is a unique identifier for asset bond.
    */
-  function mintAssetBond(address account, uint256 tokenId) external override onlyCSP {
+  function mintAssetBond(address account, uint256 tokenId)
+    external
+    override
+    onlyCollateralServiceProvider
+  {
     if (_minter[tokenId] != address(0)) revert TokenizerErrors.AssetBondIDAlreadyExists(tokenId);
-    if (!_connector.isCSP(account))
+    if (!_connector.isCollateralServiceProvider(account))
       revert TokenizerErrors.MintedAssetBondReceiverNotAllowed(account, tokenId);
 
     DataStruct.AssetBondData storage assetBond = _assetBondData[tokenId];
@@ -80,7 +84,7 @@ contract Tokenizer is ITokenizer, TokenizerStorage, ERC721 {
     // validate tokenId : tokenId should have information about
     Validation.validateTokenId(tokenId);
 
-    // mint AssetBond to CSP
+    // mint AssetBond to CollateralServiceProvider
     _safeMint(account, tokenId, '');
 
     _minter[tokenId] = account;
@@ -118,7 +122,7 @@ contract Tokenizer is ITokenizer, TokenizerStorage, ERC721 {
     uint8 loanStartTimeMonth,
     uint8 loanStartTimeDay,
     string memory ipfsHash
-  ) external onlyCSP {
+  ) external onlyCollateralServiceProvider {
     SettleAssetBondLocalVars memory vars;
 
     vars.loanStartTimestamp = TimeConverter.toTimestamp(
@@ -204,8 +208,9 @@ contract Tokenizer is ITokenizer, TokenizerStorage, ERC721 {
     _;
   }
 
-  modifier onlyCSP {
-    if (!_connector.isCSP(msg.sender)) revert TokenizerErrors.OnlyCSP();
+  modifier onlyCollateralServiceProvider {
+    if (!_connector.isCollateralServiceProvider(msg.sender))
+      revert TokenizerErrors.OnlyCollateralServiceProvider();
     _;
   }
 
