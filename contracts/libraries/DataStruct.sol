@@ -33,11 +33,13 @@ library DataStruct {
     AssetBondState state;
     address borrower;
     address signer;
+    address collateralServiceProvider;
     uint256 principal;
+    uint256 debtCeiling;
     uint256 couponRate;
     uint256 interestRate;
     uint256 overdueInterestRate;
-    uint256 effectiveTimestamp;
+    uint256 loanStartTimestamp;
     uint256 collateralizeTimestamp;
     uint256 maturityTimestamp;
     uint256 liquidationTimestamp;

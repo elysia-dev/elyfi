@@ -55,7 +55,7 @@ contract Tokenizer is ITokenizer, TokenizerStorage, ERC721 {
     return _assetBondData[tokenId];
   }
 
-  function getMinter(uint256 tokenId) external view returns (address) {
+  function getMinter(uint256 tokenId) external view override returns (address) {
     return _minter[tokenId];
   }
 
@@ -89,13 +89,9 @@ contract Tokenizer is ITokenizer, TokenizerStorage, ERC721 {
   }
 
   struct SettleAssetBondLocalVars {
-    uint256 effectiveTimestamp;
+    uint256 loanStartTimestamp;
     uint256 maturityTimestamp;
     uint256 liquidationTimestamp;
-    uint16 _year;
-    uint8 year;
-    uint8 month;
-    uint8 day;
   }
 
   // Access control : only minter
@@ -118,19 +114,19 @@ contract Tokenizer is ITokenizer, TokenizerStorage, ERC721 {
     uint256 overdueInterestRate,
     uint256 debtCeiling,
     uint16 loanDuration,
-    uint16 effectiveDateYear,
-    uint8 effectiveDateMonth,
-    uint8 effectiveDateDay,
+    uint16 loanStartTimeYear,
+    uint8 loanStartTimeMonth,
+    uint8 loanStartTimeDay,
     string memory ipfsHash
-  ) external onlyCouncil {
+  ) external onlyCSP {
     SettleAssetBondLocalVars memory vars;
 
-    vars.effectiveTimestamp = TimeConverter.toTimestamp(
-      effectiveDateYear,
-      effectiveDateMonth,
-      effectiveDateDay
+    vars.loanStartTimestamp = TimeConverter.toTimestamp(
+      loanStartTimeYear,
+      loanStartTimeMonth,
+      loanStartTimeDay
     );
-    vars.maturityTimestamp = vars.effectiveTimestamp + (loanDuration * 1 days);
+    vars.maturityTimestamp = vars.loanStartTimestamp + (loanDuration * 1 days);
     vars.liquidationTimestamp = vars.maturityTimestamp + (10 * 1 days);
 
     DataStruct.AssetBondData memory newAssetBond =
@@ -138,11 +134,13 @@ contract Tokenizer is ITokenizer, TokenizerStorage, ERC721 {
         state: DataStruct.AssetBondState.SETTLED,
         borrower: borrower,
         signer: signer,
+        collateralServiceProvider: msg.sender,
         principal: principal,
+        debtCeiling: debtCeiling,
         couponRate: couponRate,
         interestRate: 0,
         overdueInterestRate: overdueInterestRate,
-        effectiveTimestamp: vars.effectiveTimestamp,
+        loanStartTimestamp: vars.loanStartTimestamp,
         maturityTimestamp: vars.maturityTimestamp,
         liquidationTimestamp: vars.liquidationTimestamp,
         collateralizeTimestamp: 0,

@@ -73,7 +73,6 @@ library Validation {
     DataStruct.ReserveData storage reserve,
     DataStruct.AssetBondData memory assetBond,
     address borrower,
-    uint256 amount,
     uint256 userDTokenBalance,
     uint256 feeOnCollateralServiceProvider
   ) internal view {}

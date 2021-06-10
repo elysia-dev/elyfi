@@ -20,6 +20,7 @@ library MoneyPoolErrors {
   error NotSignedAssetBond(uint256 id);
   error LTokenTransferNotAllowed(address from, address to);
   error OnlyLToken();
+  error EarlyRepaymentNotAllowed(uint256 amount, uint256 totalRetrieveAmount);
 }
 
 library TokenErrors {

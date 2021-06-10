@@ -42,4 +42,6 @@ interface ITokenizer {
   function releaseAssetBond(address account, uint256 tokenId) external;
 
   function getAssetBondData(uint256 tokenId) external returns (DataStruct.AssetBondData memory);
+
+  function getMinter(uint256 tokenId) external view returns (address);
 }
