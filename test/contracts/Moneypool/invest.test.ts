@@ -4,7 +4,7 @@ import { RAY } from '../../utils/constants';
 import {
   makeAllContracts,
 } from '../../utils/makeContract';
-import chai from '../../utils/chai';
+import { expect } from '../../utils/chai';
 import {
   expectedReserveDataAfterInvest,
   expectedUserDataAfterInvest,
@@ -12,8 +12,6 @@ import {
 import ElyfiContracts from '../../types/ElyfiContracts';
 import takeDataSnapshot from '../../utils/takeDataSnapshot';
 import { BigNumber } from 'ethers';
-
-const expect = chai.expect;
 
 // TODO : Mockup user & reserve data
 describe('MoneyPool.invest', () => {
@@ -79,7 +77,7 @@ describe('MoneyPool.invest', () => {
               elyfiContracts.moneyPool
                 .connect(account1)
                 .invest(elyfiContracts.underlyingAsset.address, account1.address, ethers.utils.parseEther('1000'))
-            ).to.eventually.be.rejected;
+            ).to.be.reverted;
           });
         })
 
@@ -89,7 +87,7 @@ describe('MoneyPool.invest', () => {
               elyfiContracts.moneyPool
                 .connect(account1)
                 .invest(elyfiContracts.underlyingAsset.address, account1.address, ethers.utils.parseEther('1000'))
-            ).to.eventually.be.rejected;
+            ).to.reverted;
           });
         })
       })
@@ -100,7 +98,7 @@ describe('MoneyPool.invest', () => {
             elyfiContracts.moneyPool
               .connect(account1)
               .invest(elyfiContracts.underlyingAsset.address, account1.address, BigNumber.from(0))
-          ).to.eventually.be.rejected;
+          ).to.be.reverted;
         });
       })
     })
@@ -111,7 +109,7 @@ describe('MoneyPool.invest', () => {
           elyfiContracts.moneyPool
             .connect(account1)
             .invest(elyfiContracts.underlyingAsset.address, account1.address, ethers.utils.parseEther('10000'))
-        ).to.eventually.be.rejected;
+        ).to.be.reverted;
       });
     })
   })
@@ -126,7 +124,7 @@ describe('MoneyPool.invest', () => {
         elyfiContracts.moneyPool
           .connect(account1)
           .invest(elyfiContracts.underlyingAsset.address, account1.address, ethers.utils.parseEther('10000'))
-      ).to.eventually.be.rejected;
+      ).to.be.reverted;
     });
   })
 });
