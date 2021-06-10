@@ -1,5 +1,6 @@
 import { BigNumber } from 'bignumber.js';
-import { RAY, rayDiv, rayMul, SECONDSPERYEAR, wadToRay } from './Ethereum';
+import { rayDiv, rayMul, wadToRay } from './Ethereum';
+import { RAY, SECONDSPERYEAR } from './constants';
 import { InterestModelParams } from './Interfaces';
 
 export function calculateLinearInterest(

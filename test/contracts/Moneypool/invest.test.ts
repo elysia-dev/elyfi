@@ -1,6 +1,7 @@
 import { BigNumber } from 'bignumber.js';
 import { ethers, waffle } from 'hardhat';
-import { getTimestamp, RAY } from '../../utils/Ethereum';
+import { getTimestamp } from '../../utils/Ethereum';
+import { RAY } from '../../utils/constants';
 import {
   makeAllContracts,
 } from '../../utils/makeContract';

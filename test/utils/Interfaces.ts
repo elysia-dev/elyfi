@@ -1,5 +1,6 @@
 import { BigNumber } from 'bignumber.js';
-import { RAY, toRate } from './Ethereum';
+import { toRate } from './Ethereum';
+import { RAY } from './constants';
 
 export interface ReserveData {
   moneyPoolFactor: BigNumber;

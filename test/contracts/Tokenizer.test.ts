@@ -1,6 +1,6 @@
 import { BigNumber } from 'ethers';
 import { ethers, waffle } from 'hardhat';
-import { RAY } from '../utils/Ethereum';
+import { RAY } from '../utils/constants';
 import {
   Connector,
   DataPipeline,
