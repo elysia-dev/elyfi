@@ -69,11 +69,8 @@ describe('MoneyPool.borrow', () => {
           txTimestamp: await getTimestamp(tx),
         });
 
-        console.log(expectedReserveData.averageRealAssetBorrowRate.toFixed());
-        console.log(reserveDataAfter.averageRealAssetBorrowRate.toFixed());
-
         expect(reserveDataAfter).to.be.deep.eq(expectedReserveData);
-        //expect(userDataAfter).to.be.deep.eq(expectedUserData);
+        expect(userDataAfter).to.be.deep.eq(expectedUserData);
       });
     });
   });

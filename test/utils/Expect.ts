@@ -296,11 +296,13 @@ export function expectedReserveDataAfterBorrow({
     amountBorrow,
     reserveDataBefore.borrowAPR
   );
+  /*
   console.log(
     'reserve',
     reserveDataBefore.averageRealAssetBorrowRate.toString(),
     averageRealAssetBorrowRate.toString()
   );
+  */
   const totalDTokenSupply = previousUpdatedDTokenBalance.plus(amountBorrow);
   expectedReserveData.averageRealAssetBorrowRate = averageRealAssetBorrowRate;
   expectedReserveData.principalDTokenSupply = totalDTokenSupply;
@@ -364,6 +366,7 @@ export function expectedUserDataAfterBorrow({
   expectedUserData.dTokenBalance = dTokenBalance;
   expectedUserData.principalDTokenBalance = dTokenBalance;
 
+  /*
   console.log(
     'user',
     userDataBefore.averageRealAssetBorrowRate.toString(),
@@ -371,6 +374,7 @@ export function expectedUserDataAfterBorrow({
     amountBorrow.toString(),
     reserveDataBefore.borrowAPR.toString()
   );
+  */
   // update average Borrow rate and timestamp
   const averageRealAssetBorrowRate = calculateRateInIncreasingBalance(
     userDataBefore.averageRealAssetBorrowRate,
@@ -380,7 +384,7 @@ export function expectedUserDataAfterBorrow({
   );
   expectedUserData.userLastUpdateTimestamp = txTimestamp;
   expectedUserData.averageRealAssetBorrowRate = averageRealAssetBorrowRate;
-  console.log('user', averageRealAssetBorrowRate.toString());
+  // console.log('user', averageRealAssetBorrowRate.toString());
 
   // transferFrom
   const underlyingAssetBalance = userDataBefore.underlyingAssetBalance.plus(amountBorrow);
