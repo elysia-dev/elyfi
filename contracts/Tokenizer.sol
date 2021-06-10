@@ -84,8 +84,6 @@ contract Tokenizer is ITokenizer, TokenizerStorage, ERC721 {
     if (!_connector.isCollateralServiceProvider(account))
       revert TokenizerErrors.MintedAssetBondReceiverNotAllowed(account, tokenId);
 
-    DataStruct.AssetBondData storage assetBond = _assetBondData[tokenId];
-
     // validate tokenId : tokenId should have information about
     Validation.validateTokenId(tokenId);
 
