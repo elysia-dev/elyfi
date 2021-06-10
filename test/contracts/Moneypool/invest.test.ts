@@ -4,55 +4,129 @@ import { RAY } from '../../utils/constants';
 import {
   makeAllContracts,
 } from '../../utils/makeContract';
-import { expect } from 'chai';
+import chai from '../../utils/chai';
 import {
   expectedReserveDataAfterInvest,
   expectedUserDataAfterInvest,
 } from '../../utils/Expect';
 import ElyfiContracts from '../../types/ElyfiContracts';
 import takeDataSnapshot from '../../utils/takeDataSnapshot';
-require('../../assertions/equals.ts');
+import { BigNumber } from 'ethers';
+
+const expect = chai.expect;
 
 // TODO : Mockup user & reserve data
 describe('MoneyPool.invest', () => {
   let elyfiContracts: ElyfiContracts
 
   const provider = waffle.provider;
-  const [deployer, account1, account2] = provider.getWallets();
+  const [deployer, account1] = provider.getWallets();
 
   beforeEach(async () => {
     elyfiContracts = await makeAllContracts(deployer)
-
-    await elyfiContracts.underlyingAsset.connect(deployer).transfer(account1.address, RAY);
-    await elyfiContracts.underlyingAsset.connect(deployer).transfer(account2.address, RAY);
   });
 
-  it('update user data & reserve data', async () => {
-    const amountInvest = ethers.utils.parseEther('10000');
-    await elyfiContracts.underlyingAsset.connect(account1).approve(elyfiContracts.moneyPool.address, RAY);
+  context('when account approve enough underlyingAsset', async () => {
+    beforeEach(async () => {
+      await elyfiContracts.underlyingAsset.connect(account1).approve(elyfiContracts.moneyPool.address, RAY);
+    })
 
-    const [reserveDataBefore, userDataBefore] = await takeDataSnapshot(account1, elyfiContracts)
+    context('when accunt has enough underlyingAsset', async () => {
+      let beforeBalance: BigNumber;
 
-    const investTx = await elyfiContracts.moneyPool
-      .connect(account1)
-      .invest(elyfiContracts.underlyingAsset.address, account1.address, amountInvest);
+      beforeEach(async () => {
+        await elyfiContracts.underlyingAsset.connect(deployer).transfer(account1.address, RAY);
+        beforeBalance = await elyfiContracts.underlyingAsset.balanceOf(account1.address);
+      })
 
-    const [reserveDataAfter, userDataAfter] = await takeDataSnapshot(account1, elyfiContracts)
+      context('when amount is not zero', async () => {
+        it('update user data & reserve data', async () => {
+          const amountInvest = ethers.utils.parseEther('10000');
 
-    const expectedReserveData = expectedReserveDataAfterInvest({
-      amountInvest,
-      reserveDataBefore,
-      txTimestamp: await getTimestamp(investTx),
+          const [reserveDataBefore, userDataBefore] = await takeDataSnapshot(account1, elyfiContracts)
+
+          const investTx = await elyfiContracts.moneyPool
+            .connect(account1)
+            .invest(elyfiContracts.underlyingAsset.address, account1.address, amountInvest);
+
+          const [reserveDataAfter, userDataAfter] = await takeDataSnapshot(account1, elyfiContracts)
+
+          const expectedReserveData = expectedReserveDataAfterInvest({
+            amountInvest,
+            reserveDataBefore,
+            txTimestamp: await getTimestamp(investTx),
+          });
+          const expectedUserData = expectedUserDataAfterInvest({
+            amountInvest: amountInvest,
+            userDataBefore,
+            reserveDataBefore,
+            reserveDataAfter,
+            txTimestamp: await getTimestamp(investTx),
+          });
+
+          expect(reserveDataAfter).to.equalReserveData(expectedReserveData);
+          expect(userDataAfter).to.equalUserData(expectedUserData);
+
+          const afterBalance = await elyfiContracts.underlyingAsset.balanceOf(account1.address);
+          expect(beforeBalance.sub(afterBalance)).to.eq(amountInvest);
+        });
+
+        context('when moneypool is deactivated', async () => {
+          it('rejected', async () => {
+            await elyfiContracts.connector.connect(deployer).deactivateMoneyPool(elyfiContracts.moneyPool.address);
+
+            await expect(
+              elyfiContracts.moneyPool
+                .connect(account1)
+                .invest(elyfiContracts.underlyingAsset.address, account1.address, ethers.utils.parseEther('1000'))
+            ).to.eventually.be.rejected;
+          });
+        })
+
+        context('when moneypool is paused', async () => {
+          it('rejected', async () => {
+            await expect(
+              elyfiContracts.moneyPool
+                .connect(account1)
+                .invest(elyfiContracts.underlyingAsset.address, account1.address, ethers.utils.parseEther('1000'))
+            ).to.eventually.be.rejected;
+          });
+        })
+      })
+
+      context('when amount is zero', async () => {
+        it('rejected', async () => {
+          await expect(
+            elyfiContracts.moneyPool
+              .connect(account1)
+              .invest(elyfiContracts.underlyingAsset.address, account1.address, BigNumber.from(0))
+          ).to.eventually.be.rejected;
+        });
+      })
+    })
+
+    context('when accunt does not have enough underlyingAsset', async () => {
+      it('rejected', async () => {
+        await expect(
+          elyfiContracts.moneyPool
+            .connect(account1)
+            .invest(elyfiContracts.underlyingAsset.address, account1.address, ethers.utils.parseEther('10000'))
+        ).to.eventually.be.rejected;
+      });
+    })
+  })
+
+  context("when account do not approve enough underlyingAsset", async () => {
+    beforeEach(async () => {
+      await elyfiContracts.underlyingAsset.connect(deployer).transfer(account1.address, RAY);
+    })
+
+    it('rejected', async () => {
+      await expect(
+        elyfiContracts.moneyPool
+          .connect(account1)
+          .invest(elyfiContracts.underlyingAsset.address, account1.address, ethers.utils.parseEther('10000'))
+      ).to.eventually.be.rejected;
     });
-    const expectedUserData = expectedUserDataAfterInvest({
-      amountInvest: amountInvest,
-      userDataBefore,
-      reserveDataBefore,
-      reserveDataAfter,
-      txTimestamp: await getTimestamp(investTx),
-    });
-
-    expect(reserveDataAfter).to.equalReserveData(expectedReserveData);
-    expect(userDataAfter).to.equalUserData(expectedUserData);
-  });
+  })
 });
