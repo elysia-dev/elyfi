@@ -70,7 +70,7 @@ describe('MoneyPool.invest', () => {
         });
 
         context('when moneypool is deactivated', async () => {
-          it('rejected', async () => {
+          it('reverted', async () => {
             await elyfiContracts.connector.connect(deployer).deactivateMoneyPool(elyfiContracts.moneyPool.address);
 
             await expect(
@@ -82,7 +82,7 @@ describe('MoneyPool.invest', () => {
         })
 
         context('when moneypool is paused', async () => {
-          it('rejected', async () => {
+          it('reverted', async () => {
             await expect(
               elyfiContracts.moneyPool
                 .connect(account1)
@@ -93,7 +93,7 @@ describe('MoneyPool.invest', () => {
       })
 
       context('when amount is zero', async () => {
-        it('rejected', async () => {
+        it('reverted', async () => {
           await expect(
             elyfiContracts.moneyPool
               .connect(account1)
@@ -104,7 +104,7 @@ describe('MoneyPool.invest', () => {
     })
 
     context('when accunt does not have enough underlyingAsset', async () => {
-      it('rejected', async () => {
+      it('reverted', async () => {
         await expect(
           elyfiContracts.moneyPool
             .connect(account1)
@@ -119,7 +119,7 @@ describe('MoneyPool.invest', () => {
       await elyfiContracts.underlyingAsset.connect(deployer).transfer(account1.address, RAY);
     })
 
-    it('rejected', async () => {
+    it('reverted', async () => {
       await expect(
         elyfiContracts.moneyPool
           .connect(account1)
