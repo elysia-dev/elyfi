@@ -7,7 +7,6 @@ import TestnetEL_ABI from '../dependencies/TestnetEL.json';
 import ELToken_ABI from '../dependencies/ELToken.json';
 import { getContractAt } from 'hardhat-deploy-ethers/dist/src/helpers';
 import { MoneyPool } from '../typechain';
-import { expandToDecimals } from '../test/utils/Ethereum';
 
 export enum ELYFIContractType {
   CONNECTOR,
@@ -65,7 +64,7 @@ const getElysia = async (hre: HardhatRuntimeEnvironment, signer: string): Promis
 
   const elysiaLocalDeploy = await deploy('ERC20Test', {
     from: deployer,
-    args: [expandToDecimals(1, 23), 'Test', 'Test'],
+    args: [ethers.utils.parseUnits('1', 23), 'Test', 'Test'],
   });
 
   elysia = await hre.ethers.getContractAt(elysiaLocalDeploy.abi, elysiaLocalDeploy.address);

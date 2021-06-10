@@ -19,13 +19,12 @@ import {
 import { BigNumber } from 'bignumber.js';
 import { Contract, Wallet } from 'ethers';
 import { ethers } from 'hardhat';
-import { expandToDecimals, toRate } from './Ethereum';
 import { defaultInterestModelParams, defaultReserveData, InterestModelParams } from './Interfaces';
 import ElyfiContracts from '../types/ElyfiContracts';
 
 export async function makeUnderlyingAsset({
   deployer,
-  totalSupply = expandToDecimals(1, 36),
+  totalSupply = ethers.utils.parseUnits('1', 36).toString(),
   name = defaultReserveData.underlyingAssetName,
   symbol = defaultReserveData.underlyingAssetSymbol,
 }: {

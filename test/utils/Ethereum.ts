@@ -1,4 +1,5 @@
 import { BigNumber } from 'bignumber.js';
+import { ethers } from 'ethers';
 import { waffle } from 'hardhat';
 
 // Time
@@ -20,12 +21,6 @@ export async function advanceBlockTo(to: number) {
 
 export async function getTimestamp(tx: any) {
   return new BigNumber((await waffle.provider.getBlock(tx.blockNumber)).timestamp);
-}
-
-// Numbers
-
-export function expandToDecimals(m: number, n: number): string {
-  return new BigNumber(m).multipliedBy(new BigNumber(10).pow(n)).toFixed();
 }
 
 // Underflow error, need refactor
@@ -70,10 +65,10 @@ export function address(m: number) {
 export const MAXUINT = new BigNumber(
   '115792089237316195423570985008687907853269984665640564039457584007913129639935'
 );
-export const RAY = expandToDecimals(1, 27);
+export const RAY = ethers.utils.parseUnits('1', 27).toString();
 export const PERCENTAGE_FACTOR = '10000';
 export const HALF_PERCENTAGE = '5000';
-export const WAD = expandToDecimals(1, 18);
+export const WAD = ethers.utils.parseEther('1').toString();
 
 export const SECONDSPERYEAR = '31536000';
 export const ETH = '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE';

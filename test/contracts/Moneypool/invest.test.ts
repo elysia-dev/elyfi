@@ -1,6 +1,6 @@
 import { BigNumber } from 'bignumber.js';
-import { waffle } from 'hardhat';
-import { expandToDecimals, getTimestamp, RAY } from '../../utils/Ethereum';
+import { ethers, waffle } from 'hardhat';
+import { getTimestamp, RAY } from '../../utils/Ethereum';
 import {
   makeAllContracts,
 } from '../../utils/makeContract';
@@ -28,7 +28,7 @@ describe('MoneyPool.invest', () => {
   });
 
   it('update user data & reserve data', async () => {
-    const amountInvest = new BigNumber(expandToDecimals(10000, 18));
+    const amountInvest = new BigNumber(ethers.utils.parseEther('10000').toString());
     await elyfiContracts.underlyingAsset.connect(account1).approve(elyfiContracts.moneyPool.address, RAY);
 
     const [reserveDataBefore, userDataBefore] = await takeDataSnapshot(account1, elyfiContracts)
