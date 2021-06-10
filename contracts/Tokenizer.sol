@@ -89,9 +89,9 @@ contract Tokenizer is ITokenizer, TokenizerStorage, ERC721 {
   }
 
   struct SettleAssetBondLocalVars {
+    uint256 effectiveTimestamp;
     uint256 maturityTimestamp;
     uint256 liquidationTimestamp;
-    uint256 _gracePeriod;
     uint16 _year;
     uint8 year;
     uint8 month;
@@ -108,8 +108,6 @@ contract Tokenizer is ITokenizer, TokenizerStorage, ERC721 {
    * @param signer A third-party agency address that reviews entities listed on the asset bond data
    * @param tokenId Token Id to settle
    The interest rate paid on a bond by its issuer for the term of the security
-   * @param gracePeriod gracePeriod
-   * @param maturityDate maturityDate in year, month, day.
    */
   function settleAssetBond(
     address borrower,
@@ -119,23 +117,21 @@ contract Tokenizer is ITokenizer, TokenizerStorage, ERC721 {
     uint256 couponRate,
     uint256 overdueInterestRate,
     uint256 debtCeiling,
-    uint8 gracePeriod,
-    uint8[3] memory maturityDate,
+    uint16 loanDuration,
+    uint16 effectiveDateYear,
+    uint8 effectiveDateMonth,
+    uint8 effectiveDateDay,
     string memory ipfsHash
-  ) external {
+  ) external onlyCouncil {
     SettleAssetBondLocalVars memory vars;
 
-    (vars.year, vars.month, vars.day) = (maturityDate[0], maturityDate[1], maturityDate[2]);
-
-    vars._year = vars.year + 2000;
-
-    vars.maturityTimestamp = TimeConverter.toTimestamp(vars._year, vars.month, vars.day);
-
-    vars._gracePeriod = uint256(gracePeriod);
-
-    vars.liquidationTimestamp = vars.maturityTimestamp + (vars._gracePeriod * 1 days);
-
-    Validation.validateSettleAssetBond(tokenId, vars.maturityTimestamp, debtCeiling);
+    vars.effectiveTimestamp = TimeConverter.toTimestamp(
+      effectiveDateYear,
+      effectiveDateMonth,
+      effectiveDateDay
+    );
+    vars.maturityTimestamp = vars.effectiveTimestamp + (loanDuration * 1 days);
+    vars.liquidationTimestamp = vars.maturityTimestamp + (10 * 1 days);
 
     DataStruct.AssetBondData memory newAssetBond =
       DataStruct.AssetBondData({
@@ -146,12 +142,15 @@ contract Tokenizer is ITokenizer, TokenizerStorage, ERC721 {
         couponRate: couponRate,
         interestRate: 0,
         overdueInterestRate: overdueInterestRate,
+        effectiveTimestamp: vars.effectiveTimestamp,
         maturityTimestamp: vars.maturityTimestamp,
         liquidationTimestamp: vars.liquidationTimestamp,
         collateralizeTimestamp: 0,
         ipfsHash: ipfsHash,
         signerOpinionHash: ''
       });
+
+    Validation.validateSettleAssetBond(newAssetBond, block.timestamp);
 
     _assetBondData[tokenId] = newAssetBond;
 
@@ -184,6 +183,9 @@ contract Tokenizer is ITokenizer, TokenizerStorage, ERC721 {
     DataStruct.AssetBondData storage assetBond = _assetBondData[tokenId];
 
     assetBond.collateralizeAssetBond(interestRate);
+
+    transferFrom(account, address(_moneyPool), tokenId);
+    approve(account, tokenId);
   }
 
   function releaseAssetBond(address account, uint256 tokenId) external override onlyMoneyPool {

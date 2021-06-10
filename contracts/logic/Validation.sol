@@ -69,12 +69,20 @@ library Validation {
 
   function validateLTokenTrasfer() internal pure {}
 
+  function validateRepay(
+    DataStruct.ReserveData storage reserve,
+    DataStruct.AssetBondData memory assetBond,
+    address borrower,
+    uint256 amount,
+    uint256 userDTokenBalance,
+    uint256 feeOnCollateralServiceProvider
+  ) internal view {}
+
   function validateSignAssetBond(DataStruct.AssetBondData storage assetBond) internal view {}
 
   function validateSettleAssetBond(
-    uint256 tokenId,
-    uint256 maturityTimestamp,
-    uint256 debtCeiling
+    DataStruct.AssetBondData memory assetBond,
+    uint256 currentTimestamp
   ) internal view {
     // checks whether signer authorized
     // if (assetBond.state != AssetBondState.EMPTY) revert(); ////

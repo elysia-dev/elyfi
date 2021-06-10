@@ -96,7 +96,7 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
     uint256 amountToWithdraw = amount;
 
     if (amount == type(uint256).max) {
-      amountToWithdraw == userLTokenBalance;
+      amountToWithdraw = userLTokenBalance;
     }
 
     // validation
@@ -193,6 +193,79 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
     */
 
     emit Borrow(asset, msg.sender, receiver, tokenId, reserve.borrowAPR, borrowAmount);
+  }
+
+  /**
+   * @dev Withdraws an amount of underlying asset from the reserve and burns the corresponding lTokens.
+   * @notice
+   * @param asset The address of the underlying asset to withdraw
+   * @param borrower The address that will receive the underlying asset
+   * @param amount borrowAmount
+   **/
+  function repay(
+    address asset,
+    address borrower,
+    uint256 amount,
+    uint256 tokenId
+  ) external {
+    DataStruct.ReserveData storage reserve = _reserves[asset];
+    DataStruct.AssetBondData memory assetBond =
+      ITokenizer(reserve.tokenizerAddress).getAssetBondData(tokenId);
+
+    uint256 userDTokenBalance = IDToken(reserve.dTokenAddress).balanceOf(borrower);
+    uint256 feeOnCollateralServiceProvider =
+      Math.calculateFeeOnRepayment(
+        assetBond.principal,
+        assetBond.couponRate,
+        assetBond.interestRate,
+        assetBond.overdueInterestRate,
+        block.timestamp,
+        assetBond.effectiveTimestamp,
+        assetBond.collateralizeTimestamp,
+        assetBond.maturityTimestamp,
+        assetBond.liquidationTimestamp
+      );
+
+    Validation.validateRepay(
+      reserve,
+      assetBond,
+      borrower,
+      amount,
+      userDTokenBalance,
+      feeOnCollateralServiceProvider
+    );
+
+    uint256 amountToRepay = amount;
+
+    if (amount == type(uint256).max) {
+      amountToRepay = userDTokenBalance;
+    }
+    // Check if borrow amount exceeds collateral value
+    // Check if borrow amount exceeds liquidity available
+
+    reserve.updateState();
+
+    // update interest rate
+
+    ITokenizer(reserve.tokenizerAddress).releaseAssetBond(borrower, tokenId);
+
+    // transfer asset bond
+    // or lock NFT?
+
+    IDToken(reserve.dTokenAddress).burn(borrower, userDTokenBalance);
+
+    reserve.updateRates(asset, 0, amount);
+
+    /*
+    console.log(
+      'Borrow finalize |amount|lastUpdateTimestamp|borrowAPR',
+      borrowAmount,
+      reserve.lastUpdateTimestamp,
+      reserve.borrowAPR
+    );
+    */
+
+    emit Borrow(asset, msg.sender, borrower, tokenId, reserve.borrowAPR, amount);
   }
 
   /************ View Functions ************/

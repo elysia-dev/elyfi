@@ -37,9 +37,10 @@ library DataStruct {
     uint256 couponRate;
     uint256 interestRate;
     uint256 overdueInterestRate;
+    uint256 effectiveTimestamp;
+    uint256 collateralizeTimestamp;
     uint256 maturityTimestamp;
     uint256 liquidationTimestamp;
-    uint256 collateralizeTimestamp;
     string ipfsHash; // refactor : gas
     string signerOpinionHash;
   }
