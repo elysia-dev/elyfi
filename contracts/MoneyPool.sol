@@ -8,8 +8,8 @@ import './interfaces/IMoneyPool.sol';
 import './interfaces/ITokenizer.sol';
 import './logic/Index.sol';
 import './logic/Rate.sol';
-import './logic/AssetBond.sol';
 import './logic/Validation.sol';
+import './logic/AssetBond.sol';
 import './libraries/DataStruct.sol';
 import 'hardhat/console.sol';
 import '@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol';
@@ -210,23 +210,10 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
     DataStruct.AssetBondData memory assetBond =
       ITokenizer(reserve.tokenizerAddress).getAssetBondData(tokenId);
 
-    address borrower = assetBond.borrower;
+    (uint256 accruedDebtOnMoneyPool, uint256 feeOnCollateralServiceProvider) =
+      assetBond.getAssetBondDebtData();
 
-    uint256 userDTokenBalance = IDToken(reserve.dTokenAddress).balanceOf(borrower);
-    uint256 feeOnCollateralServiceProvider =
-      Math.calculateFeeOnRepayment(
-        assetBond.principal,
-        assetBond.couponRate,
-        assetBond.interestRate,
-        assetBond.overdueInterestRate,
-        block.timestamp,
-        assetBond.loanStartTimestamp,
-        assetBond.collateralizeTimestamp,
-        assetBond.maturityTimestamp,
-        assetBond.liquidationTimestamp
-      );
-
-    uint256 totalRetrieveAmount = userDTokenBalance + feeOnCollateralServiceProvider;
+    uint256 totalRetrieveAmount = accruedDebtOnMoneyPool + feeOnCollateralServiceProvider;
 
     if (amount < totalRetrieveAmount) {
       revert MoneyPoolErrors.EarlyRepaymentNotAllowed(amount, totalRetrieveAmount);
@@ -235,14 +222,14 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
     Validation.validateRepay(
       reserve,
       assetBond,
-      borrower,
-      userDTokenBalance,
+      assetBond.borrower,
+      accruedDebtOnMoneyPool,
       feeOnCollateralServiceProvider
     );
 
     reserve.updateState();
 
-    IDToken(reserve.dTokenAddress).burn(borrower, userDTokenBalance);
+    IDToken(reserve.dTokenAddress).burn(assetBond.borrower, accruedDebtOnMoneyPool);
 
     // update interest rate
     reserve.updateRates(asset, totalRetrieveAmount, 0);
@@ -250,7 +237,7 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
     // transfer asset bond
     IERC20(asset).safeTransferFrom(msg.sender, reserve.lTokenAddress, totalRetrieveAmount);
 
-    ITokenizer(reserve.tokenizerAddress).releaseAssetBond(borrower, tokenId);
+    ITokenizer(reserve.tokenizerAddress).releaseAssetBond(assetBond.borrower, tokenId);
 
     // Mint ltoken
     ILToken(reserve.lTokenAddress).mint(
@@ -268,7 +255,13 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
     );
     */
 
-    emit Repay(asset, borrower, tokenId, userDTokenBalance, feeOnCollateralServiceProvider);
+    emit Repay(
+      asset,
+      assetBond.borrower,
+      tokenId,
+      accruedDebtOnMoneyPool,
+      feeOnCollateralServiceProvider
+    );
   }
 
   /************ View Functions ************/

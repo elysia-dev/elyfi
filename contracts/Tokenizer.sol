@@ -55,6 +55,11 @@ contract Tokenizer is ITokenizer, TokenizerStorage, ERC721 {
     return _assetBondData[tokenId];
   }
 
+  function getAssetBondDebtData(uint256 tokenId) external view override returns (uint256, uint256) {
+    DataStruct.AssetBondData storage assetBond = _assetBondData[tokenId];
+    return assetBond.getAssetBondDebtData();
+  }
+
   function getMinter(uint256 tokenId) external view override returns (address) {
     return _minter[tokenId];
   }
@@ -173,7 +178,8 @@ contract Tokenizer is ITokenizer, TokenizerStorage, ERC721 {
     DataStruct.AssetBondData storage assetBond = _assetBondData[tokenId];
     Validation.validateSignAssetBond(assetBond);
 
-    assetBond.signAssetBond(signerOpinionHash);
+    assetBond.state = DataStruct.AssetBondState.CONFIRMED;
+    assetBond.signerOpinionHash = signerOpinionHash;
   }
 
   function collateralizeAssetBond(
@@ -184,7 +190,11 @@ contract Tokenizer is ITokenizer, TokenizerStorage, ERC721 {
   ) external override onlyMoneyPool {
     DataStruct.AssetBondData storage assetBond = _assetBondData[tokenId];
 
-    assetBond.collateralizeAssetBond(interestRate);
+    assetBond.state = DataStruct.AssetBondState.COLLATERALIZED;
+
+    // set bond date data
+    assetBond.interestRate = interestRate;
+    assetBond.collateralizeTimestamp = block.timestamp;
 
     transferFrom(account, address(_moneyPool), tokenId);
     approve(account, tokenId);
@@ -192,17 +202,12 @@ contract Tokenizer is ITokenizer, TokenizerStorage, ERC721 {
 
   function releaseAssetBond(address account, uint256 tokenId) external override onlyMoneyPool {
     DataStruct.AssetBondData storage assetBond = _assetBondData[tokenId];
+    assetBond.state = DataStruct.AssetBondState.MATURED;
   }
 
   /************ Token Functions ************/
 
   /************ MoneyPool Total AToken Balance Manage Functions ************/
-
-  // need logic : generate tokenId
-  function _generateATokenId(uint256 assetBondId) internal pure returns (uint256) {
-    return assetBondId * 10;
-  }
-
   modifier onlyMoneyPool {
     if (_msgSender() != address(_moneyPool)) revert TokenizerErrors.OnlyMoneyPool();
     _;
