@@ -25,16 +25,17 @@ ETHERSCAN_API_KEY=
 - Install dependencies with `yarn`
 
 ## Test
+For convenience, we assume that waffle's wallets are mapped in order of [deployer, account1, account2, account3 ...]   
 
 ```
-## Run all test code
-yarn hardhat test
+# Run specific test code
+yarn test test/contracts/Index.test.ts
 
-or
+# With no-compile
+yarn test:zap test/contracts/Index.test.ts
 
-## Run specific test code
-yarn hardhat test test/Index.test.ts
-
+# Run scenarios. The below script dynamically loads ./scenarios/*.json
+yarn test test-suites/scenario.test.ts
 ```
 
 ## Deploy
