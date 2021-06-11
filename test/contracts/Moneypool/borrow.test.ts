@@ -28,7 +28,7 @@ describe('MoneyPool.borrow', () => {
 
   describe('when AB token is minted by CSP', async () => {
     before(async () => {
-      await elyfiContracts.connector.connect(deployer).addCSP(CSP.address);
+      await elyfiContracts.connector.connect(deployer).addCollateralServiceProvider(CSP.address);
       await elyfiContracts.tokenizer.connect(CSP).mintAssetBond(CSP.address, abTokenId);
     });
 
