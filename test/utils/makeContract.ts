@@ -223,15 +223,6 @@ export async function makeAllContracts(): Promise<ElyfiContracts> {
     defaultReserveData.moneyPoolFactor
   );
 
-  await moneyPool.addNewReserve(
-    underlyingAsset.address,
-    lToken.address,
-    dToken.address,
-    interestRateModel.address,
-    tokenizer.address,
-    defaultReserveData.moneyPoolFactor
-  );
-
   return {
     underlyingAsset,
     connector,

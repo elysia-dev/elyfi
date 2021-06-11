@@ -1,4 +1,4 @@
-import { BigNumber } from 'ethers';
+import { BigNumber, ethers } from 'ethers';
 import { toRate } from './Ethereum';
 import { RAY } from './constants';
 
@@ -85,4 +85,10 @@ export interface AssetBondData {
   liquidationTimestamp: BigNumber;
   ipfsHash: string;
   signerOpinionHash: string;
+}
+export interface AssetBondSettleData extends AssetBondData {
+  loanDuration: BigNumber;
+  loanStartTimeYear: BigNumber;
+  loanStartTimeMonth: BigNumber;
+  loanStartTimeDay: BigNumber;
 }

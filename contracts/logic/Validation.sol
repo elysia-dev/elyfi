@@ -85,7 +85,6 @@ library Validation {
   ) internal view {
     // checks whether signer authorized
     // checks the asset bond is 'EMPTY' state
-    if (assetBond.state != DataStruct.AssetBondState.EMPTY) revert();
     // access control : check signer
   }
 

@@ -131,12 +131,16 @@ contract Tokenizer is ITokenizer, TokenizerStorage, ERC721 {
 
     if (_assetBondData[tokenId].state != DataStruct.AssetBondState.EMPTY)
       revert TokenizerErrors.AssetBondAlreadySettled(tokenId);
+    vars.loanStartTimestamp = 0;
+    vars.maturityTimestamp = 0;
+    vars.liquidationTimestamp = 0;
+
     vars.loanStartTimestamp = TimeConverter.toTimestamp(
       loanStartTimeYear,
       loanStartTimeMonth,
       loanStartTimeDay
     );
-    vars.maturityTimestamp = vars.loanStartTimestamp + (loanDuration * 1 days);
+    vars.maturityTimestamp = vars.loanStartTimestamp + (uint256(loanDuration) * 1 days);
     vars.liquidationTimestamp = vars.maturityTimestamp + (10 * 1 days);
 
     DataStruct.AssetBondData memory newAssetBond =
