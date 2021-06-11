@@ -1,11 +1,12 @@
 import { waffle } from 'hardhat';
 import { getTimestamp } from '../../utils/Ethereum';
-import { makeAllContracts } from '../../utils/makeContract';
 import { expect } from 'chai';
 import { expectedReserveDataAfterBorrow, expectedUserDataAfterBorrow } from '../../utils/Expect';
 import ElyfiContracts from '../../types/ElyfiContracts';
 import takeDataSnapshot from '../../utils/takeDataSnapshot';
 import { utils } from 'ethers';
+import loadFixture from '../../utils/loadFixture';
+import deployedAll from '../../fixtures/deployedAll';
 require('../../assertions/equals.ts');
 
 // TODO: Mockup user & reserve data
@@ -17,7 +18,8 @@ describe('MoneyPool.borrow', () => {
   const abTokenId = '1001002003004005';
 
   before(async () => {
-    elyfiContracts = await makeAllContracts(deployer);
+    const fixture = await loadFixture(deployedAll);
+    elyfiContracts = fixture.elyfiContracts;
 
     await elyfiContracts.underlyingAsset
       .connect(deployer)

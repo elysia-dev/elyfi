@@ -1,22 +1,23 @@
 import { ethers, waffle } from 'hardhat';
 import { getTimestamp } from '../../utils/Ethereum';
 import { RAY } from '../../utils/constants';
-import { makeAllContracts } from '../../utils/makeContract';
 import { expect } from '../../utils/chai';
 import { expectedReserveDataAfterInvest, expectedUserDataAfterInvest } from '../../utils/Expect';
 import ElyfiContracts from '../../types/ElyfiContracts';
 import takeDataSnapshot from '../../utils/takeDataSnapshot';
 import { BigNumber } from 'ethers';
+import deployedAll from '../../fixtures/deployedAll';
+import loadFixture from '../../utils/loadFixture';
 
 // TODO : Mockup user & reserve data
 describe('MoneyPool.invest', () => {
   let elyfiContracts: ElyfiContracts;
 
-  const provider = waffle.provider;
-  const [deployer, account1] = provider.getWallets();
+  const [deployer, account1] = waffle.provider.getWallets();
 
   beforeEach(async () => {
-    elyfiContracts = await makeAllContracts(deployer);
+    const fixture = await loadFixture(deployedAll);
+    elyfiContracts = fixture.elyfiContracts;
   });
 
   context('when account approve enough underlyingAsset', async () => {

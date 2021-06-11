@@ -1,9 +1,6 @@
 import { utils } from 'ethers'
 import { waffle } from 'hardhat';
 import { getTimestamp } from '../../utils/Ethereum';
-import {
-  makeAllContracts,
-} from '../../utils/makeContract';
 import { expect } from 'chai';
 import {
   expectedReserveDataAfterWithdraw,
@@ -11,6 +8,8 @@ import {
 } from '../../utils/Expect';
 import ElyfiContracts from '../../types/ElyfiContracts';
 import takeDataSnapshot from '../../utils/takeDataSnapshot';
+import loadFixture from '../../utils/loadFixture';
+import deployedAll from '../../fixtures/deployedAll';
 require('../../assertions/equals.ts');
 
 // TODO : Mockup user & reserve data
@@ -21,7 +20,8 @@ describe('MoneyPool.withdraw', () => {
   const [deployer, account1] = provider.getWallets();
 
   beforeEach(async () => {
-    elyfiContracts = await makeAllContracts(deployer)
+    const fixture = await loadFixture(deployedAll);
+    elyfiContracts = fixture.elyfiContracts;
 
     await elyfiContracts.underlyingAsset.connect(deployer).transfer(account1.address, utils.parseEther('5000'));
   });
