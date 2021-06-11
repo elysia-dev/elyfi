@@ -84,7 +84,8 @@ library Validation {
     uint256 currentTimestamp
   ) internal view {
     // checks whether signer authorized
-    // if (assetBond.state != AssetBondState.EMPTY) revert(); ////
+    // checks the asset bond is 'EMPTY' state
+    if (assetBond.state != DataStruct.AssetBondState.EMPTY) revert();
     // access control : check signer
   }
 

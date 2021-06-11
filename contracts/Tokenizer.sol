@@ -80,17 +80,16 @@ contract Tokenizer is ITokenizer, TokenizerStorage, ERC721 {
     override
     onlyCollateralServiceProvider
   {
-    if (_minter[tokenId] != address(0)) revert TokenizerErrors.AssetBondIDAlreadyExists(tokenId);
     if (!_connector.isCollateralServiceProvider(account))
-      revert TokenizerErrors.MintedAssetBondReceiverNotAllowed(account, tokenId);
+      revert TokenizerErrors.MintedAssetBondReceiverNotAllowed(tokenId);
 
     // validate tokenId : tokenId should have information about
     Validation.validateTokenId(tokenId);
 
     // mint AssetBond to CollateralServiceProvider
-    _safeMint(account, tokenId, '');
+    _safeMint(account, tokenId);
 
-    _minter[tokenId] = account;
+    _minter[tokenId] = msg.sender;
 
     emit EmptyAssetBondMinted(account, tokenId);
   }
@@ -127,7 +126,11 @@ contract Tokenizer is ITokenizer, TokenizerStorage, ERC721 {
     string memory ipfsHash
   ) external onlyCollateralServiceProvider {
     SettleAssetBondLocalVars memory vars;
+    if (ownerOf(tokenId) != msg.sender)
+      revert TokenizerErrors.OnlyOwnerHasAuthrotyToSettle(tokenId);
 
+    if (_assetBondData[tokenId].state != DataStruct.AssetBondState.EMPTY)
+      revert TokenizerErrors.AssetBondAlreadySettled(tokenId);
     vars.loanStartTimestamp = TimeConverter.toTimestamp(
       loanStartTimeYear,
       loanStartTimeMonth,

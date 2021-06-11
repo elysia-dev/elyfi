@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.4;
 
+// Todo. add new arguements: We're waiting for hardhat team's working on custom error issue.
+
 /**
  * @title Errors library
  * @author ELYSIA
@@ -38,5 +40,7 @@ library TokenizerErrors {
   error OnlyCollateralServiceProvider();
   error OnlyCouncil();
   error AssetBondIDAlreadyExists(uint256 tokenId);
-  error MintedAssetBondReceiverNotAllowed(address account, uint256 tokenId);
+  error MintedAssetBondReceiverNotAllowed(uint256 tokenId); // add `address receiver`
+  error OnlyOwnerHasAuthrotyToSettle(uint256 tokenId); // and `address minter` |
+  error AssetBondAlreadySettled(uint256 tokenId);
 }

@@ -68,8 +68,22 @@ export enum AssetBondState {
   NOT_PERFORMED,
 }
 export interface AssetBondData {
-  tokenId: BigNumber;
-  dTokenBalance: BigNumber;
-  tokenOwner: string;
   state: AssetBondState;
+  tokenId: BigNumber;
+  minter: string;
+  tokenOwner: string;
+  borrower: string;
+  signer: string;
+  collateralServiceProvider: string;
+  principal: BigNumber;
+  debtCeiling: BigNumber;
+  couponRate: BigNumber;
+  interestRate: BigNumber;
+  overdueInterestRate: BigNumber;
+  loanStartTimestamp: BigNumber;
+  collateralizeTimestamp: BigNumber;
+  maturityTimestamp: BigNumber;
+  liquidationTimestamp: BigNumber;
+  ipfsHash: string;
+  signerOpinionHash: string;
 }

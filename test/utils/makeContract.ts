@@ -17,7 +17,7 @@ import {
   DTokenTest__factory,
 } from '../../typechain';
 import { Contract, Wallet, BigNumber, utils } from 'ethers';
-import { ethers } from 'hardhat'
+import { ethers } from 'hardhat';
 import { defaultInterestModelParams, defaultReserveData, InterestModelParams } from './Interfaces';
 import ElyfiContracts from '../types/ElyfiContracts';
 
@@ -256,6 +256,15 @@ export async function makeAllContracts(deployer: Wallet): Promise<ElyfiContracts
     defaultReserveData.moneyPoolFactor
   );
 
+  await moneyPool.addNewReserve(
+    underlyingAsset.address,
+    lToken.address,
+    dToken.address,
+    interestRateModel.address,
+    tokenizer.address,
+    defaultReserveData.moneyPoolFactor
+  );
+
   return {
     underlyingAsset,
     connector,
@@ -265,5 +274,5 @@ export async function makeAllContracts(deployer: Wallet): Promise<ElyfiContracts
     dToken,
     tokenizer,
     dataPipeline,
-  }
+  };
 }
