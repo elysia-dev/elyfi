@@ -1,7 +1,7 @@
 import { waffle } from 'hardhat';
 import { getTimestamp } from '../../utils/Ethereum';
 import { expect } from 'chai';
-import { expectedReserveDataAfterBorrow, expectedUserDataAfterBorrow } from '../../utils/Expect';
+import { expectReserveDataAfterBorrow, expectUserDataAfterBorrow } from '../../utils/Expect';
 import ElyfiContracts from '../../types/ElyfiContracts';
 import takeDataSnapshot from '../../utils/takeDataSnapshot';
 import { utils } from 'ethers';
@@ -56,13 +56,13 @@ describe('MoneyPool.borrow', () => {
 
         const [reserveDataAfter, userDataAfter] = await takeDataSnapshot(borrower, elyfiContracts);
 
-        const expectedReserveData = expectedReserveDataAfterBorrow({
+        const expectedReserveData = expectReserveDataAfterBorrow({
           amountBorrow: amount,
           reserveDataBefore,
           txTimestamp: await getTimestamp(tx),
         });
 
-        const expectedUserData = expectedUserDataAfterBorrow({
+        const expectedUserData = expectUserDataAfterBorrow({
           amountBorrow: amount,
           userDataBefore,
           reserveDataBefore,

@@ -104,7 +104,6 @@ export function calculateRateInInterestRateModel(
   dTokenAmount: BigNumber,
   investAmount: BigNumber,
   borrowAmount: BigNumber,
-  averageBorrowAPR: BigNumber,
   interestRateModelParams: InterestModelParams
 ): BigNumber[] {
   let utilizationRate: BigNumber;

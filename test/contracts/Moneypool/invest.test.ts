@@ -2,7 +2,7 @@ import { ethers, waffle } from 'hardhat';
 import { getTimestamp } from '../../utils/Ethereum';
 import { RAY } from '../../utils/constants';
 import { expect } from '../../utils/chai';
-import { expectedReserveDataAfterInvest, expectedUserDataAfterInvest } from '../../utils/Expect';
+import { expectReserveDataAfterInvest, expectUserDataAfterInvest } from '../../utils/Expect';
 import ElyfiContracts from '../../types/ElyfiContracts';
 import takeDataSnapshot from '../../utils/takeDataSnapshot';
 import { BigNumber } from 'ethers';
@@ -53,15 +53,14 @@ describe('MoneyPool.invest', () => {
             elyfiContracts
           );
 
-          const expectedReserveData = expectedReserveDataAfterInvest({
-            amountInvest,
-            reserveDataBefore,
+          const expectedReserveData = expectReserveDataAfterInvest({
+            amount: amountInvest,
+            reserveData: reserveDataBefore,
             txTimestamp: await getTimestamp(investTx),
           });
-          const expectedUserData = expectedUserDataAfterInvest({
+          const expectedUserData = expectUserDataAfterInvest({
             amountInvest: amountInvest,
             userDataBefore,
-            reserveDataBefore,
             reserveDataAfter,
             txTimestamp: await getTimestamp(investTx),
           });

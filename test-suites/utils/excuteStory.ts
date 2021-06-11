@@ -1,9 +1,9 @@
 import { Wallet } from "@ethersproject/wallet";
 import {
-  expectedReserveDataAfterInvest,
-  expectedUserDataAfterInvest,
-  expectedReserveDataAfterWithdraw,
-  expectedUserDataAfterWithdraw,
+  expectReserveDataAfterInvest,
+  expectUserDataAfterInvest,
+  expectReserveDataAfterWithdraw,
+  expectUserDataAfterWithdraw,
 } from "../../test/utils/Expect";
 import { getTimestamp } from "../../test/utils/Ethereum";
 import { BigNumber, utils } from 'ethers';
@@ -78,17 +78,16 @@ const excuteStory = async (
           }
         },
         (amountInvest, reserveDataBefore, txTimestamp) => {
-          return expectedReserveDataAfterInvest({
-            amountInvest,
-            reserveDataBefore,
+          return expectReserveDataAfterInvest({
+            amount: amountInvest,
+            reserveData: reserveDataBefore,
             txTimestamp,
           });
         },
         (amountInvest, userDataBefore, reserveDataBefore, reserveDataAfter, txTimestamp) => {
-          return expectedUserDataAfterInvest({
+          return expectUserDataAfterInvest({
             amountInvest,
             userDataBefore,
-            reserveDataBefore,
             reserveDataAfter,
             txTimestamp,
           });
@@ -116,17 +115,16 @@ const excuteStory = async (
           }
         },
         (amountWithdraw, reserveDataBefore, txTimestamp) => {
-          return expectedReserveDataAfterWithdraw({
-            amountWithdraw,
-            reserveDataBefore,
+          return expectReserveDataAfterWithdraw({
+            amount: amountWithdraw,
+            reserveData: reserveDataBefore,
             txTimestamp,
           });
         },
         (amountWithdraw, userDataBefore, reserveDataBefore, reserveDataAfter, txTimestamp) => {
-          return expectedUserDataAfterWithdraw({
+          return expectUserDataAfterWithdraw({
             amountWithdraw,
             userDataBefore,
-            reserveDataBefore,
             reserveDataAfter,
             txTimestamp,
           });
