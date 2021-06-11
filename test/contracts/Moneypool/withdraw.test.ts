@@ -1,16 +1,15 @@
 import { utils } from 'ethers'
 import { waffle } from 'hardhat';
 import { getTimestamp } from '../../utils/Ethereum';
-import {
-  makeAllContracts,
-} from '../../utils/makeContract';
 import { expect } from 'chai';
 import {
-  expectedReserveDataAfterWithdraw,
-  expectedUserDataAfterWithdraw,
+  expectReserveDataAfterInvest,
+  expectUserDataAfterWithdraw,
 } from '../../utils/Expect';
 import ElyfiContracts from '../../types/ElyfiContracts';
 import takeDataSnapshot from '../../utils/takeDataSnapshot';
+import loadFixture from '../../utils/loadFixture';
+import deployedAll from '../../fixtures/deployedAll';
 require('../../assertions/equals.ts');
 
 // TODO : Mockup user & reserve data
@@ -21,7 +20,8 @@ describe('MoneyPool.withdraw', () => {
   const [deployer, account1] = provider.getWallets();
 
   beforeEach(async () => {
-    elyfiContracts = await makeAllContracts(deployer)
+    const fixture = await loadFixture(deployedAll);
+    elyfiContracts = fixture.elyfiContracts;
 
     await elyfiContracts.underlyingAsset.connect(deployer).transfer(account1.address, utils.parseEther('5000'));
   });
@@ -48,15 +48,14 @@ describe('MoneyPool.withdraw', () => {
 
         const [reserveDataAfter, userDataAfter] = await takeDataSnapshot(account1, elyfiContracts)
 
-        const expectedReserveData = expectedReserveDataAfterWithdraw({
-          amountWithdraw,
-          reserveDataBefore,
+        const expectedReserveData = expectReserveDataAfterInvest({
+          amount: amountWithdraw,
+          reserveData: reserveDataBefore,
           txTimestamp: await getTimestamp(tx),
         });
-        const expectedUserData = expectedUserDataAfterWithdraw({
+        const expectedUserData = expectUserDataAfterWithdraw({
           amountWithdraw,
           userDataBefore,
-          reserveDataBefore,
           reserveDataAfter,
           txTimestamp: await getTimestamp(tx),
         });

@@ -1,11 +1,12 @@
 import { waffle } from 'hardhat';
 import { getTimestamp } from '../../utils/Ethereum';
-import { makeAllContracts } from '../../utils/makeContract';
 import { expect } from 'chai';
-import { expectedReserveDataAfterBorrow, expectedUserDataAfterBorrow } from '../../utils/Expect';
+import { expectReserveDataAfterBorrow, expectUserDataAfterBorrow } from '../../utils/Expect';
 import ElyfiContracts from '../../types/ElyfiContracts';
 import takeDataSnapshot from '../../utils/takeDataSnapshot';
 import { utils } from 'ethers';
+import loadFixture from '../../utils/loadFixture';
+import deployedAll from '../../fixtures/deployedAll';
 require('../../assertions/equals.ts');
 
 // TODO: Mockup user & reserve data
@@ -17,7 +18,8 @@ describe('MoneyPool.borrow', () => {
   const abTokenId = '1001002003004005';
 
   before(async () => {
-    elyfiContracts = await makeAllContracts(deployer);
+    const fixture = await loadFixture(deployedAll);
+    elyfiContracts = fixture.elyfiContracts;
 
     await elyfiContracts.underlyingAsset
       .connect(deployer)
@@ -26,7 +28,7 @@ describe('MoneyPool.borrow', () => {
 
   describe('when AB token is minted by CSP', async () => {
     before(async () => {
-      await elyfiContracts.connector.connect(deployer).addCSP(CSP.address);
+      await elyfiContracts.connector.connect(deployer).addCollateralServiceProvider(CSP.address);
       await elyfiContracts.tokenizer.connect(CSP).mintAssetBond(CSP.address, abTokenId);
     });
 
@@ -54,13 +56,13 @@ describe('MoneyPool.borrow', () => {
 
         const [reserveDataAfter, userDataAfter] = await takeDataSnapshot(borrower, elyfiContracts);
 
-        const expectedReserveData = expectedReserveDataAfterBorrow({
+        const expectedReserveData = expectReserveDataAfterBorrow({
           amountBorrow: amount,
           reserveDataBefore,
           txTimestamp: await getTimestamp(tx),
         });
 
-        const expectedUserData = expectedUserDataAfterBorrow({
+        const expectedUserData = expectUserDataAfterBorrow({
           amountBorrow: amount,
           userDataBefore,
           reserveDataBefore,

@@ -1,19 +1,17 @@
-import { waffle } from 'hardhat';
 import { expect } from 'chai';
 import { getReserveData } from '../../utils/Helpers';
 import { defaultReserveData } from '../../utils/Interfaces';
 import ElyfiContracts from '../../types/ElyfiContracts';
-import { makeAllContracts } from '../../utils/makeContract';
+import loadFixture from '../../utils/loadFixture';
+import deployedAll from '../../fixtures/deployedAll';
 require('../../assertions/equals.ts');
 
 describe('MoneyPool.addReserve', async () => {
   let elyfiContracts: ElyfiContracts
 
-  const provider = waffle.provider;
-  const [deployer] = provider.getWallets();
-
   beforeEach(async () => {
-    elyfiContracts = await makeAllContracts(deployer)
+    const fixture = await loadFixture(deployedAll);
+    elyfiContracts = fixture.elyfiContracts;
   });
 
   it('sets reserveData properly', async () => {
