@@ -6,7 +6,7 @@ import ElyfiContracts from '../../types/ElyfiContracts';
 import takeDataSnapshot from '../../utils/takeDataSnapshot';
 import { utils } from 'ethers';
 import loadFixture from '../../utils/loadFixture';
-import deployedAll from '../../fixtures/deployedAll';
+import utilizedMoneypool from '../../fixtures/utilizedMoneypool';
 require('../../assertions/equals.ts');
 
 // TODO: Mockup user & reserve data
@@ -18,7 +18,7 @@ describe('MoneyPool.borrow', () => {
   const abTokenId = '1001002003004005';
 
   before(async () => {
-    const fixture = await loadFixture(deployedAll);
+    const fixture = await loadFixture(utilizedMoneypool);
     elyfiContracts = fixture.elyfiContracts;
 
     await elyfiContracts.underlyingAsset

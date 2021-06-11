@@ -9,7 +9,7 @@ import {
 import ElyfiContracts from '../../types/ElyfiContracts';
 import takeDataSnapshot from '../../utils/takeDataSnapshot';
 import loadFixture from '../../utils/loadFixture';
-import deployedAll from '../../fixtures/deployedAll';
+import utilizedMoneypool from '../../fixtures/utilizedMoneypool';
 require('../../assertions/equals.ts');
 
 // TODO : Mockup user & reserve data
@@ -20,7 +20,7 @@ describe('MoneyPool.withdraw', () => {
   const [deployer, account1] = provider.getWallets();
 
   beforeEach(async () => {
-    const fixture = await loadFixture(deployedAll);
+    const fixture = await loadFixture(utilizedMoneypool);
     elyfiContracts = fixture.elyfiContracts;
 
     await elyfiContracts.underlyingAsset.connect(deployer).transfer(account1.address, utils.parseEther('5000'));

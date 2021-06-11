@@ -6,8 +6,8 @@ import { expectReserveDataAfterInvest, expectUserDataAfterInvest } from '../../u
 import ElyfiContracts from '../../types/ElyfiContracts';
 import takeDataSnapshot from '../../utils/takeDataSnapshot';
 import { BigNumber } from 'ethers';
-import deployedAll from '../../fixtures/deployedAll';
 import loadFixture from '../../utils/loadFixture';
+import utilizedMoneypool from '../../fixtures/utilizedMoneypool';
 
 // TODO : Mockup user & reserve data
 describe('MoneyPool.invest', () => {
@@ -16,7 +16,7 @@ describe('MoneyPool.invest', () => {
   const [deployer, account1] = waffle.provider.getWallets();
 
   beforeEach(async () => {
-    const fixture = await loadFixture(deployedAll);
+    const fixture = await loadFixture(utilizedMoneypool);
     elyfiContracts = fixture.elyfiContracts;
   });
 
