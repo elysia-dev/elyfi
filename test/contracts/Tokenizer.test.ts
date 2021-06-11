@@ -29,7 +29,7 @@ describe('Tokenizer', () => {
   };
 
   beforeEach('add roles to each account', async () => {
-    elyfiContracts = await makeAllContracts(deployer);
+    elyfiContracts = await makeAllContracts();
 
     await elyfiContracts.underlyingAsset
       .connect(deployer)
@@ -111,6 +111,6 @@ describe('Tokenizer', () => {
           )
       ).to.be.reverted;
     });
-    context('when token owner settles asset bond informations', async () => {});
+    context('when token owner settles asset bond informations', async () => { });
   });
 });

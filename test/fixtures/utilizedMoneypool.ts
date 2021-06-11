@@ -12,7 +12,7 @@ export default async function utilizedMoneypool(
   _provider: MockProvider
 ): Promise<{ wallets: Wallet[], elyfiContracts: ElyfiContracts }> {
   const deployer = wallets[UserType.Deployer]
-  const elyfiContracts = await makeAllContracts(deployer)
+  const elyfiContracts = await makeAllContracts()
 
   // Utilzed Ratio = 5 / 15 = 33%
   const totalSupply = utils.parseEther('10');

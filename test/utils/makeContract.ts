@@ -22,12 +22,10 @@ import { defaultInterestModelParams, defaultReserveData, InterestModelParams } f
 import ElyfiContracts from '../types/ElyfiContracts';
 
 export async function makeUnderlyingAsset({
-  deployer,
   totalSupply = utils.parseUnits('1', 36),
   name = defaultReserveData.underlyingAssetName,
   symbol = defaultReserveData.underlyingAssetSymbol,
 }: {
-  deployer: Wallet;
   totalSupply?: BigNumber;
   name?: string;
   symbol?: string;
@@ -36,7 +34,6 @@ export async function makeUnderlyingAsset({
 
   const underlyingAssetFactory = (await ethers.getContractFactory(
     'ERC20Test',
-    deployer
   )) as ERC20Test__factory;
 
   underlyingAsset = await underlyingAssetFactory.deploy(totalSupply, name, symbol);
@@ -44,12 +41,11 @@ export async function makeUnderlyingAsset({
   return underlyingAsset;
 }
 
-export async function makeConnector({ deployer }: { deployer: Wallet }): Promise<Connector> {
+export async function makeConnector(): Promise<Connector> {
   let connector: Connector;
 
   const connectorFactory = (await ethers.getContractFactory(
     'Connector',
-    deployer
   )) as Connector__factory;
 
   connector = await connectorFactory.deploy();
@@ -58,11 +54,9 @@ export async function makeConnector({ deployer }: { deployer: Wallet }): Promise
 }
 
 export async function makeMoneyPool({
-  deployer,
   maxReserveCount_ = BigNumber.from(16).toString(),
   connector,
 }: {
-  deployer: Wallet;
   maxReserveCount_?: string;
   connector: Connector | Contract;
 }): Promise<MoneyPoolTest> {
@@ -70,7 +64,6 @@ export async function makeMoneyPool({
 
   const moneyPoolFactory = (await ethers.getContractFactory(
     'MoneyPoolTest',
-    deployer
   )) as MoneyPoolTest__factory;
 
   moneyPoolTest = await moneyPoolFactory.deploy(maxReserveCount_, connector.address);
@@ -79,13 +72,11 @@ export async function makeMoneyPool({
 }
 
 export async function makeLToken({
-  deployer,
   moneyPool,
   underlyingAsset,
   lTokenName = 'LToken',
   lTokenSymbol = 'LT',
 }: {
-  deployer: Wallet;
   moneyPool: MoneyPoolTest | Contract;
   underlyingAsset: Contract;
   lTokenName?: string;
@@ -95,7 +86,6 @@ export async function makeLToken({
 
   const lTokenFactory = (await ethers.getContractFactory(
     'LTokenTest',
-    deployer
   )) as LTokenTest__factory;
 
   lTokenTest = await lTokenFactory.deploy(
@@ -109,13 +99,11 @@ export async function makeLToken({
 }
 
 export async function makeDToken({
-  deployer,
   moneyPool,
   underlyingAsset,
   dTokenName = 'DToken',
   dTokenSymbol = 'DT',
 }: {
-  deployer: Wallet;
   moneyPool: MoneyPoolTest | Contract;
   underlyingAsset: Contract;
   dTokenName?: string;
@@ -125,7 +113,6 @@ export async function makeDToken({
 
   const dTokenFactory = (await ethers.getContractFactory(
     'DTokenTest',
-    deployer
   )) as DTokenTest__factory;
 
   dTokenTest = await dTokenFactory.deploy(
@@ -139,17 +126,14 @@ export async function makeDToken({
 }
 
 export async function makeInterestRateModel({
-  deployer,
   interestRateModelParam = defaultInterestModelParams,
 }: {
-  deployer: Wallet;
   interestRateModelParam?: InterestModelParams;
 }): Promise<InterestRateModel> {
   let interestRateModel: InterestRateModel;
 
   const interestRateModelFactory = (await ethers.getContractFactory(
     'InterestRateModel',
-    deployer
   )) as InterestRateModel__factory;
 
   interestRateModel = await interestRateModelFactory.deploy(
@@ -163,13 +147,11 @@ export async function makeInterestRateModel({
 }
 
 export async function makeTokenizer({
-  deployer,
   connector,
   moneyPool,
   name = '',
   symbol = '',
 }: {
-  deployer: Wallet;
   connector: Connector | Contract;
   moneyPool: MoneyPoolTest | Contract;
   name?: string;
@@ -179,7 +161,6 @@ export async function makeTokenizer({
 
   const tokenizerFactory = (await ethers.getContractFactory(
     'TokenizerTest',
-    deployer
   )) as TokenizerTest__factory;
 
   tokenizerTest = await tokenizerFactory.deploy(connector.address, moneyPool.address, name, symbol);
@@ -188,17 +169,14 @@ export async function makeTokenizer({
 }
 
 export async function makeDataPipeline({
-  deployer,
   moneyPool,
 }: {
-  deployer: Wallet;
   moneyPool: MoneyPoolTest | Contract;
 }): Promise<DataPipeline> {
   let dataPipeline: DataPipeline;
 
   const dataPipelineFactory = (await ethers.getContractFactory(
     'DataPipeline',
-    deployer
   )) as DataPipeline__factory;
 
   dataPipeline = await dataPipelineFactory.deploy(moneyPool.address);
@@ -206,44 +184,33 @@ export async function makeDataPipeline({
   return dataPipeline;
 }
 
-export async function makeAllContracts(deployer: Wallet): Promise<ElyfiContracts> {
-  const underlyingAsset = await makeUnderlyingAsset({
-    deployer,
-  });
+export async function makeAllContracts(): Promise<ElyfiContracts> {
+  const underlyingAsset = await makeUnderlyingAsset({});
 
-  const connector = await makeConnector({
-    deployer,
-  });
+  const connector = await makeConnector();
 
   const moneyPool = await makeMoneyPool({
-    deployer,
     connector,
   });
 
-  const interestRateModel = await makeInterestRateModel({
-    deployer,
-  });
+  const interestRateModel = await makeInterestRateModel({});
 
   const lToken = await makeLToken({
-    deployer,
     moneyPool,
     underlyingAsset,
   });
 
   const dToken = await makeDToken({
-    deployer,
     moneyPool,
     underlyingAsset,
   });
 
   const tokenizer = await makeTokenizer({
-    deployer,
     connector,
     moneyPool,
   });
 
   const dataPipeline = await makeDataPipeline({
-    deployer,
     moneyPool,
   });
 

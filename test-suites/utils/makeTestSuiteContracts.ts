@@ -9,9 +9,9 @@ import ElyfiContracts from '../../test/types/ElyfiContracts';
 const makeTestSuiteContracts = async (provider: MockProvider): Promise<ElyfiContracts> => {
   const wallets = provider.getWallets();
   const deployer = wallets[UserType.Deployer];
-  const elyfiContracts = await makeAllContracts(deployer);
+  const elyfiContracts = await makeAllContracts();
 
-  [UserType.Account0, UserType.Account1, UserType.Account2, UserType.Account3].forEach(async (user) => {
+  [UserType.Account1, UserType.Account2, UserType.Account3].forEach(async (user) => {
     await elyfiContracts.underlyingAsset.connect(deployer).transfer(wallets[user].address, ethers.utils.parseEther('1000'));
   })
 

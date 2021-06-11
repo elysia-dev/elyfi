@@ -13,7 +13,7 @@ describe('Rate', () => {
   const [deployer] = provider.getWallets();
 
   beforeEach(async () => {
-    elyfiContracts = await makeAllContracts(deployer);
+    elyfiContracts = await makeAllContracts();
   });
 
   it('returns base rates at 0% utilization rate', async () => {
