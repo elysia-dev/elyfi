@@ -23,7 +23,6 @@ export interface ReserveData {
   dTokenAddress: string;
   interestRateModelAddress: string;
   tokenizerAddress: string;
-  utilizationRate: BigNumber;
   interestRateModelParams: InterestModelParams;
 }
 
