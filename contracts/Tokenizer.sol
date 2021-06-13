@@ -39,7 +39,7 @@ contract Tokenizer is ITokenizer, TokenizerStorage, ERC721 {
     _moneyPool = IMoneyPool(moneyPool);
   }
 
-  /************ View Functions ************/
+  /************ View Functions *************/
 
   /**
    * @dev Returns the state of the asset bond
