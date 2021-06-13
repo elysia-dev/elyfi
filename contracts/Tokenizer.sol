@@ -187,6 +187,16 @@ contract Tokenizer is ITokenizer, TokenizerStorage, ERC721 {
     assetBond.signerOpinionHash = signerOpinionHash;
   }
 
+    /**
+   * @notice The collateral service provider can take out a loan of value equivalent to the collateral
+   * recored in asset bond tokens. The asset bond tokens are automatically transferred to the MoneyPool
+   * by internal function of `borrow` function.
+   * @dev The collateralizing asset bond token should be only from the MoneyPool.
+   * @param account The owner of asset bond token
+   * @param tokenId The token Id to collateralize
+   * @param borrowAmount The borrow amount.
+   * @param interestRate The interest rate of the loan between MoneyPool and borrower.
+   */
   function collateralizeAssetBond(
     address account,
     uint256 tokenId,
