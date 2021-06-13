@@ -179,6 +179,22 @@ contract Tokenizer is ITokenizer, TokenizerStorage, ERC721 {
     );
   }
 
+    /**
+   * @notice When the collateral service provider settled the informations based on the real world contract
+   * in asset bond token, the third party connector such as lawfrim should review this and sign it.
+   * The object for this process is to build trust in the token issuance in ELYFI.
+   * This final verification process is carried out by reliable parties such as lawfirm.
+   * The review is following four items.
+   * Determination of the authenticity of collateral security details entered in real estate registration
+   * Determination of the authenticity of the contract between a real estate owner and a collateral service provider
+   * Determination of the value of principal and interest through certificates of seal impressions
+   * of real estate owners and lenders
+   * Determination of whether the important information entered in smart contracts match the contract content
+   * This allows the asset bond tokens to be recognized as collateral on the blockchain.
+   * @param tokenId The token Id to release
+   * @param signerOpinionHash The signer can upload their opinion as a form of official documents
+   * on IPFS server.
+   */
   function signAssetBond(uint256 tokenId, string memory signerOpinionHash) external {
     DataStruct.AssetBondData storage assetBond = _assetBondData[tokenId];
     Validation.validateSignAssetBond(assetBond);
@@ -214,7 +230,14 @@ contract Tokenizer is ITokenizer, TokenizerStorage, ERC721 {
     transferFrom(account, address(_moneyPool), tokenId);
     approve(account, tokenId);
   }
-
+    /**
+   * @notice When the repayment scenario, the dTokens are destroyed and the collateral of the locked up
+   * asset bond tokens in the MoneyPool is unlocked. The asset bond tokens are transfered to the
+   * address of the borrower for terminating the collateral contract.
+   * @dev The releasing asset bond token should be only from the MoneyPool.
+   * @param account The owner of asset bond token
+   * @param tokenId The token Id to release
+   */
   function releaseAssetBond(address account, uint256 tokenId) external override onlyMoneyPool {
     DataStruct.AssetBondData storage assetBond = _assetBondData[tokenId];
     assetBond.state = DataStruct.AssetBondState.MATURED;

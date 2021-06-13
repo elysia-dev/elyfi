@@ -38,6 +38,12 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
   /************ MoneyPool Investment Functions ************/
 
   /**
+   * @notice By depositing virtual assets in the MoneyPool and supply liquidity,
+   * investors can receive interest accruing from the MoneyPool.
+   * The return on the investment arises from the interest on real asset backed loans.
+   * MoneyPool investors who deposit certain cryptoassets receives LTokens equivalent to the
+   * deposit amount. LTokens are backed by cryptoassets deposited in the MoneyPool in a
+   * 1:1 ratio.
    * @dev Invests an amount of underlying asset and receive corresponding LTokens.
    * @param asset The address of the underlying asset to invest
    * @param account The address that will receive the LToken
@@ -79,6 +85,7 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
   }
 
   /**
+  * @notice The investors can seize their virtual assets deposited in the MoneyPool whenever they wish.
    * @dev Withdraws an amount of underlying asset from the reserve and burns the corresponding lTokens.
    * @param asset The address of the underlying asset to withdraw
    * @param account The address that will receive the underlying asset

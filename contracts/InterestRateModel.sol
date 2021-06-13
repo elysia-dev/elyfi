@@ -21,6 +21,13 @@ import 'hardhat/console.sol';
 contract InterestRateModel is IInterestRateModel, InterestRateModelStorage {
   using WadRayMath for uint256;
 
+  /**
+   * @param optimalUtilizationRate When the MoneyPool utilization ratio exceeds this parameter, `optimalUtilizationRate`,
+   * the kinked rates model adjusts interests.
+   * @param borrowRateBase The base interest rate.
+   * @param borrowRateOptimal Interest rate when the Money Pool utilization ratio is optimal
+   * @param borrowRateMax Interest rate when the Money Pool utilization ratio is 1
+   */
   constructor(
     uint256 optimalUtilizationRate,
     uint256 borrowRateBase,

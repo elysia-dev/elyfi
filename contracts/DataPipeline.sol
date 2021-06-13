@@ -8,6 +8,12 @@ import './interfaces/ITokenizer.sol';
 import './libraries/DataStruct.sol';
 import '@openzeppelin/contracts/token/ERC20/IERC20.sol';
 
+/**
+ * @title ELYFI Data Pipeline
+ * @author ELYSIA
+ * @dev The data pipeline contract is to help integrating the data of user and reserve in ELYFI.
+ * Each reserve has a seperate data pipeline.
+ */
 contract DataPipeline {
   IMoneyPool public moneyPool;
 
@@ -25,6 +31,9 @@ contract DataPipeline {
     uint256 lastUpdateTimestamp;
   }
 
+  /**
+   * @dev Returns the user's data for asset.
+   */
   function getUserData(address asset, address user)
     external
     view
@@ -58,6 +67,9 @@ contract DataPipeline {
     uint256 moneyPooLastUpdateTimestamp;
   }
 
+  /**
+   * @dev Returns the reserve's data for asset.
+   */
   function getReserveData(address asset) external view returns (ReserveDataLocalVars memory) {
     ReserveDataLocalVars memory vars;
     DataStruct.ReserveData memory reserve = moneyPool.getReserveData(asset);
