@@ -18,15 +18,6 @@ interface ITokenizer {
     uint256 liquidationTimestamp
   );
 
-  event Invest(address indexed asset, address indexed account, uint256 amount);
-
-  event Withdraw(
-    address indexed asset,
-    address indexed account,
-    address indexed to,
-    uint256 amount
-  );
-
   function mintAssetBond(
     address account,
     uint256 id // information about Co and borrower
