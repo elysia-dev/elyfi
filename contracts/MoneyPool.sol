@@ -85,7 +85,7 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
   }
 
   /**
-  * @notice The investors can seize their virtual assets deposited in the MoneyPool whenever they wish.
+   * @notice The investors can seize their virtual assets deposited in the MoneyPool whenever they wish.
    * @dev Withdraws an amount of underlying asset from the reserve and burns the corresponding lTokens.
    * @param asset The address of the underlying asset to withdraw
    * @param account The address that will receive the underlying asset
@@ -95,7 +95,7 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
     address asset,
     address account,
     uint256 amount
-  ) external override returns (uint256) {
+  ) external override {
     DataStruct.ReserveData storage reserve = _reserves[asset];
 
     uint256 userLTokenBalance = ILToken(reserve.lTokenAddress).balanceOf(msg.sender);
@@ -130,15 +130,6 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
       amountToWithdraw,
       reserve.lTokenInterestIndex
     );
-
-    /*
-    console.log(
-      'Borrow finalize |amount|lastUpdateTimestamp|borrowAPR',
-      amountToWithdraw,
-      reserve.lTokenInterestIndex,
-      reserve.borrowAPR
-    );
-    */
 
     emit Withdraw(asset, msg.sender, account, amountToWithdraw);
   }

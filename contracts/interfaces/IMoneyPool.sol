@@ -40,7 +40,7 @@ interface IMoneyPool {
     address asset,
     address account,
     uint256 amount
-  ) external returns (uint256);
+  ) external;
 
   function borrow(
     address asset,
