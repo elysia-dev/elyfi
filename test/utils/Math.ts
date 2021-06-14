@@ -1,7 +1,7 @@
 import { BigNumber } from 'ethers';
 import { rayDiv, rayMul, wadToRay } from './Ethereum';
 import { RAY, SECONDSPERYEAR } from './constants';
-import { InterestModelParams } from './Interfaces';
+import { AssetBondData, InterestModelParams } from './Interfaces';
 
 export function calculateLinearInterest(
   rate: BigNumber,
@@ -29,16 +29,9 @@ export function calculateCompoundedInterest(
   const basePowerThree = rayMul(basePowerTwo, ratePerSecond);
 
   const secondTerm = timeDelta.mul(expMinusOne).mul(basePowerTwo).div(2);
-  const thirdTerm = timeDelta
-    .mul(expMinusOne)
-    .mul(expMinusTwo)
-    .mul(basePowerThree)
-    .div(6);
+  const thirdTerm = timeDelta.mul(expMinusOne).mul(expMinusTwo).mul(basePowerThree).div(6);
 
-  return BigNumber.from(RAY)
-    .add(ratePerSecond.mul(timeDelta))
-    .add(secondTerm)
-    .add(thirdTerm);
+  return BigNumber.from(RAY).add(ratePerSecond.mul(timeDelta)).add(secondTerm).add(thirdTerm);
 }
 
 /******************* updateState functions *******************/
@@ -162,4 +155,87 @@ export function calculateRateInInterestRateModel(
   */
 
   return [newBorrowAPR, newSupplyAPR];
+}
+
+export function calculateFeeOnRepayment(
+  assetBondData: AssetBondData,
+  paymentTimestamp: BigNumber
+): BigNumber {
+  let firstTermRate: BigNumber;
+  let secondTermRate: BigNumber;
+  let secondOverdueRate: BigNumber;
+  let thirdTermRate: BigNumber;
+  let totalRate: BigNumber;
+
+  firstTermRate = calculateCompoundedInterest(
+    assetBondData.couponRate,
+    assetBondData.loanStartTimestamp,
+    assetBondData.collateralizeTimestamp
+  );
+
+  const currentDateTimeStruct = new Date(paymentTimestamp.toNumber());
+
+  const paymentDate =
+    Date.UTC(
+      currentDateTimeStruct.getUTCFullYear(),
+      currentDateTimeStruct.getUTCMonth(),
+      currentDateTimeStruct.getUTCDate()
+    ) / 1000;
+
+  if (paymentDate <= assetBondData.liquidationTimestamp.toNumber()) {
+    secondTermRate = calculateCompoundedInterest(
+      assetBondData.couponRate.sub(assetBondData.interestRate),
+      assetBondData.collateralizeTimestamp,
+      paymentTimestamp
+    ).sub(RAY);
+    thirdTermRate = calculateCompoundedInterest(
+      assetBondData.couponRate,
+      paymentTimestamp,
+      BigNumber.from(paymentDate)
+    ).sub(RAY);
+
+    totalRate = firstTermRate.add(secondTermRate).add(thirdTermRate);
+
+    return rayMul(assetBondData.principal, totalRate);
+  }
+
+  secondTermRate = calculateCompoundedInterest(
+    assetBondData.couponRate.sub(assetBondData.interestRate),
+    assetBondData.collateralizeTimestamp,
+    assetBondData.maturityTimestamp
+  ).sub(RAY);
+
+  secondOverdueRate = calculateCompoundedInterest(
+    assetBondData.couponRate.add(assetBondData.overdueInterestRate).sub(assetBondData.interestRate),
+    assetBondData.maturityTimestamp,
+    paymentTimestamp
+  ).sub(RAY);
+
+  thirdTermRate = calculateCompoundedInterest(
+    assetBondData.couponRate.add(assetBondData.overdueInterestRate),
+    paymentTimestamp,
+    BigNumber.from(paymentDate)
+  ).sub(RAY);
+
+  totalRate = firstTermRate.add(secondTermRate).add(secondOverdueRate).add(thirdTermRate);
+
+  return rayMul(assetBondData.principal, totalRate);
+}
+
+export function calculateAssetBondDebtData(
+  assetBondData: AssetBondData,
+  paymentTimestamp: BigNumber
+): BigNumber[] {
+  let accruedDebtOnMoneyPool: BigNumber;
+  let feeOnRepayment: BigNumber;
+
+  accruedDebtOnMoneyPool = calculateCompoundedInterest(
+    assetBondData.interestRate,
+    assetBondData.collateralizeTimestamp,
+    paymentTimestamp
+  );
+
+  feeOnRepayment = calculateFeeOnRepayment(assetBondData, paymentTimestamp);
+
+  return [accruedDebtOnMoneyPool, feeOnRepayment];
 }

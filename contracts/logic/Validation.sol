@@ -77,15 +77,15 @@ library Validation {
     uint256 feeOnCollateralServiceProvider
   ) internal view {}
 
-  function validateSignAssetBond(DataStruct.AssetBondData storage assetBond) internal view {}
+  function validateSignAssetBond(DataStruct.AssetBondData storage assetBond) internal view {
+    if (assetBond.state != DataStruct.AssetBondState.SETTLED)
+      revert TokenizerErrors.OnlySettledTokenSignAllowed();
+  }
 
   function validateSettleAssetBond(DataStruct.AssetBondData memory assetBond) internal view {
     // checks whether signer authorized
     // checks the asset bond is 'EMPTY' state
-    // access control : check signer
-    // it('reverts if block.timestamp exceeds loan start timestamp exceeds', async () => {});
-    // it('reverts if loan start timestamp exceeds maturity timestamp', async () => {});
-    // it('reverts if signer is not council role', async () => {});
+
     if (block.timestamp >= assetBond.loanStartTimestamp)
       revert TokenizerErrors.SettledLoanStartTimestampInvalid();
     if (assetBond.loanStartTimestamp == assetBond.maturityTimestamp)

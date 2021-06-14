@@ -18,7 +18,7 @@ library AssetBond {
     uint256 accruedDebtOnMoneyPool =
       Math.calculateCompoundedInterest(
         assetBondData.interestRate,
-        assetBondData.loanStartTimestamp,
+        assetBondData.collateralizeTimestamp,
         block.timestamp
       );
 

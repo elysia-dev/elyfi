@@ -45,4 +45,5 @@ library TokenizerErrors {
   error AssetBondAlreadySettled(uint256 tokenId);
   error SettledLoanStartTimestampInvalid();
   error LoanDurationInvalid();
+  error OnlySettledTokenSignAllowed();
 }
