@@ -22,7 +22,7 @@ library MoneyPoolErrors {
   error NotSignedAssetBond(uint256 id);
   error LTokenTransferNotAllowed(address from, address to);
   error OnlyLToken();
-  error EarlyRepaymentNotAllowed(uint256 amount, uint256 totalRetrieveAmount);
+  error PartialRepaymentNotAllowed(uint256 amount, uint256 totalRetrieveAmount);
 }
 
 library TokenErrors {
@@ -43,4 +43,6 @@ library TokenizerErrors {
   error MintedAssetBondReceiverNotAllowed(uint256 tokenId); // add `address receiver`
   error OnlyOwnerHasAuthrotyToSettle(uint256 tokenId); // and `address minter` |
   error AssetBondAlreadySettled(uint256 tokenId);
+  error SettledLoanStartTimestampInvalid();
+  error LoanDurationInvalid();
 }

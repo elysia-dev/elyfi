@@ -214,7 +214,7 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
     uint256 totalRetrieveAmount = accruedDebtOnMoneyPool + feeOnCollateralServiceProvider;
 
     if (amount < totalRetrieveAmount) {
-      revert MoneyPoolErrors.EarlyRepaymentNotAllowed(amount, totalRetrieveAmount);
+      revert MoneyPoolErrors.PartialRepaymentNotAllowed(amount, totalRetrieveAmount);
     }
 
     Validation.validateRepay(

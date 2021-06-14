@@ -154,6 +154,30 @@ describe('Tokenizer', () => {
           })
         ).to.be.reverted;
       });
+      context('when token owner settles asset bond but the informations are invalid', async () => {
+        it('reverts if block.timestamp exceeds loan start timestamp exceeds', async () => {
+          const invalidAssetBondData = testAssetBondData;
+          invalidAssetBondData.loanStartTimeYear = BigNumber.from(2021);
+          expect(
+            settleAssetBond({
+              tokenizer: elyfiContracts.tokenizer,
+              txSender: CSP,
+              settleArguments: invalidAssetBondData,
+            })
+          ).to.be.reverted;
+        });
+        it('reverts if loan duration is 0', async () => {
+          const invalidAssetBondData = testAssetBondData;
+          invalidAssetBondData.loanDuration = BigNumber.from(0);
+          expect(
+            settleAssetBond({
+              tokenizer: elyfiContracts.tokenizer,
+              txSender: CSP,
+              settleArguments: invalidAssetBondData,
+            })
+          ).to.be.reverted;
+        });
+      });
       it('settles data properly', async () => {
         const settleTx = await settleAssetBond({
           tokenizer: elyfiContracts.tokenizer,

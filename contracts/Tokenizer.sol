@@ -100,7 +100,6 @@ contract Tokenizer is ITokenizer, TokenizerStorage, ERC721 {
     uint256 liquidationTimestamp;
   }
 
-  // Access control : only minter
   /**
    * @notice This function is called after Based on the documents submitted by the loan applicant,
    * risk analysis for the relevant asset is conducted, and the loan availability,
@@ -162,7 +161,7 @@ contract Tokenizer is ITokenizer, TokenizerStorage, ERC721 {
         signerOpinionHash: ''
       });
 
-    Validation.validateSettleAssetBond(newAssetBond, block.timestamp);
+    Validation.validateSettleAssetBond(newAssetBond);
 
     _assetBondData[tokenId] = newAssetBond;
 
