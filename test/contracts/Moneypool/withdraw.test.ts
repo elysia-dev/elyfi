@@ -31,7 +31,7 @@ describe('MoneyPool.withdraw', () => {
       .transfer(account1.address, utils.parseEther('5000'));
   });
 
-  context('when a account invested', async () => {
+  context('when an account invested', async () => {
     beforeEach(async () => {
       await elyfiContracts
         .underlyingAsset
@@ -147,7 +147,7 @@ describe('MoneyPool.withdraw', () => {
     })
   })
 
-  context('when a account does not invest', async () => {
+  context('when an account does not invest', async () => {
     it('reverted', async () => {
       await expect(
         elyfiContracts.moneyPool
