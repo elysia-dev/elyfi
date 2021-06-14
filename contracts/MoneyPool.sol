@@ -56,21 +56,14 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
   ) external override {
     DataStruct.ReserveData storage reserve = _reserves[asset];
 
-    // validation
-    // Check pool activation
     Validation.validateInvest(reserve, amount);
 
-    // update indexes and mintToReserve
     reserve.updateState();
 
-    // update rates
     reserve.updateRates(asset, amount, 0);
 
-    // transfer underlying asset
-    // If transfer fail, reverts
     IERC20(asset).safeTransferFrom(msg.sender, reserve.lTokenAddress, amount);
 
-    // Mint ltoken
     ILToken(reserve.lTokenAddress).mint(account, amount, reserve.lTokenInterestIndex);
 
     /*
@@ -106,8 +99,6 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
       amountToWithdraw = userLTokenBalance;
     }
 
-    // validation
-    // Without digital asset borrow, validation might be quite simple.
     Validation.validateWithdraw(
       reserve,
       asset,
@@ -117,13 +108,10 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
       _reserveCount
     );
 
-    // update indexes and mintToReserve
     reserve.updateState();
 
-    // update rates
     reserve.updateRates(asset, 0, amountToWithdraw);
 
-    // Burn ltoken
     ILToken(reserve.lTokenAddress).burn(
       msg.sender,
       account,
@@ -135,9 +123,6 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
   }
 
   /************ AssetBond Formation Functions ************/
-
-  // need access control signer: only lawfirm or asset owner
-  // need access control : only minter
 
   /**
    * @dev Withdraws an amount of underlying asset from the reserve and burns the corresponding lTokens.
@@ -156,13 +141,9 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
     DataStruct.AssetBondData memory assetBond =
       ITokenizer(reserve.tokenizerAddress).getAssetBondData(tokenId);
 
-    // Check if borrow amount exceeds collateral value
-    // Check if borrow amount exceeds liquidity available
     Validation.validateBorrow(reserve, assetBond, asset, borrowAmount);
 
     reserve.updateState();
-
-    // update interest rate
 
     ITokenizer(reserve.tokenizerAddress).collateralizeAssetBond(
       msg.sender,
@@ -171,14 +152,10 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
       reserve.borrowAPR
     );
 
-    // transfer asset bond
-    // or lock NFT?
-
     IDToken(reserve.dTokenAddress).mint(msg.sender, receiver, borrowAmount, reserve.borrowAPR);
 
     reserve.updateRates(asset, 0, borrowAmount);
 
-    // transfer Underlying asset
     ILToken(reserve.lTokenAddress).transferUnderlyingTo(receiver, borrowAmount);
 
     /*
@@ -194,7 +171,7 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
   }
 
   /**
-   * @dev Withdraws an amount of underlying asset from the reserve and burns the corresponding lTokens.
+   * @dev repays an amount of underlying asset from the reserve and burns the corresponding lTokens.
    * @notice
    * @param asset The address of the underlying asset to withdraw
    * @param amount borrowAmount
@@ -229,15 +206,12 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
 
     IDToken(reserve.dTokenAddress).burn(assetBond.borrower, accruedDebtOnMoneyPool);
 
-    // update interest rate
     reserve.updateRates(asset, totalRetrieveAmount, 0);
 
-    // transfer asset bond
     IERC20(asset).safeTransferFrom(msg.sender, reserve.lTokenAddress, totalRetrieveAmount);
 
     ITokenizer(reserve.tokenizerAddress).releaseAssetBond(assetBond.borrower, tokenId);
 
-    // Mint ltoken
     ILToken(reserve.lTokenAddress).mint(
       assetBond.collateralServiceProvider,
       feeOnCollateralServiceProvider,

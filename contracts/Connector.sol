@@ -8,6 +8,16 @@ import '@openzeppelin/contracts/access/Ownable.sol';
 
 /**
  * @title ELYFI Connector
+ * @notice ELYFI functions through continual interaction among the various participants.
+ * In order to link the real assets and the blockchain, unlike the existing DeFi platform,
+ * ELYFI has a group of participants in charge of actual legal contracts and maintenance.
+ * 1. Collateral service providers are a group of users who sign a collateral contract with
+ * a borrower who takes out a real asset-backed loan and borrows cryptocurrencies from the
+ * Money Pool based on this contract.
+ * 2. The council, such as legal service provider is a corporation that provides
+ * legal services such as document review in the context of legal proceedings, consulting,
+ * and the provision of documents necessary in the process of taking out loans secured by real assets,
+ * In the future, the types of participant groups will be diversified and subdivided.
  * @author ELYSIA
  */
 contract Connector is IConnector, ConnectorStorage, Ownable {

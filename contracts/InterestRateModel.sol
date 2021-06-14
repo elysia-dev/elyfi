@@ -22,8 +22,8 @@ contract InterestRateModel is IInterestRateModel, InterestRateModelStorage {
   using WadRayMath for uint256;
 
   /**
-   * @param optimalUtilizationRate When the MoneyPool utilization ratio exceeds this parameter, `optimalUtilizationRate`,
-   * the kinked rates model adjusts interests.
+   * @param optimalUtilizationRate When the MoneyPool utilization ratio exceeds this parameter,
+   * `optimalUtilizationRate`, the kinked rates model adjusts interests.
    * @param borrowRateBase The base interest rate.
    * @param borrowRateOptimal Interest rate when the Money Pool utilization ratio is optimal
    * @param borrowRateMax Interest rate when the Money Pool utilization ratio is 1
@@ -47,6 +47,16 @@ contract InterestRateModel is IInterestRateModel, InterestRateModelStorage {
     uint256 newSupplyAPR;
   }
 
+  /**
+   * @dev
+   * Calculation Example
+   * Case1: under optimal U
+   * baseRate = 2%, util = 40%, optimalRate = 10%, optimalUtil = 80%
+   * result = 2+40*(10-2)/80 = 4%
+   * Case2: over optimal U
+   * optimalRate = 10%, util = 90%, maxRate = 100%, optimalUtil = 80%
+   * result = 10+(90-80)*(100-10)/(100-80) = 55%
+   */
   function calculateRates(
     address asset,
     address lToken,
@@ -68,13 +78,6 @@ contract InterestRateModel is IInterestRateModel, InterestRateModelStorage {
 
     vars.newBorrowAPR = 0;
 
-    // Example
-    // Case1: under optimal U
-    // baseRate = 2%, util = 40%, optimalRate = 10%, optimalUtil = 80%
-    // result = 2+40*(10-2)/80 = 4%
-    // Case2: over optimal U
-    // optimalRate = 10%, util = 90%, maxRate = 100%, optimalUtil = 80%
-    // result = 10+(90-80)*(100-10)/(100-80) = 55%
     if (vars.utilizationRate <= _optimalUtilizationRate) {
       vars.newBorrowAPR =
         _borrowRateBase +

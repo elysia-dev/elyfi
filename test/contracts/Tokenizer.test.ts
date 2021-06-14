@@ -29,6 +29,7 @@ describe('Tokenizer', () => {
     loanStartTimeDay: BigNumber.from(1),
     ipfsHash: 'test',
   };
+  const signerOpinionHash: string = 'test hash';
 
   beforeEach('Governance added roles to each account', async () => {
     elyfiContracts = await makeAllContracts();
@@ -216,6 +217,54 @@ describe('Tokenizer', () => {
         expect(assetBondData.liquidationTimestamp).to.be.equal(expectedLiquidationTimestamp);
         expect(assetBondData.ipfsHash).to.be.equal(testAssetBondData.ipfsHash);
         expect(assetBondData.signerOpinionHash).to.be.equal('');
+      });
+    });
+  });
+  context('Sign asset bond', async () => {
+    beforeEach('Collateral Service Provider settled the asset bond properly', async () => {
+      await elyfiContracts.tokenizer
+        .connect(CSP)
+        .mintAssetBond(CSP.address, testAssetBondData.tokenId);
+    });
+    it('reverts if the caller is not designated member', async () => {
+      await expect(
+        elyfiContracts.tokenizer
+          .connect(account)
+          .signAssetBond(testAssetBondData.tokenId, signerOpinionHash)
+      ).to.be.reverted;
+    });
+    context('when signer signs the asset bond but not settled', async () => {
+      it('reverts if the token state is not SETTLED', async () => {
+        await elyfiContracts.connector
+          .connect(deployer)
+          .revokeCollateralServiceProvider(CSP.address);
+        await expect(
+          settleAssetBond({
+            tokenizer: elyfiContracts.tokenizer,
+            txSender: CSP,
+            settleArguments: testAssetBondData,
+          })
+        ).to.be.reverted;
+      });
+      context('when signer signs the settled asset bond', async () => {
+        beforeEach('Collateral Service Provider settled the asset bond properly', async () => {
+          await settleAssetBond({
+            tokenizer: elyfiContracts.tokenizer,
+            txSender: CSP,
+            settleArguments: testAssetBondData,
+          });
+        });
+        it('signs the asset bond properly', async () => {
+          await elyfiContracts.tokenizer
+            .connect(signer)
+            .signAssetBond(testAssetBondData.tokenId, signerOpinionHash);
+
+          const assetBondData = await elyfiContracts.tokenizer.getAssetBondData(
+            testAssetBondData.tokenId
+          );
+          expect(assetBondData.state).to.be.equal(AssetBondState.CONFIRMED);
+          expect(assetBondData.signerOpinionHash).to.be.equal(signerOpinionHash);
+        });
       });
     });
   });
