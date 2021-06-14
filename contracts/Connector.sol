@@ -23,6 +23,16 @@ contract Connector is IConnector, ConnectorStorage, Ownable {
     emit NewCollateralServiceProviderAdded(account);
   }
 
+  function revokeCouncil(address account) external onlyOwner {
+    _revokeRole(Role.COUNCIL, account);
+    emit CouncilRevoked(account);
+  }
+
+  function revokeCollateralServiceProvider(address account) external onlyOwner {
+    _revokeRole(Role.CollateralServiceProvider, account);
+    emit CollateralServiceProviderRevoked(account);
+  }
+
   function _grantRole(bytes32 role, address account) internal {
     _roles[role].participants[account] = true;
   }
@@ -42,8 +52,4 @@ contract Connector is IConnector, ConnectorStorage, Ownable {
   function isCouncil(address account) external view override returns (bool) {
     return _hasRole(Role.COUNCIL, account);
   }
-
-  function activateMoneyPool(address asset) external onlyOwner {}
-
-  function deactivateMoneyPool(address asset) external onlyOwner {}
 }

@@ -25,7 +25,7 @@ describe('Tokenizer', () => {
     overdueInterestRate: toRate(0.03),
     loanDuration: BigNumber.from(365),
     loanStartTimeYear: BigNumber.from(2022),
-    loanStartTimeMonth: BigNumber.from(1),
+    loanStartTimeMonth: BigNumber.from(0),
     loanStartTimeDay: BigNumber.from(1),
     ipfsHash: 'test',
   };
@@ -113,22 +113,33 @@ describe('Tokenizer', () => {
     });
   });
   context('Settle asset bond', async () => {
-    beforeEach('Collateral Service Provider minted empty asset bond', async () => {
+    beforeEach('Collateral Service Provider minted the empty asset bond', async () => {
       await elyfiContracts.tokenizer
         .connect(CSP)
         .mintAssetBond(CSP.address, testAssetBondData.tokenId);
-      console.log(1);
     });
-    it('reverts if the caller is not the owner', async () => {
+    it('reverts if the caller is not the owner.', async () => {
       await expect(
         settleAssetBond({
           tokenizer: elyfiContracts.tokenizer,
-          txSender: CSP,
+          txSender: account,
           settleArguments: testAssetBondData,
         })
       ).to.be.reverted;
     });
     context('when token owner settles asset bond informations', async () => {
+      it('reverts if the caller is the token owner but not the collateral service provider', async () => {
+        await elyfiContracts.connector
+          .connect(deployer)
+          .revokeCollateralServiceProvider(CSP.address);
+        await expect(
+          settleAssetBond({
+            tokenizer: elyfiContracts.tokenizer,
+            txSender: CSP,
+            settleArguments: testAssetBondData,
+          })
+        ).to.be.reverted;
+      });
       it('reverts if the state of asset bond is not empty', async () => {
         await settleAssetBond({
           tokenizer: elyfiContracts.tokenizer,
@@ -136,7 +147,7 @@ describe('Tokenizer', () => {
           settleArguments: testAssetBondData,
         });
         await expect(
-          await settleAssetBond({
+          settleAssetBond({
             tokenizer: elyfiContracts.tokenizer,
             txSender: CSP,
             settleArguments: testAssetBondData,
@@ -149,11 +160,13 @@ describe('Tokenizer', () => {
           txSender: CSP,
           settleArguments: testAssetBondData,
         });
-        const expectedLoanStartTimestamp = Date.UTC(
-          testAssetBondData.loanStartTimeYear.toNumber(),
-          testAssetBondData.loanStartTimeMonth.toNumber(),
-          testAssetBondData.loanStartTimeDay.toNumber()
-        );
+        const expectedLoanStartTimestamp =
+          Date.UTC(
+            testAssetBondData.loanStartTimeYear.toNumber(),
+            testAssetBondData.loanStartTimeMonth.toNumber(),
+            testAssetBondData.loanStartTimeDay.toNumber()
+          ) / 1000;
+        console.log(expectedLoanStartTimestamp);
         const expectedMaturityTimestamp =
           expectedLoanStartTimestamp + testAssetBondData.loanDuration.mul(SECONDSPERDAY).toNumber();
         const expectedLiquidationTimestamp =

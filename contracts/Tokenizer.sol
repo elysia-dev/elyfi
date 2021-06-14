@@ -179,7 +179,7 @@ contract Tokenizer is ITokenizer, TokenizerStorage, ERC721 {
     );
   }
 
-    /**
+  /**
    * @notice When the collateral service provider settled the informations based on the real world contract
    * in asset bond token, the third party connector such as lawfrim should review this and sign it.
    * The object for this process is to build trust in the token issuance in ELYFI.
@@ -203,7 +203,7 @@ contract Tokenizer is ITokenizer, TokenizerStorage, ERC721 {
     assetBond.signerOpinionHash = signerOpinionHash;
   }
 
-    /**
+  /**
    * @notice The collateral service provider can take out a loan of value equivalent to the collateral
    * recored in asset bond tokens. The asset bond tokens are automatically transferred to the MoneyPool
    * by internal function of `borrow` function.
@@ -230,7 +230,8 @@ contract Tokenizer is ITokenizer, TokenizerStorage, ERC721 {
     transferFrom(account, address(_moneyPool), tokenId);
     approve(account, tokenId);
   }
-    /**
+
+  /**
    * @notice When the repayment scenario, the dTokens are destroyed and the collateral of the locked up
    * asset bond tokens in the MoneyPool is unlocked. The asset bond tokens are transfered to the
    * address of the borrower for terminating the collateral contract.
