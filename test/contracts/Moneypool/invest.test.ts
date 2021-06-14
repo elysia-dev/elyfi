@@ -9,7 +9,6 @@ import { BigNumber } from 'ethers';
 import loadFixture from '../../utils/loadFixture';
 import utilizedMoneypool from '../../fixtures/utilizedMoneypool';
 
-// TODO : Mockup user & reserve data
 describe('MoneyPool.invest', () => {
   let elyfiContracts: ElyfiContracts;
 
