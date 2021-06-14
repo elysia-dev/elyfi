@@ -9,12 +9,11 @@ import loadFixture from '../../utils/loadFixture';
 import utilizedMoneypool from '../../fixtures/utilizedMoneypool';
 require('../../assertions/equals.ts');
 
-// TODO: Mockup user & reserve data
 describe('MoneyPool.borrow', () => {
   let elyfiContracts: ElyfiContracts;
 
   const provider = waffle.provider;
-  const [deployer, investor, CSP, borrower] = provider.getWallets();
+  const [deployer, investor, CSP, borrower, otherCSP] = provider.getWallets();
   const abTokenId = '1001002003004005';
 
   before(async () => {
@@ -24,55 +23,76 @@ describe('MoneyPool.borrow', () => {
     await elyfiContracts.underlyingAsset
       .connect(deployer)
       .transfer(investor.address, utils.parseEther('1000'));
+
+    await elyfiContracts.connector.connect(deployer).addCollateralServiceProvider(CSP.address);
+    await elyfiContracts.connector.connect(deployer).addCollateralServiceProvider(otherCSP.address);
   });
 
-  describe('when AB token is minted by CSP', async () => {
+  // TODO
+  // 1. validate abToken status
+  // 2. validate amount
+  context('when AB token is minted by CSP', async () => {
     before(async () => {
-      await elyfiContracts.connector.connect(deployer).addCollateralServiceProvider(CSP.address);
       await elyfiContracts.tokenizer.connect(CSP).mintAssetBond(CSP.address, abTokenId);
     });
 
-    describe('when moneypool enough reserve', async () => {
-      before(async () => {
-        await elyfiContracts.underlyingAsset
-          .connect(investor)
-          .approve(elyfiContracts.moneyPool.address, utils.parseEther('1000'));
-        await elyfiContracts.moneyPool
-          .connect(investor)
-          .invest(
-            elyfiContracts.underlyingAsset.address,
-            investor.address,
-            utils.parseEther('500')
-          );
-      });
+    context('when AB token is settled & signed', async () => {
+      // TODO : update AB token status
+      context('when moneypool has enough reserve', async () => {
+        it('update borrower balance and reserve and user data', async () => {
+          const [reserveDataBefore, userDataBefore] = await takeDataSnapshot(CSP, elyfiContracts);
+          const amount = utils.parseEther('300');
 
-      it('update borrower balance and reserve and user data', async () => {
-        const [reserveDataBefore, userDataBefore] = await takeDataSnapshot(CSP, elyfiContracts);
-        const amount = utils.parseEther('300');
+          const tx = await elyfiContracts.moneyPool
+            .connect(CSP)
+            .borrow(elyfiContracts.underlyingAsset.address, borrower.address, amount, abTokenId);
 
-        const tx = await elyfiContracts.moneyPool
-          .connect(CSP)
-          .borrow(elyfiContracts.underlyingAsset.address, borrower.address, amount, abTokenId);
+          const [reserveDataAfter, userDataAfter] = await takeDataSnapshot(borrower, elyfiContracts);
 
-        const [reserveDataAfter, userDataAfter] = await takeDataSnapshot(borrower, elyfiContracts);
+          const expectedReserveData = expectReserveDataAfterBorrow({
+            amountBorrow: amount,
+            reserveDataBefore,
+            txTimestamp: await getTimestamp(tx),
+          });
 
-        const expectedReserveData = expectReserveDataAfterBorrow({
-          amountBorrow: amount,
-          reserveDataBefore,
-          txTimestamp: await getTimestamp(tx),
+          const expectedUserData = expectUserDataAfterBorrow({
+            amountBorrow: amount,
+            userDataBefore,
+            reserveDataBefore,
+            reserveDataAfter,
+            txTimestamp: await getTimestamp(tx),
+          });
+
+          expect(reserveDataAfter).equalReserveData(expectedReserveData);
+          expect(userDataAfter).equalUserData(expectedUserData);
         });
 
-        const expectedUserData = expectUserDataAfterBorrow({
-          amountBorrow: amount,
-          userDataBefore,
-          reserveDataBefore,
-          reserveDataAfter,
-          txTimestamp: await getTimestamp(tx),
-        });
+        context('when the requester is not the CSP', async () => {
+          it('reverted', async () => {
+            await expect(
+              elyfiContracts.moneyPool
+                .connect(investor)
+                .borrow(
+                  elyfiContracts.underlyingAsset.address,
+                  borrower.address,
+                  utils.parseEther('300'),
+                  abTokenId,
+                )
+            ).to.be.reverted
 
-        expect(reserveDataAfter).equalReserveData(expectedReserveData);
-        expect(userDataAfter).equalUserData(expectedUserData);
+            await expect(
+              elyfiContracts.moneyPool
+                .connect(otherCSP)
+                .borrow(
+                  elyfiContracts.underlyingAsset.address,
+                  borrower.address,
+                  utils.parseEther('300'),
+                  abTokenId,
+                )
+            ).to.be.reverted
+          })
+        })
       });
-    });
+    })
   });
 });
