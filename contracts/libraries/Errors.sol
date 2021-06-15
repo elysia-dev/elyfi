@@ -22,7 +22,10 @@ library MoneyPoolErrors {
   error NotSignedAssetBond(uint256 id);
   error LTokenTransferNotAllowed(address from, address to);
   error OnlyLToken();
+  error OnlySignedTokenBorrowAllowed();
+  error OnlyAssetBondOwnerBorrowAllowed();
   error PartialRepaymentNotAllowed(uint256 amount, uint256 totalRetrieveAmount);
+  error NotEnoughLiquidityToLoan();
 }
 
 library TokenErrors {

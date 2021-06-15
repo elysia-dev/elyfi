@@ -128,18 +128,14 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
    * @dev Withdraws an amount of underlying asset from the reserve and burns the corresponding lTokens.
    * @notice
    * @param asset The address of the underlying asset to withdraw
-   * @param receiver The address that will receive the underlying asset
-   * @param borrowAmount borrowAmount
    **/
-  function borrow(
-    address asset,
-    address receiver,
-    uint256 borrowAmount,
-    uint256 tokenId
-  ) external override onlyCollateralServiceProvider {
+  function borrow(address asset, uint256 tokenId) external override onlyCollateralServiceProvider {
     DataStruct.ReserveData storage reserve = _reserves[asset];
     DataStruct.AssetBondData memory assetBond =
       ITokenizer(reserve.tokenizerAddress).getAssetBondData(tokenId);
+
+    uint256 borrowAmount = assetBond.principal;
+    address receiver = assetBond.borrower;
 
     Validation.validateBorrow(reserve, assetBond, asset, borrowAmount);
 
@@ -174,13 +170,8 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
    * @dev repays an amount of underlying asset from the reserve and burns the corresponding lTokens.
    * @notice
    * @param asset The address of the underlying asset to withdraw
-   * @param amount borrowAmount
    **/
-  function repay(
-    address asset,
-    uint256 amount,
-    uint256 tokenId
-  ) external {
+  function repay(address asset, uint256 tokenId) external override {
     DataStruct.ReserveData storage reserve = _reserves[asset];
     DataStruct.AssetBondData memory assetBond =
       ITokenizer(reserve.tokenizerAddress).getAssetBondData(tokenId);
@@ -189,10 +180,6 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
       assetBond.getAssetBondDebtData();
 
     uint256 totalRetrieveAmount = accruedDebtOnMoneyPool + feeOnCollateralServiceProvider;
-
-    if (amount < totalRetrieveAmount) {
-      revert MoneyPoolErrors.PartialRepaymentNotAllowed(amount, totalRetrieveAmount);
-    }
 
     Validation.validateRepay(
       reserve,

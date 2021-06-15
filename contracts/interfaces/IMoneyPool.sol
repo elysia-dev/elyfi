@@ -51,12 +51,9 @@ interface IMoneyPool {
     uint256 amount
   ) external;
 
-  function borrow(
-    address asset,
-    address receiver,
-    uint256 borrowAmount,
-    uint256 tokenID
-  ) external;
+  function borrow(address asset, uint256 tokenID) external;
+
+  function repay(address asset, uint256 tokenId) external;
 
   function getLTokenInterestIndex(address asset) external view returns (uint256);
 

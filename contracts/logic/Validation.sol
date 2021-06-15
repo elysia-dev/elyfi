@@ -58,13 +58,17 @@ library Validation {
   ) internal view {
     // moneypool validate logic : active, frozen
 
-    // check settled logic
-    //if (assetBond.isSettled == true) revert MoneyPoolErrors.NotSettledAssetBond(id);
+    if (assetBond.state != DataStruct.AssetBondState.CONFIRMED)
+      revert MoneyPoolErrors.OnlySignedTokenBorrowAllowed();
 
+    if (msg.sender != assetBond.collateralServiceProvider)
+      revert MoneyPoolErrors.OnlyAssetBondOwnerBorrowAllowed();
     // check sign logic
     //if (assetBond.isSigned == false) revertNValidationErrors.otSignedAssetBond(id);
 
     uint256 availableLiquidity = IERC20(asset).balanceOf(reserve.lTokenAddress);
+
+    if (availableLiquidity <= borrowAmount) revert MoneyPoolErrors.NotEnoughLiquidityToLoan();
   }
 
   function validateLTokenTrasfer() internal pure {}
