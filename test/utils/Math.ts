@@ -160,7 +160,7 @@ export function calculateRateInInterestRateModel(
 export function calculateFeeOnRepayment(
   assetBondData: AssetBondData,
   paymentTimestamp: BigNumber
-): BigNumber[] {
+): BigNumber {
   let firstTermRate: BigNumber;
   let secondTermRate: BigNumber;
   let secondOverdueRate: BigNumber;
