@@ -4,6 +4,15 @@ pragma solidity 0.8.4;
 import '../libraries/DataStruct.sol';
 
 interface IMoneyPool {
+  event NewReserve(
+    address indexed asset,
+    address lToken,
+    address dToken,
+    address interestModel,
+    address tokenizer,
+    uint256 moneyPoolFactor
+  );
+
   event Invest(address indexed asset, address indexed account, uint256 amount);
 
   event Withdraw(

@@ -15,8 +15,20 @@ interface ITokenizer {
     uint256 overdueInterestRate,
     uint256 debtCeiling,
     uint256 maturityTimestamp,
-    uint256 liquidationTimestamp
+    uint256 liquidationTimestamp,
+    string ifpsHash
   );
+
+  event AssetBondSigned(address indexed signer, uint256 tokenId, string signerOpinionHash);
+
+  event AssetBondCollateralized(
+    address indexed account,
+    uint256 tokenId,
+    uint256 borrowAmount,
+    uint256 interestRate
+  );
+
+  event AssetBondReleased(address indexed borrower, uint256 tokenId);
 
   function mintAssetBond(
     address account,
@@ -24,7 +36,7 @@ interface ITokenizer {
   ) external;
 
   function collateralizeAssetBond(
-    address account,
+    address collateralServiceProvider,
     uint256 tokenId,
     uint256 borrowAmount,
     uint256 borrowAPR

@@ -12,7 +12,7 @@ contract IndexTest is MoneyPoolStorage {
   }
 
   function updateState(address asset) public {
-    _reserves[asset].updateState();
+    _reserves[asset].updateState(asset);
   }
 
   /**

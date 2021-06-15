@@ -174,7 +174,8 @@ contract Tokenizer is ITokenizer, TokenizerStorage, ERC721 {
       overdueInterestRate,
       debtCeiling,
       vars.maturityTimestamp,
-      vars.liquidationTimestamp
+      vars.liquidationTimestamp,
+      ipfsHash
     );
   }
 
@@ -200,6 +201,8 @@ contract Tokenizer is ITokenizer, TokenizerStorage, ERC721 {
 
     assetBond.state = DataStruct.AssetBondState.CONFIRMED;
     assetBond.signerOpinionHash = signerOpinionHash;
+
+    emit AssetBondSigned(msg.sender, tokenId, signerOpinionHash);
   }
 
   /**
@@ -228,6 +231,8 @@ contract Tokenizer is ITokenizer, TokenizerStorage, ERC721 {
 
     transferFrom(account, address(_moneyPool), tokenId);
     approve(account, tokenId);
+
+    emit AssetBondCollateralized(account, tokenId, borrowAmount, interestRate);
   }
 
   /**
@@ -241,6 +246,8 @@ contract Tokenizer is ITokenizer, TokenizerStorage, ERC721 {
   function releaseAssetBond(address account, uint256 tokenId) external override onlyMoneyPool {
     DataStruct.AssetBondData storage assetBond = _assetBondData[tokenId];
     assetBond.state = DataStruct.AssetBondState.MATURED;
+
+    emit AssetBondReleased(account, tokenId);
   }
 
   /************ Token Functions ************/

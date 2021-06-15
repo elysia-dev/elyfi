@@ -10,6 +10,8 @@ library Index {
   using WadRayMath for uint256;
   using Index for DataStruct.ReserveData;
 
+  event LTokenIndexUpdated(address indexed asset, uint256 lTokenIndex, uint256 lastUpdateTimestamp);
+
   /**
    * @dev Returns the ongoing normalized income for the reserve
    * A value of 1e27 means there is no income. As time passes, the income is accrued
@@ -40,7 +42,10 @@ library Index {
    * @dev Updates the reserve indexes and the timestamp
    * @param reserve The reserve to be updated
    **/
-  function updateState(DataStruct.ReserveData storage reserve) internal returns (uint256) {
+  function updateState(DataStruct.ReserveData storage reserve, address asset)
+    internal
+    returns (uint256)
+  {
     uint256 previousLTokenIndex = reserve.lTokenInterestIndex;
 
     if (reserve.supplyAPR == 0) {
@@ -50,6 +55,8 @@ library Index {
 
     reserve.lTokenInterestIndex = getLTokenInterestIndex(reserve);
     reserve.lastUpdateTimestamp = block.timestamp;
+
+    emit LTokenIndexUpdated(asset, reserve.lTokenInterestIndex, reserve.lastUpdateTimestamp);
 
     return (reserve.lTokenInterestIndex);
   }

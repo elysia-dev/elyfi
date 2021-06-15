@@ -58,7 +58,7 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
 
     Validation.validateInvest(reserve, amount);
 
-    reserve.updateState();
+    reserve.updateState(asset);
 
     reserve.updateRates(asset, amount, 0);
 
@@ -108,7 +108,7 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
       _reserveCount
     );
 
-    reserve.updateState();
+    reserve.updateState(asset);
 
     reserve.updateRates(asset, 0, amountToWithdraw);
 
@@ -143,7 +143,7 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
 
     Validation.validateBorrow(reserve, assetBond, asset, borrowAmount);
 
-    reserve.updateState();
+    reserve.updateState(asset);
 
     ITokenizer(reserve.tokenizerAddress).collateralizeAssetBond(
       msg.sender,
@@ -202,7 +202,7 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
       feeOnCollateralServiceProvider
     );
 
-    reserve.updateState();
+    reserve.updateState(asset);
 
     IDToken(reserve.dTokenAddress).burn(assetBond.borrower, accruedDebtOnMoneyPool);
 
@@ -291,6 +291,8 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
 
     _reserves[asset] = newReserveData;
     _addNewReserveToList(asset);
+
+    emit NewReserve(asset, lToken, dToken, interestModel, tokenizer, moneyPoolFactor_);
   }
 
   function _addNewReserveToList(address asset) internal {

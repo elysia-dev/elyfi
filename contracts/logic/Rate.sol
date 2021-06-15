@@ -17,7 +17,9 @@ library Rate {
     address indexed underlyingAssetAddress,
     uint256 lTokenIndex,
     uint256 borrowAPR,
-    uint256 supplyAPR
+    uint256 supplyAPR,
+    uint256 totalBorrow,
+    uint256 totalInvest
   );
 
   struct UpdateRatesLocalVars {
@@ -40,15 +42,13 @@ library Rate {
 
     vars.averageBorrowAPR = IDToken(reserve.dTokenAddress).getTotalAverageRealAssetBorrowRate();
 
-    uint256 lTokenAssetBalance =
-      IERC20(underlyingAssetAddress).balanceOf(reserve.lTokenAddress) + investAmount - borrowAmount;
+    uint256 lTokenAssetBalance = IERC20(underlyingAssetAddress).balanceOf(reserve.lTokenAddress);
     (vars.newBorrowAPR, vars.newSupplyAPR) = IInterestRateModel(reserve.interestModelAddress)
       .calculateRates(
       lTokenAssetBalance,
       vars.totalDToken,
       investAmount,
       borrowAmount,
-      vars.averageBorrowAPR,
       reserve.moneyPoolFactor
     );
 
@@ -59,7 +59,9 @@ library Rate {
       underlyingAssetAddress,
       reserve.lTokenInterestIndex,
       vars.newBorrowAPR,
-      vars.newSupplyAPR
+      vars.newSupplyAPR,
+      vars.totalDToken,
+      lTokenAssetBalance + investAmount - borrowAmount
     );
   }
 }
