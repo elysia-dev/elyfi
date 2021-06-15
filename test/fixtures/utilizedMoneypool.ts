@@ -18,7 +18,7 @@ export default async function utilizedMoneypool(
   const totalSupply = utils.parseEther('10');
   const totalBorrow = utils.parseEther('5');
 
-  await elyfiContracts.underlyingAsset.connect(deployer).transfer(elyfiContracts.lToken.address, totalSupply);
+  await elyfiContracts.underlyingAsset.connect(deployer).transfer(elyfiContracts.lToken.address, totalSupply.sub(totalBorrow));
 
   await elyfiContracts.moneyPool.connect(deployer).utilzedReserveForTest(
     elyfiContracts.underlyingAsset.address,
