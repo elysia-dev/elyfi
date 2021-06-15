@@ -5,8 +5,7 @@ import '../libraries/DataStruct.sol';
 
 interface IInterestRateModel {
   function calculateRates(
-    address asset,
-    address lToken,
+    uint256 lTokenAssetBalance,
     uint256 totalDTokenBalance,
     uint256 investAmount,
     uint256 borrowAmount,

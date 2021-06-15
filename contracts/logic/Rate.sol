@@ -13,7 +13,7 @@ library Rate {
   using WadRayMath for uint256;
   using Rate for DataStruct.ReserveData;
 
-  event MoneyPoolRatesUpdated(
+  event RatesUpdated(
     address indexed underlyingAssetAddress,
     uint256 lTokenIndex,
     uint256 borrowAPR,
@@ -40,10 +40,11 @@ library Rate {
 
     vars.averageBorrowAPR = IDToken(reserve.dTokenAddress).getTotalAverageRealAssetBorrowRate();
 
+    uint256 lTokenAssetBalance =
+      IERC20(underlyingAssetAddress).balanceOf(reserve.lTokenAddress) + investAmount - borrowAmount;
     (vars.newBorrowAPR, vars.newSupplyAPR) = IInterestRateModel(reserve.interestModelAddress)
       .calculateRates(
-      underlyingAssetAddress,
-      reserve.lTokenAddress,
+      lTokenAssetBalance,
       vars.totalDToken,
       investAmount,
       borrowAmount,
@@ -54,7 +55,7 @@ library Rate {
     reserve.borrowAPR = vars.newBorrowAPR;
     reserve.supplyAPR = vars.newSupplyAPR;
 
-    emit MoneyPoolRatesUpdated(
+    emit RatesUpdated(
       underlyingAssetAddress,
       reserve.lTokenInterestIndex,
       vars.newBorrowAPR,

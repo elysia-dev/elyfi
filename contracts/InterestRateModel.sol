@@ -58,8 +58,7 @@ contract InterestRateModel is IInterestRateModel, InterestRateModelStorage {
    * result = 10+(90-80)*(100-10)/(100-80) = 55%
    */
   function calculateRates(
-    address asset,
-    address lToken,
+    uint256 lTokenAssetBalance,
     uint256 totalDTokenBalance,
     uint256 investAmount,
     uint256 borrowAmount,
@@ -70,7 +69,7 @@ contract InterestRateModel is IInterestRateModel, InterestRateModelStorage {
 
     vars.totalDebt = totalDTokenBalance;
 
-    uint256 availableLiquidity = IERC20(asset).balanceOf(lToken) + investAmount - borrowAmount;
+    uint256 availableLiquidity = lTokenAssetBalance + investAmount - borrowAmount;
 
     vars.utilizationRate = vars.totalDebt == 0
       ? 0
@@ -97,21 +96,6 @@ contract InterestRateModel is IInterestRateModel, InterestRateModelStorage {
     }
 
     vars.newSupplyAPR = vars.newBorrowAPR.rayMul(vars.utilizationRate);
-    // need reserveFactor calculation
-
-    /*
-    console.log(
-      'hardhat interest Rate Model console: totalDebt-Util',
-      vars.totalDebt,
-      vars.utilizationRate
-    );
-
-    console.log(
-      'hardhat interest Rate Model console: Borrow | Supply',
-      vars.newBorrowAPR,
-      vars.newSupplyAPR
-    );
-    */
 
     return (vars.newBorrowAPR, vars.newSupplyAPR);
   }
