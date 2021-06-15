@@ -2,6 +2,7 @@ import { BigNumber } from 'ethers';
 import { rayDiv, rayMul } from './Ethereum';
 import { AssetBondData, ReserveData, UserData } from './Interfaces';
 import {
+  calculateAssetBondDebtData,
   calculateCompoundedInterest,
   calculateFeeOnRepayment,
   calculateLTokenIndexAfterAction,
@@ -307,20 +308,18 @@ export function expectUserDataAfterBorrow({
 }
 
 export function expectReserveDataAfterRepay({
-  amount,
-  reserveData,
   assetBondData,
+  reserveData,
   txTimestamp,
 }: {
-  amount: BigNumber;
-  reserveData: ReserveData;
   assetBondData: AssetBondData;
+  reserveData: ReserveData;
   txTimestamp: BigNumber;
 }): ReserveData {
   // update lindex, timestamp, totalD
   const newReserveData = applyTxTimeStamp(reserveData, txTimestamp);
 
-  const [accruedDebtOnMoneyPool, feeOnRepayment] = calculateFeeOnRepayment(
+  const [accruedDebtOnMoneyPool, feeOnRepayment] = calculateAssetBondDebtData(
     assetBondData,
     txTimestamp
   );
@@ -373,4 +372,61 @@ export function expectReserveDataAfterRepay({
   );
 
   return newReserveData;
+}
+
+export function expectUserDataAfterRepay({
+  assetBondData,
+  userDataBefore,
+  reserveDataAfter,
+  txTimestamp,
+}: {
+  assetBondData: AssetBondData;
+  userDataBefore: UserData;
+  reserveDataAfter: ReserveData;
+  txTimestamp: BigNumber;
+}): UserData {
+  const expectedUserData: UserData = { ...userDataBefore };
+
+  // update lTokenBalance
+  expectedUserData.lTokenBalance = rayMul(
+    userDataBefore.implicitLtokenBalance,
+    reserveDataAfter.lTokenInterestIndex
+  );
+
+  const [accruedDebtOnMoneyPool, feeOnRepayment] = calculateAssetBondDebtData(
+    assetBondData,
+    txTimestamp
+  );
+
+  // update and burn dToken balance
+  const previousUpdatedDTokenBalance = rayMul(
+    userDataBefore.principalDTokenBalance,
+    calculateCompoundedInterest(
+      userDataBefore.averageRealAssetBorrowRate,
+      userDataBefore.userLastUpdateTimestamp,
+      txTimestamp
+    )
+  );
+  const dTokenBalance = previousUpdatedDTokenBalance.sub(accruedDebtOnMoneyPool);
+
+  expectedUserData.dTokenBalance = dTokenBalance;
+  expectedUserData.principalDTokenBalance = dTokenBalance;
+
+  // update average Borrow rate and timestamp
+  const averageRealAssetBorrowRate = calculateRateInDecreasingBalance(
+    userDataBefore.averageRealAssetBorrowRate,
+    previousUpdatedDTokenBalance,
+    accruedDebtOnMoneyPool,
+    assetBondData.interestRate
+  );
+  expectedUserData.userLastUpdateTimestamp = txTimestamp;
+  expectedUserData.averageRealAssetBorrowRate = averageRealAssetBorrowRate;
+
+  // transfer underlying asset
+  const underlyingAssetBalance = userDataBefore.underlyingAssetBalance.add(
+    accruedDebtOnMoneyPool.add(feeOnRepayment)
+  );
+  expectedUserData.underlyingAssetBalance = underlyingAssetBalance;
+
+  return expectedUserData;
 }
