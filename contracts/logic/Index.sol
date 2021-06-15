@@ -36,44 +36,20 @@ library Index {
     return newIndex;
   }
 
-  function updateState(DataStruct.ReserveData storage reserve) internal {
-    uint256 previousLTokenIndex = reserve.lTokenInterestIndex;
-    uint256 lastUpdateTimestamp = reserve.lastUpdateTimestamp;
-
-    updateIndexes(reserve, previousLTokenIndex, lastUpdateTimestamp);
-
-    // _mintToReserveFactor
-  }
-
   /**
    * @dev Updates the reserve indexes and the timestamp
    * @param reserve The reserve to be updated
-   * @param lTokenIndex The last updated lToken Index
-   * @param timeStamp The last updated timestamp
    **/
-  function updateIndexes(
-    DataStruct.ReserveData storage reserve,
-    uint256 lTokenIndex,
-    uint256 timeStamp
-  ) internal returns (uint256) {
-    uint256 currentSupplyAPR = reserve.supplyAPR;
+  function updateState(DataStruct.ReserveData storage reserve) internal returns (uint256) {
+    uint256 previousLTokenIndex = reserve.lTokenInterestIndex;
 
-    if (currentSupplyAPR == 0) {
+    if (reserve.supplyAPR == 0) {
       reserve.lastUpdateTimestamp = block.timestamp;
-      return (lTokenIndex);
+      return (previousLTokenIndex);
     }
 
     reserve.lTokenInterestIndex = getLTokenInterestIndex(reserve);
-
     reserve.lastUpdateTimestamp = block.timestamp;
-
-    /*
-    console.log(
-      'hardhat updateIndex console: lToken index | timestamp',
-      reserve.lTokenInterestIndex,
-      reserve.lastUpdateTimestamp
-    );
-    */
 
     return (reserve.lTokenInterestIndex);
   }

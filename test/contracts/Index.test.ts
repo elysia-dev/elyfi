@@ -1,5 +1,4 @@
 import { BigNumber } from 'ethers';
-import { waffle } from 'hardhat';
 import { ModifiableContract, ModifiableContractFactory, smoddit } from '@eth-optimism/smock';
 import {
   address,
@@ -9,15 +8,13 @@ import {
   toIndex,
   toRate,
 } from '../utils/Ethereum';
-import { calculateCompoundedInterest, calculateLinearInterest } from '../utils/Math';
+import { calculateLinearInterest } from '../utils/Math';
 import { expect } from 'chai';
 
 describe('Index', () => {
   let indexMock: ModifiableContract;
   let indexMockFactory: ModifiableContractFactory;
   let underlyingAssetAddress: string;
-
-  const provider = waffle.provider;
 
   underlyingAssetAddress = address(1);
 
@@ -47,26 +44,14 @@ describe('Index', () => {
   });
 
   it('Updates Indexes', async () => {
-    const advanceTimeTx = await advanceTime(100);
+    await advanceTime(100);
     const updateTx = await indexMock.updateState(underlyingAssetAddress);
     const data = await indexMock.getReserveData(underlyingAssetAddress);
 
-    // lTokenIndex
     expect(
-      data[0].sub(
+      data.lTokenInterestIndex.sub(
         calculateLinearInterest(
           BigNumber.from(testData.supplyAPR),
-          testData.lastUpdateTimestamp,
-          await getTimestamp(updateTx)
-        )
-      )
-    ).to.be.within(-(10 ** 7), 10 ** 7);
-
-    // dTokenIndex
-    expect(
-      data[1].sub(
-        calculateCompoundedInterest(
-          BigNumber.from(testData.borrowAPR),
           testData.lastUpdateTimestamp,
           await getTimestamp(updateTx)
         )
