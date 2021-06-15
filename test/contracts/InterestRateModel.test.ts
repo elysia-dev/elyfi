@@ -24,7 +24,6 @@ describe('Rate', () => {
       0,
       0,
       0,
-      0,
       0
     );
 
@@ -39,7 +38,6 @@ describe('Rate', () => {
     const [borrowAPR] = await elyfiContracts.interestRateModel.calculateRates(
       lTokenAssetBalance,
       ethers.utils.parseEther('8'),
-      0,
       0,
       0,
       0
@@ -57,7 +55,6 @@ describe('Rate', () => {
       ethers.utils.parseEther('8'),
       0,
       ethers.utils.parseEther('1'), //utilization rate after borrow '1' = 8/(8+(3-'1'))
-      0,
       0
     );
 
@@ -72,7 +69,6 @@ describe('Rate', () => {
       lTokenAssetBalance,
       ethers.utils.parseEther('8'),
       ethers.utils.parseEther('1'), //utilization rate after invest '1' = 8/(8+(1+1))
-      0,
       0,
       0
     );
