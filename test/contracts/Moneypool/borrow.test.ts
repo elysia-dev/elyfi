@@ -1,5 +1,5 @@
 import { ethers, waffle } from 'hardhat';
-import { getTimestamp, toRate } from '../../utils/Ethereum';
+import { advanceTimeTo, getTimestamp, toRate, toTimestamp } from '../../utils/Ethereum';
 import { expect } from 'chai';
 import { expectReserveDataAfterBorrow, expectUserDataAfterBorrow } from '../../utils/Expect';
 import ElyfiContracts from '../../types/ElyfiContracts';
@@ -9,7 +9,6 @@ import loadFixture from '../../utils/loadFixture';
 import utilizedMoneypool from '../../fixtures/utilizedMoneypool';
 import { AssetBondSettleData, AssetBondState } from '../../utils/Interfaces';
 import { settleAssetBond } from '../../utils/Helpers';
-import { logReserveData } from '../../utils/logger';
 import { RAY } from '../../utils/constants';
 require('../../assertions/equals.ts');
 
@@ -53,7 +52,6 @@ describe('MoneyPool.borrow', () => {
   // 2. validate amount
   context('when the CSP minted the asset bond token', async () => {
     before('The collateral service provider minted the asset bond', async () => {
-      console.log(1);
       await elyfiContracts.tokenizer
         .connect(CSP)
         .mintAssetBond(CSP.address, testAssetBondData.tokenId);
@@ -68,7 +66,6 @@ describe('MoneyPool.borrow', () => {
 
     context('when the asset bond token is settled', async () => {
       before('The collateral service provider settled the asset bond', async () => {
-        console.log(2);
         await settleAssetBond({
           tokenizer: elyfiContracts.tokenizer,
           txSender: CSP,
@@ -102,25 +99,36 @@ describe('MoneyPool.borrow', () => {
           ).to.be.reverted;
         });
         it('reverts if the moneypool liquidity is insufficient', async () => {});
+        it('reverts if the current timestamp is less than loanStartTimestamp', async () => {
+          await expect(
+            elyfiContracts.moneyPool
+              .connect(otherCSP)
+              .borrow(elyfiContracts.underlyingAsset.address, testAssetBondData.tokenId)
+          ).to.be.reverted;
+        });
 
-        context('when moneypool liquidity is sufficient', async () => {
-          before('Additional liquidity supplied', async () => {
+        context('when moneypool liquidity is sufficient and time passes', async () => {
+          before('Additional liquidity supplied and time passes', async () => {
             await elyfiContracts.underlyingAsset
               .connect(investor)
               .approve(elyfiContracts.moneyPool.address, RAY);
-            await elyfiContracts.moneyPool
+            const tx = await elyfiContracts.moneyPool
               .connect(investor)
               .invest(
                 elyfiContracts.underlyingAsset.address,
                 investor.address,
-                utils.parseEther('1000')
+                utils.parseEther('10')
               );
+            const loanStartTimestamp = toTimestamp(
+              testAssetBondData.loanStartTimeYear,
+              testAssetBondData.loanStartTimeMonth,
+              testAssetBondData.loanStartTimeDay
+            );
+            await advanceTimeTo(await getTimestamp(tx), loanStartTimestamp);
           });
-          it('update borrower balance and reserve and user data', async () => {
+          it('update borrower balance and reserve and user data after borrow', async () => {
             const [reserveDataBefore, userDataBefore] = await takeDataSnapshot(CSP, elyfiContracts);
             const amount = testAssetBondData.principal;
-
-            logReserveData(reserveDataBefore);
 
             const tx = await elyfiContracts.moneyPool
               .connect(CSP)

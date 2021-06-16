@@ -64,6 +64,7 @@ export enum AssetBondState {
   CONFIRMED,
   COLLATERALIZED,
   MATURED,
+  REDEEMED,
   NOT_PERFORMED,
 }
 export interface AssetBondData {
@@ -83,6 +84,8 @@ export interface AssetBondData {
   collateralizeTimestamp: BigNumber;
   maturityTimestamp: BigNumber;
   liquidationTimestamp: BigNumber;
+  accruedDebtOnMoneyPool: BigNumber;
+  feeOnCollateralServiceProvider: BigNumber;
   ipfsHash: string;
   signerOpinionHash: string;
 }

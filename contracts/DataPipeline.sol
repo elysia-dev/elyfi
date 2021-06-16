@@ -90,23 +90,32 @@ contract DataPipeline {
     return vars;
   }
 
-  struct AssetBondDataLocalVars {
-    uint256 tokenId;
-    uint256 aTokenBalance;
+  struct AssetBondStateDataLocalVars {
+    DataStruct.AssetBondState assetBondState;
     address tokenOwner;
-    DataStruct.AssetBondState state;
+    uint256 debtOnMoneyPool;
+    uint256 feeOnCollateralServiceProvider;
   }
 
-  function getAssetBondData(address asset, uint256 tokenId)
+  function getAssetBondStateData(address asset, uint256 tokenId)
     external
     view
-    returns (AssetBondDataLocalVars memory)
+    returns (AssetBondStateDataLocalVars memory)
   {
-    AssetBondDataLocalVars memory vars;
+    AssetBondStateDataLocalVars memory vars;
+
     DataStruct.ReserveData memory reserve = moneyPool.getReserveData(asset);
-    ITokenizer tokenizer = ITokenizer(reserve.tokenizerAddress);
-    vars.tokenId = tokenId;
-    //vars.aTokenBalance
+
+    DataStruct.AssetBondData memory assetBond =
+      ITokenizer(reserve.tokenizerAddress).getAssetBondData(tokenId);
+
+    vars.tokenOwner = ITokenizer(reserve.tokenizerAddress).ownerOf(tokenId);
+    vars.assetBondState = assetBond.state;
+    (vars.debtOnMoneyPool, vars.feeOnCollateralServiceProvider) = ITokenizer(
+      reserve
+        .tokenizerAddress
+    )
+      .getAssetBondDebtData(tokenId);
 
     return vars;
   }

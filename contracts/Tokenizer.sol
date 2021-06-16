@@ -230,6 +230,7 @@ contract Tokenizer is ITokenizer, TokenizerStorage, ERC721 {
     assetBond.collateralizeTimestamp = block.timestamp;
 
     transferFrom(account, address(_moneyPool), tokenId);
+
     approve(account, tokenId);
 
     emit AssetBondCollateralized(account, tokenId, borrowAmount, interestRate);
@@ -245,9 +246,8 @@ contract Tokenizer is ITokenizer, TokenizerStorage, ERC721 {
    */
   function releaseAssetBond(address account, uint256 tokenId) external override onlyMoneyPool {
     DataStruct.AssetBondData storage assetBond = _assetBondData[tokenId];
-    assetBond.state = DataStruct.AssetBondState.MATURED;
-
-    emit AssetBondReleased(account, tokenId);
+    assetBond.state = DataStruct.AssetBondState.REDEEMED;
+    emit AssetBondReleased(accjount, tokenId);
   }
 
   /************ Token Functions ************/

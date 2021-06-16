@@ -56,13 +56,17 @@ library Validation {
     address asset,
     uint256 borrowAmount
   ) internal view {
-    // moneypool validate logic : active, frozen
+    if (reserve.isPaused == true) revert MoneyPoolErrors.ReservePaused();
+    if (reserve.isActivated == false) revert MoneyPoolErrors.ReserveInactivated();
 
     if (assetBond.state != DataStruct.AssetBondState.CONFIRMED)
       revert MoneyPoolErrors.OnlySignedTokenBorrowAllowed();
 
     if (msg.sender != assetBond.collateralServiceProvider)
       revert MoneyPoolErrors.OnlyAssetBondOwnerBorrowAllowed();
+
+    if (block.timestamp <= assetBond.loanStartTimestamp)
+      revert MoneyPoolErrors.NotTimeForLoanStart();
     // check sign logic
     //if (assetBond.isSigned == false) revertNValidationErrors.otSignedAssetBond(id);
 
@@ -75,11 +79,11 @@ library Validation {
 
   function validateRepay(
     DataStruct.ReserveData storage reserve,
-    DataStruct.AssetBondData memory assetBond,
-    address borrower,
-    uint256 userDTokenBalance,
-    uint256 feeOnCollateralServiceProvider
-  ) internal view {}
+    DataStruct.AssetBondData memory assetBond
+  ) internal view {
+    if (reserve.isActivated == false) revert MoneyPoolErrors.ReserveInactivated();
+    if (block.timestamp >= assetBond.liquidationTimestamp) revert MoneyPoolErrors.LoanExpired();
+  }
 
   function validateSignAssetBond(DataStruct.AssetBondData storage assetBond) internal view {
     if (assetBond.state != DataStruct.AssetBondState.SETTLED)

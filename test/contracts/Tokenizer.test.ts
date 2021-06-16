@@ -4,7 +4,7 @@ import { makeAllContracts } from '../utils/makeContract';
 import { expect } from 'chai';
 import ElyfiContracts from '../types/ElyfiContracts';
 import { AssetBondData, AssetBondSettleData, AssetBondState } from '../utils/Interfaces';
-import { toRate } from '../utils/Ethereum';
+import { toRate, toTimestamp } from '../utils/Ethereum';
 import { settleAssetBond } from '../utils/Helpers';
 import { SECONDSPERDAY } from '../utils/constants';
 
@@ -31,7 +31,7 @@ describe('Tokenizer', () => {
   };
   const signerOpinionHash: string = 'test hash';
 
-  beforeEach('Governance added roles to each participant', async () => {
+  before('Governance added roles to each participant', async () => {
     elyfiContracts = await makeAllContracts();
 
     await elyfiContracts.underlyingAsset
@@ -194,16 +194,17 @@ describe('Tokenizer', () => {
           settleArguments: testAssetBondData,
         });
 
-        const expectedLoanStartTimestamp =
-          Date.UTC(
-            testAssetBondData.loanStartTimeYear.toNumber(),
-            testAssetBondData.loanStartTimeMonth.toNumber(),
-            testAssetBondData.loanStartTimeDay.toNumber()
-          ) / 1000;
-        const expectedMaturityTimestamp =
-          expectedLoanStartTimestamp + testAssetBondData.loanDuration.mul(SECONDSPERDAY).toNumber();
-        const expectedLiquidationTimestamp =
-          expectedMaturityTimestamp + BigNumber.from(10).mul(SECONDSPERDAY).toNumber();
+        const expectedLoanStartTimestamp = toTimestamp(
+          testAssetBondData.loanStartTimeYear,
+          testAssetBondData.loanStartTimeMonth,
+          testAssetBondData.loanStartTimeDay
+        );
+        const expectedMaturityTimestamp = expectedLoanStartTimestamp.add(
+          testAssetBondData.loanDuration.mul(SECONDSPERDAY)
+        );
+        const expectedLiquidationTimestamp = expectedMaturityTimestamp.add(
+          BigNumber.from(10).mul(SECONDSPERDAY)
+        );
         const assetBondData = await elyfiContracts.tokenizer.getAssetBondData(
           testAssetBondData.tokenId
         );

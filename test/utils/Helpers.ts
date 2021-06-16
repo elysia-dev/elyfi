@@ -2,6 +2,7 @@ import { BigNumber, ContractTransaction } from 'ethers';
 import { Wallet } from 'ethers';
 import { DataPipeline, ERC20Test, LTokenTest, TokenizerTest } from '../../typechain';
 import {
+  AssetBondData,
   AssetBondSettleData,
   defaultInterestModelParams,
   ReserveData,
@@ -62,6 +63,48 @@ export async function getReserveData({
     underlyingAssetDecimals: BigNumber.from(await underlyingAsset.decimals()),
     underlyingAssetBalance: await underlyingAsset.balanceOf(lToken.address),
     interestRateModelParams: defaultInterestModelParams,
+  };
+}
+
+export async function getAssetBondData({
+  underlyingAsset,
+  dataPipeline,
+  tokenizer,
+  tokenId,
+}: {
+  underlyingAsset: ERC20Test;
+  dataPipeline: DataPipeline;
+  tokenizer: TokenizerTest;
+  tokenId: BigNumber;
+}): Promise<AssetBondData> {
+  const assetBondData = <AssetBondData>{};
+  const contractAssetBondStateData = await dataPipeline.getAssetBondStateData(
+    underlyingAsset.address,
+    tokenId
+  );
+  const contractAssetBondData = await tokenizer.getAssetBondData(tokenId);
+
+  return {
+    ...assetBondData,
+    state: contractAssetBondStateData.assetBondState,
+    tokenId: tokenId,
+    tokenOwner: contractAssetBondStateData.tokenOwner,
+    borrower: contractAssetBondData.borrower,
+    signer: contractAssetBondData.signer,
+    collateralServiceProvider: contractAssetBondData.collateralServiceProvider,
+    principal: contractAssetBondData.principal,
+    debtCeiling: contractAssetBondData.debtCeiling,
+    couponRate: contractAssetBondData.couponRate,
+    interestRate: contractAssetBondData.interestRate,
+    overdueInterestRate: contractAssetBondData.overdueInterestRate,
+    loanStartTimestamp: contractAssetBondData.loanStartTimestamp,
+    collateralizeTimestamp: contractAssetBondData.collateralizeTimestamp,
+    maturityTimestamp: contractAssetBondData.maturityTimestamp,
+    liquidationTimestamp: contractAssetBondData.liquidationTimestamp,
+    accruedDebtOnMoneyPool: contractAssetBondStateData.debtOnMoneyPool,
+    feeOnCollateralServiceProvider: contractAssetBondStateData.feeOnCollateralServiceProvider,
+    ipfsHash: contractAssetBondData.ipfsHash,
+    signerOpinionHash: contractAssetBondData.signerOpinionHash,
   };
 }
 

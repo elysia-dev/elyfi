@@ -181,13 +181,7 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
 
     uint256 totalRetrieveAmount = accruedDebtOnMoneyPool + feeOnCollateralServiceProvider;
 
-    Validation.validateRepay(
-      reserve,
-      assetBond,
-      assetBond.borrower,
-      accruedDebtOnMoneyPool,
-      feeOnCollateralServiceProvider
-    );
+    Validation.validateRepay(reserve, assetBond);
 
     reserve.updateState(asset);
 

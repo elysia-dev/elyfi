@@ -26,6 +26,8 @@ library MoneyPoolErrors {
   error OnlyAssetBondOwnerBorrowAllowed();
   error PartialRepaymentNotAllowed(uint256 amount, uint256 totalRetrieveAmount);
   error NotEnoughLiquidityToLoan();
+  error NotTimeForLoanStart();
+  error LoanExpired();
 }
 
 library TokenErrors {

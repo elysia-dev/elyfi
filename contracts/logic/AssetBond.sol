@@ -15,12 +15,21 @@ library AssetBond {
     view
     returns (uint256, uint256)
   {
+    if (assetBondData.state != DataStruct.AssetBondState.COLLATERALIZED) {
+      return (0, 0);
+    }
+
     uint256 accruedDebtOnMoneyPool =
-      Math.calculateCompoundedInterest(
-        assetBondData.interestRate,
-        assetBondData.collateralizeTimestamp,
-        block.timestamp
-      );
+      Math
+        .calculateCompoundedInterest(
+        assetBondData
+          .interestRate,
+        assetBondData
+          .collateralizeTimestamp,
+        block
+          .timestamp
+      )
+        .rayMul(assetBondData.principal);
 
     uint256 feeOnCollateralServiceProvider =
       calculateFeeOnRepayment(assetBondData, block.timestamp);

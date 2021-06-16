@@ -2,8 +2,9 @@
 pragma solidity 0.8.4;
 
 import '../libraries/DataStruct.sol';
+import '@openzeppelin/contracts/token/ERC721/IERC721.sol';
 
-interface ITokenizer {
+interface ITokenizer is IERC721 {
   event EmptyAssetBondMinted(address indexed account, uint256 tokenId);
 
   event AssetBondSettled(
@@ -44,9 +45,12 @@ interface ITokenizer {
 
   function releaseAssetBond(address account, uint256 tokenId) external;
 
-  function getAssetBondData(uint256 tokenId) external returns (DataStruct.AssetBondData memory);
+  function getAssetBondData(uint256 tokenId)
+    external
+    view
+    returns (DataStruct.AssetBondData memory);
 
-  function getAssetBondDebtData(uint256 tokenId) external returns (uint256, uint256);
+  function getAssetBondDebtData(uint256 tokenId) external view returns (uint256, uint256);
 
   function getMinter(uint256 tokenId) external view returns (address);
 }

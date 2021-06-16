@@ -1,27 +1,35 @@
 import { ethers, waffle } from 'hardhat';
-import { getTimestamp, toRate } from '../../utils/Ethereum';
+import {
+  advanceBlock,
+  advanceTimeTo,
+  getTimestamp,
+  revertFromEVMSnapshot,
+  saveEVMSnapshot,
+  toRate,
+  toTimestamp,
+} from '../../utils/Ethereum';
 import { expect } from 'chai';
-import { expectReserveDataAfterBorrow, expectUserDataAfterBorrow } from '../../utils/Expect';
+import { expectReserveDataAfterRepay, expectUserDataAfterRepay } from '../../utils/Expect';
 import ElyfiContracts from '../../types/ElyfiContracts';
 import takeDataSnapshot from '../../utils/takeDataSnapshot';
 import { BigNumber, utils } from 'ethers';
 import loadFixture from '../../utils/loadFixture';
 import utilizedMoneypool from '../../fixtures/utilizedMoneypool';
-import { settleAssetBond } from '../../utils/Helpers';
-import { AssetBondSettleData } from '../../utils/Interfaces';
+import { getAssetBondData, settleAssetBond } from '../../utils/Helpers';
+import { AssetBondSettleData, AssetBondState } from '../../utils/Interfaces';
 require('../../assertions/equals.ts');
 
 describe('MoneyPool.repay', () => {
   let elyfiContracts: ElyfiContracts;
 
   const provider = waffle.provider;
-  const [deployer, investor, CSP, borrower, signer, otherCSP, account] = provider.getWallets();
+  const [deployer, investor, CSP, borrower, signer, otherCSP, payer] = provider.getWallets();
   const testAssetBondData: AssetBondSettleData = <AssetBondSettleData>{
     ...(<AssetBondSettleData>{}),
     borrower: borrower.address,
     signer: signer.address,
     tokenId: BigNumber.from('1001002003004005'),
-    principal: ethers.utils.parseEther('10'),
+    principal: ethers.utils.parseEther('1'),
     debtCeiling: ethers.utils.parseEther('13'),
     couponRate: toRate(0.1),
     overdueInterestRate: toRate(0.03),
@@ -32,13 +40,10 @@ describe('MoneyPool.repay', () => {
     ipfsHash: 'test',
   };
 
-  beforeEach('', async () => {
+  before('The asset bond is settled and signed properly', async () => {
     const fixture = await loadFixture(utilizedMoneypool);
+    const signerOpinionHash = 'test opinion hash';
     elyfiContracts = fixture.elyfiContracts;
-
-    await elyfiContracts.underlyingAsset
-      .connect(deployer)
-      .transfer(investor.address, utils.parseEther('1000'));
 
     await elyfiContracts.connector.connect(deployer).addCollateralServiceProvider(CSP.address);
     await elyfiContracts.tokenizer
@@ -49,73 +54,238 @@ describe('MoneyPool.repay', () => {
       txSender: CSP,
       settleArguments: testAssetBondData,
     });
+    await elyfiContracts.tokenizer
+      .connect(signer)
+      .signAssetBond(testAssetBondData.tokenId, signerOpinionHash);
   });
 
   context('when the account balance is sufficient', async () => {
-    it('reverts if the asset bond status is not `COLLATERALIZED', async () => {
+    it('reverts if the asset bond is not collateralized', async () => {
       await expect(
         elyfiContracts.moneyPool
-          .connect(account)
+          .connect(borrower)
           .repay(elyfiContracts.underlyingAsset.address, testAssetBondData.tokenId)
       ).to.be.reverted;
     });
+
     context('when the borrower has borrowed against asset bond', async () => {
-      beforeEach(async () => {
-        const tx = await elyfiContracts.moneyPool
+      before('The collateral service provider borrowed and collateralized asset bond', async () => {
+        console.log(1);
+        const tx = await elyfiContracts.tokenizer
+          .connect(CSP)
+          .approve(elyfiContracts.moneyPool.address, testAssetBondData.tokenId);
+        const loanStartTimestamp = toTimestamp(
+          testAssetBondData.loanStartTimeYear,
+          testAssetBondData.loanStartTimeMonth,
+          testAssetBondData.loanStartTimeDay
+        );
+        await advanceTimeTo(await getTimestamp(tx), loanStartTimestamp);
+        await elyfiContracts.moneyPool
           .connect(CSP)
           .borrow(elyfiContracts.underlyingAsset.address, testAssetBondData.tokenId);
       });
-      context('when the current timestamp is less than the maturity timestamp', async () => {
-        it('update reserve and user data', async () => {
-          const [reserveDataBefore, userDataBefore] = await takeDataSnapshot(CSP, elyfiContracts);
-          const amount = utils.parseEther('300');
+      it('reverts if the account balance is insufficient to repay', async () => {
+        await expect(
+          elyfiContracts.moneyPool
+            .connect(borrower)
+            .repay(elyfiContracts.underlyingAsset.address, testAssetBondData.tokenId)
+        ).to.be.reverted;
+      });
 
-          const tx = await elyfiContracts.moneyPool
-            .connect(CSP)
-            .borrow(elyfiContracts.underlyingAsset.address, testAssetBondData.tokenId);
+      context('when the borrower has sufficient underlying asset balance', async () => {
+        let maturityTimestamp: BigNumber;
+        let liquidationTimestamp: BigNumber;
+        let snapshotId: string;
+        before('The account balance increased', async () => {
+          await elyfiContracts.underlyingAsset
+            .connect(deployer)
+            .transfer(borrower.address, utils.parseEther('1000'));
 
-          const [reserveDataAfter, userDataAfter] = await takeDataSnapshot(
-            borrower,
-            elyfiContracts
+          const assetBondData = await elyfiContracts.tokenizer.getAssetBondData(
+            testAssetBondData.tokenId
           );
-
-          const expectedReserveData = expectReserveDataAfterBorrow({
-            amountBorrow: amount,
-            reserveDataBefore,
-            txTimestamp: await getTimestamp(tx),
-          });
-
-          const expectedUserData = expectUserDataAfterBorrow({
-            amountBorrow: amount,
-            userDataBefore,
-            reserveDataBefore,
-            reserveDataAfter,
-            txTimestamp: await getTimestamp(tx),
-          });
-
-          expect(reserveDataAfter).equalReserveData(expectedReserveData);
-          expect(userDataAfter).equalUserData(expectedUserData);
+          maturityTimestamp = assetBondData.maturityTimestamp;
+          liquidationTimestamp = assetBondData.liquidationTimestamp;
+          console.log(maturityTimestamp.toString(), liquidationTimestamp.toString());
+          console.log(
+            (
+              await elyfiContracts.underlyingAsset.connect(deployer).balanceOf(borrower.address)
+            ).toString()
+          );
         });
 
-        context('when the requester is not the CSP', async () => {
-          it('reverted', async () => {
-            await expect(
-              elyfiContracts.moneyPool
-                .connect(investor)
-                .borrow(elyfiContracts.underlyingAsset.address, testAssetBondData.tokenId)
-            ).to.be.reverted;
+        beforeEach('', async () => {
+          snapshotId = await saveEVMSnapshot();
+        });
 
+        afterEach('', async () => {
+          await revertFromEVMSnapshot(snapshotId);
+        });
+
+        context('when the current timestamp is less than the maturity timestamp', async () => {
+          before('approve underlyingAsset', async () => {
+            const tx = await elyfiContracts.underlyingAsset
+              .connect(borrower)
+              .approve(elyfiContracts.moneyPool.address, utils.parseEther('1000'));
+          });
+          it('update reserve and user data after repayment', async () => {
+            const [reserveDataBefore, userDataBefore] = await takeDataSnapshot(
+              borrower,
+              elyfiContracts
+            );
+
+            const assetBondDataBefore = await getAssetBondData({
+              underlyingAsset: elyfiContracts.underlyingAsset,
+              dataPipeline: elyfiContracts.dataPipeline,
+              tokenizer: elyfiContracts.tokenizer,
+              tokenId: testAssetBondData.tokenId,
+            });
+
+            const collateralServiceProviderBalanceBefore = await elyfiContracts.underlyingAsset.balanceOf(
+              CSP.address
+            );
+
+            const tx = await elyfiContracts.moneyPool
+              .connect(borrower)
+              .repay(elyfiContracts.underlyingAsset.address, testAssetBondData.tokenId);
+
+            const [reserveDataAfter, userDataAfter] = await takeDataSnapshot(
+              borrower,
+              elyfiContracts
+            );
+
+            const assetBondDataAfter = await getAssetBondData({
+              underlyingAsset: elyfiContracts.underlyingAsset,
+              dataPipeline: elyfiContracts.dataPipeline,
+              tokenizer: elyfiContracts.tokenizer,
+              tokenId: testAssetBondData.tokenId,
+            });
+
+            const collateralServiceProviderBalanceAfter = await elyfiContracts.underlyingAsset.balanceOf(
+              CSP.address
+            );
+
+            const expectedReserveData = expectReserveDataAfterRepay({
+              assetBondData: assetBondDataBefore,
+              reserveData: reserveDataBefore,
+              txTimestamp: await getTimestamp(tx),
+            });
+
+            const expectedUserData = expectUserDataAfterRepay({
+              assetBondData: assetBondDataBefore,
+              userDataBefore: userDataBefore,
+              reserveDataAfter: reserveDataAfter,
+              txTimestamp: await getTimestamp(tx),
+            });
+
+            expect(collateralServiceProviderBalanceAfter).to.be.equal(
+              collateralServiceProviderBalanceBefore.add(
+                assetBondDataAfter.feeOnCollateralServiceProvider
+              )
+            );
+            expect(assetBondDataAfter.accruedDebtOnMoneyPool).to.be.equal(BigNumber.from(0));
+            expect(assetBondDataAfter.feeOnCollateralServiceProvider).to.be.equal(
+              BigNumber.from(0)
+            );
+            expect(assetBondDataAfter.state).to.be.equal(AssetBondState.REDEEMED);
+            expect(reserveDataAfter).equalReserveData(expectedReserveData);
+            expect(userDataAfter).equalUserData(expectedUserData);
+          });
+        });
+
+        context(
+          'when the current timestamp is between the maturity timestamp and the liquidation timestamp',
+          async () => {
+            before('approve and increase time', async () => {
+              const tx = await elyfiContracts.underlyingAsset
+                .connect(borrower)
+                .approve(elyfiContracts.moneyPool.address, utils.parseEther('1000'));
+
+              await advanceTimeTo(await getTimestamp(tx), maturityTimestamp.add(1));
+            });
+            it('update reserve and user data after repayment', async () => {
+              const [reserveDataBefore, userDataBefore] = await takeDataSnapshot(
+                borrower,
+                elyfiContracts
+              );
+
+              const assetBondDataBefore = await getAssetBondData({
+                underlyingAsset: elyfiContracts.underlyingAsset,
+                dataPipeline: elyfiContracts.dataPipeline,
+                tokenizer: elyfiContracts.tokenizer,
+                tokenId: testAssetBondData.tokenId,
+              });
+
+              const collateralServiceProviderBalanceBefore = await elyfiContracts.underlyingAsset.balanceOf(
+                CSP.address
+              );
+
+              const tx = await elyfiContracts.moneyPool
+                .connect(borrower)
+                .repay(elyfiContracts.underlyingAsset.address, testAssetBondData.tokenId);
+
+              const [reserveDataAfter, userDataAfter] = await takeDataSnapshot(
+                borrower,
+                elyfiContracts
+              );
+
+              const assetBondDataAfter = await getAssetBondData({
+                underlyingAsset: elyfiContracts.underlyingAsset,
+                dataPipeline: elyfiContracts.dataPipeline,
+                tokenizer: elyfiContracts.tokenizer,
+                tokenId: testAssetBondData.tokenId,
+              });
+
+              const collateralServiceProviderBalanceAfter = await elyfiContracts.underlyingAsset.balanceOf(
+                CSP.address
+              );
+
+              const expectedReserveData = expectReserveDataAfterRepay({
+                assetBondData: assetBondDataBefore,
+                reserveData: reserveDataBefore,
+                txTimestamp: await getTimestamp(tx),
+              });
+
+              const expectedUserData = expectUserDataAfterRepay({
+                assetBondData: assetBondDataBefore,
+                userDataBefore: userDataBefore,
+                reserveDataAfter: reserveDataAfter,
+                txTimestamp: await getTimestamp(tx),
+              });
+
+              expect(collateralServiceProviderBalanceAfter).to.be.equal(
+                collateralServiceProviderBalanceBefore.add(
+                  assetBondDataAfter.feeOnCollateralServiceProvider
+                )
+              );
+              expect(assetBondDataAfter.accruedDebtOnMoneyPool).to.be.equal(BigNumber.from(0));
+              expect(assetBondDataAfter.feeOnCollateralServiceProvider).to.be.equal(
+                BigNumber.from(0)
+              );
+              expect(assetBondDataAfter.state).to.be.equal(AssetBondState.REDEEMED);
+              expect(reserveDataAfter).equalReserveData(expectedReserveData);
+              expect(userDataAfter).equalUserData(expectedUserData);
+            });
+          }
+        );
+
+        context('when the current is greater than the liquidation timestamp', async () => {
+          before('approve and increase time', async () => {
+            const tx = await elyfiContracts.underlyingAsset
+              .connect(borrower)
+              .approve(elyfiContracts.moneyPool.address, utils.parseEther('1000'));
+
+            await advanceTimeTo(await getTimestamp(tx), liquidationTimestamp.add(1));
+          });
+          it('reverts', async () => {
             await expect(
               elyfiContracts.moneyPool
-                .connect(otherCSP)
-                .borrow(elyfiContracts.underlyingAsset.address, testAssetBondData.tokenId)
+                .connect(borrower)
+                .repay(elyfiContracts.underlyingAsset.address, testAssetBondData.tokenId)
             ).to.be.reverted;
           });
         });
       });
-    });
-    context('when the account balance is sufficient', async () => {
-      it('');
     });
   });
 });
