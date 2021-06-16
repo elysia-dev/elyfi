@@ -13,7 +13,7 @@ describe('MoneyPool.borrow', () => {
   let elyfiContracts: ElyfiContracts;
 
   const provider = waffle.provider;
-  const [deployer, investor, CSP, borrower, otherCSP] = provider.getWallets();
+  const [deployer, depositor, CSP, borrower, otherCSP] = provider.getWallets();
   const abTokenId = '1001002003004005';
 
   before(async () => {
@@ -22,7 +22,7 @@ describe('MoneyPool.borrow', () => {
 
     await elyfiContracts.underlyingAsset
       .connect(deployer)
-      .transfer(investor.address, utils.parseEther('1000'));
+      .transfer(depositor.address, utils.parseEther('1000'));
 
     await elyfiContracts.connector.connect(deployer).addCollateralServiceProvider(CSP.address);
     await elyfiContracts.connector.connect(deployer).addCollateralServiceProvider(otherCSP.address);
@@ -71,7 +71,7 @@ describe('MoneyPool.borrow', () => {
           it('reverted', async () => {
             await expect(
               elyfiContracts.moneyPool
-                .connect(investor)
+                .connect(depositor)
                 .borrow(
                   elyfiContracts.underlyingAsset.address,
                   borrower.address,

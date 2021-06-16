@@ -38,12 +38,12 @@ export function calculateCompoundedInterest(
 
 export function calculateLTokenIndexAfterAction(
   timeStampBeforeAction: BigNumber,
-  supplyAPR: BigNumber,
+  depositAPY: BigNumber,
   lTokenIndexBeforeAction: BigNumber,
   timeStampAfterAction: BigNumber
 ): BigNumber {
   const accruedInterest = calculateLinearInterest(
-    supplyAPR,
+    depositAPY,
     timeStampBeforeAction,
     timeStampAfterAction
   );
@@ -95,16 +95,16 @@ export function calculateRateInDecreasingBalance(
 export function calculateRateInInterestRateModel(
   underlyingAssetBalance: BigNumber,
   dTokenAmount: BigNumber,
-  investAmount: BigNumber,
+  depositAmount: BigNumber,
   borrowAmount: BigNumber,
   interestRateModelParams: InterestModelParams
 ): BigNumber[] {
   let utilizationRate: BigNumber;
-  let newBorrowAPR: BigNumber;
-  let newSupplyAPR: BigNumber;
+  let newBorrowAPY: BigNumber;
+  let newDepositAPY: BigNumber;
 
   const totalDebt = dTokenAmount;
-  const totalLiquidity = underlyingAssetBalance.add(investAmount).sub(borrowAmount);
+  const totalLiquidity = underlyingAssetBalance.add(depositAmount).sub(borrowAmount);
 
   if (totalDebt.eq(0)) {
     utilizationRate = BigNumber.from(0);
@@ -120,7 +120,7 @@ export function calculateRateInInterestRateModel(
   // optimalRate = 10%, util = 90%, maxRate = 100%, optimalUtil = 80%
   // result = 10+(90-80)*(100-10)/(100-80) = 55%
   if (utilizationRate.lte(interestRateModelParams.optimalUtilizationRate)) {
-    newBorrowAPR = interestRateModelParams.borrowRateBase.add(
+    newBorrowAPY = interestRateModelParams.borrowRateBase.add(
       rayMul(
         rayDiv(
           interestRateModelParams.borrowRateOptimal.sub(interestRateModelParams.borrowRateBase),
@@ -130,7 +130,7 @@ export function calculateRateInInterestRateModel(
       )
     );
   } else {
-    newBorrowAPR = interestRateModelParams.borrowRateOptimal.add(
+    newBorrowAPY = interestRateModelParams.borrowRateOptimal.add(
       rayMul(
         rayDiv(
           interestRateModelParams.borrowRateMax.sub(interestRateModelParams.borrowRateOptimal),
@@ -141,20 +141,20 @@ export function calculateRateInInterestRateModel(
     );
   }
 
-  newSupplyAPR = rayMul(newBorrowAPR, utilizationRate);
+  newDepositAPY = rayMul(newBorrowAPY, utilizationRate);
 
   /*
   console.log(
-    'testData borrowAPR | supplyAPR | U | totalL | dToken',
-    newBorrowAPR.toFixed(),
-    newSupplyAPR.toFixed(),
+    'testData borrowAPY | depositAPY | U | totalL | dToken',
+    newBorrowAPY.toFixed(),
+    newDepositAPY.toFixed(),
     utilizationRate.toFixed(),
     totalLiquidity.toFixed(),
     dTokenAmount.toFixed()
   );
   */
 
-  return [newBorrowAPR, newSupplyAPR];
+  return [newBorrowAPY, newDepositAPY];
 }
 
 export function calculateFeeOnRepayment(

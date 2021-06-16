@@ -16,52 +16,52 @@ library Rate {
   event RatesUpdated(
     address indexed underlyingAssetAddress,
     uint256 lTokenIndex,
-    uint256 borrowAPR,
-    uint256 supplyAPR,
+    uint256 borrowAPY,
+    uint256 depositAPY,
     uint256 totalBorrow,
-    uint256 totalInvest
+    uint256 totalDeposit
   );
 
   struct UpdateRatesLocalVars {
     uint256 totalDToken;
-    uint256 newBorrowAPR;
-    uint256 newSupplyAPR;
-    uint256 averageBorrowAPR;
+    uint256 newBorrowAPY;
+    uint256 newDepositAPY;
+    uint256 averageBorrowAPY;
     uint256 totalVariableDebt;
   }
 
   function updateRates(
     DataStruct.ReserveData storage reserve,
     address underlyingAssetAddress,
-    uint256 investAmount,
+    uint256 depositAmount,
     uint256 borrowAmount
   ) internal {
     UpdateRatesLocalVars memory vars;
 
     vars.totalDToken = IDToken(reserve.dTokenAddress).totalSupply();
 
-    vars.averageBorrowAPR = IDToken(reserve.dTokenAddress).getTotalAverageRealAssetBorrowRate();
+    vars.averageBorrowAPY = IDToken(reserve.dTokenAddress).getTotalAverageRealAssetBorrowRate();
 
     uint256 lTokenAssetBalance = IERC20(underlyingAssetAddress).balanceOf(reserve.lTokenAddress);
-    (vars.newBorrowAPR, vars.newSupplyAPR) = IInterestRateModel(reserve.interestModelAddress)
+    (vars.newBorrowAPY, vars.newDepositAPY) = IInterestRateModel(reserve.interestModelAddress)
       .calculateRates(
       lTokenAssetBalance,
       vars.totalDToken,
-      investAmount,
+      depositAmount,
       borrowAmount,
       reserve.moneyPoolFactor
     );
 
-    reserve.borrowAPR = vars.newBorrowAPR;
-    reserve.supplyAPR = vars.newSupplyAPR;
+    reserve.borrowAPY = vars.newBorrowAPY;
+    reserve.depositAPY = vars.newDepositAPY;
 
     emit RatesUpdated(
       underlyingAssetAddress,
       reserve.lTokenInterestIndex,
-      vars.newBorrowAPR,
-      vars.newSupplyAPR,
+      vars.newBorrowAPY,
+      vars.newDepositAPY,
       vars.totalDToken,
-      lTokenAssetBalance + investAmount - borrowAmount
+      lTokenAssetBalance + depositAmount - borrowAmount
     );
   }
 }

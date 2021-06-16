@@ -11,12 +11,12 @@ library Validation {
   using Validation for DataStruct.ReserveData;
 
   /**
-   * @dev Validate Invest
+   * @dev Validate Deposit
    * Check reserve state
    * @param reserve The reserve object
-   * @param amount Investment amount
+   * @param amount Deposit amount
    **/
-  function validateInvest(DataStruct.ReserveData storage reserve, uint256 amount) internal view {
+  function validateDeposit(DataStruct.ReserveData storage reserve, uint256 amount) internal view {
     if (amount == 0) revert MoneyPoolErrors.InvalidAmount(amount);
 
     if (reserve.isPaused == true) revert MoneyPoolErrors.ReservePaused();

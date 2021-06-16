@@ -1,7 +1,7 @@
 import { Wallet } from "@ethersproject/wallet";
 import {
-  expectReserveDataAfterInvest,
-  expectUserDataAfterInvest,
+  expectReserveDataAfterDeposit,
+  expectUserDataAfterDeposit,
   expectReserveDataAfterWithdraw,
   expectUserDataAfterWithdraw,
 } from "../../test/utils/Expect";
@@ -16,7 +16,7 @@ import { ContractTransaction } from "@ethersproject/contracts";
 import { ReserveData, UserData } from "../../test/utils/Interfaces";
 require('../../test/assertions/equals')
 
-const excuteInvestor = async (
+const excuteDepositor = async (
   account: Wallet,
   amount: BigNumber,
   elyfiContracts: ElyfiContracts,
@@ -56,8 +56,8 @@ const excuteStory = async (
   const amount = utils.parseEther(story.value.toFixed());
 
   switch (story.actionType) {
-    case ActionType.invest:
-      await excuteInvestor(
+    case ActionType.deposit:
+      await excuteDepositor(
         account,
         amount,
         elyfiContracts,
@@ -67,7 +67,7 @@ const excuteStory = async (
           try {
             const tx = await elyfiContracts.moneyPool
               .connect(account)
-              .invest(elyfiContracts.underlyingAsset.address, account.address, amount.toString());
+              .deposit(elyfiContracts.underlyingAsset.address, account.address, amount.toString());
 
             expect(story.expected).to.be.true
 
@@ -77,16 +77,16 @@ const excuteStory = async (
             expect(story.expected).to.be.false
           }
         },
-        (amountInvest, reserveDataBefore, txTimestamp) => {
-          return expectReserveDataAfterInvest({
-            amount: amountInvest,
+        (amountDeposit, reserveDataBefore, txTimestamp) => {
+          return expectReserveDataAfterDeposit({
+            amount: amountDeposit,
             reserveData: reserveDataBefore,
             txTimestamp,
           });
         },
-        (amountInvest, userDataBefore, reserveDataBefore, reserveDataAfter, txTimestamp) => {
-          return expectUserDataAfterInvest({
-            amountInvest,
+        (amountDeposit, userDataBefore, reserveDataBefore, reserveDataAfter, txTimestamp) => {
+          return expectUserDataAfterDeposit({
+            amountDeposit,
             userDataBefore,
             reserveDataAfter,
             txTimestamp,
@@ -96,7 +96,7 @@ const excuteStory = async (
       break;
 
     case ActionType.withdraw:
-      await excuteInvestor(
+      await excuteDepositor(
         account,
         amount,
         elyfiContracts,

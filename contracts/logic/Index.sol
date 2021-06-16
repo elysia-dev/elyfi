@@ -31,7 +31,7 @@ library Index {
     }
 
     uint256 newIndex =
-      Math.calculateLinearInterest(reserve.supplyAPR, lastUpdateTimestamp, block.timestamp).rayMul(
+      Math.calculateLinearInterest(reserve.depositAPY, lastUpdateTimestamp, block.timestamp).rayMul(
         reserve.lTokenInterestIndex
       );
 
@@ -48,7 +48,7 @@ library Index {
   {
     uint256 previousLTokenIndex = reserve.lTokenInterestIndex;
 
-    if (reserve.supplyAPR == 0) {
+    if (reserve.depositAPY == 0) {
       reserve.lastUpdateTimestamp = block.timestamp;
       return (previousLTokenIndex);
     }

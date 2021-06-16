@@ -22,8 +22,8 @@ describe('Index', () => {
   // toString need refactor
   const testData = {
     lTokenInterestIndex: toIndex(1).toString(),
-    borrowAPR: toRate(0.15).toString(),
-    supplyAPR: toRate(0.2).toString(),
+    borrowAPY: toRate(0.15).toString(),
+    depositAPY: toRate(0.2).toString(),
     lastUpdateTimestamp: BigNumber.from(0),
   };
 
@@ -51,7 +51,7 @@ describe('Index', () => {
     expect(
       data.lTokenInterestIndex.sub(
         calculateLinearInterest(
-          BigNumber.from(testData.supplyAPR),
+          BigNumber.from(testData.depositAPY),
           testData.lastUpdateTimestamp,
           await getTimestamp(updateTx)
         )

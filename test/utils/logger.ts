@@ -9,8 +9,8 @@ export function logReserveData(reserveData: ReserveData) {
     'principalDTokenSupply',
     'totalDTokenSupply',
     'averageRealAssetBorrowRate',
-    'borrowAPR',
-    'supplyAPR',
+    'borrowAPY',
+    'depositAPY',
   ] as (keyof ReserveData)[]).forEach((key) => {
     console.log(`${key} = ${reserveData[key]}`)
   })

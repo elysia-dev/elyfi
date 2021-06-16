@@ -17,9 +17,9 @@ describe('Rate', () => {
   });
 
   it('returns base rates at 0% utilization rate', async () => {
-    // [vars.newBorrowAPR, vars.newSupplyAPR)
+    // [vars.newBorrowAPY, vars.newDepositAPY)
     const lTokenAssetBalance = await elyfiContracts.underlyingAsset.balanceOf(elyfiContracts.lToken.address);
-    const [borrowAPR, supplyAPR] = await elyfiContracts.interestRateModel.calculateRates(
+    const [borrowAPY, depositAPY] = await elyfiContracts.interestRateModel.calculateRates(
       lTokenAssetBalance,
       0,
       0,
@@ -27,15 +27,15 @@ describe('Rate', () => {
       0
     );
 
-    expect(borrowAPR).to.be.equal(defaultInterestModelParams.borrowRateBase);
-    expect(supplyAPR).to.be.equal(0);
+    expect(borrowAPY).to.be.equal(defaultInterestModelParams.borrowRateBase);
+    expect(depositAPY).to.be.equal(0);
   });
 
   it('returns optimal rates at optimal utilization rate', async () => {
     await elyfiContracts.underlyingAsset.connect(deployer).transfer(elyfiContracts.lToken.address, ethers.utils.parseEther('2'));
     const lTokenAssetBalance = await elyfiContracts.underlyingAsset.balanceOf(elyfiContracts.lToken.address);
 
-    const [borrowAPR] = await elyfiContracts.interestRateModel.calculateRates(
+    const [borrowAPY] = await elyfiContracts.interestRateModel.calculateRates(
       lTokenAssetBalance,
       ethers.utils.parseEther('8'),
       0,
@@ -43,14 +43,14 @@ describe('Rate', () => {
       0
     );
 
-    expect(borrowAPR).to.be.equal(defaultInterestModelParams.borrowRateOptimal);
+    expect(borrowAPY).to.be.equal(defaultInterestModelParams.borrowRateOptimal);
   });
 
   it('returns optimal rates at optimal utilization rate with borrowing', async () => {
     await elyfiContracts.underlyingAsset.connect(deployer).transfer(elyfiContracts.lToken.address, ethers.utils.parseEther('3'));
     const lTokenAssetBalance = await elyfiContracts.underlyingAsset.balanceOf(elyfiContracts.lToken.address);
 
-    const [borrowAPR] = await elyfiContracts.interestRateModel.calculateRates(
+    const [borrowAPY] = await elyfiContracts.interestRateModel.calculateRates(
       lTokenAssetBalance,
       ethers.utils.parseEther('8'),
       0,
@@ -58,21 +58,21 @@ describe('Rate', () => {
       0
     );
 
-    expect(borrowAPR).to.be.equal(defaultInterestModelParams.borrowRateOptimal);
+    expect(borrowAPY).to.be.equal(defaultInterestModelParams.borrowRateOptimal);
   });
 
-  it('returns optimal rates at optimal utilization rate with investment', async () => {
+  it('returns optimal rates at optimal utilization rate with deposit', async () => {
     await elyfiContracts.underlyingAsset.connect(deployer).transfer(elyfiContracts.lToken.address, ethers.utils.parseEther('1'));
     const lTokenAssetBalance = await elyfiContracts.underlyingAsset.balanceOf(elyfiContracts.lToken.address);
 
-    const [borrowAPR] = await elyfiContracts.interestRateModel.calculateRates(
+    const [borrowAPY] = await elyfiContracts.interestRateModel.calculateRates(
       lTokenAssetBalance,
       ethers.utils.parseEther('8'),
-      ethers.utils.parseEther('1'), //utilization rate after invest '1' = 8/(8+(1+1))
+      ethers.utils.parseEther('1'), //utilization rate after deposit '1' = 8/(8+(1+1))
       0,
       0
     );
 
-    expect(borrowAPR).to.be.equal(defaultInterestModelParams.borrowRateOptimal);
+    expect(borrowAPY).to.be.equal(defaultInterestModelParams.borrowRateOptimal);
   });
 });

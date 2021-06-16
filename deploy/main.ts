@@ -1,5 +1,4 @@
 import { Contract, ethers } from 'ethers';
-import { join } from 'path';
 import { HardhatRuntimeEnvironment } from 'hardhat/types';
 import { DeployFunction } from 'hardhat-deploy/types';
 import { defaultInterestModelParams, defaultReserveData } from '../test/utils/Interfaces';
@@ -92,10 +91,10 @@ const deployTest: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
   const interestRateModel = await deploy('InterestRateModel', {
     from: deployer,
     args: [
-      defaultInterestModelParams.optimalUtilizationRate.toFixed(),
-      defaultInterestModelParams.borrowRateBase.toFixed(),
-      defaultInterestModelParams.borrowRateOptimal.toFixed(),
-      defaultInterestModelParams.borrowRateMax.toFixed(),
+      defaultInterestModelParams.optimalUtilizationRate,
+      defaultInterestModelParams.borrowRateBase,
+      defaultInterestModelParams.borrowRateOptimal,
+      defaultInterestModelParams.borrowRateMax,
     ],
     log: true,
   });
@@ -136,7 +135,7 @@ const deployTest: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
     dToken.address,
     interestRateModel.address,
     tokenizer.address,
-    defaultReserveData.moneyPoolFactor.toFixed()
+    defaultReserveData.moneyPoolFactor
   );
 };
 

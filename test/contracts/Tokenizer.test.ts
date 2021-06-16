@@ -12,7 +12,7 @@ describe('Tokenizer', () => {
   let elyfiContracts: ElyfiContracts;
 
   const provider = waffle.provider;
-  const [deployer, investor, CSP, borrower, signer, account] = provider.getWallets();
+  const [deployer, depositor, CSP, borrower, signer, account] = provider.getWallets();
 
   const testAssetBondData: AssetBondSettleData = <AssetBondSettleData>{
     ...(<AssetBondSettleData>{}),
@@ -36,7 +36,7 @@ describe('Tokenizer', () => {
 
     await elyfiContracts.underlyingAsset
       .connect(deployer)
-      .transfer(investor.address, utils.parseEther('1000'));
+      .transfer(depositor.address, utils.parseEther('1000'));
     await elyfiContracts.connector.connect(deployer).addCollateralServiceProvider(CSP.address);
     await elyfiContracts.connector.connect(deployer).addCouncil(signer.address);
   });

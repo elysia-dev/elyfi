@@ -1,12 +1,12 @@
-Feature: Borrower invests in ELYFI
+Feature: Borrower deposits in ELYFI
 
-    Borrower invest in moneypool directly
+    Borrower deposit in moneypool directly
     Borrower borrow against LToken
     Background: Moneypool configuration
         Given Eth moneypool should not be paused // Eth 머니풀은 pause가 아니다.
 
     Background: User validation
-        Given Borrower should invest Dai and hold corresponding LTokens // 유저는 dai를 투자했고, 해당하는 LToken을 보유중이다.
+        Given Borrower should deposit Dai and hold corresponding LTokens // 유저는 dai를 투자했고, 해당하는 LToken을 보유중이다.
         And Health factor of Borrower shoule be over 1 // 유저의 Health factor는 1 이상이다.
 
     Background: Update Reserve state

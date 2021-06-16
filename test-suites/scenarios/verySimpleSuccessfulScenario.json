@@ -2,8 +2,8 @@
   "description": "Very simple successful scenario",
   "stories": [
     {
-      "description": "Account0 invest 10 USD",
-      "actionType": "invest",
+      "description": "Account0 deposit 10 USD",
+      "actionType": "deposit",
       "actionMaker": 0,
       "value": 10,
       "expected": true

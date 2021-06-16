@@ -12,10 +12,10 @@ import 'hardhat/console.sol';
  * @author ELYSIA
  * @notice Interest rates model in ELYFI. ELYFI's interest rates are determined by algorithms.
  * When borrowing demand increases, borrowing interest and MoneyPool ROI increase,
- * suppressing excessove borrowing demand and inducing investors to supply liquidity.
+ * suppressing excessove borrowing demand and inducing depositors to supply liquidity.
  * Therefore, ELYFI's interest rates are influenced by the Money Pool `utilizationRatio`.
  * The Money Pool utilization ratio is a variable representing the current borrowing
- * and investment status of the Money Pool. The interest rates of ELYFI exhibits some form of kink.
+ * and deposit status of the Money Pool. The interest rates of ELYFI exhibits some form of kink.
  * They sharply change at some defined threshold, `optimalUtilazationRate`.
  */
 contract InterestRateModel is IInterestRateModel, InterestRateModelStorage {
@@ -43,8 +43,8 @@ contract InterestRateModel is IInterestRateModel, InterestRateModelStorage {
   struct calculateRatesLocalVars {
     uint256 totalDebt;
     uint256 utilizationRate;
-    uint256 newBorrowAPR;
-    uint256 newSupplyAPR;
+    uint256 newBorrowAPY;
+    uint256 newDepositAPY;
   }
 
   /**
@@ -60,7 +60,7 @@ contract InterestRateModel is IInterestRateModel, InterestRateModelStorage {
   function calculateRates(
     uint256 lTokenAssetBalance,
     uint256 totalDTokenBalance,
-    uint256 investAmount,
+    uint256 depositAmount,
     uint256 borrowAmount,
     uint256 moneyPoolFactor
   ) public view override returns (uint256, uint256) {
@@ -68,16 +68,16 @@ contract InterestRateModel is IInterestRateModel, InterestRateModelStorage {
 
     vars.totalDebt = totalDTokenBalance;
 
-    uint256 availableLiquidity = lTokenAssetBalance + investAmount - borrowAmount;
+    uint256 availableLiquidity = lTokenAssetBalance + depositAmount - borrowAmount;
 
     vars.utilizationRate = vars.totalDebt == 0
       ? 0
       : vars.totalDebt.rayDiv(availableLiquidity + vars.totalDebt);
 
-    vars.newBorrowAPR = 0;
+    vars.newBorrowAPY = 0;
 
     if (vars.utilizationRate <= _optimalUtilizationRate) {
-      vars.newBorrowAPR =
+      vars.newBorrowAPY =
         _borrowRateBase +
         (
           (_borrowRateOptimal - _borrowRateBase).rayDiv(_optimalUtilizationRate).rayMul(
@@ -85,7 +85,7 @@ contract InterestRateModel is IInterestRateModel, InterestRateModelStorage {
           )
         );
     } else {
-      vars.newBorrowAPR =
+      vars.newBorrowAPY =
         _borrowRateOptimal +
         (
           (_borrowRateMax - _borrowRateOptimal)
@@ -94,8 +94,8 @@ contract InterestRateModel is IInterestRateModel, InterestRateModelStorage {
         );
     }
 
-    vars.newSupplyAPR = vars.newBorrowAPR.rayMul(vars.utilizationRate);
+    vars.newDepositAPY = vars.newBorrowAPY.rayMul(vars.utilizationRate);
 
-    return (vars.newBorrowAPR, vars.newSupplyAPR);
+    return (vars.newBorrowAPY, vars.newDepositAPY);
   }
 }

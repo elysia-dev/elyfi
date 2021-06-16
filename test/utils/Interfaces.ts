@@ -15,8 +15,8 @@ export interface ReserveData {
   principalDTokenSupply: BigNumber;
   totalDTokenSupply: BigNumber;
   averageRealAssetBorrowRate: BigNumber;
-  borrowAPR: BigNumber;
-  supplyAPR: BigNumber;
+  borrowAPY: BigNumber;
+  depositAPY: BigNumber;
   moneyPoolLastUpdateTimestamp: BigNumber;
   dTokenLastUpdateTimestamp: BigNumber;
   lTokenAddress: string;
@@ -31,8 +31,8 @@ export const defaultReserveData: ReserveData = <ReserveData>{
   underlyingAssetName: 'ELYSIA',
   underlyingAssetSymbol: 'EL',
   lTokenInterestIndex: BigNumber.from(RAY),
-  borrowAPR: BigNumber.from(0),
-  supplyAPR: BigNumber.from(0),
+  borrowAPY: BigNumber.from(0),
+  depositAPY: BigNumber.from(0),
 };
 
 export interface InterestModelParams {

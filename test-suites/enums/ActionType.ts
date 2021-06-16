@@ -1,5 +1,5 @@
 enum ActionType {
-  invest = 'invest',
+  deposit = 'deposit',
   withdraw = 'withdraw',
   borrow = 'borrow',
   repay = 'repay'

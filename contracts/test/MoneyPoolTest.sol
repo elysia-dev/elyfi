@@ -18,7 +18,7 @@ contract MoneyPoolTest is MoneyPool {
     ILToken(reserve.lTokenAddress).mint(msg.sender, totalSupply, reserve.lTokenInterestIndex);
     reserve.updateRates(asset, 0, 0);
 
-    IDToken(reserve.dTokenAddress).mint(msg.sender, msg.sender, totalBorrow, reserve.borrowAPR);
+    IDToken(reserve.dTokenAddress).mint(msg.sender, msg.sender, totalBorrow, reserve.borrowAPY);
     reserve.updateRates(asset, 0, 0);
   }
 }

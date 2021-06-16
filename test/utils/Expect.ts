@@ -15,13 +15,13 @@ import {
 function applyTxTimeStamp(reserveData: ReserveData, txTimestamp: BigNumber): ReserveData {
   const newReserveData: ReserveData = { ...reserveData };
 
-  if (newReserveData.supplyAPR.eq(BigNumber.from(0)))
+  if (newReserveData.depositAPY.eq(BigNumber.from(0)))
     newReserveData.moneyPoolLastUpdateTimestamp = txTimestamp;
 
   if (!newReserveData.moneyPoolLastUpdateTimestamp.eq(txTimestamp)) {
     newReserveData.lTokenInterestIndex = calculateLTokenIndexAfterAction(
       reserveData.moneyPoolLastUpdateTimestamp,
-      reserveData.supplyAPR,
+      reserveData.depositAPY,
       reserveData.lTokenInterestIndex,
       txTimestamp
     );
@@ -41,7 +41,7 @@ function applyTxTimeStamp(reserveData: ReserveData, txTimestamp: BigNumber): Res
   return newReserveData;
 }
 
-export function expectReserveDataAfterInvest({
+export function expectReserveDataAfterDeposit({
   amount,
   reserveData,
   txTimestamp,
@@ -52,7 +52,7 @@ export function expectReserveDataAfterInvest({
 }): ReserveData {
   const newReserveData = applyTxTimeStamp(reserveData, txTimestamp);
 
-  const [borrowAPR, supplyAPR] = calculateRateInInterestRateModel(
+  const [borrowAPY, depositAPY] = calculateRateInInterestRateModel(
     reserveData.underlyingAssetBalance,
     newReserveData.totalDTokenSupply,
     amount,
@@ -60,8 +60,8 @@ export function expectReserveDataAfterInvest({
     newReserveData.interestRateModelParams
   );
 
-  newReserveData.borrowAPR = borrowAPR;
-  newReserveData.supplyAPR = supplyAPR;
+  newReserveData.borrowAPY = borrowAPY;
+  newReserveData.depositAPY = depositAPY;
 
   newReserveData.underlyingAssetBalance = newReserveData.underlyingAssetBalance.add(amount);
 
@@ -88,7 +88,7 @@ export function expectReserveDataAfterWithdraw({
 }): ReserveData {
   const newReserveData = applyTxTimeStamp(reserveData, txTimestamp);
 
-  const [borrowAPR, supplyAPR] = calculateRateInInterestRateModel(
+  const [borrowAPY, depositAPY] = calculateRateInInterestRateModel(
     reserveData.underlyingAssetBalance,
     newReserveData.totalDTokenSupply,
     BigNumber.from(0),
@@ -96,8 +96,8 @@ export function expectReserveDataAfterWithdraw({
     reserveData.interestRateModelParams
   );
 
-  newReserveData.borrowAPR = borrowAPR;
-  newReserveData.supplyAPR = supplyAPR;
+  newReserveData.borrowAPY = borrowAPY;
+  newReserveData.depositAPY = depositAPY;
 
   // Burn lToken
   newReserveData.implicitLTokenSupply = reserveData.implicitLTokenSupply.sub(
@@ -115,13 +115,13 @@ export function expectReserveDataAfterWithdraw({
   return newReserveData;
 }
 
-export function expectUserDataAfterInvest({
-  amountInvest,
+export function expectUserDataAfterDeposit({
+  amountDeposit,
   userDataBefore,
   reserveDataAfter,
   txTimestamp,
 }: {
-  amountInvest: BigNumber;
+  amountDeposit: BigNumber;
   userDataBefore: UserData;
   reserveDataAfter: ReserveData;
   txTimestamp: BigNumber;
@@ -129,11 +129,11 @@ export function expectUserDataAfterInvest({
   const expectedUserData: UserData = { ...userDataBefore };
 
   // transferFrom
-  expectedUserData.underlyingAssetBalance = userDataBefore.underlyingAssetBalance.sub(amountInvest);
+  expectedUserData.underlyingAssetBalance = userDataBefore.underlyingAssetBalance.sub(amountDeposit);
 
   // mint ltoken
   expectedUserData.implicitLtokenBalance = userDataBefore.implicitLtokenBalance.sub(
-    rayDiv(amountInvest, reserveDataAfter.lTokenInterestIndex)
+    rayDiv(amountDeposit, reserveDataAfter.lTokenInterestIndex)
   );
 
   // update lToken balance
@@ -231,22 +231,22 @@ export function expectReserveDataAfterBorrow({
     reserveDataBefore.averageRealAssetBorrowRate,
     previousUpdatedDTokenBalance,
     amountBorrow,
-    reserveDataBefore.borrowAPR
+    reserveDataBefore.borrowAPY
   );
 
   expectedReserveData.principalDTokenSupply = totalDTokenSupply;
   expectedReserveData.totalDTokenSupply = totalDTokenSupply;
   expectedReserveData.dTokenLastUpdateTimestamp = txTimestamp;
 
-  const [borrowAPR, supplyAPR] = calculateRateInInterestRateModel(
+  const [borrowAPY, depositAPY] = calculateRateInInterestRateModel(
     reserveDataBefore.underlyingAssetBalance,
     totalDTokenSupply,
     BigNumber.from(0),
     amountBorrow,
     reserveDataBefore.interestRateModelParams
   );
-  expectedReserveData.borrowAPR = borrowAPR;
-  expectedReserveData.supplyAPR = supplyAPR;
+  expectedReserveData.borrowAPY = borrowAPY;
+  expectedReserveData.depositAPY = depositAPY;
 
   // transfer underlying asset in burn logic
   expectedReserveData.underlyingAssetBalance = reserveDataBefore.underlyingAssetBalance.sub(
@@ -296,7 +296,7 @@ export function expectUserDataAfterBorrow({
     userDataBefore.averageRealAssetBorrowRate,
     previousUpdatedDTokenBalance,
     amountBorrow,
-    reserveDataBefore.borrowAPR
+    reserveDataBefore.borrowAPY
   );
   expectedUserData.userLastUpdateTimestamp = txTimestamp;
   expectedUserData.averageRealAssetBorrowRate = averageRealAssetBorrowRate;
@@ -347,7 +347,7 @@ export function expectReserveDataAfterRepay({
   newReserveData.totalDTokenSupply = totalDTokenSupply;
   newReserveData.averageRealAssetBorrowRate = newAverageRealAssetBorrowRate;
 
-  const [borrowAPR, supplyAPR] = calculateRateInInterestRateModel(
+  const [borrowAPY, depositAPY] = calculateRateInInterestRateModel(
     reserveData.underlyingAssetBalance,
     newReserveData.totalDTokenSupply,
     totalRetrieveAmount,
@@ -355,8 +355,8 @@ export function expectReserveDataAfterRepay({
     newReserveData.interestRateModelParams
   );
 
-  newReserveData.borrowAPR = borrowAPR;
-  newReserveData.supplyAPR = supplyAPR;
+  newReserveData.borrowAPY = borrowAPY;
+  newReserveData.depositAPY = depositAPY;
 
   newReserveData.underlyingAssetBalance = newReserveData.underlyingAssetBalance.add(
     totalRetrieveAmount

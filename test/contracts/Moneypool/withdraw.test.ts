@@ -3,7 +3,7 @@ import { waffle } from 'hardhat';
 import { getTimestamp } from '../../utils/Ethereum';
 import { expect } from 'chai';
 import {
-  expectReserveDataAfterInvest,
+  expectReserveDataAfterDeposit,
   expectUserDataAfterWithdraw,
 } from '../../utils/Expect';
 import ElyfiContracts from '../../types/ElyfiContracts';
@@ -31,7 +31,7 @@ describe('MoneyPool.withdraw', () => {
       .transfer(account1.address, utils.parseEther('5000'));
   });
 
-  context('when an account invested', async () => {
+  context('when an account deposited', async () => {
     beforeEach(async () => {
       await elyfiContracts
         .underlyingAsset
@@ -41,7 +41,7 @@ describe('MoneyPool.withdraw', () => {
       await elyfiContracts
         .moneyPool
         .connect(account1)
-        .invest(elyfiContracts.underlyingAsset.address, account1.address, utils.parseEther('10'));
+        .deposit(elyfiContracts.underlyingAsset.address, account1.address, utils.parseEther('10'));
     })
 
     context('when amount is valid', async () => {
@@ -57,7 +57,7 @@ describe('MoneyPool.withdraw', () => {
 
         const [reserveDataAfter, userDataAfter] = await takeDataSnapshot(account1, elyfiContracts)
 
-        const expectedReserveData = expectReserveDataAfterInvest({
+        const expectedReserveData = expectReserveDataAfterDeposit({
           amount: amountWithdraw,
           reserveData: reserveDataBefore,
           txTimestamp: await getTimestamp(tx),
@@ -147,7 +147,7 @@ describe('MoneyPool.withdraw', () => {
     })
   })
 
-  context('when an account does not invest', async () => {
+  context('when an account does not deposit', async () => {
     it('reverted', async () => {
       await expect(
         elyfiContracts.moneyPool

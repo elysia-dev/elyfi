@@ -8,8 +8,8 @@ library DataStruct {
   struct ReserveData {
     uint256 moneyPoolFactor;
     uint256 lTokenInterestIndex;
-    uint256 borrowAPR;
-    uint256 supplyAPR;
+    uint256 borrowAPY;
+    uint256 depositAPY;
     uint256 totalDepositedAssetBondCount;
     uint256 lastUpdateTimestamp;
     address lTokenAddress;

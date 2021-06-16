@@ -39,7 +39,7 @@ interface ITokenizer {
     address collateralServiceProvider,
     uint256 tokenId,
     uint256 borrowAmount,
-    uint256 borrowAPR
+    uint256 borrowAPY
   ) external;
 
   function releaseAssetBond(address account, uint256 tokenId) external;

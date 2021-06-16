@@ -7,7 +7,7 @@ interface IInterestRateModel {
   function calculateRates(
     uint256 lTokenAssetBalance,
     uint256 totalDTokenBalance,
-    uint256 investAmount,
+    uint256 depositAmount,
     uint256 borrowAmount,
     uint256 moneyPoolFactor
   ) external view returns (uint256, uint256);

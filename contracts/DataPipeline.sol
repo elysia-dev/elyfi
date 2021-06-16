@@ -62,8 +62,8 @@ contract DataPipeline {
     uint256 totalDTokenSupply;
     uint256 averageRealAssetBorrowRate;
     uint256 dTokenLastUpdateTimestamp;
-    uint256 borrowAPR;
-    uint256 supplyAPR;
+    uint256 borrowAPY;
+    uint256 depositAPY;
     uint256 moneyPooLastUpdateTimestamp;
   }
 
@@ -83,8 +83,8 @@ contract DataPipeline {
       vars.averageRealAssetBorrowRate,
       vars.dTokenLastUpdateTimestamp
     ) = IDToken(reserve.dTokenAddress).getDTokenData();
-    vars.borrowAPR = reserve.borrowAPR;
-    vars.supplyAPR = reserve.supplyAPR;
+    vars.borrowAPY = reserve.borrowAPY;
+    vars.depositAPY = reserve.depositAPY;
     vars.moneyPooLastUpdateTimestamp = reserve.lastUpdateTimestamp;
 
     return vars;

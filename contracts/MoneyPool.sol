@@ -16,9 +16,9 @@ import '@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol';
 
 /**
  * @title Main contract for ELYFI beta. This contract manages the ability
- * to invest and withdraw cryptocurrency and create NFT-backed loans.
+ * to deposit and withdraw cryptocurrency and create NFT-backed loans.
  * @author ELYSIA
- * @notice This contract is beta version of ELYFI. The investor and borrower
+ * @notice This contract is beta version of ELYFI. The depositor and borrower
  * should approve the ELYFI moneypool contract to move their AssetBond token
  * or ERC20 tokens on their behalf.
  **/
@@ -35,28 +35,28 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
     _reserveCount += 1;
   }
 
-  /************ MoneyPool Investment Functions ************/
+  /************ MoneyPool Deposit Functions ************/
 
   /**
    * @notice By depositing virtual assets in the MoneyPool and supply liquidity,
-   * investors can receive interest accruing from the MoneyPool.
-   * The return on the investment arises from the interest on real asset backed loans.
-   * MoneyPool investors who deposit certain cryptoassets receives LTokens equivalent to the
+   * depositors can receive interest accruing from the MoneyPool.
+   * The return on the deposit arises from the interest on real asset backed loans.
+   * MoneyPool depositors who deposit certain cryptoassets receives LTokens equivalent to the
    * deposit amount. LTokens are backed by cryptoassets deposited in the MoneyPool in a
    * 1:1 ratio.
-   * @dev Invests an amount of underlying asset and receive corresponding LTokens.
-   * @param asset The address of the underlying asset to invest
+   * @dev Deposits an amount of underlying asset and receive corresponding LTokens.
+   * @param asset The address of the underlying asset to deposit
    * @param account The address that will receive the LToken
-   * @param amount Investment amount
+   * @param amount Deposit amount
    **/
-  function invest(
+  function deposit(
     address asset,
     address account,
     uint256 amount
   ) external override {
     DataStruct.ReserveData storage reserve = _reserves[asset];
 
-    Validation.validateInvest(reserve, amount);
+    Validation.validateDeposit(reserve, amount);
 
     reserve.updateState(asset);
 
@@ -68,17 +68,17 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
 
     /*
     console.log(
-      'Invest finalize |amount|lTokenInterestIndex|borrowAPR',
+      'Deposit finalize |amount|lTokenInterestIndex|borrowAPY',
       amount,
       reserve.lastUpdateTimestamp,
-      reserve.borrowAPR
+      reserve.borrowAPY
     );
     */
-    emit Invest(asset, account, amount);
+    emit Deposit(asset, account, amount);
   }
 
   /**
-   * @notice The investors can seize their virtual assets deposited in the MoneyPool whenever they wish.
+   * @notice The depositors can seize their virtual assets deposited in the MoneyPool whenever they wish.
    * @dev Withdraws an amount of underlying asset from the reserve and burns the corresponding lTokens.
    * @param asset The address of the underlying asset to withdraw
    * @param account The address that will receive the underlying asset
@@ -149,10 +149,10 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
       msg.sender,
       tokenId,
       borrowAmount,
-      reserve.borrowAPR
+      reserve.borrowAPY
     );
 
-    IDToken(reserve.dTokenAddress).mint(msg.sender, receiver, borrowAmount, reserve.borrowAPR);
+    IDToken(reserve.dTokenAddress).mint(msg.sender, receiver, borrowAmount, reserve.borrowAPY);
 
     reserve.updateRates(asset, 0, borrowAmount);
 
@@ -160,14 +160,14 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
 
     /*
     console.log(
-      'Borrow finalize |amount|lastUpdateTimestamp|borrowAPR',
+      'Borrow finalize |amount|lastUpdateTimestamp|borrowAPY',
       borrowAmount,
       reserve.lastUpdateTimestamp,
-      reserve.borrowAPR
+      reserve.borrowAPY
     );
     */
 
-    emit Borrow(asset, msg.sender, receiver, tokenId, reserve.borrowAPR, borrowAmount);
+    emit Borrow(asset, msg.sender, receiver, tokenId, reserve.borrowAPY, borrowAmount);
   }
 
   /**
@@ -220,10 +220,10 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
 
     /*
     console.log(
-      'Borrow finalize |amount|lastUpdateTimestamp|borrowAPR',
+      'Borrow finalize |amount|lastUpdateTimestamp|borrowAPY',
       borrowAmount,
       reserve.lastUpdateTimestamp,
-      reserve.borrowAPR
+      reserve.borrowAPY
     );
     */
 
@@ -276,8 +276,8 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
       DataStruct.ReserveData({
         moneyPoolFactor: moneyPoolFactor_,
         lTokenInterestIndex: WadRayMath.ray(),
-        borrowAPR: 0,
-        supplyAPR: 0,
+        borrowAPY: 0,
+        depositAPY: 0,
         totalDepositedAssetBondCount: 0,
         lastUpdateTimestamp: block.timestamp,
         lTokenAddress: lToken,

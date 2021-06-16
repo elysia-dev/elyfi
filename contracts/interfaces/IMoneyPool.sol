@@ -13,7 +13,7 @@ interface IMoneyPool {
     uint256 moneyPoolFactor
   );
 
-  event Invest(address indexed asset, address indexed account, uint256 amount);
+  event Deposit(address indexed asset, address indexed account, uint256 amount);
 
   event Withdraw(
     address indexed asset,
@@ -27,7 +27,7 @@ interface IMoneyPool {
     address indexed borrower,
     address indexed receiver,
     uint256 tokenId,
-    uint256 borrowAPR,
+    uint256 borrowAPY,
     uint256 borrowAmount
   );
 
@@ -39,7 +39,7 @@ interface IMoneyPool {
     uint256 feeOnCollateralServiceProvider
   );
 
-  function invest(
+  function deposit(
     address asset,
     address account,
     uint256 amount

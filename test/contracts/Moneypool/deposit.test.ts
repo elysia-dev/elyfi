@@ -2,14 +2,14 @@ import { ethers, waffle } from 'hardhat';
 import { getTimestamp } from '../../utils/Ethereum';
 import { RAY } from '../../utils/constants';
 import { expect } from '../../utils/chai';
-import { expectReserveDataAfterInvest, expectUserDataAfterInvest } from '../../utils/Expect';
+import { expectReserveDataAfterDeposit, expectUserDataAfterDeposit } from '../../utils/Expect';
 import ElyfiContracts from '../../types/ElyfiContracts';
 import takeDataSnapshot from '../../utils/takeDataSnapshot';
 import { BigNumber } from 'ethers';
 import loadFixture from '../../utils/loadFixture';
 import utilizedMoneypool from '../../fixtures/utilizedMoneypool';
 
-describe('MoneyPool.invest', () => {
+describe('MoneyPool.deposit', () => {
   let elyfiContracts: ElyfiContracts;
 
   const [deployer, account1] = waffle.provider.getWallets();
@@ -36,39 +36,39 @@ describe('MoneyPool.invest', () => {
 
       context('when amount is not zero', async () => {
         it('update user data & reserve data', async () => {
-          const amountInvest = ethers.utils.parseEther('10000');
+          const amountDeposit = ethers.utils.parseEther('10000');
 
           const [reserveDataBefore, userDataBefore] = await takeDataSnapshot(
             account1,
             elyfiContracts
           );
 
-          const investTx = await elyfiContracts.moneyPool
+          const depositTx = await elyfiContracts.moneyPool
             .connect(account1)
-            .invest(elyfiContracts.underlyingAsset.address, account1.address, amountInvest);
+            .deposit(elyfiContracts.underlyingAsset.address, account1.address, amountDeposit);
 
           const [reserveDataAfter, userDataAfter] = await takeDataSnapshot(
             account1,
             elyfiContracts
           );
 
-          const expectedReserveData = expectReserveDataAfterInvest({
-            amount: amountInvest,
+          const expectedReserveData = expectReserveDataAfterDeposit({
+            amount: amountDeposit,
             reserveData: reserveDataBefore,
-            txTimestamp: await getTimestamp(investTx),
+            txTimestamp: await getTimestamp(depositTx),
           });
-          const expectedUserData = expectUserDataAfterInvest({
-            amountInvest: amountInvest,
+          const expectedUserData = expectUserDataAfterDeposit({
+            amountDeposit: amountDeposit,
             userDataBefore,
             reserveDataAfter,
-            txTimestamp: await getTimestamp(investTx),
+            txTimestamp: await getTimestamp(depositTx),
           });
 
           expect(reserveDataAfter).to.equalReserveData(expectedReserveData);
           expect(userDataAfter).to.equalUserData(expectedUserData);
 
           const afterBalance = await elyfiContracts.underlyingAsset.balanceOf(account1.address);
-          expect(beforeBalance.sub(afterBalance)).to.eq(amountInvest);
+          expect(beforeBalance.sub(afterBalance)).to.eq(amountDeposit);
         });
 
         context('when moneypool is deactivated', async () => {
@@ -80,7 +80,7 @@ describe('MoneyPool.invest', () => {
             await expect(
               elyfiContracts.moneyPool
                 .connect(account1)
-                .invest(
+                .deposit(
                   elyfiContracts.underlyingAsset.address,
                   account1.address,
                   ethers.utils.parseEther('1000')
@@ -94,7 +94,7 @@ describe('MoneyPool.invest', () => {
             await expect(
               elyfiContracts.moneyPool
                 .connect(account1)
-                .invest(
+                .deposit(
                   elyfiContracts.underlyingAsset.address,
                   account1.address,
                   ethers.utils.parseEther('1000')
@@ -109,7 +109,7 @@ describe('MoneyPool.invest', () => {
           await expect(
             elyfiContracts.moneyPool
               .connect(account1)
-              .invest(elyfiContracts.underlyingAsset.address, account1.address, BigNumber.from(0))
+              .deposit(elyfiContracts.underlyingAsset.address, account1.address, BigNumber.from(0))
           ).to.be.reverted;
         });
       });
@@ -120,7 +120,7 @@ describe('MoneyPool.invest', () => {
         await expect(
           elyfiContracts.moneyPool
             .connect(account1)
-            .invest(
+            .deposit(
               elyfiContracts.underlyingAsset.address,
               account1.address,
               ethers.utils.parseEther('10000')
@@ -139,7 +139,7 @@ describe('MoneyPool.invest', () => {
       await expect(
         elyfiContracts.moneyPool
           .connect(account1)
-          .invest(
+          .deposit(
             elyfiContracts.underlyingAsset.address,
             account1.address,
             ethers.utils.parseEther('10000')
