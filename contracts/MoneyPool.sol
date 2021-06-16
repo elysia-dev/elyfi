@@ -15,12 +15,14 @@ import 'hardhat/console.sol';
 import '@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol';
 
 /**
- * @title Main contract for ELYFI beta. This contract manages the ability
- * to deposit and withdraw cryptocurrency and create NFT-backed loans.
+ * @title Main contract for ELYFI beta.
  * @author ELYSIA
- * @notice This contract is beta version of ELYFI. The depositor and borrower
- * should approve the ELYFI moneypool contract to move their AssetBond token
+ * @notice This is the beta version of ELYFI. ELYFI has various contract interactions centered
+ * on the Money Pool Contract. Several tokens are issued or destroyed to indicate the status of
+ * participants, and all issuance and burn processes are carried out through the Money Pool Contract.
+ * The depositor and borrower should approve the ELYFI moneypool contract to move their AssetBond token
  * or ERC20 tokens on their behalf.
+ * @dev Only admin can modify the variables and state of the moneypool
  **/
 contract MoneyPool is IMoneyPool, MoneyPoolStorage {
   using SafeERC20 for IERC20;
@@ -38,12 +40,10 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
   /************ MoneyPool Deposit Functions ************/
 
   /**
-   * @notice By depositing virtual assets in the MoneyPool and supply liquidity,
-   * depositors can receive interest accruing from the MoneyPool.
-   * The return on the deposit arises from the interest on real asset backed loans.
-   * MoneyPool depositors who deposit certain cryptoassets receives LTokens equivalent to the
-   * deposit amount. LTokens are backed by cryptoassets deposited in the MoneyPool in a
-   * 1:1 ratio.
+   * @notice By depositing virtual assets in the MoneyPool and supply liquidity, depositors can receive
+   * interest accruing from the MoneyPool.The return on the deposit arises from the interest on real asset
+   * backed loans. MoneyPool depositors who deposit certain cryptoassets receives LTokens equivalent to
+   * the deposit amount. LTokens are backed by cryptoassets deposited in the MoneyPool in a 1:1 ratio.
    * @dev Deposits an amount of underlying asset and receive corresponding LTokens.
    * @param asset The address of the underlying asset to deposit
    * @param account The address that will receive the LToken
@@ -125,9 +125,13 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
   /************ AssetBond Formation Functions ************/
 
   /**
-   * @dev Withdraws an amount of underlying asset from the reserve and burns the corresponding lTokens.
-   * @notice
+   * @notice The collateral service provider can take out a loan of value equivalent to the principal
+   * recorded in the asset bond data. As asset bonds are deposited as collateral in the Money Pool
+   * and loans are made, financial services that link real assets and cryptoassets can be achieved.
+   * @dev Transfer asset bond from the collateral service provider to the moneypool and mint dTokens
+   *  corresponding to principal. After that, transfer the underlying asset
    * @param asset The address of the underlying asset to withdraw
+   * @param tokenId The id of the token to collateralize
    **/
   function borrow(address asset, uint256 tokenId) external override onlyCollateralServiceProvider {
     DataStruct.ReserveData storage reserve = _reserves[asset];
@@ -167,9 +171,13 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
   }
 
   /**
-   * @dev repays an amount of underlying asset from the reserve and burns the corresponding lTokens.
-   * @notice
-   * @param asset The address of the underlying asset to withdraw
+   * @notice repays an amount of underlying asset from the reserve and burns the corresponding lTokens.
+   * @dev Transfer total repayment of the underlying asset from msg.sender to the moneypool and
+   * burn the corresponding amount of dTokens. Then release the asset bond token which is locked
+   * in the moneypool and transfer it to the borrower. The total amount of transferred underlying asset
+   * is the sum of the fee on the collateral service provider and debt on the moneypool
+   * @param asset The address of the underlying asset to repay
+   * @param tokenId The id of the token to retrieve
    **/
   function repay(address asset, uint256 tokenId) external override {
     DataStruct.ReserveData storage reserve = _reserves[asset];
@@ -185,11 +193,11 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
 
     reserve.updateState(asset);
 
+    IERC20(asset).safeTransferFrom(msg.sender, reserve.lTokenAddress, totalRetrieveAmount);
+
     IDToken(reserve.dTokenAddress).burn(assetBond.borrower, accruedDebtOnMoneyPool);
 
     reserve.updateRates(asset, totalRetrieveAmount, 0);
-
-    IERC20(asset).safeTransferFrom(msg.sender, reserve.lTokenAddress, totalRetrieveAmount);
 
     ITokenizer(reserve.tokenizerAddress).releaseAssetBond(assetBond.borrower, tokenId);
 
@@ -220,7 +228,9 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
   /************ View Functions ************/
 
   /**
-   * @dev Returns LToken Interest index of asset
+   * @notice LToken Index is an indicator of interest occurring and accrued to liquidity providers
+   * who have provided liquidity to the Money Pool. LToken Index is calculated every time user activities
+   * occur in the Money Pool, such as loans and repayments by Money Pool participants.
    * @param asset The address of the underlying asset of the reserve
    * @return The LToken interest index of reserve
    */
@@ -229,7 +239,7 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
   }
 
   /**
-   * @dev Returns the state and configuration of the reserve
+   * @dev Returns the reserveData struct of underlying asset
    * @param asset The address of the underlying asset of the reserve
    * @return The state of the reserve
    **/

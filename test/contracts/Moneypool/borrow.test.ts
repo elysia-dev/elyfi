@@ -110,13 +110,13 @@ describe('MoneyPool.borrow', () => {
         context('when moneypool liquidity is sufficient and time passes', async () => {
           before('Additional liquidity supplied and time passes', async () => {
             await elyfiContracts.underlyingAsset
-              .connect(investor)
+              .connect(depositor)
               .approve(elyfiContracts.moneyPool.address, RAY);
             const tx = await elyfiContracts.moneyPool
-              .connect(investor)
+              .connect(depositor)
               .invest(
                 elyfiContracts.underlyingAsset.address,
-                investor.address,
+                depositor.address,
                 utils.parseEther('10')
               );
             const loanStartTimestamp = toTimestamp(
@@ -157,7 +157,7 @@ describe('MoneyPool.borrow', () => {
               testAssetBondData.tokenId
             );
             expect(assetBondData.state).to.be.equal(AssetBondState.COLLATERALIZED);
-            expect(assetBondData.interestRate).to.be.equal(reserveDataBefore.borrowAPR);
+            expect(assetBondData.interestRate).to.be.equal(reserveDataBefore.borrowAPY);
             expect(assetBondData.collateralizeTimestamp).to.be.equal(await getTimestamp(tx));
             expect(await elyfiContracts.tokenizer.ownerOf(testAssetBondData.tokenId)).to.be.equal(
               elyfiContracts.moneyPool.address

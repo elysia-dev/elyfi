@@ -8,6 +8,7 @@ import '@openzeppelin/contracts/access/Ownable.sol';
 
 /**
  * @title ELYFI Connector
+ * @author ELYSIA
  * @notice ELYFI functions through continual interaction among the various participants.
  * In order to link the real assets and the blockchain, unlike the existing DeFi platform,
  * ELYFI has a group of participants in charge of actual legal contracts and maintenance.
@@ -18,7 +19,8 @@ import '@openzeppelin/contracts/access/Ownable.sol';
  * legal services such as document review in the context of legal proceedings, consulting,
  * and the provision of documents necessary in the process of taking out loans secured by real assets,
  * In the future, the types of participant groups will be diversified and subdivided.
- * @author ELYSIA
+ * @dev Only admin can add or revoke roles of the ELYFI. The admin account of the connector is strictly
+ * managed, and it is to be managed by governance of ELYFI.
  */
 contract Connector is IConnector, ConnectorStorage, Ownable {
   constructor() {}

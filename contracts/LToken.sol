@@ -12,9 +12,10 @@ import './interfaces/IMoneyPool.sol';
 /**
  * @title ELYFI LToken
  * @author ELYSIA
- * @notice LTokens are the basis for repayment of loans and interest on their deposits.
- * @dev LTokens comply with the ERC20 token standard. When Money Pool depositors deposit or withdraw
- * assets from the Money Pool Contract, the Smart Contract automatically issues or destroys LTokens accordingly.
+ * @notice LTokens are the basis for repayment of loans and interest on their deposits. When Money Pool
+ * investors deposit or withdraw assets from the Money Pool Contract, the Smart Contract automatically
+ * issues or destroys LTokens accordingly.
+ * @dev LTokens comply with the ERC20 token standard. Some functions are restricted to the general user.
  */
 contract LToken is ILToken, ERC20 {
   using SafeERC20 for IERC20;

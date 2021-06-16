@@ -44,7 +44,7 @@ contract Tokenizer is ITokenizer, TokenizerStorage, ERC721 {
   /**
    * @dev Returns the state of the asset bond
    * @param tokenId The asset bond tokenId
-   * @return The data of the asset bond
+   * @return The data struct of the asset bond
    **/
   function getAssetBondData(uint256 tokenId)
     external
@@ -55,6 +55,14 @@ contract Tokenizer is ITokenizer, TokenizerStorage, ERC721 {
     return _assetBondData[tokenId];
   }
 
+  /**
+   * @notice When the borrower takes a loan, the repayment is the sum of two types of amounts:
+   * debt on the money pool and fee on the collateral service provider. The former is the amount to be
+   * repaid to the moneypool, and the latter is the amount to be paid to collateral service provider as a fee.
+   * @dev Returns the state debt of the asset bond
+   * @param tokenId The id of the asset bond
+   * @return Accrued debt on the moneypool and the fee on the collateral service provider.
+   **/
   function getAssetBondDebtData(uint256 tokenId) external view override returns (uint256, uint256) {
     DataStruct.AssetBondData storage assetBond = _assetBondData[tokenId];
     return assetBond.getAssetBondDebtData();
@@ -73,7 +81,7 @@ contract Tokenizer is ITokenizer, TokenizerStorage, ERC721 {
    * with a collateral service provider to obtain a loan. Borrowers should submit various documents necessary for evaluating a loan secured by
    * real assets to the collateral service provider.
    * @param account CollateralServiceProvider address
-   * @param tokenId The tokenId is a unique identifier for asset bond.
+   * @param tokenId Unique identifier for asset bond.
    */
   function mintAssetBond(address account, uint256 tokenId)
     external
@@ -105,9 +113,18 @@ contract Tokenizer is ITokenizer, TokenizerStorage, ERC721 {
    * risk analysis for the relevant asset is conducted, and the loan availability,
    * maximum loanable amount and the interest rate between collateral service provider
    * and borrower are calculated.
-   * @param borrower borrower
+   * @param borrower The address of the borrower who must repay and retrieve the asset bond
    * @param signer A third-party agency address that reviews entities listed on the asset bond data
    * @param tokenId Token Id to settle
+   * @param principal The amount
+   * @param couponRate .
+   * @param overdueInterestRate .
+   * @param debtCeiling .
+   * @param loanDuration .
+   * @param loanStartTimeYear .
+   * @param loanStartTimeMonth .
+   * @param loanStartTimeDay .
+   * @param ipfsHash .
    The interest rate paid on a bond by its issuer for the term of the security
    */
   function settleAssetBond(
@@ -247,7 +264,7 @@ contract Tokenizer is ITokenizer, TokenizerStorage, ERC721 {
   function releaseAssetBond(address account, uint256 tokenId) external override onlyMoneyPool {
     DataStruct.AssetBondData storage assetBond = _assetBondData[tokenId];
     assetBond.state = DataStruct.AssetBondState.REDEEMED;
-    emit AssetBondReleased(accjount, tokenId);
+    emit AssetBondReleased(account, tokenId);
   }
 
   /************ Token Functions ************/
