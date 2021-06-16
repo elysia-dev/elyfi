@@ -24,8 +24,8 @@ interface IMoneyPool {
 
   event Borrow(
     address indexed asset,
+    address indexed collateralServiceProvider,
     address indexed borrower,
-    address indexed receiver,
     uint256 tokenId,
     uint256 borrowAPY,
     uint256 borrowAmount
