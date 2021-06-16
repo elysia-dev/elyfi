@@ -60,9 +60,9 @@ const config: HardhatUserConfig = {
       accounts: [process.env.ADMIN || ''],
     },
   },
-  // etherscan: {
-  //   apiKey: process.env.ETHERSCAN_API_KEY,
-  // },
+  etherscan: {
+    apiKey: process.env.ETHERSCAN_API_KEY,
+  },
   paths: {
     sources: './contracts',
     tests: './test',

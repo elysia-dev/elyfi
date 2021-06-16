@@ -16,30 +16,6 @@ export enum ELYFIContractType {
   DATA_PIPELINE,
 }
 
-// export type DeployedContractData = {
-//     contractName: ELYFIContractType[];
-//     contractAddress: string[];
-//     [key: string]: string[] | ELYFIContractType[];
-//   };
-
-//   export async function saveDeployedContractInDB(
-//     contractType: ELYFIContractType,
-//     contractInstance: Contract
-//   ) {
-//     const file = join(__dirname, 'db.json');
-//     const adapter = new JSONFile<DeployedContractData>(file);
-//     const db = new Low<DeployedContractData>(adapter);
-
-//     await db.read();
-
-//     db.data ||= { contractAddress: [], contractName: [] };
-
-//     db.data.contractAddress.push(contractInstance.address);
-//     db.data.contractName.push(contractType);
-
-//     await db.write();
-//   }
-
 const getElysia = async (hre: HardhatRuntimeEnvironment, signer: string): Promise<Contract> => {
   const { deployer } = await hre.getNamedAccounts();
   const { deploy } = hre.deployments;
@@ -82,11 +58,23 @@ const deployTest: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
     log: true,
   });
 
+  await hre.run("verify:verify", {
+    address: connector.address
+  })
+
   const moneyPool = await deploy('MoneyPool', {
     from: deployer,
     args: ['16', connector.address],
     log: true,
   });
+
+  await hre.run("verify:verify", {
+    address: moneyPool.address,
+    constructorArguments: [
+      16,
+      connector.address
+    ],
+  })
 
   const interestRateModel = await deploy('InterestRateModel', {
     from: deployer,
@@ -99,11 +87,28 @@ const deployTest: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
     log: true,
   });
 
+  await hre.run("verify:verify", {
+    address: interestRateModel.address,
+    constructorArguments: [
+      defaultInterestModelParams.optimalUtilizationRate,
+      defaultInterestModelParams.borrowRateBase,
+      defaultInterestModelParams.borrowRateOptimal,
+      defaultInterestModelParams.borrowRateMax
+    ],
+  })
+
   const lToken = await deploy('LToken', {
     from: deployer,
     args: [moneyPool.address, elysia?.address, 'testLToken', 'L'],
     log: true,
   });
+
+  await hre.run("verify:verify", {
+    address: lToken.address,
+    constructorArguments: [
+      moneyPool.address, elysia?.address, 'testLToken', 'L'
+    ],
+  })
 
   const dToken = await deploy('DToken', {
     from: deployer,
@@ -111,16 +116,37 @@ const deployTest: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
     log: true,
   });
 
+  await hre.run("verify:verify", {
+    address: dToken.address,
+    constructorArguments: [
+      moneyPool.address, elysia?.address, 'testDToken', 'D'
+    ],
+  })
+
   const tokenizer = await deploy('Tokenizer', {
     from: deployer,
-    args: [connector.address, 'testTokenizer', 'T'],
+    args: [connector.address, moneyPool.address, 'testTokenizer', 'T'],
   });
+
+  await hre.run("verify:verify", {
+    address: tokenizer.address,
+    constructorArguments: [
+      connector.address, moneyPool.address, 'testTokenizer', 'T'
+    ],
+  })
 
   const dataPipeline = await deploy('DataPipeline', {
     from: deployer,
     args: [moneyPool.address],
     log: true,
   });
+
+  await hre.run("verify:verify", {
+    address: dataPipeline.address,
+    constructorArguments: [
+      moneyPool.address
+    ],
+  })
 
   const deployedMoneyPool = (await getContractAt(
     hre,
