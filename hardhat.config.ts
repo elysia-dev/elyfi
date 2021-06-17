@@ -59,6 +59,9 @@ const config: HardhatUserConfig = {
       gasPrice: 20000000000,
       accounts: [process.env.ADMIN || ''],
     },
+    ganache: {
+      url: 'http://0.0.0.0:8545'
+    }
   },
   etherscan: {
     apiKey: process.env.ETHERSCAN_API_KEY,
