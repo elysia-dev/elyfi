@@ -118,6 +118,36 @@ library AssetBond {
     return assetBondData.principal.rayMul(vars.totalRate);
   }
 
+  function getAssetBondLiquidationData(DataStruct.AssetBondData memory assetBondData)
+    internal
+    view
+    returns (uint256, uint256)
+  {
+    uint256 accruedDebtOnMoneyPool =
+      Math
+        .calculateCompoundedInterest(
+        assetBondData
+          .interestRate,
+        assetBondData
+          .collateralizeTimestamp,
+        block
+          .timestamp
+      )
+        .rayMul(assetBondData.principal);
+
+    uint256 feeOnCollateralServiceProvider =
+      calculateDebtAmountToLiquidation(
+        assetBondData.principal,
+        assetBondData.couponRate,
+        assetBondData.overdueInterestRate,
+        assetBondData.collateralizeTimestamp,
+        block.timestamp,
+        assetBondData.maturityTimestamp
+      );
+
+    return (accruedDebtOnMoneyPool, feeOnCollateralServiceProvider);
+  }
+
   struct CalculateDebtAmountToLiquidationLocalVars {
     TimeConverter.DateTime paymentDateTimeStruct;
     uint256 paymentDate;

@@ -225,6 +225,56 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
     );
   }
 
+  function liquidate(address asset, uint256 tokenId)
+    external
+    override
+    onlyCollateralServiceProvider
+  {
+    DataStruct.ReserveData storage reserve = _reserves[asset];
+    DataStruct.AssetBondData memory assetBond =
+      ITokenizer(reserve.tokenizerAddress).getAssetBondData(tokenId);
+
+    (uint256 accruedDebtOnMoneyPool, uint256 feeOnCollateralServiceProvider) =
+      assetBond.getAssetBondLiquidationData();
+
+    uint256 totalLiquidationAmount = accruedDebtOnMoneyPool + feeOnCollateralServiceProvider;
+
+    Validation.validateLiquidation(reserve, assetBond);
+
+    reserve.updateState(asset);
+
+    IERC20(asset).safeTransferFrom(msg.sender, reserve.lTokenAddress, totalLiquidationAmount);
+
+    IDToken(reserve.dTokenAddress).burn(assetBond.borrower, accruedDebtOnMoneyPool);
+
+    reserve.updateRates(asset, totalLiquidationAmount, 0);
+
+    ITokenizer(reserve.tokenizerAddress).releaseAssetBond(msg.sender, tokenId);
+
+    ILToken(reserve.lTokenAddress).mint(
+      assetBond.collateralServiceProvider,
+      feeOnCollateralServiceProvider,
+      reserve.lTokenInterestIndex
+    );
+
+    /*
+    console.log(
+      'Borrow finalize |amount|lastUpdateTimestamp|borrowAPY',
+      borrowAmount,
+      reserve.lastUpdateTimestamp,
+      reserve.borrowAPY
+    );
+    */
+
+    emit Liquidation(
+      asset,
+      assetBond.borrower,
+      tokenId,
+      accruedDebtOnMoneyPool,
+      feeOnCollateralServiceProvider
+    );
+  }
+
   /************ View Functions ************/
 
   /**

@@ -85,6 +85,11 @@ library Validation {
     if (block.timestamp >= assetBond.liquidationTimestamp) revert MoneyPoolErrors.LoanExpired();
   }
 
+  function validateLiquidation(
+    DataStruct.ReserveData storage reserve,
+    DataStruct.AssetBondData memory assetBond
+  ) internal view {}
+
   function validateSignAssetBond(DataStruct.AssetBondData storage assetBond) internal view {
     if (assetBond.state != DataStruct.AssetBondState.SETTLED)
       revert TokenizerErrors.OnlySettledTokenSignAllowed();

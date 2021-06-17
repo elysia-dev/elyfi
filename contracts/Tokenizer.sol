@@ -42,7 +42,9 @@ contract Tokenizer is ITokenizer, TokenizerStorage, ERC721 {
   /************ View Functions *************/
 
   /**
-   * @dev Returns the state of the asset bond
+   * @notice Returns the state of the asset bond
+   * @dev The state of the asset bond is `NOT_PERFORMED` when the current timestamp is greater than
+   * liquidation timestamp.
    * @param tokenId The asset bond tokenId
    * @return The data struct of the asset bond
    **/
@@ -52,7 +54,15 @@ contract Tokenizer is ITokenizer, TokenizerStorage, ERC721 {
     override
     returns (DataStruct.AssetBondData memory)
   {
-    return _assetBondData[tokenId];
+    DataStruct.AssetBondData memory assetBondData = _assetBondData[tokenId];
+    if (
+      block.timestamp >= assetBondData.liquidationTimestamp &&
+      assetBondData.state == DataStruct.AssetBondState.COLLATERALIZED
+    ) {
+      assetBondData.state = DataStruct.AssetBondState.NOT_PERFORMED;
+    }
+
+    return assetBondData;
   }
 
   /**

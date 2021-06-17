@@ -39,6 +39,14 @@ interface IMoneyPool {
     uint256 feeOnCollateralServiceProvider
   );
 
+  event Liquidation(
+    address indexed asset,
+    address indexed borrower,
+    uint256 tokenId,
+    uint256 userDTokenBalance,
+    uint256 feeOnCollateralServiceProvider
+  );
+
   function deposit(
     address asset,
     address account,
@@ -54,6 +62,8 @@ interface IMoneyPool {
   function borrow(address asset, uint256 tokenID) external;
 
   function repay(address asset, uint256 tokenId) external;
+
+  function liquidate(address asset, uint256 tokenId) external;
 
   function getLTokenInterestIndex(address asset) external view returns (uint256);
 
