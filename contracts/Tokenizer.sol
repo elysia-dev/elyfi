@@ -258,8 +258,6 @@ contract Tokenizer is ITokenizer, TokenizerStorage, ERC721 {
 
     transferFrom(account, address(_moneyPool), tokenId);
 
-    approve(account, tokenId);
-
     emit AssetBondCollateralized(account, tokenId, borrowAmount, interestRate);
   }
 
@@ -268,13 +266,30 @@ contract Tokenizer is ITokenizer, TokenizerStorage, ERC721 {
    * asset bond tokens in the MoneyPool is unlocked. The asset bond tokens are transfered to the
    * address of the borrower for terminating the collateral contract.
    * @dev The releasing asset bond token should be only from the MoneyPool.
-   * @param account The owner of asset bond token
+   * @param account The borrower
    * @param tokenId The token Id to release
    */
   function releaseAssetBond(address account, uint256 tokenId) external override onlyMoneyPool {
     DataStruct.AssetBondData storage assetBond = _assetBondData[tokenId];
     assetBond.state = DataStruct.AssetBondState.REDEEMED;
+
+    transferFrom(address(_moneyPool), account, tokenId);
     emit AssetBondReleased(account, tokenId);
+  }
+
+  /**
+   * @notice When the repayment scenario, the dTokens are destroyed and the collateral of the locked up
+   * asset bond tokens in the MoneyPool is unlocked. The asset bond tokens are transfered to the
+   * address of the borrower for terminating the collateral contract.
+   * @dev The releasing asset bond token should be only from the MoneyPool.
+   * @param account The liquidator
+   * @param tokenId The token Id to release
+   */
+  function liquidateAssetBond(address account, uint256 tokenId) external override onlyMoneyPool {
+    DataStruct.AssetBondData storage assetBond = _assetBondData[tokenId];
+    assetBond.state = DataStruct.AssetBondState.NOT_PERFORMED;
+    transferFrom(address(_moneyPool), account, tokenId);
+    emit AssetBondLiquidated(account, tokenId);
   }
 
   /************ Token Functions ************/

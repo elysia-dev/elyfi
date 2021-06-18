@@ -65,6 +65,7 @@ contract InterestRateModel is IInterestRateModel, InterestRateModelStorage {
     uint256 moneyPoolFactor
   ) public view override returns (uint256, uint256) {
     calculateRatesLocalVars memory vars;
+    moneyPoolFactor;
 
     vars.totalDebt = totalDTokenBalance;
 

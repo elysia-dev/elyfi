@@ -115,7 +115,7 @@ contract LToken is ILToken, ERC20 {
     bool validate
   ) internal {
     uint256 index = _moneyPool.getLTokenInterestIndex(_underlyingAsset);
-
+    validate;
     super._transfer(from, to, amount.rayDiv(index));
   }
 

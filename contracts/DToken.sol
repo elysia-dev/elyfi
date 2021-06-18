@@ -67,7 +67,9 @@ contract DToken is IDToken, Context {
     return 18;
   }
 
-  function transfer(address recipient, uint256 amount) external override returns (bool) {
+  function transfer(address recipient, uint256 amount) public virtual override returns (bool) {
+    recipient;
+    amount;
     revert TokenErrors.DTokenTransferNotAllowed();
   }
 
@@ -75,15 +77,28 @@ contract DToken is IDToken, Context {
     address sender,
     address recipient,
     uint256 amount
-  ) external override returns (bool) {
+  ) public virtual override returns (bool) {
+    sender;
+    recipient;
+    amount;
     revert TokenErrors.DTokenTransferFromNotAllowed();
   }
 
-  function allowance(address owner, address spender) external view override returns (uint256) {
+  function allowance(address owner, address spender)
+    public
+    view
+    virtual
+    override
+    returns (uint256)
+  {
+    owner;
+    spender;
     revert TokenErrors.DTokenAllowanceNotAllowed();
   }
 
-  function approve(address spender, uint256 amount) external override returns (bool) {
+  function approve(address spender, uint256 amount) public virtual override returns (bool) {
+    spender;
+    amount;
     revert TokenErrors.DTokenApproveNotAllowed();
   }
 

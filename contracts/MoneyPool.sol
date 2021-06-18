@@ -99,14 +99,7 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
       amountToWithdraw = userLTokenBalance;
     }
 
-    Validation.validateWithdraw(
-      reserve,
-      asset,
-      amount,
-      userLTokenBalance,
-      _reservesList,
-      _reserveCount
-    );
+    Validation.validateWithdraw(reserve, amount, userLTokenBalance);
 
     reserve.updateState(asset);
 
@@ -243,11 +236,11 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
 
     reserve.updateState(asset);
 
-    IERC20(asset).safeTransferFrom(msg.sender, reserve.lTokenAddress, totalLiquidationAmount);
-
     IDToken(reserve.dTokenAddress).burn(assetBond.borrower, accruedDebtOnMoneyPool);
 
     reserve.updateRates(asset, totalLiquidationAmount, 0);
+
+    IERC20(asset).safeTransferFrom(msg.sender, reserve.lTokenAddress, totalLiquidationAmount);
 
     ITokenizer(reserve.tokenizerAddress).releaseAssetBond(msg.sender, tokenId);
 

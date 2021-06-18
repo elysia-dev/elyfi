@@ -30,18 +30,12 @@ library Validation {
    * Check user amount
    * Check user total debt(later)
    * @param reserve The reserve object
-   * @param underlyingAsset Underlying asset address
    * @param amount Withdraw amount
-   * @param reserveList reserve list for calculating user total debt
-   * @param reserveCount reserve count for iteration
    **/
   function validateWithdraw(
     DataStruct.ReserveData storage reserve,
-    address underlyingAsset,
     uint256 amount,
-    uint256 userLTokenBalance,
-    mapping(uint256 => address) storage reserveList,
-    uint256 reserveCount
+    uint256 userLTokenBalance
   ) internal view {
     if (amount == 0) revert MoneyPoolErrors.InvalidAmount(amount);
     if (reserve.isPaused == true) revert MoneyPoolErrors.ReservePaused();
