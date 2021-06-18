@@ -58,23 +58,11 @@ const deployTest: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
     log: true,
   });
 
-  await hre.run("verify:verify", {
-    address: connector.address
-  })
-
   const moneyPool = await deploy('MoneyPool', {
     from: deployer,
     args: ['16', connector.address],
     log: true,
   });
-
-  await hre.run("verify:verify", {
-    address: moneyPool.address,
-    constructorArguments: [
-      16,
-      connector.address
-    ],
-  })
 
   const interestRateModel = await deploy('InterestRateModel', {
     from: deployer,
@@ -87,28 +75,11 @@ const deployTest: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
     log: true,
   });
 
-  await hre.run("verify:verify", {
-    address: interestRateModel.address,
-    constructorArguments: [
-      defaultInterestModelParams.optimalUtilizationRate,
-      defaultInterestModelParams.borrowRateBase,
-      defaultInterestModelParams.borrowRateOptimal,
-      defaultInterestModelParams.borrowRateMax
-    ],
-  })
-
   const lToken = await deploy('LToken', {
     from: deployer,
     args: [moneyPool.address, elysia?.address, 'testLToken', 'L'],
     log: true,
   });
-
-  await hre.run("verify:verify", {
-    address: lToken.address,
-    constructorArguments: [
-      moneyPool.address, elysia?.address, 'testLToken', 'L'
-    ],
-  })
 
   const dToken = await deploy('DToken', {
     from: deployer,
@@ -116,37 +87,16 @@ const deployTest: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
     log: true,
   });
 
-  await hre.run("verify:verify", {
-    address: dToken.address,
-    constructorArguments: [
-      moneyPool.address, elysia?.address, 'testDToken', 'D'
-    ],
-  })
-
   const tokenizer = await deploy('Tokenizer', {
     from: deployer,
     args: [connector.address, moneyPool.address, 'testTokenizer', 'T'],
   });
-
-  await hre.run("verify:verify", {
-    address: tokenizer.address,
-    constructorArguments: [
-      connector.address, moneyPool.address, 'testTokenizer', 'T'
-    ],
-  })
 
   const dataPipeline = await deploy('DataPipeline', {
     from: deployer,
     args: [moneyPool.address],
     log: true,
   });
-
-  await hre.run("verify:verify", {
-    address: dataPipeline.address,
-    constructorArguments: [
-      moneyPool.address
-    ],
-  })
 
   const deployedMoneyPool = (await getContractAt(
     hre,
@@ -163,6 +113,57 @@ const deployTest: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
     tokenizer.address,
     defaultReserveData.moneyPoolFactor
   );
+
+  if (hre.network.name === 'ganache') return;
+
+  await hre.run("verify:verify", {
+    address: connector.address
+  })
+
+  await hre.run("verify:verify", {
+    address: moneyPool.address,
+    constructorArguments: [
+      16,
+      connector.address
+    ],
+  })
+
+  await hre.run("verify:verify", {
+    address: interestRateModel.address,
+    constructorArguments: [
+      defaultInterestModelParams.optimalUtilizationRate,
+      defaultInterestModelParams.borrowRateBase,
+      defaultInterestModelParams.borrowRateOptimal,
+      defaultInterestModelParams.borrowRateMax
+    ],
+  })
+
+  await hre.run("verify:verify", {
+    address: lToken.address,
+    constructorArguments: [
+      moneyPool.address, elysia?.address, 'testLToken', 'L'
+    ],
+  })
+
+  await hre.run("verify:verify", {
+    address: dToken.address,
+    constructorArguments: [
+      moneyPool.address, elysia?.address, 'testDToken', 'D'
+    ],
+  })
+
+  await hre.run("verify:verify", {
+    address: tokenizer.address,
+    constructorArguments: [
+      connector.address, moneyPool.address, 'testTokenizer', 'T'
+    ],
+  })
+  await hre.run("verify:verify", {
+    address: dataPipeline.address,
+    constructorArguments: [
+      moneyPool.address
+    ],
+  })
 };
 
 export default deployTest;
