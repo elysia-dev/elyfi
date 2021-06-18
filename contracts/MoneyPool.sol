@@ -342,14 +342,35 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
     _reserveCount = reserveCount + 1;
   }
 
+  function deactivateMoneyPool(address asset) external onlyMoneyPoolAdmin {
+    _reserves[asset].isActivated = false;
+  }
+
+  function activateMoneyPool(address asset) external onlyMoneyPoolAdmin {
+    _reserves[asset].isActivated = true;
+  }
+
+  function pauseMoneyPool(address asset) external onlyMoneyPoolAdmin {
+    _reserves[asset].isPaused = true;
+  }
+
+  function unPauseMoneyPool(address asset) external onlyMoneyPoolAdmin {
+    _reserves[asset].isPaused = false;
+  }
+
   modifier onlyCollateralServiceProvider {
     if (!_connector.isCollateralServiceProvider(msg.sender))
-      revert TokenizerErrors.OnlyCollateralServiceProvider();
+      revert MoneyPoolErrors.OnlyCollateralServiceProvider();
     _;
   }
 
   modifier onlyCouncil {
-    if (!_connector.isCouncil(msg.sender)) revert TokenizerErrors.OnlyCouncil();
+    if (!_connector.isCouncil(msg.sender)) revert MoneyPoolErrors.OnlyCouncil();
+    _;
+  }
+
+  modifier onlyMoneyPoolAdmin {
+    if (!_connector.isMoneyPoolAdmin(msg.sender)) revert MoneyPoolErrors.OnlyMoneyPoolAdmin();
     _;
   }
 }

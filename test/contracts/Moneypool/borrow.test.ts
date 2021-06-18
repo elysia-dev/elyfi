@@ -114,7 +114,7 @@ describe('MoneyPool.borrow', () => {
               .approve(elyfiContracts.moneyPool.address, RAY);
             const tx = await elyfiContracts.moneyPool
               .connect(depositor)
-              .invest(
+              .deposit(
                 elyfiContracts.underlyingAsset.address,
                 depositor.address,
                 utils.parseEther('10')

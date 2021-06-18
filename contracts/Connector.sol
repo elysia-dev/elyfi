@@ -64,4 +64,8 @@ contract Connector is IConnector, ConnectorStorage, Ownable {
   function isCouncil(address account) external view override returns (bool) {
     return _hasRole(Role.COUNCIL, account);
   }
+
+  function isMoneyPoolAdmin(address account) external view override returns (bool) {
+    return owner() == account;
+  }
 }

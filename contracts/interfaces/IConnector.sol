@@ -12,4 +12,6 @@ interface IConnector {
   function isCollateralServiceProvider(address account) external view returns (bool);
 
   function isCouncil(address account) external view returns (bool);
+
+  function isMoneyPoolAdmin(address account) external view returns (bool);
 }

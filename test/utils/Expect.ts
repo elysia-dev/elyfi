@@ -1,6 +1,6 @@
-import { BigNumber } from 'ethers';
+import { BigNumber, Wallet } from 'ethers';
 import { rayDiv, rayMul } from './Ethereum';
-import { AssetBondData, ReserveData, UserData } from './Interfaces';
+import { AssetBondData, AssetBondState, ReserveData, UserData } from './Interfaces';
 import {
   calculateAssetBondDebtData,
   calculateCompoundedInterest,
@@ -110,7 +110,7 @@ export function expectReserveDataAfterWithdraw({
   ).sub(amount);
 
   // transfer underlying asset in burn logic
-  newReserveData.underlyingAssetBalance = reserveData.underlyingAssetBalance.sub(amount);
+  newReserveData.underlyingAssetBalance = reserveData.underlyingAssetBalance.add(amount);
 
   return newReserveData;
 }
@@ -129,10 +129,12 @@ export function expectUserDataAfterDeposit({
   const expectedUserData: UserData = { ...userDataBefore };
 
   // transferFrom
-  expectedUserData.underlyingAssetBalance = userDataBefore.underlyingAssetBalance.sub(amountDeposit);
+  expectedUserData.underlyingAssetBalance = userDataBefore.underlyingAssetBalance.sub(
+    amountDeposit
+  );
 
   // mint ltoken
-  expectedUserData.implicitLtokenBalance = userDataBefore.implicitLtokenBalance.sub(
+  expectedUserData.implicitLtokenBalance = userDataBefore.implicitLtokenBalance.add(
     rayDiv(amountDeposit, reserveDataAfter.lTokenInterestIndex)
   );
 
@@ -175,7 +177,7 @@ export function expectUserDataAfterWithdraw({
   );
 
   // transfer underlyingAsset
-  expectedUserData.underlyingAssetBalance = userDataBefore.underlyingAssetBalance.add(
+  expectedUserData.underlyingAssetBalance = userDataBefore.underlyingAssetBalance.sub(
     amountWithdraw
   );
   // update lToken balance
@@ -429,4 +431,42 @@ export function expectUserDataAfterRepay({
   expectedUserData.underlyingAssetBalance = underlyingAssetBalance;
 
   return expectedUserData;
+}
+
+export function expectAssetBondDataAfterRepay({
+  assetBondData,
+}: {
+  assetBondData: AssetBondData;
+}): AssetBondData {
+  const expectedAssetBondData: AssetBondData = { ...assetBondData };
+
+  expectedAssetBondData.accruedDebtOnMoneyPool = BigNumber.from(0);
+
+  expectedAssetBondData.feeOnCollateralServiceProvider = BigNumber.from(0);
+
+  expectedAssetBondData.state = AssetBondState.REDEEMED;
+
+  expectedAssetBondData.tokenOwner = assetBondData.borrower;
+
+  return expectedAssetBondData;
+}
+
+export function expectAssetBondDataAfterLiquidation({
+  assetBondData,
+  liquidator,
+}: {
+  assetBondData: AssetBondData;
+  liquidator: Wallet;
+}): AssetBondData {
+  const expectedAssetBondData: AssetBondData = { ...assetBondData };
+
+  expectedAssetBondData.accruedDebtOnMoneyPool = BigNumber.from(0);
+
+  expectedAssetBondData.feeOnCollateralServiceProvider = BigNumber.from(0);
+
+  expectedAssetBondData.state = AssetBondState.NOT_PERFORMED;
+
+  expectedAssetBondData.tokenOwner = liquidator.address;
+
+  return expectedAssetBondData;
 }

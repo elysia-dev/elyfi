@@ -8,7 +8,11 @@ import {
   toTimestamp,
 } from '../../utils/Ethereum';
 import { expect } from 'chai';
-import { expectReserveDataAfterRepay, expectUserDataAfterRepay } from '../../utils/Expect';
+import {
+  expectAssetBondDataAfterRepay,
+  expectReserveDataAfterRepay,
+  expectUserDataAfterRepay,
+} from '../../utils/Expect';
 import ElyfiContracts from '../../types/ElyfiContracts';
 import takeDataSnapshot from '../../utils/takeDataSnapshot';
 import { BigNumber, utils } from 'ethers';
@@ -169,14 +173,15 @@ describe('MoneyPool.repay', () => {
             txTimestamp: await getTimestamp(tx),
           });
 
+          const expectedAssetBondData = expectAssetBondDataAfterRepay({
+            assetBondData: assetBondDataBefore,
+          });
           expect(collateralServiceProviderBalanceAfter).to.be.equal(
             collateralServiceProviderBalanceBefore.add(
               assetBondDataAfter.feeOnCollateralServiceProvider
             )
           );
-          expect(assetBondDataAfter.accruedDebtOnMoneyPool).to.be.equal(BigNumber.from(0));
-          expect(assetBondDataAfter.feeOnCollateralServiceProvider).to.be.equal(BigNumber.from(0));
-          expect(assetBondDataAfter.state).to.be.equal(AssetBondState.REDEEMED);
+          expect(assetBondDataAfter).equalAssetBondData(expectedAssetBondData);
           expect(reserveDataAfter).equalReserveData(expectedReserveData);
           expect(userDataAfter).equalUserData(expectedUserData);
         });
@@ -242,16 +247,16 @@ describe('MoneyPool.repay', () => {
               txTimestamp: await getTimestamp(tx),
             });
 
+            const expectedAssetBondData = expectAssetBondDataAfterRepay({
+              assetBondData: assetBondDataBefore,
+            });
+
             expect(collateralServiceProviderBalanceAfter).to.be.equal(
               collateralServiceProviderBalanceBefore.add(
                 assetBondDataAfter.feeOnCollateralServiceProvider
               )
             );
-            expect(assetBondDataAfter.accruedDebtOnMoneyPool).to.be.equal(BigNumber.from(0));
-            expect(assetBondDataAfter.feeOnCollateralServiceProvider).to.be.equal(
-              BigNumber.from(0)
-            );
-            expect(assetBondDataAfter.state).to.be.equal(AssetBondState.REDEEMED);
+            expect(assetBondDataAfter).equalAssetBondData(expectedAssetBondData);
             expect(reserveDataAfter).equalReserveData(expectedReserveData);
             expect(userDataAfter).equalUserData(expectedUserData);
           });

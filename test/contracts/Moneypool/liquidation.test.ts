@@ -1,14 +1,11 @@
 import { ethers, waffle } from 'hardhat';
-import {
-  advanceTimeTo,
-  getTimestamp,
-  revertFromEVMSnapshot,
-  saveEVMSnapshot,
-  toRate,
-  toTimestamp,
-} from '../../utils/Ethereum';
+import { advanceTimeTo, getTimestamp, toRate, toTimestamp } from '../../utils/Ethereum';
 import { expect } from 'chai';
-import { expectReserveDataAfterRepay, expectUserDataAfterRepay } from '../../utils/Expect';
+import {
+  expectAssetBondDataAfterLiquidation,
+  expectReserveDataAfterRepay,
+  expectUserDataAfterRepay,
+} from '../../utils/Expect';
 import ElyfiContracts from '../../types/ElyfiContracts';
 import takeDataSnapshot from '../../utils/takeDataSnapshot';
 import { BigNumber, utils } from 'ethers';
@@ -23,7 +20,7 @@ describe('MoneyPool.liquidation', () => {
   let borrowTxTimestamp: BigNumber;
 
   const provider = waffle.provider;
-  const [deployer, CSP, borrower, signer, otherCSP] = provider.getWallets();
+  const [deployer, CSP, borrower, signer, liquidator] = provider.getWallets();
   const testAssetBondData: AssetBondSettleData = <AssetBondSettleData>{
     ...(<AssetBondSettleData>{}),
     borrower: borrower.address,
@@ -46,7 +43,9 @@ describe('MoneyPool.liquidation', () => {
     elyfiContracts = fixture.elyfiContracts;
 
     await elyfiContracts.connector.connect(deployer).addCollateralServiceProvider(CSP.address);
-    await elyfiContracts.connector.connect(deployer).addCollateralServiceProvider(otherCSP.address);
+    await elyfiContracts.connector
+      .connect(deployer)
+      .addCollateralServiceProvider(liquidator.address);
     await elyfiContracts.tokenizer
       .connect(CSP)
       .mintAssetBond(CSP.address, testAssetBondData.tokenId);
@@ -84,7 +83,7 @@ describe('MoneyPool.liquidation', () => {
   it('reverts if the asset bond state is not `NOT_PERFORMED` state', async () => {
     await expect(
       elyfiContracts.moneyPool
-        .connect(otherCSP)
+        .connect(liquidator)
         .liquidate(elyfiContracts.underlyingAsset.address, testAssetBondData.tokenId)
     ).to.be.reverted;
   });
@@ -99,7 +98,7 @@ describe('MoneyPool.liquidation', () => {
     it('reverts if the account balance is insufficient to liquidate', async () => {
       await expect(
         elyfiContracts.moneyPool
-          .connect(otherCSP)
+          .connect(liquidator)
           .liquidate(elyfiContracts.underlyingAsset.address, testAssetBondData.tokenId)
       ).to.be.reverted;
     });
@@ -111,9 +110,9 @@ describe('MoneyPool.liquidation', () => {
       before('The account balance increases', async () => {
         await elyfiContracts.underlyingAsset
           .connect(deployer)
-          .transfer(otherCSP.address, utils.parseEther('1000'));
+          .transfer(liquidator.address, utils.parseEther('1000'));
         await elyfiContracts.underlyingAsset
-          .connect(otherCSP)
+          .connect(liquidator)
           .approve(elyfiContracts.moneyPool.address, utils.parseEther('1000'));
       });
 
@@ -128,13 +127,17 @@ describe('MoneyPool.liquidation', () => {
           tokenizer: elyfiContracts.tokenizer,
           tokenId: testAssetBondData.tokenId,
         });
+        const liquidatorBalanceBefore = await elyfiContracts.underlyingAsset.balanceOf(
+          liquidator.address
+        );
         const collateralServiceProviderBalanceBefore = await elyfiContracts.underlyingAsset.balanceOf(
           CSP.address
         );
+
         const tx = await elyfiContracts.moneyPool
-          .connect(otherCSP)
+          .connect(liquidator)
           .liquidate(elyfiContracts.underlyingAsset.address, testAssetBondData.tokenId);
-        //expect()
+
         const [reserveDataAfter, userDataAfter] = await takeDataSnapshot(borrower, elyfiContracts);
 
         const assetBondDataAfter = await getAssetBondData({
@@ -144,6 +147,9 @@ describe('MoneyPool.liquidation', () => {
           tokenId: testAssetBondData.tokenId,
         });
 
+        const liquidatorBalanceAfter = await elyfiContracts.underlyingAsset.balanceOf(
+          liquidator.address
+        );
         const collateralServiceProviderBalanceAfter = await elyfiContracts.underlyingAsset.balanceOf(
           CSP.address
         );
@@ -161,14 +167,26 @@ describe('MoneyPool.liquidation', () => {
           txTimestamp: await getTimestamp(tx),
         });
 
+        const expectedAssetBondData = expectAssetBondDataAfterLiquidation({
+          assetBondData: assetBondDataBefore,
+          liquidator: liquidator,
+        });
+
+        console.log(liquidatorBalanceAfter.toString());
+
+        expect(liquidatorBalanceAfter).to.be.equal(
+          liquidatorBalanceBefore.sub(
+            assetBondDataBefore.feeOnCollateralServiceProvider.add(
+              assetBondDataBefore.accruedDebtOnMoneyPool
+            )
+          )
+        );
         expect(collateralServiceProviderBalanceAfter).to.be.equal(
           collateralServiceProviderBalanceBefore.add(
             assetBondDataAfter.feeOnCollateralServiceProvider
           )
         );
-        expect(assetBondDataAfter.accruedDebtOnMoneyPool).to.be.equal(BigNumber.from(0));
-        expect(assetBondDataAfter.feeOnCollateralServiceProvider).to.be.equal(BigNumber.from(0));
-        expect(assetBondDataAfter.state).to.be.equal(AssetBondState.REDEEMED);
+        expect(assetBondDataAfter).to.be.equal(expectedAssetBondData);
         expect(reserveDataAfter).equalReserveData(expectedReserveData);
         expect(userDataAfter).equalUserData(expectedUserData);
       });

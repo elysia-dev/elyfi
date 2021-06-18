@@ -12,7 +12,7 @@ import utilizedMoneypool from '../../fixtures/utilizedMoneypool';
 describe('MoneyPool.deposit', () => {
   let elyfiContracts: ElyfiContracts;
 
-  const [deployer, account1] = waffle.provider.getWallets();
+  const [deployer, depositor] = waffle.provider.getWallets();
 
   beforeEach(async () => {
     const fixture = await loadFixture(utilizedMoneypool);
@@ -22,7 +22,7 @@ describe('MoneyPool.deposit', () => {
   context('when account approve enough underlyingAsset', async () => {
     beforeEach(async () => {
       await elyfiContracts.underlyingAsset
-        .connect(account1)
+        .connect(depositor)
         .approve(elyfiContracts.moneyPool.address, RAY);
     });
 
@@ -30,8 +30,8 @@ describe('MoneyPool.deposit', () => {
       let beforeBalance: BigNumber;
 
       beforeEach(async () => {
-        await elyfiContracts.underlyingAsset.connect(deployer).transfer(account1.address, RAY);
-        beforeBalance = await elyfiContracts.underlyingAsset.balanceOf(account1.address);
+        await elyfiContracts.underlyingAsset.connect(deployer).transfer(depositor.address, RAY);
+        beforeBalance = await elyfiContracts.underlyingAsset.balanceOf(depositor.address);
       });
 
       context('when amount is not zero', async () => {
@@ -39,16 +39,16 @@ describe('MoneyPool.deposit', () => {
           const amountDeposit = ethers.utils.parseEther('10000');
 
           const [reserveDataBefore, userDataBefore] = await takeDataSnapshot(
-            account1,
+            depositor,
             elyfiContracts
           );
 
           const depositTx = await elyfiContracts.moneyPool
-            .connect(account1)
-            .deposit(elyfiContracts.underlyingAsset.address, account1.address, amountDeposit);
+            .connect(depositor)
+            .deposit(elyfiContracts.underlyingAsset.address, depositor.address, amountDeposit);
 
           const [reserveDataAfter, userDataAfter] = await takeDataSnapshot(
-            account1,
+            depositor,
             elyfiContracts
           );
 
@@ -67,22 +67,22 @@ describe('MoneyPool.deposit', () => {
           expect(reserveDataAfter).to.equalReserveData(expectedReserveData);
           expect(userDataAfter).to.equalUserData(expectedUserData);
 
-          const afterBalance = await elyfiContracts.underlyingAsset.balanceOf(account1.address);
+          const afterBalance = await elyfiContracts.underlyingAsset.balanceOf(depositor.address);
           expect(beforeBalance.sub(afterBalance)).to.eq(amountDeposit);
         });
 
         context('when moneypool is deactivated', async () => {
           it('reverted ', async () => {
-            await elyfiContracts.connector
+            await elyfiContracts.moneyPool
               .connect(deployer)
-              .deactivateMoneyPool(elyfiContracts.moneyPool.address);
+              .deactivateMoneyPool(elyfiContracts.underlyingAsset.address);
 
             await expect(
               elyfiContracts.moneyPool
-                .connect(account1)
+                .connect(depositor)
                 .deposit(
                   elyfiContracts.underlyingAsset.address,
-                  account1.address,
+                  depositor.address,
                   ethers.utils.parseEther('1000')
                 )
             ).to.be.reverted;
@@ -91,12 +91,16 @@ describe('MoneyPool.deposit', () => {
 
         context('when moneypool is paused', async () => {
           it('reverted', async () => {
+            await elyfiContracts.moneyPool
+              .connect(deployer)
+              .pauseMoneyPool(elyfiContracts.underlyingAsset.address);
+
             await expect(
               elyfiContracts.moneyPool
-                .connect(account1)
+                .connect(depositor)
                 .deposit(
                   elyfiContracts.underlyingAsset.address,
-                  account1.address,
+                  depositor.address,
                   ethers.utils.parseEther('1000')
                 )
             ).to.reverted;
@@ -108,8 +112,8 @@ describe('MoneyPool.deposit', () => {
         it('reverted', async () => {
           await expect(
             elyfiContracts.moneyPool
-              .connect(account1)
-              .deposit(elyfiContracts.underlyingAsset.address, account1.address, BigNumber.from(0))
+              .connect(depositor)
+              .deposit(elyfiContracts.underlyingAsset.address, depositor.address, BigNumber.from(0))
           ).to.be.reverted;
         });
       });
@@ -119,10 +123,10 @@ describe('MoneyPool.deposit', () => {
       it('reverted', async () => {
         await expect(
           elyfiContracts.moneyPool
-            .connect(account1)
+            .connect(depositor)
             .deposit(
               elyfiContracts.underlyingAsset.address,
-              account1.address,
+              depositor.address,
               ethers.utils.parseEther('10000')
             )
         ).to.be.reverted;
@@ -132,16 +136,16 @@ describe('MoneyPool.deposit', () => {
 
   context('when account do not approve enough underlyingAsset', async () => {
     beforeEach(async () => {
-      await elyfiContracts.underlyingAsset.connect(deployer).transfer(account1.address, RAY);
+      await elyfiContracts.underlyingAsset.connect(deployer).transfer(depositor.address, RAY);
     });
 
     it('reverted', async () => {
       await expect(
         elyfiContracts.moneyPool
-          .connect(account1)
+          .connect(depositor)
           .deposit(
             elyfiContracts.underlyingAsset.address,
-            account1.address,
+            depositor.address,
             ethers.utils.parseEther('10000')
           )
       ).to.be.reverted;

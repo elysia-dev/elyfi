@@ -28,6 +28,9 @@ library MoneyPoolErrors {
   error NotEnoughLiquidityToLoan();
   error NotTimeForLoanStart();
   error LoanExpired();
+  error OnlyCollateralServiceProvider();
+  error OnlyCouncil();
+  error OnlyMoneyPoolAdmin();
 }
 
 library TokenErrors {
