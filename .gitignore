@@ -145,3 +145,6 @@ workspace.code-workspace
 # xml, xlsx file
 *.xlsx
 *.xml
+
+# abi
+data/*

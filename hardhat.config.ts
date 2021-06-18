@@ -6,6 +6,7 @@ import '@openzeppelin/hardhat-upgrades';
 import 'hardhat-typechain';
 import 'hardhat-deploy-ethers';
 import 'hardhat-deploy';
+import 'hardhat-abi-exporter';
 // import "solidity-coverage"
 // Gas-reporter's parser dependency makes Warning:
 // Accessing non-existent property 'INVALID_ALT_NUMBER' of module exports inside circular dependency
@@ -78,6 +79,12 @@ const config: HardhatUserConfig = {
       showTimeSpent: true,
     },
   },
+  abiExporter: {
+    path: './data/abi',
+    clear: true,
+    flat: true,
+    spacing: 2
+  }
 };
 
 export default config;

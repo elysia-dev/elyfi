@@ -29,6 +29,7 @@
     "ethereum-waffle": "^3.3.0",
     "ethers": "^5.3.0",
     "hardhat": "^2.2.0",
+    "hardhat-abi-exporter": "^2.2.1",
     "hardhat-deploy": "^0.7.10",
     "hardhat-deploy-ethers": "^0.3.0-beta.8",
     "hardhat-gas-reporter": "^1.0.4",
