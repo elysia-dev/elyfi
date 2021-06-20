@@ -44,6 +44,8 @@ const getElysia = async (hre: HardhatRuntimeEnvironment, signer: string): Promis
 
   elysia = await hre.ethers.getContractAt(elysiaLocalDeploy.abi, elysiaLocalDeploy.address);
 
+  console.log(`Asset address ${elysia.address}`)
+
   return elysia;
 };
 

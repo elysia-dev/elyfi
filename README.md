@@ -25,7 +25,8 @@ ETHERSCAN_API_KEY=
 - Install dependencies with `yarn`
 
 ## Test
-For convenience, we assume that waffle's wallets are mapped in order of [deployer, account1, account2, account3 ...]   
+
+For convenience, we assume that waffle's wallets are mapped in order of [deployer, account1, account2, account3 ...]
 
 ```
 # Run specific test code
@@ -36,6 +37,10 @@ yarn test:zap test/contracts/Index.test.ts
 
 # Run scenarios. The below script dynamically loads ./scenarios/*.json
 yarn test test-suites/scenario.test.ts
+
+# Run script for subgrap testing
+yarn hardhat deploy --network ganache
+yarn hardhat createWithdraw --network ganache --asset ASSET_ADDRESS --pool POOL_ADDRESS
 ```
 
 ## Deploy
