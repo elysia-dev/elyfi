@@ -1,4 +1,4 @@
-import { BigNumber } from 'ethers';
+import { BigNumber, constants } from 'ethers';
 import { rayDiv, rayMul, wadToRay } from './Ethereum';
 import { RAY, SECONDSPERYEAR } from './constants';
 import { AssetBondData, InterestModelParams } from './Interfaces';
@@ -76,18 +76,21 @@ export function calculateRateInDecreasingBalance(
   rate: BigNumber
 ): BigNumber {
   if (totalBalanceBefore.lte(amount)) {
-    return BigNumber.from(0);
+    return constants.Zero;
   }
 
   const weightedAverageRate = rayMul(wadToRay(totalBalanceBefore), averageRateBefore);
   const weightedAmountRate = rayMul(wadToRay(amount), rate);
 
   if (weightedAverageRate.lte(weightedAmountRate)) {
-    return BigNumber.from(0);
+    return constants.Zero;
   }
 
-  const newTotalBalance = totalBalanceBefore.add(amount);
-  const newAverageRate = rayDiv(weightedAmountRate.add(weightedAverageRate), newTotalBalance);
+  const newTotalBalance = totalBalanceBefore.sub(amount);
+  const newAverageRate = rayDiv(
+    weightedAverageRate.sub(weightedAmountRate),
+    wadToRay(newTotalBalance)
+  );
 
   return newAverageRate;
 }
@@ -107,7 +110,7 @@ export function calculateRateInInterestRateModel(
   const totalLiquidity = underlyingAssetBalance.add(depositAmount).sub(borrowAmount);
 
   if (totalDebt.eq(0)) {
-    utilizationRate = BigNumber.from(0);
+    utilizationRate = constants.Zero;
   } else {
     utilizationRate = rayDiv(totalDebt, totalLiquidity.add(totalDebt));
   }
@@ -173,13 +176,13 @@ export function calculateFeeOnRepayment(
     assetBondData.collateralizeTimestamp
   );
 
-  const currentDateTimeStruct = new Date(paymentTimestamp.toNumber());
+  const currentDateTimeStruct = new Date(paymentTimestamp.toNumber() * 1000);
 
   const paymentDate =
     Date.UTC(
       currentDateTimeStruct.getUTCFullYear(),
       currentDateTimeStruct.getUTCMonth(),
-      currentDateTimeStruct.getUTCDate()
+      currentDateTimeStruct.getUTCDate() + 1
     ) / 1000;
 
   if (paymentDate <= assetBondData.liquidationTimestamp.toNumber()) {
@@ -196,7 +199,7 @@ export function calculateFeeOnRepayment(
 
     totalRate = firstTermRate.add(secondTermRate).add(thirdTermRate);
 
-    return rayMul(assetBondData.principal, totalRate);
+    return rayMul(assetBondData.principal, totalRate).sub(assetBondData.principal);
   }
 
   secondTermRate = calculateCompoundedInterest(
@@ -219,7 +222,7 @@ export function calculateFeeOnRepayment(
 
   totalRate = firstTermRate.add(secondTermRate).add(secondOverdueRate).add(thirdTermRate);
 
-  return rayMul(assetBondData.principal, totalRate);
+  return rayMul(assetBondData.principal, totalRate).sub(assetBondData.principal);
 }
 
 export function calculateAssetBondDebtData(
@@ -229,10 +232,13 @@ export function calculateAssetBondDebtData(
   let accruedDebtOnMoneyPool: BigNumber;
   let feeOnRepayment: BigNumber;
 
-  accruedDebtOnMoneyPool = calculateCompoundedInterest(
-    assetBondData.interestRate,
-    assetBondData.collateralizeTimestamp,
-    paymentTimestamp
+  accruedDebtOnMoneyPool = rayMul(
+    assetBondData.principal,
+    calculateCompoundedInterest(
+      assetBondData.interestRate,
+      assetBondData.collateralizeTimestamp,
+      paymentTimestamp
+    )
   );
 
   feeOnRepayment = calculateFeeOnRepayment(assetBondData, paymentTimestamp);

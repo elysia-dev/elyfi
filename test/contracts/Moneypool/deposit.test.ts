@@ -5,7 +5,7 @@ import { expect } from '../../utils/chai';
 import { expectReserveDataAfterDeposit, expectUserDataAfterDeposit } from '../../utils/Expect';
 import ElyfiContracts from '../../types/ElyfiContracts';
 import takeDataSnapshot from '../../utils/takeDataSnapshot';
-import { BigNumber } from 'ethers';
+import { BigNumber, constants } from 'ethers';
 import loadFixture from '../../utils/loadFixture';
 import utilizedMoneypool from '../../fixtures/utilizedMoneypool';
 
@@ -113,7 +113,7 @@ describe('MoneyPool.deposit', () => {
           await expect(
             elyfiContracts.moneyPool
               .connect(depositor)
-              .deposit(elyfiContracts.underlyingAsset.address, depositor.address, BigNumber.from(0))
+              .deposit(elyfiContracts.underlyingAsset.address, depositor.address, constants.Zero)
           ).to.be.reverted;
         });
       });

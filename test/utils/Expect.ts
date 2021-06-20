@@ -1,4 +1,4 @@
-import { BigNumber, Wallet } from 'ethers';
+import { BigNumber, constants, Wallet } from 'ethers';
 import { rayDiv, rayMul } from './Ethereum';
 import { AssetBondData, AssetBondState, ReserveData, UserData } from './Interfaces';
 import {
@@ -15,7 +15,7 @@ import {
 function applyTxTimeStamp(reserveData: ReserveData, txTimestamp: BigNumber): ReserveData {
   const newReserveData: ReserveData = { ...reserveData };
 
-  if (newReserveData.depositAPY.eq(BigNumber.from(0)))
+  if (newReserveData.depositAPY.eq(constants.Zero))
     newReserveData.moneyPoolLastUpdateTimestamp = txTimestamp;
 
   if (!newReserveData.moneyPoolLastUpdateTimestamp.eq(txTimestamp)) {
@@ -56,7 +56,7 @@ export function expectReserveDataAfterDeposit({
     reserveData.underlyingAssetBalance,
     newReserveData.totalDTokenSupply,
     amount,
-    BigNumber.from(0),
+    constants.Zero,
     newReserveData.interestRateModelParams
   );
 
@@ -91,7 +91,7 @@ export function expectReserveDataAfterWithdraw({
   const [borrowAPY, depositAPY] = calculateRateInInterestRateModel(
     reserveData.underlyingAssetBalance,
     newReserveData.totalDTokenSupply,
-    BigNumber.from(0),
+    constants.Zero,
     amount,
     reserveData.interestRateModelParams
   );
@@ -110,7 +110,7 @@ export function expectReserveDataAfterWithdraw({
   ).sub(amount);
 
   // transfer underlying asset in burn logic
-  newReserveData.underlyingAssetBalance = reserveData.underlyingAssetBalance.add(amount);
+  newReserveData.underlyingAssetBalance = reserveData.underlyingAssetBalance.sub(amount);
 
   return newReserveData;
 }
@@ -243,7 +243,7 @@ export function expectReserveDataAfterBorrow({
   const [borrowAPY, depositAPY] = calculateRateInInterestRateModel(
     reserveDataBefore.underlyingAssetBalance,
     totalDTokenSupply,
-    BigNumber.from(0),
+    constants.Zero,
     amountBorrow,
     reserveDataBefore.interestRateModelParams
   );
@@ -328,42 +328,49 @@ export function expectReserveDataAfterRepay({
 
   const totalRetrieveAmount = accruedDebtOnMoneyPool.add(feeOnRepayment);
 
+  // update totalDTokenSupply
   const dTokenAccruedInterest = calculateCompoundedInterest(
     reserveData.averageRealAssetBorrowRate,
     reserveData.dTokenLastUpdateTimestamp,
     txTimestamp
   );
-
   const previousUpdatedDTokenBalance = rayMul(
     reserveData.principalDTokenSupply,
     dTokenAccruedInterest
   );
-
   const totalDTokenSupply = previousUpdatedDTokenBalance.sub(accruedDebtOnMoneyPool);
+
+  // update dToken averageBorrowRate
   const newAverageRealAssetBorrowRate = calculateRateInDecreasingBalance(
     reserveData.averageRealAssetBorrowRate,
     previousUpdatedDTokenBalance,
     accruedDebtOnMoneyPool,
     assetBondData.interestRate
   );
+  newReserveData.principalDTokenSupply = totalDTokenSupply;
   newReserveData.totalDTokenSupply = totalDTokenSupply;
   newReserveData.averageRealAssetBorrowRate = newAverageRealAssetBorrowRate;
 
+  // update dTokenLasetUpdateTimestamp
+  newReserveData.dTokenLastUpdateTimestamp = txTimestamp;
+
+  // transferFrom
+  const underlyingAssetBalance = reserveData.underlyingAssetBalance.add(totalRetrieveAmount);
+  newReserveData.underlyingAssetBalance = underlyingAssetBalance;
+
+  //updateRates
   const [borrowAPY, depositAPY] = calculateRateInInterestRateModel(
-    reserveData.underlyingAssetBalance,
+    newReserveData.underlyingAssetBalance,
     newReserveData.totalDTokenSupply,
     totalRetrieveAmount,
-    BigNumber.from(0),
+    constants.Zero,
     newReserveData.interestRateModelParams
   );
 
   newReserveData.borrowAPY = borrowAPY;
   newReserveData.depositAPY = depositAPY;
 
-  newReserveData.underlyingAssetBalance = newReserveData.underlyingAssetBalance.add(
-    totalRetrieveAmount
-  );
-
+  // mint LToken
   newReserveData.implicitLTokenSupply = newReserveData.implicitLTokenSupply.add(
     rayDiv(feeOnRepayment, newReserveData.lTokenInterestIndex)
   );
@@ -415,19 +422,23 @@ export function expectUserDataAfterRepay({
   expectedUserData.principalDTokenBalance = dTokenBalance;
 
   // update average Borrow rate and timestamp
-  const averageRealAssetBorrowRate = calculateRateInDecreasingBalance(
-    userDataBefore.averageRealAssetBorrowRate,
-    previousUpdatedDTokenBalance,
-    accruedDebtOnMoneyPool,
-    assetBondData.interestRate
-  );
-  expectedUserData.userLastUpdateTimestamp = txTimestamp;
-  expectedUserData.averageRealAssetBorrowRate = averageRealAssetBorrowRate;
+  if (dTokenBalance.eq(0)) {
+    expectedUserData.userLastUpdateTimestamp = constants.Zero;
+    expectedUserData.averageRealAssetBorrowRate = constants.Zero;
+  } else {
+    const averageRealAssetBorrowRate = calculateRateInDecreasingBalance(
+      userDataBefore.averageRealAssetBorrowRate,
+      previousUpdatedDTokenBalance,
+      accruedDebtOnMoneyPool,
+      assetBondData.interestRate
+    );
+    expectedUserData.userLastUpdateTimestamp = txTimestamp;
+    expectedUserData.averageRealAssetBorrowRate = averageRealAssetBorrowRate;
+  }
 
   // transfer underlying asset
-  const underlyingAssetBalance = userDataBefore.underlyingAssetBalance.add(
-    accruedDebtOnMoneyPool.add(feeOnRepayment)
-  );
+  const totalRetrieveAmount = accruedDebtOnMoneyPool.add(feeOnRepayment);
+  const underlyingAssetBalance = userDataBefore.underlyingAssetBalance.sub(totalRetrieveAmount);
   expectedUserData.underlyingAssetBalance = underlyingAssetBalance;
 
   return expectedUserData;
@@ -440,9 +451,9 @@ export function expectAssetBondDataAfterRepay({
 }): AssetBondData {
   const expectedAssetBondData: AssetBondData = { ...assetBondData };
 
-  expectedAssetBondData.accruedDebtOnMoneyPool = BigNumber.from(0);
+  expectedAssetBondData.accruedDebtOnMoneyPool = constants.Zero;
 
-  expectedAssetBondData.feeOnCollateralServiceProvider = BigNumber.from(0);
+  expectedAssetBondData.feeOnCollateralServiceProvider = constants.Zero;
 
   expectedAssetBondData.state = AssetBondState.REDEEMED;
 
@@ -460,9 +471,9 @@ export function expectAssetBondDataAfterLiquidation({
 }): AssetBondData {
   const expectedAssetBondData: AssetBondData = { ...assetBondData };
 
-  expectedAssetBondData.accruedDebtOnMoneyPool = BigNumber.from(0);
+  expectedAssetBondData.accruedDebtOnMoneyPool = constants.Zero;
 
-  expectedAssetBondData.feeOnCollateralServiceProvider = BigNumber.from(0);
+  expectedAssetBondData.feeOnCollateralServiceProvider = constants.Zero;
 
   expectedAssetBondData.state = AssetBondState.NOT_PERFORMED;
 

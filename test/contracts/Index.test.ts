@@ -1,4 +1,4 @@
-import { BigNumber } from 'ethers';
+import { BigNumber, constants } from 'ethers';
 import { ModifiableContract, ModifiableContractFactory, smoddit } from '@eth-optimism/smock';
 import {
   address,
@@ -24,7 +24,7 @@ describe('Index', () => {
     lTokenInterestIndex: toIndex(1).toString(),
     borrowAPY: toRate(0.15).toString(),
     depositAPY: toRate(0.2).toString(),
-    lastUpdateTimestamp: BigNumber.from(0),
+    lastUpdateTimestamp: constants.Zero,
   };
 
   beforeEach(async () => {

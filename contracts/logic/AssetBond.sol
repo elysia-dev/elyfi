@@ -84,7 +84,7 @@ library AssetBond {
 
       vars.totalRate = vars.firstTermRate + vars.secondTermRate + vars.thirdTermRate;
 
-      return assetBondData.principal.rayMul(vars.totalRate);
+      return assetBondData.principal.rayMul(vars.totalRate) - assetBondData.principal;
     }
 
     vars.secondTermRate =
@@ -115,7 +115,7 @@ library AssetBond {
       vars.secondTermOverdueRate +
       vars.thirdTermRate;
 
-    return assetBondData.principal.rayMul(vars.totalRate);
+    return assetBondData.principal.rayMul(vars.totalRate) - assetBondData.principal;
   }
 
   function getAssetBondLiquidationData(DataStruct.AssetBondData memory assetBondData)
@@ -186,6 +186,6 @@ library AssetBond {
       ) -
       WadRayMath.ray();
     vars.totalRate = vars.firstTermRate + vars.secondTermRate;
-    return principal.rayMul(vars.totalRate);
+    return principal.rayMul(vars.totalRate) - principal;
   }
 }

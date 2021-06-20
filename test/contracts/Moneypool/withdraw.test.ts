@@ -66,6 +66,17 @@ describe('MoneyPool.withdraw', () => {
           txTimestamp: await getTimestamp(tx),
         });
 
+        console.log(
+          reserveDataAfter.totalLTokenSupply.toString(),
+          reserveDataAfter.underlyingAssetBalance.toString(),
+          reserveDataAfter.implicitLTokenSupply.toString()
+        );
+        console.log(
+          expectedReserveData.totalLTokenSupply.toString(),
+          expectedReserveData.underlyingAssetBalance.toString(),
+          expectedReserveData.implicitLTokenSupply.toString()
+        );
+
         expect(reserveDataAfter).to.equalReserveData(expectedReserveData);
         expect(userDataAfter).to.equalUserData(expectedUserData);
 
@@ -89,7 +100,7 @@ describe('MoneyPool.withdraw', () => {
           .withdraw(
             elyfiContracts.underlyingAsset.address,
             depositor.address,
-            constants.MaxUint256.sub(1)
+            constants.MaxUint256
           );
 
         expect(await elyfiContracts.lToken.balanceOf(depositor.address)).to.eq(constants.Zero);
@@ -116,20 +127,6 @@ describe('MoneyPool.withdraw', () => {
               utils.parseEther('2')
             )
         ).to.be.reverted;
-      });
-    });
-
-    context('when moneypool is paused', async () => {
-      it('reverted', async () => {
-        await expect(
-          elyfiContracts.moneyPool
-            .connect(depositor)
-            .withdraw(
-              elyfiContracts.underlyingAsset.address,
-              depositor.address,
-              utils.parseEther('2')
-            )
-        ).to.reverted;
       });
     });
 

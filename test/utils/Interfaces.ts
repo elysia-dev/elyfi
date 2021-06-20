@@ -1,4 +1,4 @@
-import { BigNumber, ethers } from 'ethers';
+import { BigNumber, constants, ethers } from 'ethers';
 import { toRate } from './Ethereum';
 import { RAY } from './constants';
 
@@ -31,8 +31,8 @@ export const defaultReserveData: ReserveData = <ReserveData>{
   underlyingAssetName: 'ELYSIA',
   underlyingAssetSymbol: 'EL',
   lTokenInterestIndex: BigNumber.from(RAY),
-  borrowAPY: BigNumber.from(0),
-  depositAPY: BigNumber.from(0),
+  borrowAPY: constants.Zero,
+  depositAPY: constants.Zero,
 };
 
 export interface InterestModelParams {

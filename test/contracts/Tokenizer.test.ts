@@ -1,4 +1,4 @@
-import { BigNumber, utils, Wallet } from 'ethers';
+import { BigNumber, constants, utils, Wallet } from 'ethers';
 import { ethers, waffle } from 'hardhat';
 import { makeAllContracts } from '../utils/makeContract';
 import { expect } from 'chai';
@@ -216,12 +216,12 @@ describe('Tokenizer', () => {
         expect(assetBondData.principal).to.be.equal(testAssetBondData.principal);
         expect(assetBondData.debtCeiling).to.be.equal(testAssetBondData.debtCeiling);
         expect(assetBondData.couponRate).to.be.equal(testAssetBondData.couponRate);
-        expect(assetBondData.interestRate).to.be.equal(BigNumber.from(0));
+        expect(assetBondData.interestRate).to.be.equal(constants.Zero);
         expect(assetBondData.overdueInterestRate).to.be.equal(
           testAssetBondData.overdueInterestRate
         );
         expect(assetBondData.loanStartTimestamp).to.be.equal(expectedLoanStartTimestamp);
-        expect(assetBondData.collateralizeTimestamp).to.be.equal(BigNumber.from(0));
+        expect(assetBondData.collateralizeTimestamp).to.be.equal(constants.Zero);
         expect(assetBondData.maturityTimestamp).to.be.equal(expectedMaturityTimestamp);
         expect(assetBondData.liquidationTimestamp).to.be.equal(expectedLiquidationTimestamp);
         expect(assetBondData.ipfsHash).to.be.equal(testAssetBondData.ipfsHash);

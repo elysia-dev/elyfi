@@ -165,6 +165,10 @@ describe('MoneyPool.repay', () => {
             reserveData: reserveDataBefore,
             txTimestamp: await getTimestamp(tx),
           });
+          console.log(
+            'expectedReserveData in repay.test',
+            expectedReserveData.underlyingAssetBalance.toString()
+          );
 
           const expectedUserData = expectUserDataAfterRepay({
             assetBondData: assetBondDataBefore,

@@ -99,7 +99,7 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
       amountToWithdraw = userLTokenBalance;
     }
 
-    Validation.validateWithdraw(reserve, amount, userLTokenBalance);
+    Validation.validateWithdraw(reserve, amountToWithdraw, userLTokenBalance);
 
     reserve.updateState(asset);
 
