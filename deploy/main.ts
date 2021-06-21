@@ -92,6 +92,7 @@ const deployTest: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
   const tokenizer = await deploy('Tokenizer', {
     from: deployer,
     args: [connector.address, moneyPool.address, 'testTokenizer', 'T'],
+    log: true,
   });
 
   const dataPipeline = await deploy('DataPipeline', {
