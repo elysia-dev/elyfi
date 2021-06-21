@@ -40,7 +40,7 @@ yarn test test-suites/scenario.test.ts
 
 # Run script for subgrap testing
 yarn hardhat deploy --network ganache
-yarn hardhat createWithdraw --network ganache --asset ASSET_ADDRESS --pool POOL_ADDRESS
+yarn task createWithdraw --network ganache --asset ASSET_ADDRESS --pool POOL_ADDRESS
 ```
 
 ## Deploy

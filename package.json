@@ -1,7 +1,8 @@
 {
   "scripts": {
     "test": "yarn hardhat test",
-    "test:zap": "yarn hardhat test --no-compile"
+    "test:zap": "yarn hardhat test --no-compile",
+    "task": "yarn hardhat --config hardhat.config.tasks.ts"
   },
   "dependencies": {
     "@typechain/ethers-v5": "^6.0.5",

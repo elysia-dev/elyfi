@@ -1,16 +1,6 @@
 import 'dotenv/config';
-import '@nomiclabs/hardhat-waffle';
-import '@nomiclabs/hardhat-solhint';
-import '@nomiclabs/hardhat-etherscan';
-import '@openzeppelin/hardhat-upgrades';
 import 'hardhat-typechain';
-import 'hardhat-deploy-ethers';
-import 'hardhat-deploy';
-import 'hardhat-abi-exporter';
-// import "solidity-coverage"
-// Gas-reporter's parser dependency makes Warning:
-// Accessing non-existent property 'INVALID_ALT_NUMBER' of module exports inside circular dependency
-import 'hardhat-gas-reporter';
+import './tasks/doTransactions.ts';
 
 import { HardhatUserConfig } from 'hardhat/types';
 
@@ -28,16 +18,8 @@ const config: HardhatUserConfig = {
       },
     },
   },
-  namedAccounts: {
-    deployer: 0,
-  },
   networks: {
     hardhat: {},
-    mainnet: {
-      url: `https://mainnet.infura.io/v3/${process.env.INFURA_API_KEY}`,
-      accounts: [process.env.ADMIN || ''],
-      chainId: 1,
-    },
     ropsten: {
       url: `https://ropsten.infura.io/v3/${process.env.INFURA_API_KEY}`,
       accounts: [process.env.ADMIN || ''],
@@ -54,18 +36,9 @@ const config: HardhatUserConfig = {
       gasPrice: 20000000000,
       accounts: [process.env.ADMIN || ''],
     },
-    binanceMainnet: {
-      url: 'https://bsc-dataseed.binance.org/',
-      chainId: 56,
-      gasPrice: 20000000000,
-      accounts: [process.env.ADMIN || ''],
-    },
     ganache: {
       url: 'http://0.0.0.0:8545'
     }
-  },
-  etherscan: {
-    apiKey: process.env.ETHERSCAN_API_KEY,
   },
   paths: {
     sources: './contracts',
@@ -79,12 +52,6 @@ const config: HardhatUserConfig = {
       showTimeSpent: true,
     },
   },
-  abiExporter: {
-    path: './data/abi',
-    clear: true,
-    flat: true,
-    spacing: 2
-  }
 };
 
 export default config;
