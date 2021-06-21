@@ -3,7 +3,7 @@ import { ethers, waffle } from 'hardhat';
 import { makeAllContracts } from '../utils/makeContract';
 import { expect } from 'chai';
 import ElyfiContracts from '../types/ElyfiContracts';
-import { AssetBondData, AssetBondSettleData, AssetBondState } from '../utils/Interfaces';
+import {  AssetBondSettleData, AssetBondState } from '../utils/Interfaces';
 import { toRate, toTimestamp } from '../utils/Ethereum';
 import { settleAssetBond } from '../utils/Helpers';
 import { SECONDSPERDAY } from '../utils/constants';

@@ -2,7 +2,7 @@ import { ethers, waffle } from 'hardhat';
 import { advanceTimeTo, getTimestamp, toRate, toTimestamp } from '../../utils/Ethereum';
 import { expect } from 'chai';
 import {
-  expectAssetBondDataAfterLiquidation,
+  expectAssetBondDataAfterLiquidate,
   expectReserveDataAfterLiquidate,
   expectUserDataAfterLiquidate,
 } from '../../utils/Expect';
@@ -105,9 +105,6 @@ describe('MoneyPool.liquidation', () => {
     });
 
     context('when the borrower has sufficient underlying asset', async () => {
-      let maturityTimestamp: BigNumber;
-      let liquidationTimestamp: BigNumber;
-      let snapshotId: string;
       before('The account balance increases', async () => {
         await elyfiContracts.underlyingAsset
           .connect(deployer)
@@ -171,19 +168,10 @@ describe('MoneyPool.liquidation', () => {
           reserveDataAfter: reserveDataAfter,
           txTimestamp: await getTimestamp(tx),
         });
-        const expectedAssetBondData = expectAssetBondDataAfterLiquidation({
+        const expectedAssetBondData = expectAssetBondDataAfterLiquidate({
           assetBondData: assetBondDataBefore,
           liquidator: liquidator,
         });
-
-        console.log(
-          'liqui, feeon, accrue',
-          liquidatorBalanceBefore.toString(),
-          liquidatorBalanceAfter.toString(),
-          feeOnLiquidate.toString(),
-          accruedDebtOnMoneyPool.toString(),
-          totalRetrieveAmount.toString()
-        );
 
         expect(liquidatorBalanceAfter).to.be.equal(
           liquidatorBalanceBefore.sub(totalRetrieveAmount)
@@ -191,36 +179,10 @@ describe('MoneyPool.liquidation', () => {
         expect(collateralServiceProviderLTokenBalanceAfter).to.be.equal(
           collateralServiceProviderLTokenBalanceBefore.add(feeOnLiquidate)
         );
-        expect(assetBondDataAfter).to.be.equal(expectedAssetBondData);
+        expect(assetBondDataAfter).to.be.equalAssetBondData(expectedAssetBondData);
         expect(reserveDataAfter).equalReserveData(expectedReserveData);
         expect(userDataAfter).equalUserData(expectedUserData);
       });
-
-      xcontext('when the current timestamp is less than the maturity timestamp', async () => {
-        before('approve underlyingAsset', async () => {
-          const tx = await elyfiContracts.underlyingAsset
-            .connect(borrower)
-            .approve(elyfiContracts.moneyPool.address, utils.parseEther('1000'));
-        });
-        it('update reserve and user data after repayment', async () => {
-          const tx = await elyfiContracts.moneyPool
-            .connect(borrower)
-            .repay(elyfiContracts.underlyingAsset.address, testAssetBondData.tokenId);
-        });
-      });
-
-      xcontext(
-        'when the current timestamp is between the maturity timestamp and the liquidation timestamp',
-        async () => {
-          before('approve and increase time', async () => {
-            const tx = await elyfiContracts.underlyingAsset
-              .connect(borrower)
-              .approve(elyfiContracts.moneyPool.address, utils.parseEther('1000'));
-
-            await advanceTimeTo(await getTimestamp(tx), maturityTimestamp.add(1));
-          });
-        }
-      );
     });
   });
 });

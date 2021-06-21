@@ -11,7 +11,6 @@ import './logic/Rate.sol';
 import './logic/Validation.sol';
 import './logic/AssetBond.sol';
 import './libraries/DataStruct.sol';
-import 'hardhat/console.sol';
 import '@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol';
 
 /**
@@ -224,7 +223,7 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
 
     IERC20(asset).safeTransferFrom(msg.sender, reserve.lTokenAddress, totalLiquidationAmount);
 
-    ITokenizer(reserve.tokenizerAddress).releaseAssetBond(msg.sender, tokenId);
+    ITokenizer(reserve.tokenizerAddress).liquidateAssetBond(msg.sender, tokenId);
 
     ILToken(reserve.lTokenAddress).mint(
       assetBond.collateralServiceProvider,

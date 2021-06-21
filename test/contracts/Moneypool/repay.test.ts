@@ -19,8 +19,8 @@ import { BigNumber, utils } from 'ethers';
 import loadFixture from '../../utils/loadFixture';
 import utilizedMoneypool from '../../fixtures/utilizedMoneypool';
 import { getAssetBondData, settleAssetBond } from '../../utils/Helpers';
-import { AssetBondSettleData, AssetBondState } from '../../utils/Interfaces';
-import { calculateAssetBondDebtData, calculateAssetBondLiquidationData } from '../../utils/Math';
+import { AssetBondSettleData } from '../../utils/Interfaces';
+import { calculateAssetBondDebtData } from '../../utils/Math';
 require('../../assertions/equals.ts');
 
 describe('MoneyPool.repay', () => {
@@ -120,7 +120,7 @@ describe('MoneyPool.repay', () => {
 
       context('when the current timestamp is less than the maturity timestamp', async () => {
         before('approve underlyingAsset', async () => {
-          const tx = await elyfiContracts.underlyingAsset
+          await elyfiContracts.underlyingAsset
             .connect(borrower)
             .approve(elyfiContracts.moneyPool.address, utils.parseEther('1000'));
         });
@@ -137,9 +137,8 @@ describe('MoneyPool.repay', () => {
             tokenId: testAssetBondData.tokenId,
           });
 
-          const collateralServiceProviderLTokenBalanceBefore = await elyfiContracts.lToken.balanceOf(
-            CSP.address
-          );
+          const collateralServiceProviderLTokenBalanceBefore =
+            await elyfiContracts.lToken.balanceOf(CSP.address);
 
           const tx = await elyfiContracts.moneyPool
             .connect(borrower)
@@ -165,29 +164,21 @@ describe('MoneyPool.repay', () => {
             assetBondDataBefore,
             await getTimestamp(tx)
           );
-
           const expectedReserveData = expectReserveDataAfterRepay({
             assetBondData: assetBondDataBefore,
             reserveData: reserveDataBefore,
             txTimestamp: await getTimestamp(tx),
           });
-          console.log(
-            'expectedReserveData in repay.test',
-            expectedReserveData.underlyingAssetBalance.toString(),
-            assetBondDataBefore.feeOnCollateralServiceProvider.toString(),
-            collateralServiceProviderLTokenBalanceAfter.toString()
-          );
-
           const expectedUserData = expectUserDataAfterRepay({
             assetBondData: assetBondDataBefore,
             userDataBefore: userDataBefore,
             reserveDataAfter: reserveDataAfter,
             txTimestamp: await getTimestamp(tx),
           });
-
           const expectedAssetBondData = expectAssetBondDataAfterRepay({
             assetBondData: assetBondDataBefore,
           });
+
           expect(collateralServiceProviderLTokenBalanceAfter).to.be.equal(
             collateralServiceProviderLTokenBalanceBefore.add(feeOnRepayment)
           );
@@ -220,9 +211,8 @@ describe('MoneyPool.repay', () => {
               tokenId: testAssetBondData.tokenId,
             });
 
-            const collateralServiceProviderLTokenBalanceBefore = await elyfiContracts.lToken.balanceOf(
-              CSP.address
-            );
+            const collateralServiceProviderLTokenBalanceBefore =
+              await elyfiContracts.lToken.balanceOf(CSP.address);
 
             const tx = await elyfiContracts.moneyPool
               .connect(borrower)
@@ -240,9 +230,8 @@ describe('MoneyPool.repay', () => {
               tokenId: testAssetBondData.tokenId,
             });
 
-            const collateralServiceProviderLTokenBalanceAfter = await elyfiContracts.lToken.balanceOf(
-              CSP.address
-            );
+            const collateralServiceProviderLTokenBalanceAfter =
+              await elyfiContracts.lToken.balanceOf(CSP.address);
 
             const [, feeOnRepayment] = calculateAssetBondDebtData(
               assetBondDataBefore,

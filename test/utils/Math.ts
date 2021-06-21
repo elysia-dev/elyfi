@@ -146,17 +146,6 @@ export function calculateRateInInterestRateModel(
 
   newDepositAPY = rayMul(newBorrowAPY, utilizationRate);
 
-  /*
-  console.log(
-    'testData borrowAPY | depositAPY | U | totalL | dToken',
-    newBorrowAPY.toFixed(),
-    newDepositAPY.toFixed(),
-    utilizationRate.toFixed(),
-    totalLiquidity.toFixed(),
-    dTokenAmount.toFixed()
-  );
-  */
-
   return [newBorrowAPY, newDepositAPY];
 }
 

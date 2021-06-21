@@ -130,9 +130,8 @@ export function expectUserDataAfterDeposit({
   const expectedUserData: UserData = { ...userDataBefore };
 
   // transferFrom
-  expectedUserData.underlyingAssetBalance = userDataBefore.underlyingAssetBalance.sub(
-    amountDeposit
-  );
+  expectedUserData.underlyingAssetBalance =
+    userDataBefore.underlyingAssetBalance.sub(amountDeposit);
 
   // mint ltoken
   expectedUserData.implicitLtokenBalance = userDataBefore.implicitLtokenBalance.add(
@@ -178,9 +177,8 @@ export function expectUserDataAfterWithdraw({
   );
 
   // transfer underlyingAsset
-  expectedUserData.underlyingAssetBalance = userDataBefore.underlyingAssetBalance.sub(
-    amountWithdraw
-  );
+  expectedUserData.underlyingAssetBalance =
+    userDataBefore.underlyingAssetBalance.sub(amountWithdraw);
   // update lToken balance
   expectedUserData.lTokenBalance = rayMul(
     expectedUserData.implicitLtokenBalance,
@@ -252,9 +250,8 @@ export function expectReserveDataAfterBorrow({
   expectedReserveData.depositAPY = depositAPY;
 
   // transfer underlying asset in burn logic
-  expectedReserveData.underlyingAssetBalance = reserveDataBefore.underlyingAssetBalance.sub(
-    amountBorrow
-  );
+  expectedReserveData.underlyingAssetBalance =
+    reserveDataBefore.underlyingAssetBalance.sub(amountBorrow);
 
   return expectedReserveData;
 }
@@ -462,7 +459,7 @@ export function expectReserveDataAfterLiquidate({
     txTimestamp
   );
 
-  const totalRetrieveAmount = accruedDebtOnMoneyPool.add(feeOnRepayment);
+  const totalLiquidationAmount = accruedDebtOnMoneyPool.add(feeOnRepayment);
 
   // update totalDTokenSupply
   const dTokenAccruedInterest = calculateCompoundedInterest(
@@ -490,18 +487,18 @@ export function expectReserveDataAfterLiquidate({
   // update dTokenLasetUpdateTimestamp
   newReserveData.dTokenLastUpdateTimestamp = txTimestamp;
 
-  // transferFrom
-  const underlyingAssetBalance = reserveData.underlyingAssetBalance.add(totalRetrieveAmount);
-  newReserveData.underlyingAssetBalance = underlyingAssetBalance;
-
   //updateRates
   const [borrowAPY, depositAPY] = calculateRateInInterestRateModel(
     newReserveData.underlyingAssetBalance,
     newReserveData.totalDTokenSupply,
-    totalRetrieveAmount,
+    totalLiquidationAmount,
     constants.Zero,
     newReserveData.interestRateModelParams
   );
+
+  // transferFrom
+  const underlyingAssetBalance = reserveData.underlyingAssetBalance.add(totalLiquidationAmount);
+  newReserveData.underlyingAssetBalance = underlyingAssetBalance;
 
   newReserveData.borrowAPY = borrowAPY;
   newReserveData.depositAPY = depositAPY;
@@ -573,10 +570,6 @@ export function expectUserDataAfterLiquidate({
   }
 
   // transfer underlying asset
-  const totalRetrieveAmount = accruedDebtOnMoneyPool.add(feeOnRepayment);
-  const underlyingAssetBalance = userDataBefore.underlyingAssetBalance.sub(totalRetrieveAmount);
-  expectedUserData.underlyingAssetBalance = underlyingAssetBalance;
-
   return expectedUserData;
 }
 
@@ -598,7 +591,7 @@ export function expectAssetBondDataAfterRepay({
   return expectedAssetBondData;
 }
 
-export function expectAssetBondDataAfterLiquidation({
+export function expectAssetBondDataAfterLiquidate({
   assetBondData,
   liquidator,
 }: {

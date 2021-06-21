@@ -15,7 +15,6 @@ import './interfaces/IMoneyPool.sol';
 import './interfaces/ITokenizer.sol';
 import './interfaces/IConnector.sol';
 import './TokenizerStorage.sol';
-import 'hardhat/console.sol';
 
 /**
  * @title ELYFI Tokenizer

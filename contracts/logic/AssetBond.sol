@@ -175,6 +175,7 @@ library AssetBond {
       ) -
       WadRayMath.ray();
     vars.totalRate = vars.firstTermRate + vars.secondTermRate;
+
     return assetBondData.principal.rayMul(vars.totalRate) - assetBondData.principal;
   }
 }

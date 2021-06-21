@@ -2,12 +2,10 @@ import { expect } from 'chai';
 import { ethers, waffle } from 'hardhat';
 import ElyfiContracts from '../types/ElyfiContracts';
 import { defaultInterestModelParams } from '../utils/Interfaces';
-import {
-  makeAllContracts,
-} from '../utils/makeContract';
+import { makeAllContracts } from '../utils/makeContract';
 
 describe('Rate', () => {
-  let elyfiContracts: ElyfiContracts
+  let elyfiContracts: ElyfiContracts;
 
   const provider = waffle.provider;
   const [deployer] = provider.getWallets();
@@ -18,7 +16,9 @@ describe('Rate', () => {
 
   it('returns base rates at 0% utilization rate', async () => {
     // [vars.newBorrowAPY, vars.newDepositAPY)
-    const lTokenAssetBalance = await elyfiContracts.underlyingAsset.balanceOf(elyfiContracts.lToken.address);
+    const lTokenAssetBalance = await elyfiContracts.underlyingAsset.balanceOf(
+      elyfiContracts.lToken.address
+    );
     const [borrowAPY, depositAPY] = await elyfiContracts.interestRateModel.calculateRates(
       lTokenAssetBalance,
       0,
@@ -32,8 +32,12 @@ describe('Rate', () => {
   });
 
   it('returns optimal rates at optimal utilization rate', async () => {
-    await elyfiContracts.underlyingAsset.connect(deployer).transfer(elyfiContracts.lToken.address, ethers.utils.parseEther('2'));
-    const lTokenAssetBalance = await elyfiContracts.underlyingAsset.balanceOf(elyfiContracts.lToken.address);
+    await elyfiContracts.underlyingAsset
+      .connect(deployer)
+      .transfer(elyfiContracts.lToken.address, ethers.utils.parseEther('2'));
+    const lTokenAssetBalance = await elyfiContracts.underlyingAsset.balanceOf(
+      elyfiContracts.lToken.address
+    );
 
     const [borrowAPY] = await elyfiContracts.interestRateModel.calculateRates(
       lTokenAssetBalance,
@@ -47,8 +51,12 @@ describe('Rate', () => {
   });
 
   it('returns optimal rates at optimal utilization rate with borrowing', async () => {
-    await elyfiContracts.underlyingAsset.connect(deployer).transfer(elyfiContracts.lToken.address, ethers.utils.parseEther('3'));
-    const lTokenAssetBalance = await elyfiContracts.underlyingAsset.balanceOf(elyfiContracts.lToken.address);
+    await elyfiContracts.underlyingAsset
+      .connect(deployer)
+      .transfer(elyfiContracts.lToken.address, ethers.utils.parseEther('3'));
+    const lTokenAssetBalance = await elyfiContracts.underlyingAsset.balanceOf(
+      elyfiContracts.lToken.address
+    );
 
     const [borrowAPY] = await elyfiContracts.interestRateModel.calculateRates(
       lTokenAssetBalance,
@@ -62,8 +70,12 @@ describe('Rate', () => {
   });
 
   it('returns optimal rates at optimal utilization rate with deposit', async () => {
-    await elyfiContracts.underlyingAsset.connect(deployer).transfer(elyfiContracts.lToken.address, ethers.utils.parseEther('1'));
-    const lTokenAssetBalance = await elyfiContracts.underlyingAsset.balanceOf(elyfiContracts.lToken.address);
+    await elyfiContracts.underlyingAsset
+      .connect(deployer)
+      .transfer(elyfiContracts.lToken.address, ethers.utils.parseEther('1'));
+    const lTokenAssetBalance = await elyfiContracts.underlyingAsset.balanceOf(
+      elyfiContracts.lToken.address
+    );
 
     const [borrowAPY] = await elyfiContracts.interestRateModel.calculateRates(
       lTokenAssetBalance,

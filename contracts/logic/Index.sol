@@ -4,7 +4,6 @@ pragma solidity 0.8.4;
 import '../libraries/DataStruct.sol';
 import '../libraries/Errors.sol';
 import '../libraries/Math.sol';
-import 'hardhat/console.sol';
 
 library Index {
   using WadRayMath for uint256;
