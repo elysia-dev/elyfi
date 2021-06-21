@@ -66,17 +66,6 @@ describe('MoneyPool.withdraw', () => {
           txTimestamp: await getTimestamp(tx),
         });
 
-        console.log(
-          reserveDataAfter.totalLTokenSupply.toString(),
-          reserveDataAfter.underlyingAssetBalance.toString(),
-          reserveDataAfter.implicitLTokenSupply.toString()
-        );
-        console.log(
-          expectedReserveData.totalLTokenSupply.toString(),
-          expectedReserveData.underlyingAssetBalance.toString(),
-          expectedReserveData.implicitLTokenSupply.toString()
-        );
-
         expect(reserveDataAfter).to.equalReserveData(expectedReserveData);
         expect(userDataAfter).to.equalUserData(expectedUserData);
 

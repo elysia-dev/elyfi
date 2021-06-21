@@ -162,7 +162,7 @@ describe('Tokenizer', () => {
       });
 
       context('when token owner settles asset bond but the informations are invalid', async () => {
-        it('reverts if block.timestamp is greater than loan start timestamp', async () => {
+        it('reverts if the block.timestamp is greater than the loan start timestamp', async () => {
           const invalidAssetBondData = testAssetBondData;
           invalidAssetBondData.loanStartTimeYear = BigNumber.from(2021);
 
@@ -174,7 +174,7 @@ describe('Tokenizer', () => {
             })
           ).to.be.reverted;
         });
-        it('reverts if loan duration is 0', async () => {
+        it('reverts if the loan duration is 0', async () => {
           const invalidAssetBondData = testAssetBondData;
           invalidAssetBondData.loanDuration = BigNumber.from(0);
 
