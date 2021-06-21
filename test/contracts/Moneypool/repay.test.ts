@@ -20,6 +20,7 @@ import loadFixture from '../../utils/loadFixture';
 import utilizedMoneypool from '../../fixtures/utilizedMoneypool';
 import { getAssetBondData, settleAssetBond } from '../../utils/Helpers';
 import { AssetBondSettleData, AssetBondState } from '../../utils/Interfaces';
+import { calculateAssetBondDebtData, calculateAssetBondLiquidationData } from '../../utils/Math';
 require('../../assertions/equals.ts');
 
 describe('MoneyPool.repay', () => {
@@ -136,7 +137,7 @@ describe('MoneyPool.repay', () => {
             tokenId: testAssetBondData.tokenId,
           });
 
-          const collateralServiceProviderBalanceBefore = await elyfiContracts.underlyingAsset.balanceOf(
+          const collateralServiceProviderLTokenBalanceBefore = await elyfiContracts.lToken.balanceOf(
             CSP.address
           );
 
@@ -156,8 +157,13 @@ describe('MoneyPool.repay', () => {
             tokenId: testAssetBondData.tokenId,
           });
 
-          const collateralServiceProviderBalanceAfter = await elyfiContracts.underlyingAsset.balanceOf(
+          const collateralServiceProviderLTokenBalanceAfter = await elyfiContracts.lToken.balanceOf(
             CSP.address
+          );
+
+          const [, feeOnRepayment] = calculateAssetBondDebtData(
+            assetBondDataBefore,
+            await getTimestamp(tx)
           );
 
           const expectedReserveData = expectReserveDataAfterRepay({
@@ -167,7 +173,9 @@ describe('MoneyPool.repay', () => {
           });
           console.log(
             'expectedReserveData in repay.test',
-            expectedReserveData.underlyingAssetBalance.toString()
+            expectedReserveData.underlyingAssetBalance.toString(),
+            assetBondDataBefore.feeOnCollateralServiceProvider.toString(),
+            collateralServiceProviderLTokenBalanceAfter.toString()
           );
 
           const expectedUserData = expectUserDataAfterRepay({
@@ -180,10 +188,8 @@ describe('MoneyPool.repay', () => {
           const expectedAssetBondData = expectAssetBondDataAfterRepay({
             assetBondData: assetBondDataBefore,
           });
-          expect(collateralServiceProviderBalanceAfter).to.be.equal(
-            collateralServiceProviderBalanceBefore.add(
-              assetBondDataAfter.feeOnCollateralServiceProvider
-            )
+          expect(collateralServiceProviderLTokenBalanceAfter).to.be.equal(
+            collateralServiceProviderLTokenBalanceBefore.add(feeOnRepayment)
           );
           expect(assetBondDataAfter).equalAssetBondData(expectedAssetBondData);
           expect(reserveDataAfter).equalReserveData(expectedReserveData);
@@ -214,7 +220,7 @@ describe('MoneyPool.repay', () => {
               tokenId: testAssetBondData.tokenId,
             });
 
-            const collateralServiceProviderBalanceBefore = await elyfiContracts.underlyingAsset.balanceOf(
+            const collateralServiceProviderLTokenBalanceBefore = await elyfiContracts.lToken.balanceOf(
               CSP.address
             );
 
@@ -234,8 +240,13 @@ describe('MoneyPool.repay', () => {
               tokenId: testAssetBondData.tokenId,
             });
 
-            const collateralServiceProviderBalanceAfter = await elyfiContracts.underlyingAsset.balanceOf(
+            const collateralServiceProviderLTokenBalanceAfter = await elyfiContracts.lToken.balanceOf(
               CSP.address
+            );
+
+            const [, feeOnRepayment] = calculateAssetBondDebtData(
+              assetBondDataBefore,
+              await getTimestamp(tx)
             );
 
             const expectedReserveData = expectReserveDataAfterRepay({
@@ -255,10 +266,8 @@ describe('MoneyPool.repay', () => {
               assetBondData: assetBondDataBefore,
             });
 
-            expect(collateralServiceProviderBalanceAfter).to.be.equal(
-              collateralServiceProviderBalanceBefore.add(
-                assetBondDataAfter.feeOnCollateralServiceProvider
-              )
+            expect(collateralServiceProviderLTokenBalanceAfter).to.be.equal(
+              collateralServiceProviderLTokenBalanceBefore.add(feeOnRepayment)
             );
             expect(assetBondDataAfter).equalAssetBondData(expectedAssetBondData);
             expect(reserveDataAfter).equalReserveData(expectedReserveData);

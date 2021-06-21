@@ -225,6 +225,40 @@ export function calculateFeeOnRepayment(
   return rayMul(assetBondData.principal, totalRate).sub(assetBondData.principal);
 }
 
+export function calculateFeeOnLiquidation(
+  assetBondData: AssetBondData,
+  paymentTimestamp: BigNumber
+): BigNumber {
+  let firstTermRate: BigNumber;
+  let secondTermRate: BigNumber;
+  let totalRate: BigNumber;
+
+  firstTermRate = calculateCompoundedInterest(
+    assetBondData.couponRate,
+    assetBondData.loanStartTimestamp,
+    assetBondData.maturityTimestamp
+  );
+
+  const currentDateTimeStruct = new Date(paymentTimestamp.toNumber() * 1000);
+
+  const paymentDate =
+    Date.UTC(
+      currentDateTimeStruct.getUTCFullYear(),
+      currentDateTimeStruct.getUTCMonth(),
+      currentDateTimeStruct.getUTCDate() + 1
+    ) / 1000;
+
+  secondTermRate = calculateCompoundedInterest(
+    assetBondData.couponRate.add(assetBondData.overdueInterestRate),
+    assetBondData.maturityTimestamp,
+    BigNumber.from(paymentDate)
+  ).sub(RAY);
+
+  totalRate = firstTermRate.add(secondTermRate);
+
+  return rayMul(assetBondData.principal, totalRate).sub(assetBondData.principal);
+}
+
 export function calculateAssetBondDebtData(
   assetBondData: AssetBondData,
   paymentTimestamp: BigNumber
@@ -242,6 +276,27 @@ export function calculateAssetBondDebtData(
   );
 
   feeOnRepayment = calculateFeeOnRepayment(assetBondData, paymentTimestamp);
+
+  return [accruedDebtOnMoneyPool, feeOnRepayment];
+}
+
+export function calculateAssetBondLiquidationData(
+  assetBondData: AssetBondData,
+  paymentTimestamp: BigNumber
+): BigNumber[] {
+  let accruedDebtOnMoneyPool: BigNumber;
+  let feeOnRepayment: BigNumber;
+
+  accruedDebtOnMoneyPool = rayMul(
+    assetBondData.principal,
+    calculateCompoundedInterest(
+      assetBondData.interestRate,
+      assetBondData.collateralizeTimestamp,
+      paymentTimestamp
+    )
+  );
+
+  feeOnRepayment = calculateFeeOnLiquidation(assetBondData, paymentTimestamp);
 
   return [accruedDebtOnMoneyPool, feeOnRepayment];
 }

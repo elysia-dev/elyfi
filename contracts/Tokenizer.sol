@@ -19,6 +19,9 @@ import 'hardhat/console.sol';
 
 /**
  * @title ELYFI Tokenizer
+ * @notice Asset bond token is a type of token that records information about real asset-backed bonds
+ * and acts as bonds on-chain. It complies with the NFT standard, ERC721 and this token can be deposited
+ * in the Money Pool to execute a loan contract.
  * @author ELYSIA
  */
 contract Tokenizer is ITokenizer, TokenizerStorage, ERC721 {
@@ -88,8 +91,8 @@ contract Tokenizer is ITokenizer, TokenizerStorage, ERC721 {
   /**
    * @notice This function can be called by collateral service providers when they want to sign a contract.
    * Borrowers who wants to take out a loan backed by real asset must enter into a contract
-   * with a collateral service provider to obtain a loan. Borrowers should submit various documents necessary for evaluating a loan secured by
-   * real assets to the collateral service provider.
+   * with a collateral service provider to obtain a loan. Borrowers should submit various documents necessary
+   * for evaluating a loan secured by real assets to the collateral service provider.
    * @param account CollateralServiceProvider address
    * @param tokenId Unique identifier for asset bond.
    */
@@ -219,8 +222,7 @@ contract Tokenizer is ITokenizer, TokenizerStorage, ERC721 {
    * Determination of whether the important information entered in smart contracts match the contract content
    * This allows the asset bond tokens to be recognized as collateral on the blockchain.
    * @param tokenId The token Id to release
-   * @param signerOpinionHash The signer can upload their opinion as a form of official documents
-   * on IPFS server.
+   * @param signerOpinionHash The signer can upload their opinion as a form of official documents on IPFS server.
    */
   function signAssetBond(uint256 tokenId, string memory signerOpinionHash) external {
     DataStruct.AssetBondData storage assetBond = _assetBondData[tokenId];
@@ -278,10 +280,9 @@ contract Tokenizer is ITokenizer, TokenizerStorage, ERC721 {
   }
 
   /**
-   * @notice When the repayment scenario, the dTokens are destroyed and the collateral of the locked up
-   * asset bond tokens in the MoneyPool is unlocked. The asset bond tokens are transfered to the
-   * address of the borrower for terminating the collateral contract.
-   * @dev The releasing asset bond token should be only from the MoneyPool.
+   * @notice When the liquidation scenario, the dTokens are destroyed and the collateral of the locked up
+   * asset bond tokens in the MoneyPool is transferred to liquidator.
+   * @dev The liquidating asset bond token should be only from the MoneyPool.
    * @param account The liquidator
    * @param tokenId The token Id to release
    */
@@ -292,9 +293,8 @@ contract Tokenizer is ITokenizer, TokenizerStorage, ERC721 {
     emit AssetBondLiquidated(account, tokenId);
   }
 
-  /************ Token Functions ************/
+  /************ Access Functions ************/
 
-  /************ MoneyPool Total AToken Balance Manage Functions ************/
   modifier onlyMoneyPool {
     if (_msgSender() != address(_moneyPool)) revert TokenizerErrors.OnlyMoneyPool();
     _;

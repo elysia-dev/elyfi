@@ -151,15 +151,6 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
 
     ILToken(reserve.lTokenAddress).transferUnderlyingTo(receiver, borrowAmount);
 
-    /*
-    console.log(
-      'Borrow finalize |amount|lastUpdateTimestamp|borrowAPY',
-      borrowAmount,
-      reserve.lastUpdateTimestamp,
-      reserve.borrowAPY
-    );
-    */
-
     emit Borrow(asset, msg.sender, receiver, tokenId, reserve.borrowAPY, borrowAmount);
   }
 
@@ -199,15 +190,6 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
       feeOnCollateralServiceProvider,
       reserve.lTokenInterestIndex
     );
-
-    /*
-    console.log(
-      'Borrow finalize |amount|lastUpdateTimestamp|borrowAPY',
-      borrowAmount,
-      reserve.lastUpdateTimestamp,
-      reserve.borrowAPY
-    );
-    */
 
     emit Repay(
       asset,
@@ -249,15 +231,6 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
       feeOnCollateralServiceProvider,
       reserve.lTokenInterestIndex
     );
-
-    /*
-    console.log(
-      'Borrow finalize |amount|lastUpdateTimestamp|borrowAPY',
-      borrowAmount,
-      reserve.lastUpdateTimestamp,
-      reserve.borrowAPY
-    );
-    */
 
     emit Liquidation(
       asset,

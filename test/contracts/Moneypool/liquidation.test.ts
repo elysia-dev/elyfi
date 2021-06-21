@@ -3,8 +3,8 @@ import { advanceTimeTo, getTimestamp, toRate, toTimestamp } from '../../utils/Et
 import { expect } from 'chai';
 import {
   expectAssetBondDataAfterLiquidation,
-  expectReserveDataAfterRepay,
-  expectUserDataAfterRepay,
+  expectReserveDataAfterLiquidate,
+  expectUserDataAfterLiquidate,
 } from '../../utils/Expect';
 import ElyfiContracts from '../../types/ElyfiContracts';
 import takeDataSnapshot from '../../utils/takeDataSnapshot';
@@ -12,7 +12,8 @@ import { BigNumber, utils } from 'ethers';
 import loadFixture from '../../utils/loadFixture';
 import utilizedMoneypool from '../../fixtures/utilizedMoneypool';
 import { getAssetBondData, settleAssetBond } from '../../utils/Helpers';
-import { AssetBondSettleData, AssetBondState } from '../../utils/Interfaces';
+import { AssetBondSettleData } from '../../utils/Interfaces';
+import { calculateAssetBondLiquidationData } from '../../utils/Math';
 require('../../assertions/equals.ts');
 
 describe('MoneyPool.liquidation', () => {
@@ -110,10 +111,10 @@ describe('MoneyPool.liquidation', () => {
       before('The account balance increases', async () => {
         await elyfiContracts.underlyingAsset
           .connect(deployer)
-          .transfer(liquidator.address, utils.parseEther('1000'));
+          .transfer(liquidator.address, utils.parseEther('10'));
         await elyfiContracts.underlyingAsset
           .connect(liquidator)
-          .approve(elyfiContracts.moneyPool.address, utils.parseEther('1000'));
+          .approve(elyfiContracts.moneyPool.address, utils.parseEther('10'));
       });
 
       it('update user data and reserve data', async () => {
@@ -130,7 +131,7 @@ describe('MoneyPool.liquidation', () => {
         const liquidatorBalanceBefore = await elyfiContracts.underlyingAsset.balanceOf(
           liquidator.address
         );
-        const collateralServiceProviderBalanceBefore = await elyfiContracts.underlyingAsset.balanceOf(
+        const collateralServiceProviderLTokenBalanceBefore = await elyfiContracts.lToken.balanceOf(
           CSP.address
         );
 
@@ -146,45 +147,49 @@ describe('MoneyPool.liquidation', () => {
           tokenizer: elyfiContracts.tokenizer,
           tokenId: testAssetBondData.tokenId,
         });
-
         const liquidatorBalanceAfter = await elyfiContracts.underlyingAsset.balanceOf(
           liquidator.address
         );
-        const collateralServiceProviderBalanceAfter = await elyfiContracts.underlyingAsset.balanceOf(
+        const collateralServiceProviderLTokenBalanceAfter = await elyfiContracts.lToken.balanceOf(
           CSP.address
         );
 
-        const expectedReserveData = expectReserveDataAfterRepay({
+        const [accruedDebtOnMoneyPool, feeOnLiquidate] = calculateAssetBondLiquidationData(
+          assetBondDataBefore,
+          await getTimestamp(tx)
+        );
+        const totalRetrieveAmount = accruedDebtOnMoneyPool.add(feeOnLiquidate);
+
+        const expectedReserveData = expectReserveDataAfterLiquidate({
           assetBondData: assetBondDataBefore,
           reserveData: reserveDataBefore,
           txTimestamp: await getTimestamp(tx),
         });
-
-        const expectedUserData = expectUserDataAfterRepay({
+        const expectedUserData = expectUserDataAfterLiquidate({
           assetBondData: assetBondDataBefore,
           userDataBefore: userDataBefore,
           reserveDataAfter: reserveDataAfter,
           txTimestamp: await getTimestamp(tx),
         });
-
         const expectedAssetBondData = expectAssetBondDataAfterLiquidation({
           assetBondData: assetBondDataBefore,
           liquidator: liquidator,
         });
 
-        console.log(liquidatorBalanceAfter.toString());
+        console.log(
+          'liqui, feeon, accrue',
+          liquidatorBalanceBefore.toString(),
+          liquidatorBalanceAfter.toString(),
+          feeOnLiquidate.toString(),
+          accruedDebtOnMoneyPool.toString(),
+          totalRetrieveAmount.toString()
+        );
 
         expect(liquidatorBalanceAfter).to.be.equal(
-          liquidatorBalanceBefore.sub(
-            assetBondDataBefore.feeOnCollateralServiceProvider.add(
-              assetBondDataBefore.accruedDebtOnMoneyPool
-            )
-          )
+          liquidatorBalanceBefore.sub(totalRetrieveAmount)
         );
-        expect(collateralServiceProviderBalanceAfter).to.be.equal(
-          collateralServiceProviderBalanceBefore.add(
-            assetBondDataAfter.feeOnCollateralServiceProvider
-          )
+        expect(collateralServiceProviderLTokenBalanceAfter).to.be.equal(
+          collateralServiceProviderLTokenBalanceBefore.add(feeOnLiquidate)
         );
         expect(assetBondDataAfter).to.be.equal(expectedAssetBondData);
         expect(reserveDataAfter).equalReserveData(expectedReserveData);

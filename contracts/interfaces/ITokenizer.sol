@@ -5,8 +5,16 @@ import '../libraries/DataStruct.sol';
 import '@openzeppelin/contracts/token/ERC721/IERC721.sol';
 
 interface ITokenizer is IERC721 {
+  /**
+   * @notice Emitted when a collateral service provider mints an empty asset bond token.
+   * @param account The address of collateral service provider who minted
+   * @param tokenId The id of minted token
+   **/
   event EmptyAssetBondMinted(address indexed account, uint256 tokenId);
 
+  /**
+   * @notice Emitted when a collateral service provider mints an empty asset bond token.
+   **/
   event AssetBondSettled(
     address indexed borrower,
     address indexed signer,

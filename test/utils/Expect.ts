@@ -3,6 +3,7 @@ import { rayDiv, rayMul } from './Ethereum';
 import { AssetBondData, AssetBondState, ReserveData, UserData } from './Interfaces';
 import {
   calculateAssetBondDebtData,
+  calculateAssetBondLiquidationData,
   calculateCompoundedInterest,
   calculateFeeOnRepayment,
   calculateLTokenIndexAfterAction,
@@ -403,6 +404,141 @@ export function expectUserDataAfterRepay({
   );
 
   const [accruedDebtOnMoneyPool, feeOnRepayment] = calculateAssetBondDebtData(
+    assetBondData,
+    txTimestamp
+  );
+
+  // update and burn dToken balance
+  const previousUpdatedDTokenBalance = rayMul(
+    userDataBefore.principalDTokenBalance,
+    calculateCompoundedInterest(
+      userDataBefore.averageRealAssetBorrowRate,
+      userDataBefore.userLastUpdateTimestamp,
+      txTimestamp
+    )
+  );
+  const dTokenBalance = previousUpdatedDTokenBalance.sub(accruedDebtOnMoneyPool);
+
+  expectedUserData.dTokenBalance = dTokenBalance;
+  expectedUserData.principalDTokenBalance = dTokenBalance;
+
+  // update average Borrow rate and timestamp
+  if (dTokenBalance.eq(0)) {
+    expectedUserData.userLastUpdateTimestamp = constants.Zero;
+    expectedUserData.averageRealAssetBorrowRate = constants.Zero;
+  } else {
+    const averageRealAssetBorrowRate = calculateRateInDecreasingBalance(
+      userDataBefore.averageRealAssetBorrowRate,
+      previousUpdatedDTokenBalance,
+      accruedDebtOnMoneyPool,
+      assetBondData.interestRate
+    );
+    expectedUserData.userLastUpdateTimestamp = txTimestamp;
+    expectedUserData.averageRealAssetBorrowRate = averageRealAssetBorrowRate;
+  }
+
+  // transfer underlying asset
+  const totalRetrieveAmount = accruedDebtOnMoneyPool.add(feeOnRepayment);
+  const underlyingAssetBalance = userDataBefore.underlyingAssetBalance.sub(totalRetrieveAmount);
+  expectedUserData.underlyingAssetBalance = underlyingAssetBalance;
+
+  return expectedUserData;
+}
+
+export function expectReserveDataAfterLiquidate({
+  assetBondData,
+  reserveData,
+  txTimestamp,
+}: {
+  assetBondData: AssetBondData;
+  reserveData: ReserveData;
+  txTimestamp: BigNumber;
+}): ReserveData {
+  // update lindex, timestamp, totalD
+  const newReserveData = applyTxTimeStamp(reserveData, txTimestamp);
+
+  const [accruedDebtOnMoneyPool, feeOnRepayment] = calculateAssetBondLiquidationData(
+    assetBondData,
+    txTimestamp
+  );
+
+  const totalRetrieveAmount = accruedDebtOnMoneyPool.add(feeOnRepayment);
+
+  // update totalDTokenSupply
+  const dTokenAccruedInterest = calculateCompoundedInterest(
+    reserveData.averageRealAssetBorrowRate,
+    reserveData.dTokenLastUpdateTimestamp,
+    txTimestamp
+  );
+  const previousUpdatedDTokenBalance = rayMul(
+    reserveData.principalDTokenSupply,
+    dTokenAccruedInterest
+  );
+  const totalDTokenSupply = previousUpdatedDTokenBalance.sub(accruedDebtOnMoneyPool);
+
+  // update dToken averageBorrowRate
+  const newAverageRealAssetBorrowRate = calculateRateInDecreasingBalance(
+    reserveData.averageRealAssetBorrowRate,
+    previousUpdatedDTokenBalance,
+    accruedDebtOnMoneyPool,
+    assetBondData.interestRate
+  );
+  newReserveData.principalDTokenSupply = totalDTokenSupply;
+  newReserveData.totalDTokenSupply = totalDTokenSupply;
+  newReserveData.averageRealAssetBorrowRate = newAverageRealAssetBorrowRate;
+
+  // update dTokenLasetUpdateTimestamp
+  newReserveData.dTokenLastUpdateTimestamp = txTimestamp;
+
+  // transferFrom
+  const underlyingAssetBalance = reserveData.underlyingAssetBalance.add(totalRetrieveAmount);
+  newReserveData.underlyingAssetBalance = underlyingAssetBalance;
+
+  //updateRates
+  const [borrowAPY, depositAPY] = calculateRateInInterestRateModel(
+    newReserveData.underlyingAssetBalance,
+    newReserveData.totalDTokenSupply,
+    totalRetrieveAmount,
+    constants.Zero,
+    newReserveData.interestRateModelParams
+  );
+
+  newReserveData.borrowAPY = borrowAPY;
+  newReserveData.depositAPY = depositAPY;
+
+  // mint LToken
+  newReserveData.implicitLTokenSupply = newReserveData.implicitLTokenSupply.add(
+    rayDiv(feeOnRepayment, newReserveData.lTokenInterestIndex)
+  );
+
+  newReserveData.totalLTokenSupply = rayMul(
+    newReserveData.implicitLTokenSupply,
+    newReserveData.lTokenInterestIndex
+  );
+
+  return newReserveData;
+}
+
+export function expectUserDataAfterLiquidate({
+  assetBondData,
+  userDataBefore,
+  reserveDataAfter,
+  txTimestamp,
+}: {
+  assetBondData: AssetBondData;
+  userDataBefore: UserData;
+  reserveDataAfter: ReserveData;
+  txTimestamp: BigNumber;
+}): UserData {
+  const expectedUserData: UserData = { ...userDataBefore };
+
+  // update lTokenBalance
+  expectedUserData.lTokenBalance = rayMul(
+    userDataBefore.implicitLtokenBalance,
+    reserveDataAfter.lTokenInterestIndex
+  );
+
+  const [accruedDebtOnMoneyPool, feeOnRepayment] = calculateAssetBondLiquidationData(
     assetBondData,
     txTimestamp
   );
