@@ -5,7 +5,6 @@ import ElyfiContracts from '../test/types/ElyfiContracts';
 import getDeployedContracts from '../test/utils/getDeployedContracts';
 import { AssetBondSettleData } from '../test/utils/Interfaces';
 import { RAY } from '../test/utils/constants';
-//import { advanceTimeTo, getTimestamp, toTimestamp } from '../test/utils/Ethereum';
 
 const testAssetBondData: AssetBondSettleData = <AssetBondSettleData>{
   ...(<AssetBondSettleData>{}),
@@ -167,6 +166,7 @@ task('createBorrow', 'Create borrow : 1500ETH')
   .addOptionalParam('bond', 'The id of asset bond token')
   .setAction(async (args: Args, hre: HardhatRuntimeEnvironment) => {
     let borrowPrincipal: BigNumber;
+    let secondToIncrease: number;
     const [deployer, depositor, borrower, collateralServiceProvider, signer] =
       await hre.ethers.getSigners();
 
@@ -175,21 +175,37 @@ task('createBorrow', 'Create borrow : 1500ETH')
     const tokenizer = deployedElyfiContracts.tokenizer;
     const underlyingAsset = deployedElyfiContracts.underlyingAsset;
 
+    secondToIncrease = 0;
+
     if (args.bond == undefined) {
       args.bond = testAssetBondData.tokenId.toString();
       borrowPrincipal = testAssetBondData.principal;
+      secondToIncrease = BigNumber.from(
+        Date.UTC(
+          testAssetBondData.loanStartTimeYear.toNumber(),
+          testAssetBondData.loanStartTimeMonth.toNumber(),
+          testAssetBondData.loanStartTimeDay.toNumber()
+        ) / 1000
+      ).toNumber();
+      console.log(secondToIncrease);
     } else {
       const assetBondData = await tokenizer.getAssetBondData(args.bond);
       borrowPrincipal = assetBondData.principal;
     }
 
-    /*
-    const loanStartTimestamp = toTimestamp(
-      testAssetBondData.loanStartTimeYear,
-      testAssetBondData.loanStartTimeMonth,
-      testAssetBondData.loanStartTimeDay
-    );
-    */
+    const txhre = await hre.network.provider.send('evm_increaseTime', [secondToIncrease]);
+
+    console.log(txhre);
+
+    // const tx = await moneyPool
+    //   .connect(depositor)
+    //   .deposit(underlyingAsset.address, depositor.address, utils.parseEther('500'));
+
+    // console.log(tx.timestamp.toString());
+
+    const atx = await hre.network.provider.send('evm_mine');
+
+    console.log(atx);
 
     await moneyPool.connect(collateralServiceProvider).borrow(underlyingAsset.address, args.bond);
 
@@ -217,6 +233,20 @@ task('createRepay', 'Create repay : 1500ETH')
 
     console.log(`${depositor.address} repays a loan on ${args.bond}`);
   });
+
+// const advanceTime = (hre: HardhatRuntimeEnvironment, time: number) => {
+//   return new Promise((resolve, reject) => {
+//     hre.network.provider.send('evm_increaseTime', [time]),
+//       (err: any, result: unknown) => {
+//         if (err) {
+//           console.log('err');
+//           return reject(err);
+//         }
+//         console.log('result');
+//         return resolve(result);
+//       };
+//   });
+// };
 
 // subtask('addCollateralServiceProvider', 'add collateral service provider role').setAction(
 //   async (hre: HardhatRuntimeEnvironment) => {
