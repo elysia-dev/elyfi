@@ -1,8 +1,10 @@
 import 'dotenv/config';
 import 'hardhat-typechain';
-import './tasks/doTransactions.ts';
+import 'hardhat-deploy-ethers';
+import 'hardhat-deploy';
 
 import { HardhatUserConfig } from 'hardhat/types';
+import './tasks/doTransactions.ts';
 
 const config: HardhatUserConfig = {
   solidity: {

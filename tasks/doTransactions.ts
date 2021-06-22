@@ -1,25 +1,28 @@
-import { task } from 'hardhat/config';
+import { subtask, task } from 'hardhat/config';
 import '@nomiclabs/hardhat-waffle';
-import { getContractAt } from 'hardhat-deploy-ethers/dist/src/helpers';
-import {
-  MoneyPool,
-  ERC20,
-  Tokenizer,
-  Connector,
-  DataPipeline,
-  DToken,
-  InterestRateModel,
-  LToken,
-  MoneyPoolTest,
-  ERC20Test,
-} from '../typechain';
-import MoneyPoolABI from '../data/abi/MoneyPool.json';
-import ERC20ABI from '../data/abi/ERC20.json';
-import TokenizerABI from '../data/abi/Tokenizer.json';
-import { ethers, Wallet } from 'ethers';
+import { BigNumber, utils } from 'ethers';
 import { HardhatRuntimeEnvironment } from 'hardhat/types';
 import ElyfiContracts from '../test/types/ElyfiContracts';
 import getDeployedContracts from '../test/utils/getDeployedContracts';
+import { AssetBondSettleData } from '../test/utils/Interfaces';
+import { RAY } from '../test/utils/constants';
+import { advanceTimeTo, getTimestamp, toTimestamp } from '../test/utils/Ethereum';
+
+const testAssetBondData: AssetBondSettleData = <AssetBondSettleData>{
+  ...(<AssetBondSettleData>{}),
+  borrower: '',
+  signer: '',
+  tokenId: BigNumber.from('100100200300400'),
+  principal: utils.parseEther('10'),
+  debtCeiling: utils.parseEther('13'),
+  couponRate: BigNumber.from(RAY).div(10),
+  overdueInterestRate: BigNumber.from(RAY).div(33),
+  loanDuration: BigNumber.from(365),
+  loanStartTimeYear: BigNumber.from(2022),
+  loanStartTimeMonth: BigNumber.from(0),
+  loanStartTimeDay: BigNumber.from(1),
+  ipfsHash: 'test',
+};
 
 interface Args {
   pool: string;
@@ -28,135 +31,212 @@ interface Args {
 }
 
 task('createDeposit', 'Create deposit : 1500ETH').setAction(
-  async (hre: HardhatRuntimeEnvironment) => {
-    const [deployer, account1] = await hre.ethers.getSigners();
-    const deployedContract = (await getDeployedContracts(hre, deployer)) as ElyfiContracts;
+  async (args: Args, hre: HardhatRuntimeEnvironment) => {
+    console.log(hre.network.name);
+    const [deployer, depositor] = await hre.ethers.getSigners();
 
-    const deployedMoneyPool = deployedContract.moneyPool;
+    const deployedElyfiContracts = (await getDeployedContracts(hre, deployer)) as ElyfiContracts;
+    const moneyPool = deployedElyfiContracts.moneyPool;
+    const underlyingAsset = deployedElyfiContracts.underlyingAsset;
 
-    const deployedAsset = deployedContract.underlyingAsset;
+    await underlyingAsset.connect(deployer).transfer(depositor.address, utils.parseEther('1000'));
+    await underlyingAsset.connect(depositor).approve(moneyPool.address, utils.parseEther('1500'));
 
-    await deployedAsset
-      .connect(deployer)
-      .transfer(account1.address, ethers.utils.parseEther('1000'));
+    await moneyPool
+      .connect(depositor)
+      .deposit(underlyingAsset.address, depositor.address, utils.parseEther('100'));
+    await moneyPool
+      .connect(depositor)
+      .deposit(underlyingAsset.address, depositor.address, utils.parseEther('500'));
 
-    await deployedAsset
-      .connect(account1)
-      .approve(deployedMoneyPool.address, ethers.utils.parseEther('1500'));
-
-    await deployedMoneyPool
-      .connect(account1)
-      .deposit(deployedAsset.address, account1.address, ethers.utils.parseEther('100'));
-
-    // await deployedMoneyPool
-    //   .connect(account1)
-    //   .deposit(args.asset, account1.address, ethers.utils.parseEther('500'));
-
-    console.log(`${account1.address} deposits 1000ETH and 500ETH`);
+    console.log(`${depositor.address} deposits 100ETH and 500ETH`);
   }
 );
 
 task('createWithdraw', 'Create withdraw : 1500ETH').setAction(
-  async (hre: HardhatRuntimeEnvironment) => {
-    const [deployer, account1] = await hre.ethers.getSigners();
-    const deployedContract = (await getDeployedContracts(hre, deployer)) as ElyfiContracts;
+  async (args: Args, hre: HardhatRuntimeEnvironment) => {
+    const [deployer, depositor] = await hre.ethers.getSigners();
 
-    const deployedMoneyPool = deployedContract.moneyPool;
+    const deployedElyfiContracts = (await getDeployedContracts(hre, deployer)) as ElyfiContracts;
+    const moneyPool = deployedElyfiContracts.moneyPool;
+    const underlyingAsset = deployedElyfiContracts.underlyingAsset;
 
-    const deployedAsset = deployedContract.underlyingAsset;
+    await moneyPool
+      .connect(depositor)
+      .withdraw(underlyingAsset.address, depositor.address, utils.parseEther('100'));
+    await moneyPool
+      .connect(depositor)
+      .withdraw(underlyingAsset.address, depositor.address, utils.parseEther('500'));
 
-    await deployedMoneyPool
-      .connect(account1)
-      .withdraw(deployedAsset.address, account1.address, ethers.utils.parseEther('1000'));
-
-    await deployedMoneyPool
-      .connect(account1)
-      .withdraw(deployedAsset.address, account1.address, ethers.utils.parseEther('500'));
-
-    console.log(`${account1.address} withdraws 1000ETH and 500ETH`);
+    console.log(`${depositor.address} withdraws 100ETH and 500ETH`);
   }
 );
 
-task('createBorrow', 'Create borrow : 1500ETH')
-  .addParam('asset', "The asset's address")
-  .addParam('bond', 'The id of asset bond token')
-  .addParam('pool', "The moneypool's address")
+task('mintAssetBond', 'Create empty asset bond')
+  .addOptionalParam('bond', 'The id of asset bond token')
   .setAction(async (args: Args, hre: HardhatRuntimeEnvironment) => {
-    const [deployer, account1] = await hre.ethers.getSigners();
+    const [deployer, depositor, borrower, collateralServiceProvider, signer] =
+      await hre.ethers.getSigners();
 
-    const deployedMoneyPool = (await getContractAt(
-      hre,
-      MoneyPoolABI,
-      args.pool,
-      deployer
-    )) as MoneyPool;
+    const deployedElyfiContracts = (await getDeployedContracts(hre, deployer)) as ElyfiContracts;
+    const connector = deployedElyfiContracts.connector;
+    const tokenizer = deployedElyfiContracts.tokenizer;
 
-    const deployedAsset = (await getContractAt(hre, ERC20ABI, args.asset, deployer)) as ERC20;
+    if (args.bond == undefined) {
+      args.bond = testAssetBondData.tokenId.toString();
+    }
 
-    const tx = await deployedMoneyPool.connect(account1).borrow(args.asset, args.bond);
-    const borrowPrincipal = 1;
+    const isCollateralServiceProvider = await connector.isCollateralServiceProvider(
+      collateralServiceProvider.address
+    );
+    console.log(isCollateralServiceProvider);
+    if (!isCollateralServiceProvider) {
+      await connector
+        .connect(deployer)
+        .addCollateralServiceProvider(collateralServiceProvider.address);
+    }
+
+    await tokenizer
+      .connect(collateralServiceProvider)
+      .mintAssetBond(collateralServiceProvider.address, args.bond);
 
     console.log(
-      `${account1.address} borrows against ${args.bond} which amount is ${borrowPrincipal}`
+      `${collateralServiceProvider.address} mints asset token which id is "${args.bond}"`
+    );
+  });
+
+task('settleAssetBond', 'settle empty asset bond')
+  .addOptionalParam('bond', 'The id of asset bond token')
+  .setAction(async (args: Args, hre: HardhatRuntimeEnvironment) => {
+    const [deployer, depositor, borrower, collateralServiceProvider, signer] =
+      await hre.ethers.getSigners();
+
+    const deployedElyfiContracts = (await getDeployedContracts(hre, deployer)) as ElyfiContracts;
+    const tokenizer = deployedElyfiContracts.tokenizer;
+
+    if (args.bond == undefined) {
+      args.bond = testAssetBondData.tokenId.toString();
+    }
+
+    await tokenizer
+      .connect(collateralServiceProvider)
+      .settleAssetBond(
+        borrower.address,
+        signer.address,
+        testAssetBondData.tokenId,
+        testAssetBondData.principal,
+        testAssetBondData.couponRate,
+        testAssetBondData.overdueInterestRate,
+        testAssetBondData.debtCeiling,
+        testAssetBondData.loanDuration,
+        testAssetBondData.loanStartTimeYear,
+        testAssetBondData.loanStartTimeMonth,
+        testAssetBondData.loanStartTimeDay,
+        testAssetBondData.ipfsHash
+      );
+
+    console.log(
+      `${collateralServiceProvider.address} settles asset token which id is "${args.bond}"`
+    );
+  });
+
+task('signAssetBond', 'sign settled asset bond')
+  .addOptionalParam('bond', 'The id of asset bond token')
+  .setAction(async (args: Args, hre: HardhatRuntimeEnvironment) => {
+    const [deployer, depositor, borrower, collateralServiceProvider, signer] =
+      await hre.ethers.getSigners();
+
+    const deployedElyfiContracts = (await getDeployedContracts(hre, deployer)) as ElyfiContracts;
+    const connector = deployedElyfiContracts.connector;
+    const tokenizer = deployedElyfiContracts.tokenizer;
+
+    if (args.bond == undefined) {
+      args.bond = testAssetBondData.tokenId.toString();
+    }
+
+    const isCouncil = await connector.isCouncil(signer.address);
+    if (!isCouncil) {
+      connector.connect(deployer).addCouncil(signer.address);
+    }
+
+    await tokenizer.connect(signer).signAssetBond(args.bond, 'test opinion');
+
+    console.log(`${signer.address} signs on asset token which id is "${args.bond}"`);
+  });
+
+task('createBorrow', 'Create borrow : 1500ETH')
+  .addOptionalParam('bond', 'The id of asset bond token')
+  .setAction(async (args: Args, hre: HardhatRuntimeEnvironment) => {
+    let borrowPrincipal: BigNumber;
+    const [deployer, depositor, borrower, collateralServiceProvider, signer] =
+      await hre.ethers.getSigners();
+
+    const deployedElyfiContracts = (await getDeployedContracts(hre, deployer)) as ElyfiContracts;
+    const moneyPool = deployedElyfiContracts.moneyPool;
+    const tokenizer = deployedElyfiContracts.tokenizer;
+    const underlyingAsset = deployedElyfiContracts.underlyingAsset;
+
+    if (args.bond == undefined) {
+      args.bond = testAssetBondData.tokenId.toString();
+      borrowPrincipal = testAssetBondData.principal;
+    } else {
+      const assetBondData = await tokenizer.getAssetBondData(args.bond);
+      borrowPrincipal = assetBondData.principal;
+    }
+
+    const loanStartTimestamp = toTimestamp(
+      testAssetBondData.loanStartTimeYear,
+      testAssetBondData.loanStartTimeMonth,
+      testAssetBondData.loanStartTimeDay
+    );
+
+    await moneyPool.connect(collateralServiceProvider).borrow(underlyingAsset.address, args.bond);
+
+    console.log(
+      `${depositor.address} borrows against ${args.bond} which amount is ${borrowPrincipal}`
     );
   });
 
 task('createRepay', 'Create repay : 1500ETH')
-  .addParam('asset', "The asset's address")
-  .addParam('bond', 'The id of asset bond token')
-  .addParam('pool', "The moneypool's address")
-  .setAction(async (args: Args, hre: HardhatRuntimeEnvironment) => {
-    const [deployer, account1] = await hre.ethers.getSigners();
-
-    const deployedMoneyPool = (await getContractAt(
-      hre,
-      MoneyPoolABI,
-      args.pool,
-      deployer
-    )) as MoneyPool;
-
-    const deployedAsset = (await getContractAt(hre, ERC20ABI, args.asset, deployer)) as ERC20;
-
-    const tx = await deployedMoneyPool.connect(account1).borrow(args.asset, args.bond);
-    const accruedDebtOnMoneyPool = 1;
-    const feeOnCollateralServiceProvider = 1;
-
-    console.log(
-      `${account1.address} repays a loan on ${args.bond} which repayment amount is ${accruedDebtOnMoneyPool}, ${feeOnCollateralServiceProvider}`
-    );
-  });
-
-task('createAssetBond', 'Create empty asset bond')
-  .addParam('asset', "The asset's address")
-  .addParam('pool', "The moneypool's address")
   .addParam('bond', 'The id of asset bond token')
   .setAction(async (args: Args, hre: HardhatRuntimeEnvironment) => {
-    const [deployer, account1] = await hre.ethers.getSigners();
+    const [deployer, depositor, borrower, collateralServiceProvider, signer] =
+      await hre.ethers.getSigners();
 
-    const deployedMoneyPool = (await getContractAt(
-      hre,
-      MoneyPoolABI,
-      args.pool,
-      deployer
-    )) as MoneyPool;
+    const deployedElyfiContracts = (await getDeployedContracts(hre, deployer)) as ElyfiContracts;
+    const moneyPool = deployedElyfiContracts.moneyPool;
+    const tokenizer = deployedElyfiContracts.tokenizer;
+    const underlyingAsset = deployedElyfiContracts.underlyingAsset;
 
-    const deployedAsset = (await getContractAt(hre, ERC20ABI, args.asset, deployer)) as ERC20;
+    if (args.bond == undefined) {
+      args.bond = testAssetBondData.tokenId.toString();
+    }
 
-    const tokenizerAddress = (await deployedMoneyPool.getReserveData(args.asset)).tokenizerAddress;
+    await moneyPool.connect(borrower).repay(underlyingAsset.address, args.bond);
 
-    const deployedTokenizer = (await getContractAt(
-      hre,
-      TokenizerABI,
-      tokenizerAddress
-    )) as Tokenizer;
-
-    await deployedTokenizer.mintAssetBond;
-
-    const tx = await deployedTokenizer.connect(account1).mintAssetBond(args.asset, args.bond);
-    const accruedDebtOnMoneyPool = 1;
-    const feeOnCollateralServiceProvider = 1;
-
-    console.log(
-      `${account1.address} repays a loan on ${args.bond} which repayment amount is ${accruedDebtOnMoneyPool}, ${feeOnCollateralServiceProvider}`
-    );
+    console.log(`${depositor.address} repays a loan on ${args.bond}`);
   });
+
+// subtask('addCollateralServiceProvider', 'add collateral service provider role').setAction(
+//   async (hre: HardhatRuntimeEnvironment) => {
+//     const [deployer, depositor, borrower, collateralServiceProvider, signer] =
+//       await hre.ethers.getSigners();
+
+//     const deployedElyfiContracts = (await getDeployedContracts(hre, deployer)) as ElyfiContracts;
+//     const connector = deployedElyfiContracts.connector;
+
+//     connector
+//       .connect(deployer)
+//       .addCollateralServiceProvider(collateralServiceProvider.address);
+//   }
+// );
+
+// subtask('addCouncil', 'add council role').setAction(async () => {
+//   const [deployer, depositor, borrower, collateralServiceProvider, signer] =
+//     await hre.ethers.getSigners();
+
+//   const deployedElyfiContracts = (await getDeployedContracts(hre, deployer)) as ElyfiContracts;
+//   const connector = deployedElyfiContracts.connector;
+
+//   connector.connect(deployer).addCouncil(signer.address);
+// });
