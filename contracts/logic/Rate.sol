@@ -61,7 +61,7 @@ library Rate {
       vars.newBorrowAPY,
       vars.newDepositAPY,
       vars.totalDToken,
-      lTokenAssetBalance + depositAmount - borrowAmount
+      lTokenAssetBalance + depositAmount - vars.totalDToken
     );
   }
 }
