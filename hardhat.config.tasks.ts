@@ -37,8 +37,8 @@ const config: HardhatUserConfig = {
       accounts: [process.env.ADMIN || ''],
     },
     ganache: {
-      url: 'http://0.0.0.0:8545'
-    }
+      url: 'http://0.0.0.0:8545',
+    },
   },
   paths: {
     sources: './contracts',

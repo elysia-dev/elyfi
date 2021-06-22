@@ -1,6 +1,6 @@
 import { task } from 'hardhat/config';
 import '@nomiclabs/hardhat-waffle';
-import { getContract, getContractAt } from 'hardhat-deploy-ethers/dist/src/helpers';
+import { getContractAt } from 'hardhat-deploy-ethers/dist/src/helpers';
 import {
   MoneyPool,
   ERC20,
@@ -18,10 +18,8 @@ import ERC20ABI from '../data/abi/ERC20.json';
 import TokenizerABI from '../data/abi/Tokenizer.json';
 import { ethers, Wallet } from 'ethers';
 import { HardhatRuntimeEnvironment } from 'hardhat/types';
-import fs from 'fs';
 import ElyfiContracts from '../test/types/ElyfiContracts';
-import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers';
-import path from 'path';
+import getDeployedContracts from '../test/utils/getDeployedContracts';
 
 interface Args {
   pool: string;
@@ -29,172 +27,14 @@ interface Args {
   bond: string;
 }
 
-type DeployedContract = {
-  address: string;
-  abi: [];
-};
-
-//need refactor
-export const getDeployedContracts = async (
-  hre: HardhatRuntimeEnvironment,
-  deployer: SignerWithAddress
-): Promise<ElyfiContracts | null> => {
-  let underlyingAsset!: ERC20Test;
-  let connector!: Connector;
-  let moneyPool!: MoneyPoolTest;
-  let interestRateModel!: InterestRateModel;
-  let lToken!: LToken;
-  let dToken!: DToken;
-  let tokenizer!: Tokenizer;
-  let dataPipeline!: DataPipeline;
-
-  const deploymentDataPath = path.join(__dirname, '..', 'deployments', 'ganache');
-
-  const files = fs.readdirSync(deploymentDataPath);
-
-  for (const file of files) {
-    if (path.extname(file) == '.json') {
-      const deployedContract = require(path.join(deploymentDataPath, file)) as DeployedContract;
-
-      switch (file) {
-        case 'Connector.json':
-          try {
-            connector = (await getContractAt(
-              hre,
-              deployedContract.abi,
-              deployedContract.address,
-              deployer
-            )) as Connector;
-          } catch (e) {
-            console.log(e);
-          }
-          break;
-        case 'DataPipeline.json':
-          try {
-            dataPipeline = (await getContractAt(
-              hre,
-              deployedContract.abi,
-              deployedContract.address,
-              deployer
-            )) as DataPipeline;
-          } catch (e) {
-            console.log(e);
-          }
-          break;
-
-        case 'DToken.json':
-          try {
-            dToken = (await getContractAt(
-              hre,
-              deployedContract.abi,
-              deployedContract.address,
-              deployer
-            )) as DToken;
-          } catch (e) {
-            console.log(e);
-          }
-          break;
-
-        case 'ERC20Test.json':
-          try {
-            underlyingAsset = (await getContractAt(
-              hre,
-              deployedContract.abi,
-              deployedContract.address,
-              deployer
-            )) as ERC20;
-          } catch (e) {
-            console.log(e);
-          }
-          break;
-
-        case 'InteresRateModel.json':
-          try {
-            interestRateModel = (await getContractAt(
-              hre,
-              deployedContract.abi,
-              deployedContract.address,
-              deployer
-            )) as InterestRateModel;
-          } catch (e) {
-            console.log(e);
-          }
-          break;
-
-        case 'LToken.json':
-          try {
-            lToken = (await getContractAt(
-              hre,
-              deployedContract.abi,
-              deployedContract.address,
-              deployer
-            )) as LToken;
-          } catch (e) {
-            console.log(e);
-          }
-          break;
-
-        case 'MoneyPool.json':
-          try {
-            moneyPool = (await getContractAt(
-              hre,
-              deployedContract.abi,
-              deployedContract.address,
-              deployer
-            )) as MoneyPoolTest;
-          } catch (e) {
-            console.log(e);
-          }
-          break;
-
-        case 'Tokenizer.json':
-          try {
-            tokenizer = (await getContractAt(
-              hre,
-              deployedContract.abi,
-              deployedContract.address,
-              deployer
-            )) as Tokenizer;
-          } catch (e) {
-            console.log(e);
-          }
-          break;
-      }
-    }
-  }
-
-  const elyfiContracts = {
-    underlyingAsset,
-    connector,
-    moneyPool,
-    interestRateModel,
-    lToken,
-    dToken,
-    tokenizer,
-    dataPipeline,
-  };
-
-  return !!elyfiContracts ? elyfiContracts : null;
-};
-
 task('createDeposit', 'Create deposit : 1500ETH').setAction(
-  async (args: Args, hre: HardhatRuntimeEnvironment) => {
+  async (hre: HardhatRuntimeEnvironment) => {
     const [deployer, account1] = await hre.ethers.getSigners();
     const deployedContract = (await getDeployedContracts(hre, deployer)) as ElyfiContracts;
 
-    // const deployedMoneyPool = (await getContractAt(
-    //   hre,
-    //   MoneyPoolABI,
-    //   args.pool,
-    //   deployer
-    // )) as MoneyPool;
-
     const deployedMoneyPool = deployedContract.moneyPool;
-    console.log(deployedMoneyPool.address);
 
     const deployedAsset = deployedContract.underlyingAsset;
-
-    // (await getContractAt(hre, ERC20ABI, args.asset, deployer)) as ERC20;
 
     await deployedAsset
       .connect(deployer)
@@ -216,23 +56,26 @@ task('createDeposit', 'Create deposit : 1500ETH').setAction(
   }
 );
 
-task('createWithdraw', 'Create withdraw : 1500ETH')
-  .addParam('asset', "The asset's address")
-  .addParam('pool', "The moneypool's address")
-  .setAction(async (args: Args, hre: HardhatRuntimeEnvironment) => {
+task('createWithdraw', 'Create withdraw : 1500ETH').setAction(
+  async (hre: HardhatRuntimeEnvironment) => {
     const [deployer, account1] = await hre.ethers.getSigners();
+    const deployedContract = (await getDeployedContracts(hre, deployer)) as ElyfiContracts;
 
-    const deployedMoneyPool = (await getContractAt(
-      hre,
-      MoneyPoolABI,
-      args.pool,
-      deployer
-    )) as MoneyPool;
+    const deployedMoneyPool = deployedContract.moneyPool;
 
-    const deployedAsset = (await getContractAt(hre, ERC20ABI, args.asset, deployer)) as ERC20;
+    const deployedAsset = deployedContract.underlyingAsset;
+
+    await deployedMoneyPool
+      .connect(account1)
+      .withdraw(deployedAsset.address, account1.address, ethers.utils.parseEther('1000'));
+
+    await deployedMoneyPool
+      .connect(account1)
+      .withdraw(deployedAsset.address, account1.address, ethers.utils.parseEther('500'));
 
     console.log(`${account1.address} withdraws 1000ETH and 500ETH`);
-  });
+  }
+);
 
 task('createBorrow', 'Create borrow : 1500ETH')
   .addParam('asset', "The asset's address")
