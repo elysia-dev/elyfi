@@ -1,12 +1,11 @@
 import { subtask, task } from 'hardhat/config';
-import '@nomiclabs/hardhat-waffle';
 import { BigNumber, utils } from 'ethers';
 import { HardhatRuntimeEnvironment } from 'hardhat/types';
 import ElyfiContracts from '../test/types/ElyfiContracts';
 import getDeployedContracts from '../test/utils/getDeployedContracts';
 import { AssetBondSettleData } from '../test/utils/Interfaces';
 import { RAY } from '../test/utils/constants';
-import { advanceTimeTo, getTimestamp, toTimestamp } from '../test/utils/Ethereum';
+//import { advanceTimeTo, getTimestamp, toTimestamp } from '../test/utils/Ethereum';
 
 const testAssetBondData: AssetBondSettleData = <AssetBondSettleData>{
   ...(<AssetBondSettleData>{}),
@@ -184,11 +183,13 @@ task('createBorrow', 'Create borrow : 1500ETH')
       borrowPrincipal = assetBondData.principal;
     }
 
+    /*
     const loanStartTimestamp = toTimestamp(
       testAssetBondData.loanStartTimeYear,
       testAssetBondData.loanStartTimeMonth,
       testAssetBondData.loanStartTimeDay
     );
+    */
 
     await moneyPool.connect(collateralServiceProvider).borrow(underlyingAsset.address, args.bond);
 
