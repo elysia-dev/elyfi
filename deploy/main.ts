@@ -6,6 +6,7 @@ import TestnetEL_ABI from '../dependencies/TestnetEL.json';
 import ELToken_ABI from '../dependencies/ELToken.json';
 import { getContractAt } from 'hardhat-deploy-ethers/dist/src/helpers';
 import { MoneyPool } from '../typechain';
+//import { saveDeployedContract } from './utils/save';
 
 export enum ELYFIContractType {
   CONNECTOR,
@@ -44,7 +45,7 @@ const getElysia = async (hre: HardhatRuntimeEnvironment, signer: string): Promis
 
   elysia = await hre.ethers.getContractAt(elysiaLocalDeploy.abi, elysiaLocalDeploy.address);
 
-  console.log(`Asset address ${elysia.address}`)
+  console.log(`Asset address ${elysia.address}`);
 
   return elysia;
 };
@@ -119,54 +120,43 @@ const deployTest: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
 
   if (hre.network.name === 'ganache') return;
 
-  await hre.run("verify:verify", {
-    address: connector.address
-  })
+  await hre.run('verify:verify', {
+    address: connector.address,
+  });
 
-  await hre.run("verify:verify", {
+  await hre.run('verify:verify', {
     address: moneyPool.address,
-    constructorArguments: [
-      16,
-      connector.address
-    ],
-  })
+    constructorArguments: [16, connector.address],
+  });
 
-  await hre.run("verify:verify", {
+  await hre.run('verify:verify', {
     address: interestRateModel.address,
     constructorArguments: [
       defaultInterestModelParams.optimalUtilizationRate,
       defaultInterestModelParams.borrowRateBase,
       defaultInterestModelParams.borrowRateOptimal,
-      defaultInterestModelParams.borrowRateMax
+      defaultInterestModelParams.borrowRateMax,
     ],
-  })
+  });
 
-  await hre.run("verify:verify", {
+  await hre.run('verify:verify', {
     address: lToken.address,
-    constructorArguments: [
-      moneyPool.address, elysia?.address, 'testLToken', 'L'
-    ],
-  })
+    constructorArguments: [moneyPool.address, elysia?.address, 'testLToken', 'L'],
+  });
 
-  await hre.run("verify:verify", {
+  await hre.run('verify:verify', {
     address: dToken.address,
-    constructorArguments: [
-      moneyPool.address, elysia?.address, 'testDToken', 'D'
-    ],
-  })
+    constructorArguments: [moneyPool.address, elysia?.address, 'testDToken', 'D'],
+  });
 
-  await hre.run("verify:verify", {
+  await hre.run('verify:verify', {
     address: tokenizer.address,
-    constructorArguments: [
-      connector.address, moneyPool.address, 'testTokenizer', 'T'
-    ],
-  })
-  await hre.run("verify:verify", {
+    constructorArguments: [connector.address, moneyPool.address, 'testTokenizer', 'T'],
+  });
+  await hre.run('verify:verify', {
     address: dataPipeline.address,
-    constructorArguments: [
-      moneyPool.address
-    ],
-  })
+    constructorArguments: [moneyPool.address],
+  });
 };
 
 export default deployTest;

@@ -65,14 +65,6 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
 
     ILToken(reserve.lTokenAddress).mint(account, amount, reserve.lTokenInterestIndex);
 
-    /*
-    console.log(
-      'Deposit finalize |amount|lTokenInterestIndex|borrowAPY',
-      amount,
-      reserve.lastUpdateTimestamp,
-      reserve.borrowAPY
-    );
-    */
     emit Deposit(asset, account, amount);
   }
 

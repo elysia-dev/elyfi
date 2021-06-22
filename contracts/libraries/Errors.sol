@@ -31,6 +31,7 @@ library MoneyPoolErrors {
   error OnlyCollateralServiceProvider();
   error OnlyCouncil();
   error OnlyMoneyPoolAdmin();
+  error TimeOutForCollateralize();
 }
 
 library TokenErrors {

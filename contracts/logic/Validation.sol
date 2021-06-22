@@ -61,8 +61,9 @@ library Validation {
 
     if (block.timestamp <= assetBond.loanStartTimestamp)
       revert MoneyPoolErrors.NotTimeForLoanStart();
-    // check sign logic
-    //if (assetBond.isSigned == false) revertNValidationErrors.otSignedAssetBond(id);
+
+    if (assetBond.loanStartTimestamp + 18 hours <= block.timestamp)
+      revert MoneyPoolErrors.TimeOutForCollateralize();
 
     uint256 availableLiquidity = IERC20(asset).balanceOf(reserve.lTokenAddress);
 
