@@ -44,7 +44,7 @@ library Rate {
 
     uint256 lTokenAssetBalance = IERC20(underlyingAssetAddress).balanceOf(reserve.lTokenAddress);
     (vars.newBorrowAPY, vars.newDepositAPY) = IInterestRateModel(reserve.interestModelAddress)
-      .calculateRates(
+    .calculateRates(
       lTokenAssetBalance,
       vars.totalDToken,
       depositAmount,
@@ -61,7 +61,7 @@ library Rate {
       vars.newBorrowAPY,
       vars.newDepositAPY,
       vars.totalDToken,
-      lTokenAssetBalance + depositAmount - vars.totalDToken
+      lTokenAssetBalance + depositAmount - borrowAmount + vars.totalDToken
     );
   }
 }
