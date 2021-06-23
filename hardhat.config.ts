@@ -14,6 +14,8 @@ import 'hardhat-gas-reporter';
 
 import { HardhatUserConfig } from 'hardhat/types';
 
+const testMnemonic = 'suggest mirror pulp horn goat wagon body long fortune dirt glass awesome'
+
 const config: HardhatUserConfig = {
   solidity: {
     version: '0.8.4',
@@ -32,7 +34,6 @@ const config: HardhatUserConfig = {
     deployer: 0,
   },
   networks: {
-    hardhat: {},
     mainnet: {
       url: `https://mainnet.infura.io/v3/${process.env.INFURA_API_KEY}`,
       accounts: [process.env.ADMIN || ''],
@@ -40,19 +41,25 @@ const config: HardhatUserConfig = {
     },
     ropsten: {
       url: `https://ropsten.infura.io/v3/${process.env.INFURA_API_KEY}`,
-      accounts: [process.env.ADMIN || ''],
+      accounts: {
+        mnemonic: process.env.TEST_MNEMONIC || testMnemonic
+      },
       chainId: 3,
     },
     kovan: {
       url: `https://kovan.infura.io/v3/${process.env.INFURA_API_KEY}`,
-      accounts: [process.env.ADMIN || ''],
+      accounts: {
+        mnemonic: process.env.TEST_MNEMONIC || testMnemonic
+      },
       chainId: 42,
     },
     binanceTestnet: {
       url: 'https://data-seed-prebsc-1-s1.binance.org:8545',
       chainId: 97,
       gasPrice: 20000000000,
-      accounts: [process.env.ADMIN || ''],
+      accounts: {
+        mnemonic: process.env.TEST_MNEMONIC || testMnemonic
+      },
     },
     binanceMainnet: {
       url: 'https://bsc-dataseed.binance.org/',
