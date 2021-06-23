@@ -36,7 +36,7 @@ export const getDeployedContracts = async (
   let tokenizer!: Tokenizer;
   let dataPipeline!: DataPipeline;
 
-  const deploymentDataPath = path.join(__dirname, '..', '..', 'deployments', 'ganache');
+  const deploymentDataPath = path.join(__dirname, '..', '..', 'deployments', hre.network.name);
 
   const files = fs.readdirSync(deploymentDataPath);
 
