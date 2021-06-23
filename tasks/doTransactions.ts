@@ -37,15 +37,28 @@ task('createDeposit', 'Create deposit : 1500ETH').setAction(
     const moneyPool = deployedElyfiContracts.moneyPool;
     const underlyingAsset = deployedElyfiContracts.underlyingAsset;
 
-    await underlyingAsset.connect(deployer).transfer(depositor.address, utils.parseEther('1000'));
-    await underlyingAsset.connect(depositor).approve(moneyPool.address, utils.parseEther('1500'));
+    // await underlyingAsset.connect(deployer).transfer(depositor.address, utils.parseEther('1000'));
+    // await underlyingAsset.connect(depositor).approve(moneyPool.address, utils.parseEther('1500'));
 
-    await moneyPool
-      .connect(depositor)
-      .deposit(underlyingAsset.address, depositor.address, utils.parseEther('100'));
-    await moneyPool
-      .connect(depositor)
-      .deposit(underlyingAsset.address, depositor.address, utils.parseEther('500'));
+    // await moneyPool
+    //   .connect(depositor)
+    //   .deposit(underlyingAsset.address, depositor.address, utils.parseEther('100'));
+    // await moneyPool
+    //   .connect(depositor)
+    //   .deposit(underlyingAsset.address, depositor.address, utils.parseEther('500'));
+
+    const txHre = await hre.network.provider.send('evm_increaseTime', [1]);
+    const txHreEther = await hre.ethers.provider.send('evm_increaseTime', [1]);
+    const mineEther = await hre.ethers.provider.send('evm_mine', []);
+    const getBlock = await hre.ethers.provider.getBlockNumber();
+    const getBlockInfo = await hre.ethers.provider.getBlock('latest');
+
+    console.log('1', txHre);
+    console.log('2', txHreEther);
+    console.log('3', mineEther);
+    console.log('4', getBlock);
+    console.log('5', getBlockInfo);
+    console.log('6', getBlockInfo.timestamp);
 
     console.log(`${depositor.address} deposits 100ETH and 500ETH`);
   }
@@ -162,11 +175,9 @@ task('signAssetBond', 'sign settled asset bond')
     console.log(`${signer.address} signs on asset token which id is "${args.bond}"`);
   });
 
-task('createBorrow', 'Create borrow : 1500ETH')
+task('createInitialBorrow', 'Create borrow : 1500ETH')
   .addOptionalParam('bond', 'The id of asset bond token')
   .setAction(async (args: Args, hre: HardhatRuntimeEnvironment) => {
-    let borrowPrincipal: BigNumber;
-    let secondToIncrease: number;
     const [deployer, depositor, borrower, collateralServiceProvider, signer] =
       await hre.ethers.getSigners();
 
@@ -175,43 +186,59 @@ task('createBorrow', 'Create borrow : 1500ETH')
     const tokenizer = deployedElyfiContracts.tokenizer;
     const underlyingAsset = deployedElyfiContracts.underlyingAsset;
 
-    secondToIncrease = 0;
-
     if (args.bond == undefined) {
       args.bond = testAssetBondData.tokenId.toString();
-      borrowPrincipal = testAssetBondData.principal;
-      secondToIncrease = BigNumber.from(
-        Date.UTC(
-          testAssetBondData.loanStartTimeYear.toNumber(),
-          testAssetBondData.loanStartTimeMonth.toNumber(),
-          testAssetBondData.loanStartTimeDay.toNumber()
-        ) / 1000
-      ).toNumber();
-      console.log(secondToIncrease);
-    } else {
-      const assetBondData = await tokenizer.getAssetBondData(args.bond);
-      borrowPrincipal = assetBondData.principal;
     }
 
-    const txhre = await hre.network.provider.send('evm_increaseTime', [secondToIncrease]);
+    const assetBondData = await tokenizer.getAssetBondData(args.bond);
+    const borrowPrincipal = assetBondData.principal;
+    const loanStartTimestamp = assetBondData.loanStartTimestamp.toNumber();
 
-    console.log(txhre);
+    const currentTimestamp = (await hre.ethers.provider.getBlock('latest')).timestamp;
 
-    // const tx = await moneyPool
-    //   .connect(depositor)
-    //   .deposit(underlyingAsset.address, depositor.address, utils.parseEther('500'));
+    if (currentTimestamp < loanStartTimestamp) {
+      const secondsToIncrease = loanStartTimestamp - currentTimestamp;
+      await hre.network.provider.send('evm_increaseTime', [secondsToIncrease]);
+      await moneyPool.connect(collateralServiceProvider).borrow(underlyingAsset.address, args.bond);
+      console.log(
+        `${depositor.address} borrows against ${args.bond} which principal amount is ${borrowPrincipal}`
+      );
+    } else {
+      console.log(
+        `Borrow failed since current timestamp(${currentTimestamp}) exceeds loanStartTimestamp(${loanStartTimestamp})`
+      );
+    }
+  });
 
-    // console.log(tx.timestamp.toString());
+task('createBorrow', 'Create borrow : 1500ETH')
+  .addParam('bond', 'The id of asset bond token')
+  .setAction(async (args: Args, hre: HardhatRuntimeEnvironment) => {
+    const [deployer, depositor, borrower, collateralServiceProvider, signer] =
+      await hre.ethers.getSigners();
 
-    const atx = await hre.network.provider.send('evm_mine');
+    const deployedElyfiContracts = (await getDeployedContracts(hre, deployer)) as ElyfiContracts;
+    const moneyPool = deployedElyfiContracts.moneyPool;
+    const tokenizer = deployedElyfiContracts.tokenizer;
+    const underlyingAsset = deployedElyfiContracts.underlyingAsset;
 
-    console.log(atx);
+    const assetBondData = await tokenizer.getAssetBondData(args.bond);
+    const borrowPrincipal = assetBondData.principal;
+    const loanStartTimestamp = assetBondData.loanStartTimestamp.toNumber();
 
-    await moneyPool.connect(collateralServiceProvider).borrow(underlyingAsset.address, args.bond);
+    const currentTimestamp = (await hre.ethers.provider.getBlock('latest')).timestamp;
 
-    console.log(
-      `${depositor.address} borrows against ${args.bond} which amount is ${borrowPrincipal}`
-    );
+    if (currentTimestamp < loanStartTimestamp) {
+      const secondsToIncrease = loanStartTimestamp - currentTimestamp;
+      await hre.network.provider.send('evm_increaseTime', [secondsToIncrease]);
+      await moneyPool.connect(collateralServiceProvider).borrow(underlyingAsset.address, args.bond);
+      console.log(
+        `${depositor.address} borrows against ${args.bond} which principal amount is ${borrowPrincipal}`
+      );
+    } else {
+      console.log(
+        `Borrow failed since current timestamp(${currentTimestamp}) exceeds loanStartTimestamp(${loanStartTimestamp})`
+      );
+    }
   });
 
 task('createRepay', 'Create repay : 1500ETH')
