@@ -202,6 +202,35 @@ task('testnet:createSignedAssetBond', 'Create signed asset bond')
     );
   });
 
+task('testnet:createBorrowOnly', 'Create a loan on the token id')
+  .addParam('bond', 'The id of asset bond token')
+  .setAction(async (args: Args, hre: HardhatRuntimeEnvironment) => {
+    const [deployer, depositor, borrower, collateralServiceProvider, signer] =
+      await hre.ethers.getSigners();
+
+    const deployedElyfiContracts = (await getDeployedContracts(hre, deployer)) as ElyfiContracts;
+    const moneyPool = deployedElyfiContracts.moneyPool;
+    const tokenizer = deployedElyfiContracts.tokenizer;
+    const underlyingAsset = deployedElyfiContracts.underlyingAsset;
+
+    const assetBondData = await tokenizer.getAssetBondData(args.bond);
+    const borrowPrincipal = assetBondData.principal;
+    const loanStartTimestamp = assetBondData.loanStartTimestamp.toNumber();
+
+    const currentTimestamp = (await hre.ethers.provider.getBlock('latest')).timestamp;
+
+    if (currentTimestamp < loanStartTimestamp) {
+      console.log(
+        `Borrow failed since current timestamp(${currentTimestamp}) is less than loanStartTimestamp(${loanStartTimestamp})`
+      );
+    } else {
+      await moneyPool.connect(collateralServiceProvider).borrow(underlyingAsset.address, args.bond);
+      console.log(
+        `The collateral service provider borrows against ${args.bond} which principal amount is ${borrowPrincipal}`
+      );
+    }
+  });
+
 task('local:createSignedAssetBond', 'Create signed asset bond')
   .addOptionalParam('sender', 'The tx sender, default: collateral service provider')
   .addParam('bond', 'The id of the asset bond')
