@@ -1,0 +1,13 @@
+//example data
+{
+    "nonce": 1,
+    "countryCode": 82,
+    "collateralServiceProviderIdentificationNumber": 11122334,
+    "collateralLatitude": 3750179,
+    "collateralLatitudeSign": 1,
+    "collateralLongitude": 12702699,
+    "collateralLongitudeSign": 1,
+    "collateralDetail": 22021301,
+    "collateralCategory": 123,
+    "productNumber": 234
+}

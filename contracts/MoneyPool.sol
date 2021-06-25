@@ -14,9 +14,9 @@ import './libraries/DataStruct.sol';
 import '@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol';
 
 /**
- * @title Main contract for ELYFI beta.
+ * @title Main contract for ELYFI version 1.
  * @author ELYSIA
- * @notice This is the beta version of ELYFI. ELYFI has various contract interactions centered
+ * @notice This is the first version of ELYFI. ELYFI has various contract interactions centered
  * on the Money Pool Contract. Several tokens are issued or destroyed to indicate the status of
  * participants, and all issuance and burn processes are carried out through the Money Pool Contract.
  * The depositor and borrower should approve the ELYFI moneypool contract to move their AssetBond token
@@ -119,8 +119,8 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
    **/
   function borrow(address asset, uint256 tokenId) external override onlyCollateralServiceProvider {
     DataStruct.ReserveData storage reserve = _reserves[asset];
-    DataStruct.AssetBondData memory assetBond =
-      ITokenizer(reserve.tokenizerAddress).getAssetBondData(tokenId);
+    DataStruct.AssetBondData memory assetBond = ITokenizer(reserve.tokenizerAddress)
+    .getAssetBondData(tokenId);
 
     uint256 borrowAmount = assetBond.principal;
     address receiver = assetBond.borrower;
@@ -156,11 +156,11 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
    **/
   function repay(address asset, uint256 tokenId) external override {
     DataStruct.ReserveData storage reserve = _reserves[asset];
-    DataStruct.AssetBondData memory assetBond =
-      ITokenizer(reserve.tokenizerAddress).getAssetBondData(tokenId);
+    DataStruct.AssetBondData memory assetBond = ITokenizer(reserve.tokenizerAddress)
+    .getAssetBondData(tokenId);
 
-    (uint256 accruedDebtOnMoneyPool, uint256 feeOnCollateralServiceProvider) =
-      assetBond.getAssetBondDebtData();
+    (uint256 accruedDebtOnMoneyPool, uint256 feeOnCollateralServiceProvider) = assetBond
+    .getAssetBondDebtData();
 
     uint256 totalRetrieveAmount = accruedDebtOnMoneyPool + feeOnCollateralServiceProvider;
 
@@ -197,11 +197,11 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
     onlyCollateralServiceProvider
   {
     DataStruct.ReserveData storage reserve = _reserves[asset];
-    DataStruct.AssetBondData memory assetBond =
-      ITokenizer(reserve.tokenizerAddress).getAssetBondData(tokenId);
+    DataStruct.AssetBondData memory assetBond = ITokenizer(reserve.tokenizerAddress)
+    .getAssetBondData(tokenId);
 
-    (uint256 accruedDebtOnMoneyPool, uint256 feeOnCollateralServiceProvider) =
-      assetBond.getAssetBondLiquidationData();
+    (uint256 accruedDebtOnMoneyPool, uint256 feeOnCollateralServiceProvider) = assetBond
+    .getAssetBondLiquidationData();
 
     uint256 totalLiquidationAmount = accruedDebtOnMoneyPool + feeOnCollateralServiceProvider;
 
@@ -270,22 +270,21 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
     address tokenizer,
     uint256 moneyPoolFactor_
   ) external override {
-    DataStruct.ReserveData memory newReserveData =
-      DataStruct.ReserveData({
-        moneyPoolFactor: moneyPoolFactor_,
-        lTokenInterestIndex: WadRayMath.ray(),
-        borrowAPY: 0,
-        depositAPY: 0,
-        totalDepositedAssetBondCount: 0,
-        lastUpdateTimestamp: block.timestamp,
-        lTokenAddress: lToken,
-        dTokenAddress: dToken,
-        interestModelAddress: interestModel,
-        tokenizerAddress: tokenizer,
-        id: 0,
-        isPaused: false,
-        isActivated: true
-      });
+    DataStruct.ReserveData memory newReserveData = DataStruct.ReserveData({
+      moneyPoolFactor: moneyPoolFactor_,
+      lTokenInterestIndex: WadRayMath.ray(),
+      borrowAPY: 0,
+      depositAPY: 0,
+      totalDepositedAssetBondCount: 0,
+      lastUpdateTimestamp: block.timestamp,
+      lTokenAddress: lToken,
+      dTokenAddress: dToken,
+      interestModelAddress: interestModel,
+      tokenizerAddress: tokenizer,
+      id: 0,
+      isPaused: false,
+      isActivated: true
+    });
 
     _reserves[asset] = newReserveData;
     _addNewReserveToList(asset);
