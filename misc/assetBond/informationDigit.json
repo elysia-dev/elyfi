@@ -1,0 +1,12 @@
+{
+    "nonce": 10,
+    "countryCode": 8,
+    "collateralServiceProviderIdentificationNumber": 50,
+    "collateralLatitude": 28,
+    "collateralLatitudeSign": 1,
+    "collateralLongitude": 28,
+    "collateralLongitudeSign": 1,
+    "collateralDetail": 40,
+    "collateralCategory": 10,
+    "productNumber": 10
+}

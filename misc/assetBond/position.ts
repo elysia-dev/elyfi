@@ -1,21 +1,9 @@
-import { ethers } from 'hardhat';
+import { ethers } from 'ethers';
 import BigNumber from 'bignumber.js';
-import { InformationDigit, InformationPositions } from './types';
+import { InformationDigit, InformationPositions, wholeNumber } from './types';
+import informationDigits from './informationDigit.json';
 
-const informationDigits: InformationDigit = {
-  nonce: 10,
-  countryCode: 8,
-  collateralServiceProviderIdentificationNumber: 50,
-  collateralLatitude: 28,
-  collateralLatitudeSign: 1,
-  collateralLongitude: 28,
-  collateralLongitudeSign: 1,
-  collateralDetail: 40,
-  collateralCategory: 10,
-  productNumber: 10,
-};
-
-const assetBondPosition = (informationDigits: InformationDigit, wholeNumber: string) => {
+export const assetBondPosition = () => {
   const positions = <InformationPositions>{};
   let position: number = 0;
   (Object.keys(informationDigits) as (keyof InformationDigit)[]).forEach((key) => {
@@ -39,12 +27,4 @@ const bigBinaryStringToHexString = (bigBinaryString: string) => {
   const bigNumberFromJS = new BigNumber(bigBinaryString, 2).toFixed();
   const bigNumberInHex = ethers.BigNumber.from(bigNumberFromJS).toHexString();
   return bigNumberInHex.toLocaleUpperCase();
-};
-
-const totalDigits = (informationDigits: InformationDigit) => {
-  let result: number = -1;
-  (Object.keys(informationDigits) as (keyof InformationDigit)[]).forEach((key) => {
-    result += informationDigits[key];
-  });
-  return result;
 };

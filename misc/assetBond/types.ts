@@ -1,3 +1,16 @@
+export type Information = {
+  nonce: number;
+  countryCode: number;
+  collateralServiceProviderIdentificationNumber: number;
+  collateralLatitude: number;
+  collateralLatitudeSign: number;
+  collateralLongitude: number;
+  collateralLongitudeSign: number;
+  collateralDetail: number;
+  collateralCategory: number;
+  productNumber: number;
+};
+
 export type InformationDigit = {
   nonce: number;
   countryCode: number;
@@ -23,3 +36,5 @@ export type InformationPositions = {
   collateralCategory: string;
   productNumber: string;
 };
+
+export const wholeNumber = '1'.repeat(256);
