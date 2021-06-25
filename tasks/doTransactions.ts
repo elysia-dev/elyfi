@@ -1,5 +1,5 @@
 import { subtask, task } from 'hardhat/config';
-import { BigNumber, utils } from 'ethers';
+import { BigNumber, ContractReceipt, ContractTransaction, utils } from 'ethers';
 import { HardhatRuntimeEnvironment } from 'hardhat/types';
 import ElyfiContracts from '../test/types/ElyfiContracts';
 import getDeployedContracts from '../test/utils/getDeployedContracts';
@@ -90,7 +90,7 @@ task('testnet:createDeposit', 'Create deposit, default amount : 100, default sen
   });
 
 task('testnet:createWithdraw', 'Create withdraw, default amount : 100, default sender : depositor')
-  .addOptionalParam('sender', 'The tx sender, default: deployer')
+  .addOptionalParam('sender', 'The tx sender, default: depositor')
   .addOptionalParam('amount', 'The approve amount, default amount: 100')
   .setAction(async (args: Args, hre: HardhatRuntimeEnvironment) => {
     let sender: SignerWithAddress;
@@ -260,8 +260,10 @@ task('testnet:createBorrow', 'Create a loan on the token id')
 
     if (currentTimestamp < loanStartTimestamp) {
       console.log(
-        `Borrow failed since current timestamp(${currentTimestamp}) is less than loanStartTimestamp(${loanStartTimestamp})`
+        `Borrow not worked since current timestamp(${currentTimestamp}) is less than loanStartTimestamp(${loanStartTimestamp})`
       );
+    } else if (currentTimestamp > loanStartTimestamp + 64800) {
+      console.log(`Borrow not worked since current timestamp(${currentTimestamp}) is expired`);
     } else {
       await moneyPool.connect(collateralServiceProvider).borrow(underlyingAsset.address, args.bond);
       console.log(
