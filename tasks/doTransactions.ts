@@ -77,7 +77,7 @@ task('testnet:createDeposit', 'Create deposit, default amount : 100, default sen
 
     const balance = await underlyingAsset.balanceOf(sender.address);
     if (balance.lte(amount)) {
-      await hre.run('testnet:transfer', { amount: `${amount}`, sender: deployer.address });
+      await hre.run('testnet:transfer', { amount: amount, sender: deployer.address });
     }
 
     const allowance = await underlyingAsset.allowance(sender.address, moneyPool.address);
@@ -85,8 +85,8 @@ task('testnet:createDeposit', 'Create deposit, default amount : 100, default sen
       await hre.run('testnet:moneyPoolApprove', { amount: amount, sender: sender.address });
     }
 
-    await moneyPool.connect(depositor).deposit(underlyingAsset.address, sender.address, amount);
-    console.log(`Depositor deposits 100ETH and 500ETH`);
+    await moneyPool.connect(sender).deposit(underlyingAsset.address, sender.address, amount);
+    console.log(`${sender.address.substr(0, 10)} deposits  ${amount}`);
   });
 
 task('testnet:createWithdraw', 'Create withdraw, default amount : 100, default sender : depositor')
@@ -502,8 +502,6 @@ task('local:createSignedAssetBond', 'Create signed asset bond')
 
     const loanStartDate = new Date(+loanStart * 1000);
 
-    //new Date('20201212');
-
     await tokenizer
       .connect(sender)
       .settleAssetBond(
@@ -530,7 +528,7 @@ task('local:createSignedAssetBond', 'Create signed asset bond')
     const liquidityAvailable = await underlyingAsset.balanceOf(lToken.address);
 
     if (liquidityAvailable.lte(borrowPrincipal)) {
-      await hre.run('testnet:createDeposit', { amount: `${amount}`, sender: depositor.address });
+      await hre.run('testnet:createDeposit', { amount: amount, sender: depositor.address });
       console.log(`The depositor deposited 100 due to the lack of available liquidity`);
     }
 
@@ -588,7 +586,7 @@ task('local:createSignedAssetBond', 'Create signed asset bond')
 //   connector.connect(deployer).addCouncil(signer.address);
 // });
 
-task('createWithdraw', 'Create withdraw : 1500ETH').setAction(
+task('local:createWithdraw', 'Create withdraw, default sender: depositor, amount: 100').setAction(
   async (args: Args, hre: HardhatRuntimeEnvironment) => {
     const [deployer, depositor] = await hre.ethers.getSigners();
 
@@ -607,7 +605,7 @@ task('createWithdraw', 'Create withdraw : 1500ETH').setAction(
   }
 );
 
-task('mintAssetBond', 'Create empty asset bond')
+task('local:mintAssetBond', 'Create empty asset bond')
   .addOptionalParam('bond', 'The id of asset bond token')
   .setAction(async (args: Args, hre: HardhatRuntimeEnvironment) => {
     const [deployer, depositor, borrower, collateralServiceProvider, signer] =
@@ -729,7 +727,7 @@ task('createBorrowOnly', 'Create borrow : 1500ETH')
     }
   });
 
-task('createBorrowSequence', 'Create borrow : 1500ETH')
+task('local:createBorrow', 'Create borrow : 1500ETH')
   .addOptionalParam('bond', 'The id of asset bond token')
   .setAction(async (args: Args, hre: HardhatRuntimeEnvironment) => {
     const [deployer, depositor, borrower, collateralServiceProvider, signer] =
@@ -758,7 +756,7 @@ task('createBorrowSequence', 'Create borrow : 1500ETH')
         .addCollateralServiceProvider(collateralServiceProvider.address);
     }
     if (!isCouncil) {
-      connector.connect(deployer).addCouncil(signer.address);
+      await connector.connect(deployer).addCouncil(signer.address);
     }
 
     await tokenizer
@@ -931,6 +929,143 @@ task('createSignedAssetBond', 'Create signed asset bond in live network')
         `Borrow failed since current timestamp(${currentTimestamp}) exceeds loanStartTimestamp(${loanStartTimestamp})`
       );
     }
+  });
+
+task('local:createDeposit', 'Create deposit, default amount : 100, default sender : depositor')
+  .addOptionalParam('sender', 'The depositor sender, default: depositor')
+  .addOptionalParam('amount', 'The approve amount')
+  .setAction(async (args: Args, hre: HardhatRuntimeEnvironment) => {
+    let sender: SignerWithAddress;
+    let amount: string;
+    const [deployer, depositor, borrower, collateralServiceProvider, signer] =
+      await hre.ethers.getSigners();
+
+    const deployedElyfiContracts = (await getDeployedContracts(hre, deployer)) as ElyfiContracts;
+    const moneyPool = deployedElyfiContracts.moneyPool;
+    const underlyingAsset = deployedElyfiContracts.underlyingAsset;
+
+    sender = depositor;
+    amount = '';
+
+    if (args.sender != undefined) {
+      switch (args.sender) {
+        case `${deployer.address}`:
+          sender = deployer;
+          break;
+        case `${depositor.address}`:
+          sender = depositor;
+          break;
+        case `${borrower.address}`:
+          sender = borrower;
+          break;
+        case `${collateralServiceProvider.address}`:
+          sender = collateralServiceProvider;
+          break;
+        case `${signer.address}`:
+          sender = signer;
+          break;
+      }
+    }
+    amount =
+      args.amount != undefined
+        ? utils.parseEther(args.amount).toString()
+        : utils.parseEther('100').toString();
+
+    const balance = await underlyingAsset.balanceOf(sender.address);
+    if (balance.lte(amount)) {
+      await hre.run('local:transfer', { amount: amount, sender: deployer.address });
+    }
+
+    const allowance = await underlyingAsset.allowance(sender.address, moneyPool.address);
+    if (allowance.lte(amount)) {
+      await hre.run('testnet:moneyPoolApprove', { amount: amount, sender: sender.address });
+    }
+
+    await moneyPool.connect(sender).deposit(underlyingAsset.address, sender.address, amount);
+    console.log(`${sender.address.substr(0, 10)} deposits  ${amount}`);
+  });
+
+task('local:moneyPoolApprove', 'Approve to moneyPool, default: 100')
+  .addParam('sender', 'The tx sender, default: deployer')
+  .addOptionalParam('amount', 'The approve amount')
+  .setAction(async (args: Args, hre: HardhatRuntimeEnvironment) => {
+    let sender: SignerWithAddress;
+    let amount: string;
+    const [deployer, depositor, borrower, collateralServiceProvider, signer] =
+      await hre.ethers.getSigners();
+
+    const deployedElyfiContracts = (await getDeployedContracts(hre, deployer)) as ElyfiContracts;
+    const underlyingAsset = deployedElyfiContracts.underlyingAsset;
+    const moneyPool = deployedElyfiContracts.moneyPool;
+
+    sender = deployer;
+    amount = '';
+
+    switch (args.sender) {
+      case `${deployer.address}`:
+        sender = deployer;
+        break;
+      case `${depositor.address}`:
+        sender = depositor;
+        break;
+      case `${borrower.address}`:
+        sender = borrower;
+        break;
+      case `${collateralServiceProvider.address}`:
+        sender = collateralServiceProvider;
+        break;
+      case `${signer.address}`:
+        sender = signer;
+        break;
+    }
+
+    amount = args.amount != undefined ? args.amount : utils.parseEther('100').toString();
+
+    await underlyingAsset.connect(sender).approve(moneyPool.address, amount);
+    console.log(`${args.sender} approves moneyPool ${amount}`);
+  });
+
+task('local:transfer', 'Transfer underlyingAsset to account, default amount: 100')
+  .addOptionalParam('sender', 'The tx sender, default: deployer')
+  .addParam('account', 'The receiver, default: depositor')
+  .addOptionalParam('amount', 'The approve amount, default amount: 100')
+  .setAction(async (args: Args, hre: HardhatRuntimeEnvironment) => {
+    let sender: SignerWithAddress;
+    let amount: string;
+    const [deployer, depositor, borrower, collateralServiceProvider, signer] =
+      await hre.ethers.getSigners();
+
+    const deployedElyfiContracts = (await getDeployedContracts(hre, deployer)) as ElyfiContracts;
+    const underlyingAsset = deployedElyfiContracts.underlyingAsset;
+
+    sender = deployer;
+
+    switch (args.sender) {
+      case `${deployer.address}`:
+        sender = deployer;
+        break;
+      case `${depositor.address}`:
+        sender = depositor;
+        break;
+      case `${borrower.address}`:
+        sender = borrower;
+        break;
+      case `${collateralServiceProvider.address}`:
+        sender = collateralServiceProvider;
+        break;
+      case `${signer.address}`:
+        sender = signer;
+        break;
+    }
+
+    amount = args.amount != undefined ? args.amount : utils.parseEther('100').toString();
+
+    console.log('sender', sender.address);
+
+    await underlyingAsset.connect(sender).transfer(args.account, amount);
+    console.log(
+      `${sender.address.substr(0, 10)} transfer ${amount} to ${args.account.substr(0, 10)}`
+    );
   });
 
 // const advanceTime = (hre: HardhatRuntimeEnvironment, time: number) => {
