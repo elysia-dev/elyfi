@@ -3,7 +3,7 @@ import BigNumber from 'bignumber.js';
 import { InformationDigit, InformationPositions, wholeNumber } from './types';
 import informationDigits from './informationDigit.json';
 
-export const assetBondPosition = () => {
+export const tokenIdMaskPosition = () => {
   const positions = <InformationPositions>{};
   let position: number = 0;
   (Object.keys(informationDigits) as (keyof InformationDigit)[]).forEach((key) => {
