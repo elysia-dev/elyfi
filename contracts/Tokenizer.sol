@@ -15,6 +15,7 @@ import './interfaces/IMoneyPool.sol';
 import './interfaces/ITokenizer.sol';
 import './interfaces/IConnector.sol';
 import './TokenizerStorage.sol';
+import 'hardhat/console.sol';
 
 /**
  * @title ELYFI Tokenizer
@@ -77,11 +78,23 @@ contract Tokenizer is ITokenizer, TokenizerStorage, ERC721 {
    **/
   function getAssetBondDebtData(uint256 tokenId) external view override returns (uint256, uint256) {
     DataStruct.AssetBondData storage assetBond = _assetBondData[tokenId];
+
     return assetBond.getAssetBondDebtData();
   }
 
   function getMinter(uint256 tokenId) external view override returns (address) {
     return _minter[tokenId];
+  }
+
+  function getAssetBondIdData(uint256 tokenId)
+    external
+    view
+    override
+    returns (DataStruct.AssetBondIdData memory)
+  {
+    DataStruct.AssetBondIdData memory vars = AssetBond.parseAssetBondId(tokenId);
+    console.log(vars.nonce, vars.productNumber);
+    return AssetBond.parseAssetBondId(tokenId);
   }
 
   /************ AssetBond Formation Functions ************/
@@ -171,24 +184,23 @@ contract Tokenizer is ITokenizer, TokenizerStorage, ERC721 {
     vars.maturityTimestamp = vars.loanStartTimestamp + (uint256(loanDuration) * 1 days);
     vars.liquidationTimestamp = vars.maturityTimestamp + (10 * 1 days);
 
-    DataStruct.AssetBondData memory newAssetBond =
-      DataStruct.AssetBondData({
-        state: DataStruct.AssetBondState.SETTLED,
-        borrower: borrower,
-        signer: signer,
-        collateralServiceProvider: msg.sender,
-        principal: principal,
-        debtCeiling: debtCeiling,
-        couponRate: couponRate,
-        interestRate: 0,
-        overdueInterestRate: overdueInterestRate,
-        loanStartTimestamp: vars.loanStartTimestamp,
-        maturityTimestamp: vars.maturityTimestamp,
-        liquidationTimestamp: vars.liquidationTimestamp,
-        collateralizeTimestamp: 0,
-        ipfsHash: ipfsHash,
-        signerOpinionHash: ''
-      });
+    DataStruct.AssetBondData memory newAssetBond = DataStruct.AssetBondData({
+      state: DataStruct.AssetBondState.SETTLED,
+      borrower: borrower,
+      signer: signer,
+      collateralServiceProvider: msg.sender,
+      principal: principal,
+      debtCeiling: debtCeiling,
+      couponRate: couponRate,
+      interestRate: 0,
+      overdueInterestRate: overdueInterestRate,
+      loanStartTimestamp: vars.loanStartTimestamp,
+      maturityTimestamp: vars.maturityTimestamp,
+      liquidationTimestamp: vars.liquidationTimestamp,
+      collateralizeTimestamp: 0,
+      ipfsHash: ipfsHash,
+      signerOpinionHash: ''
+    });
 
     Validation.validateSettleAssetBond(newAssetBond);
 

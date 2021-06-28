@@ -1,15 +1,23 @@
-import { Information, InformationDigit, wholeNumber } from './types';
+import { AssetBondIdData, AssetBondIdDataDigits, wholeNumber } from './types';
+import assetBondIdDataDigits from './assetBondIdDataDigits.json';
+import { bigBinaryStringToHexString } from './position';
 
-export const tokenIdGenerator = (informationDigits: InformationDigit, information: Information) => {
-  const bufferLength = totalDigits(informationDigits);
+export const tokenIdGenerator = (assetBondIdData: AssetBondIdData) => {
+  const bufferLength = totalDigits(assetBondIdDataDigits);
   let position: number = 0;
-  let buffer = '1'.repeat(wholeNumber.length - bufferLength);
+  let buffer = '0'.repeat(wholeNumber.length - bufferLength);
 
-  (Object.keys(informationDigits).reverse() as (keyof InformationDigit)[]).forEach((key, i) => {
-    buffer = buffer + getInformationFullBinary(informationDigits[key], information[key]);
-    position += informationDigits[key];
-  });
-  return buffer;
+  (Object.keys(assetBondIdDataDigits).reverse() as (keyof AssetBondIdDataDigits)[]).forEach(
+    (key) => {
+      if (assetBondIdData[key] > 2 ** assetBondIdDataDigits[key]) {
+        return 0;
+      }
+      buffer = buffer + getInformationFullBinary(assetBondIdDataDigits[key], assetBondIdData[key]);
+      console.log(getInformationFullBinary(assetBondIdDataDigits[key], assetBondIdData[key]));
+      position += assetBondIdDataDigits[key];
+    }
+  );
+  return bigBinaryStringToHexString(buffer);
 };
 
 const getInformationFullBinary = (digit: number, info: number) => {
@@ -20,10 +28,10 @@ const getInformationFullBinary = (digit: number, info: number) => {
   return result;
 };
 
-const totalDigits = (informationDigits: InformationDigit) => {
+const totalDigits = (assetBondIdDataDigits: AssetBondIdDataDigits) => {
   let result: number = 0;
-  (Object.keys(informationDigits) as (keyof InformationDigit)[]).forEach((key) => {
-    result += informationDigits[key];
+  (Object.keys(assetBondIdDataDigits) as (keyof AssetBondIdDataDigits)[]).forEach((key) => {
+    result += assetBondIdDataDigits[key];
   });
   return result;
 };

@@ -47,6 +47,19 @@ library DataStruct {
     string signerOpinionHash;
   }
 
+  struct AssetBondIdData {
+    uint256 nonce;
+    uint256 countryCode;
+    uint256 collateralServiceProviderIdentificationNumber;
+    uint256 collateralLatitude;
+    uint256 collateralLatitudeSign;
+    uint256 collateralLongitude;
+    uint256 collateralLongitudeSign;
+    uint256 collateralDetail;
+    uint256 collateralCategory;
+    uint256 productNumber;
+  }
+
   /**
     @notice The states of asset bond
     * EMPTY: After
@@ -57,5 +70,13 @@ library DataStruct {
     * REDEEMED:
     * NOT_PERFORMED:
    */
-  enum AssetBondState {EMPTY, SETTLED, CONFIRMED, COLLATERALIZED, MATURED, REDEEMED, NOT_PERFORMED}
+  enum AssetBondState {
+    EMPTY,
+    SETTLED,
+    CONFIRMED,
+    COLLATERALIZED,
+    MATURED,
+    REDEEMED,
+    NOT_PERFORMED
+  }
 }

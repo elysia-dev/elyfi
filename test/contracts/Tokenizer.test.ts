@@ -3,7 +3,7 @@ import { ethers, waffle } from 'hardhat';
 import { makeAllContracts } from '../utils/makeContract';
 import { expect } from 'chai';
 import ElyfiContracts from '../types/ElyfiContracts';
-import {  AssetBondSettleData, AssetBondState } from '../utils/Interfaces';
+import { AssetBondSettleData, AssetBondState } from '../utils/Interfaces';
 import { toRate, toTimestamp } from '../utils/Ethereum';
 import { settleAssetBond } from '../utils/Helpers';
 import { SECONDSPERDAY } from '../utils/constants';
@@ -66,7 +66,9 @@ describe('Tokenizer', () => {
       });
 
       context('when the token id is invalid', async () => {
-        it('');
+        it('reverts if the latitude is invalid');
+        it('reverts if the longitude is invalid');
+        it('reverts when the latitude in token id is invalid');
       });
 
       context('when the token id is vaild', async () => {

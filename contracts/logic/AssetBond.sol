@@ -41,21 +41,12 @@ library AssetBond {
   uint256 constant COLLATERAL_CATEGORY_START = 170;
   uint256 constant PRODUCT_NUMBER_START = 180;
 
-  struct LocalAssetBondIdData {
-    uint256 nonce;
-    uint256 countryCode;
-    uint256 collateralServiceProviderIdentificationNumber;
-    uint256 collateralLatitude;
-    uint256 collateralLatitudeSign;
-    uint256 collateralLongitude;
-    uint256 collateralLongitudeSign;
-    uint256 collateralDetail;
-    uint256 collateralCategory;
-    uint256 productNumber;
-  }
-
-  function parseAssetBondId(uint256 tokenId) internal pure returns (LocalAssetBondIdData memory) {
-    LocalAssetBondIdData memory vars;
+  function parseAssetBondId(uint256 tokenId)
+    internal
+    pure
+    returns (DataStruct.AssetBondIdData memory)
+  {
+    DataStruct.AssetBondIdData memory vars;
     vars.nonce = tokenId & ~NONCE;
     vars.countryCode = (tokenId & ~COUNTRY_CODE) >> COUNTRY_CODE_START;
     vars.collateralServiceProviderIdentificationNumber =

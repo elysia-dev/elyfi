@@ -1,4 +1,4 @@
-export type Information = {
+export type AssetBondIdData = {
   nonce: number;
   countryCode: number;
   collateralServiceProviderIdentificationNumber: number;
@@ -11,7 +11,7 @@ export type Information = {
   productNumber: number;
 };
 
-export type InformationDigit = {
+export type AssetBondIdDataDigits = {
   nonce: number;
   countryCode: number;
   collateralServiceProviderIdentificationNumber: number;
@@ -24,7 +24,7 @@ export type InformationDigit = {
   productNumber: number;
 };
 
-export type InformationPositions = {
+export type AssetBondIdMask = {
   nonce: string;
   countryCode: string;
   collateralServiceProviderIdentificationNumber: string;

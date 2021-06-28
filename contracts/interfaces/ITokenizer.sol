@@ -41,10 +41,7 @@ interface ITokenizer is IERC721 {
 
   event AssetBondLiquidated(address indexed liquidator, uint256 tokenId);
 
-  function mintAssetBond(
-    address account,
-    uint256 id // information about Co and borrower
-  ) external;
+  function mintAssetBond(address account, uint256 id) external;
 
   function collateralizeAssetBond(
     address collateralServiceProvider,
@@ -56,6 +53,11 @@ interface ITokenizer is IERC721 {
   function releaseAssetBond(address account, uint256 tokenId) external;
 
   function liquidateAssetBond(address account, uint256 tokenId) external;
+
+  function getAssetBondIdData(uint256 tokenId)
+    external
+    view
+    returns (DataStruct.AssetBondIdData memory);
 
   function getAssetBondData(uint256 tokenId)
     external

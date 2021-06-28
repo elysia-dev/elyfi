@@ -1,8 +1,8 @@
 import { expect } from 'chai';
 import { ethers, waffle } from 'hardhat';
-import ElyfiContracts from '../types/ElyfiContracts';
-import { defaultInterestModelParams } from '../utils/Interfaces';
-import { makeAllContracts } from '../utils/makeContract';
+import ElyfiContracts from '../../types/ElyfiContracts';
+import { defaultInterestModelParams } from '../../utils/Interfaces';
+import { makeAllContracts } from '../../utils/makeContract';
 
 describe('Rate', () => {
   let elyfiContracts: ElyfiContracts;

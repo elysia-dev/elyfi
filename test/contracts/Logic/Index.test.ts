@@ -7,8 +7,8 @@ import {
   getTimestamp,
   toIndex,
   toRate,
-} from '../utils/Ethereum';
-import { calculateLinearInterest } from '../utils/Math';
+} from '../../utils/Ethereum';
+import { calculateLinearInterest } from '../../utils/Math';
 import { expect } from 'chai';
 
 describe('Index', () => {

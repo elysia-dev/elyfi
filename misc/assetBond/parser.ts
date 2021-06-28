@@ -1,14 +1,14 @@
-import { Information, InformationDigit, wholeNumber } from './types';
-import informationDigits from './informationDigit.json';
+import { AssetBondIdData, AssetBondIdDataDigits, wholeNumber } from './types';
+import assetBondIdDataDigits from './assetBondIdDataDigits.json';
 
 export const tokenIdParser = (tokenId: string) => {
-  const parsedTokenId = <Information>{};
+  const parsedTokenId = <AssetBondIdData>{};
   let end = wholeNumber.length;
-  (Object.keys(informationDigits) as (keyof InformationDigit)[]).forEach((key) => {
-    let start = end - informationDigits[key] + 1;
+  (Object.keys(assetBondIdDataDigits) as (keyof AssetBondIdDataDigits)[]).forEach((key) => {
+    let start = end - assetBondIdDataDigits[key] + 1;
     start = start != end ? start : start - 1;
     parsedTokenId[key] = parseInt(tokenId.slice(start, end), 2);
-    end -= informationDigits[key];
+    end -= assetBondIdDataDigits[key];
   });
 
   return parsedTokenId;
