@@ -14,6 +14,7 @@ export const tokenIdMaskPosition = () => {
     const middle: string = '0'.repeat(end - start + 1);
     const left: string = '1'.repeat(wholeNumber.length - end - 1);
 
+    console.log(key, position);
     position += informationDigits[key];
 
     const concatedString = left.concat(middle).concat(right);
