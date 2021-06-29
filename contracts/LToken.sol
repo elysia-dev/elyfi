@@ -8,6 +8,7 @@ import './libraries/WadRayMath.sol';
 import './libraries/Errors.sol';
 import './interfaces/ILToken.sol';
 import './interfaces/IMoneyPool.sol';
+import './interfaces/IIncentivePool.sol';
 
 /**
  * @title ELYFI LToken
@@ -22,16 +23,19 @@ contract LToken is ILToken, ERC20 {
   using WadRayMath for uint256;
 
   IMoneyPool internal _moneyPool;
+  IIncentivePool internal _incentivePool;
   address internal _underlyingAsset;
 
   constructor(
     IMoneyPool moneyPool,
-    address underlyingAsset_,
-    string memory name_,
-    string memory symbol_
-  ) ERC20(name_, symbol_) {
+    address underlyingAsset,
+    IIncentivePool incentivePool,
+    string memory name,
+    string memory symbol
+  ) ERC20(name, symbol) {
     _moneyPool = moneyPool;
-    _underlyingAsset = underlyingAsset_;
+    _underlyingAsset = underlyingAsset;
+    _incentivePool = incentivePool;
   }
 
   function mint(
@@ -44,6 +48,7 @@ contract LToken is ILToken, ERC20 {
     if (amount == 0) revert TokenErrors.LTokenInvalidMintAmount(implicitBalance);
 
     _mint(account, implicitBalance);
+    _incentivePool.updateIncentivePool(account);
 
     emit Transfer(address(0), account, amount);
     emit Mint(account, amount, index);
@@ -60,6 +65,7 @@ contract LToken is ILToken, ERC20 {
     if (amount == 0) revert TokenErrors.LTokenInvalidBurnAmount(implicitBalance);
 
     _burn(account, implicitBalance);
+    _incentivePool.updateIncentivePool(account);
 
     IERC20(_underlyingAsset).safeTransfer(receiver, amount);
 
@@ -116,6 +122,7 @@ contract LToken is ILToken, ERC20 {
   ) internal {
     uint256 index = _moneyPool.getLTokenInterestIndex(_underlyingAsset);
     validate;
+    _incentivePool.beforeTokenTransfer(from, to);
     super._transfer(from, to, amount.rayDiv(index));
   }
 
