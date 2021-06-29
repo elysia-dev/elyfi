@@ -1,13 +1,13 @@
 import { expect } from 'chai';
 import { getReserveData } from '../../utils/Helpers';
-import { defaultReserveData } from '../../utils/Interfaces';
+import { testReserveData } from '../../utils/testData';
 import ElyfiContracts from '../../types/ElyfiContracts';
 import loadFixture from '../../utils/loadFixture';
 import deployedAll from '../../fixtures/deployedAll';
 require('../../assertions/equals.ts');
 
 describe('MoneyPool.addReserve', async () => {
-  let elyfiContracts: ElyfiContracts
+  let elyfiContracts: ElyfiContracts;
 
   beforeEach(async () => {
     const fixture = await loadFixture(deployedAll);
@@ -22,10 +22,10 @@ describe('MoneyPool.addReserve', async () => {
     });
 
     expect(initialContractReserveData.underlyingAssetName).to.be.equal(
-      defaultReserveData.underlyingAssetName
+      testReserveData.underlyingAssetName
     );
     expect(initialContractReserveData.underlyingAssetSymbol).to.be.equal(
-      defaultReserveData.underlyingAssetSymbol
+      testReserveData.underlyingAssetSymbol
     );
   });
 });

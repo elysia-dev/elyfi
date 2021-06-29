@@ -1,7 +1,7 @@
 import { Contract, ethers } from 'ethers';
 import { HardhatRuntimeEnvironment } from 'hardhat/types';
 import { DeployFunction } from 'hardhat-deploy/types';
-import { defaultInterestModelParams, defaultReserveData } from '../test/utils/Interfaces';
+import { defaultInterestModelParams, testReserveData } from '../test/utils/testData';
 import TestnetEL_ABI from '../dependencies/TestnetEL.json';
 import ELToken_ABI from '../dependencies/ELToken.json';
 import { getContractAt } from 'hardhat-deploy-ethers/dist/src/helpers';
@@ -115,7 +115,7 @@ const deployTest: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
     dToken.address,
     interestRateModel.address,
     tokenizer.address,
-    defaultReserveData.moneyPoolFactor
+    testReserveData.moneyPoolFactor
   );
 
   if (hre.network.name === 'ganache') return;

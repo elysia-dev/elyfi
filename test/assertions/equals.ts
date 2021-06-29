@@ -1,6 +1,8 @@
 import { Assertion, util, expect } from 'chai';
 import { BigNumber } from 'ethers';
-import { AssetBondData, ReserveData, UserData } from '../utils/Interfaces';
+import AssetBondData from '../types/AssetBondData';
+import ReserveData from '../types/ReserveData';
+import UserData from '../types/UserData';
 
 const flag = util.flag;
 

@@ -1,13 +1,8 @@
-import { BigNumber, constants, utils, Wallet } from 'ethers';
 import { ethers, waffle } from 'hardhat';
 import { makeAllContracts } from '../../utils/makeContract';
 import { expect } from 'chai';
 import ElyfiContracts from '../../types/ElyfiContracts';
-import { AssetBondSettleData, AssetBondState } from '../../utils/Interfaces';
-import { toRate, toTimestamp } from '../../utils/Ethereum';
-import { settleAssetBond } from '../../utils/Helpers';
-import { SECONDSPERDAY } from '../../utils/constants';
-import { AssetBondIdData, AssetBondIdDataDigits, wholeNumber } from '../../../misc/assetBond/types';
+import { AssetBondIdData } from '../../../misc/assetBond/types';
 import { tokenIdGenerator } from '../../../misc/assetBond/generator';
 
 describe('AssetBond', () => {

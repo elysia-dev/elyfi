@@ -1,11 +1,13 @@
 import { BigNumber, constants, Wallet } from 'ethers';
+import AssetBondData from '../types/AssetBondData';
+import AssetBondState from '../types/AssetBondState';
+import ReserveData from '../types/ReserveData';
+import UserData from '../types/UserData';
 import { rayDiv, rayMul } from './Ethereum';
-import { AssetBondData, AssetBondState, ReserveData, UserData } from './Interfaces';
 import {
   calculateAssetBondDebtData,
   calculateAssetBondLiquidationData,
   calculateCompoundedInterest,
-  calculateFeeOnRepayment,
   calculateLTokenIndexAfterAction,
   calculateRateInDecreasingBalance,
   calculateRateInIncreasingBalance,

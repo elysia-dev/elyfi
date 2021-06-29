@@ -3,10 +3,11 @@ import { ethers, waffle } from 'hardhat';
 import { makeAllContracts } from '../utils/makeContract';
 import { expect } from 'chai';
 import ElyfiContracts from '../types/ElyfiContracts';
-import { AssetBondSettleData, AssetBondState } from '../utils/Interfaces';
 import { toRate, toTimestamp } from '../utils/Ethereum';
 import { settleAssetBond } from '../utils/Helpers';
 import { SECONDSPERDAY } from '../utils/constants';
+import AssetBondSettleData from '../types/AssetBondSettleData';
+import AssetBondState from '../types/AssetBondState';
 
 describe('Tokenizer', () => {
   let elyfiContracts: ElyfiContracts;

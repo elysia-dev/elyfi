@@ -1,7 +1,6 @@
 import '@nomiclabs/hardhat-waffle';
 import { getContractAt } from 'hardhat-deploy-ethers/dist/src/helpers';
 import {
-  ERC20,
   Tokenizer,
   Connector,
   DataPipeline,
@@ -90,7 +89,7 @@ export const getDeployedContracts = async (
               deployedContract.abi,
               deployedContract.address,
               deployer
-            )) as ERC20;
+            )) as ERC20Test;
           } catch (e) {
             console.log(e);
           }

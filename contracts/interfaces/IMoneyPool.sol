@@ -10,6 +10,7 @@ interface IMoneyPool {
     address dToken,
     address interestModel,
     address tokenizer,
+    address incentivePool,
     uint256 moneyPoolFactor
   );
 
@@ -75,6 +76,7 @@ interface IMoneyPool {
     address dToken,
     address interestModel,
     address tokenizer,
+    address incentivePool,
     uint256 moneyPoolFactor_
   ) external;
 }
