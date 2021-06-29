@@ -36,3 +36,5 @@ export const testAssetBondData: AssetBondSettleData = <AssetBondSettleData>{
   loanStartTimeDay: BigNumber.from(1),
   ipfsHash: 'test',
 };
+
+export const testIncentiveAmountPerSecond = BigNumber.from(RAY).mul(33334).div(86400);

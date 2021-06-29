@@ -18,11 +18,10 @@ import {
   IncentivePool,
   IncentivePool__factory,
 } from '../../typechain';
-import { Contract, Wallet, BigNumber, utils } from 'ethers';
+import { Contract, BigNumber, utils } from 'ethers';
 import { ethers } from 'hardhat';
-import { testInterestModelParams, testReserveData } from './testData';
+import { testIncentiveAmountPerSecond, testInterestModelParams, testReserveData } from './testData';
 import ElyfiContracts from '../types/ElyfiContracts';
-import { RAY } from './constants';
 import InterestModelParams from '../types/InterestRateModelParams';
 
 export async function makeUnderlyingAsset({
@@ -76,7 +75,7 @@ export async function makeMoneyPool({
 export async function makeIncentivePool({
   moneyPool,
   incentiveAsset,
-  amountPerSecond = BigNumber.from(RAY).mul(33334).div(86400),
+  amountPerSecond = testIncentiveAmountPerSecond,
 }: {
   moneyPool: MoneyPoolTest | Contract;
   incentiveAsset: ERC20Test | Contract;
@@ -212,6 +211,8 @@ export async function makeDataPipeline({
 export async function makeAllContracts(): Promise<ElyfiContracts> {
   const underlyingAsset = await makeUnderlyingAsset({});
 
+  const incentiveAsset = await makeUnderlyingAsset({});
+
   const connector = await makeConnector();
 
   const moneyPool = await makeMoneyPool({
@@ -220,7 +221,7 @@ export async function makeAllContracts(): Promise<ElyfiContracts> {
 
   const incentivePool = await makeIncentivePool({
     moneyPool,
-    underlyingAsset,
+    incentiveAsset,
   });
 
   const interestRateModel = await makeInterestRateModel({});
