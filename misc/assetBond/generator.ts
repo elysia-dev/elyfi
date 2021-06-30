@@ -13,7 +13,6 @@ export const tokenIdGenerator = (assetBondIdData: AssetBondIdData) => {
         return 0;
       }
       buffer = buffer + getInformationFullBinary(assetBondIdDataDigits[key], assetBondIdData[key]);
-      console.log(getInformationFullBinary(assetBondIdDataDigits[key], assetBondIdData[key]));
       position += assetBondIdDataDigits[key];
     }
   );

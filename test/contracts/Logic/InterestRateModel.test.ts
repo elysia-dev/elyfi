@@ -1,8 +1,8 @@
 import { expect } from 'chai';
 import { ethers, waffle } from 'hardhat';
 import ElyfiContracts from '../../types/ElyfiContracts';
-import { defaultInterestModelParams } from '../../utils/Interfaces';
 import { makeAllContracts } from '../../utils/makeContract';
+import { testInterestModelParams } from '../../utils/testData';
 
 describe('Rate', () => {
   let elyfiContracts: ElyfiContracts;
@@ -27,7 +27,7 @@ describe('Rate', () => {
       0
     );
 
-    expect(borrowAPY).to.be.equal(defaultInterestModelParams.borrowRateBase);
+    expect(borrowAPY).to.be.equal(testInterestModelParams.borrowRateBase);
     expect(depositAPY).to.be.equal(0);
   });
 
@@ -47,7 +47,7 @@ describe('Rate', () => {
       0
     );
 
-    expect(borrowAPY).to.be.equal(defaultInterestModelParams.borrowRateOptimal);
+    expect(borrowAPY).to.be.equal(testInterestModelParams.borrowRateOptimal);
   });
 
   it('returns optimal rates at optimal utilization rate with borrowing', async () => {
@@ -66,7 +66,7 @@ describe('Rate', () => {
       0
     );
 
-    expect(borrowAPY).to.be.equal(defaultInterestModelParams.borrowRateOptimal);
+    expect(borrowAPY).to.be.equal(testInterestModelParams.borrowRateOptimal);
   });
 
   it('returns optimal rates at optimal utilization rate with deposit', async () => {
@@ -85,6 +85,6 @@ describe('Rate', () => {
       0
     );
 
-    expect(borrowAPY).to.be.equal(defaultInterestModelParams.borrowRateOptimal);
+    expect(borrowAPY).to.be.equal(testInterestModelParams.borrowRateOptimal);
   });
 });

@@ -38,8 +38,8 @@ contract IncentivePool is IIncentivePool {
 
   mapping(address => uint256) internal _accruedIncentive;
 
-  function initializeIncentivePool(address lToken) external override {
-    if (_initialized) revert();
+  function initializeIncentivePool(address lToken) external override onlyMoneyPool {
+    if (_initialized) revert AlreadyInitialized();
     _initialized = true;
     _lToken = lToken;
   }
@@ -47,7 +47,7 @@ contract IncentivePool is IIncentivePool {
   /**
    * @notice Update user incentive index and last update timestamp in minting or burining lTokens.
    */
-  function updateIncentivePool(address user) external override {
+  function updateIncentivePool(address user) external override onlyLToken {
     _accruedIncentive[user] = getUserIncentiveReward(user);
     _lastUpdateTimestamp = block.timestamp;
     _incentiveIndex = _userIncentiveIndex[user] = getIncentiveIndex();
@@ -57,7 +57,7 @@ contract IncentivePool is IIncentivePool {
    * @notice If user transfered lToken, accrued reward will be updated
    * and user index will be set to the current index
    */
-  function beforeTokenTransfer(address from, address to) external override {
+  function beforeTokenTransfer(address from, address to) external override onlyLToken {
     _accruedIncentive[from] = getUserIncentiveReward(from);
     _accruedIncentive[to] = getUserIncentiveReward(to);
     _userIncentiveIndex[from] = _userIncentiveIndex[to] = getIncentiveIndex();
@@ -101,5 +101,15 @@ contract IncentivePool is IIncentivePool {
     uint256 result = _accruedIncentive[user] + (balance * indexDiff) / 1e9;
 
     return result;
+  }
+
+  modifier onlyMoneyPool {
+    if (msg.sender != address(_moneyPool)) revert OnlyMoneyPool();
+    _;
+  }
+
+  modifier onlyLToken {
+    if (msg.sender != address(_lToken)) revert OnlyLToken();
+    _;
   }
 }

@@ -1,27 +1,10 @@
-import { subtask, task } from 'hardhat/config';
+import { task } from 'hardhat/config';
 import { BigNumber, ContractReceipt, ContractTransaction, utils } from 'ethers';
 import { HardhatRuntimeEnvironment } from 'hardhat/types';
 import ElyfiContracts from '../test/types/ElyfiContracts';
 import getDeployedContracts from '../test/utils/getDeployedContracts';
-import { AssetBondSettleData } from '../test/utils/Interfaces';
-import { RAY } from '../test/utils/constants';
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers';
-
-const testAssetBondData: AssetBondSettleData = <AssetBondSettleData>{
-  ...(<AssetBondSettleData>{}),
-  borrower: '',
-  signer: '',
-  tokenId: BigNumber.from('100100200300400'),
-  principal: utils.parseEther('50'),
-  debtCeiling: utils.parseEther('13'),
-  couponRate: BigNumber.from(RAY).div(10),
-  overdueInterestRate: BigNumber.from(RAY).div(33),
-  loanDuration: BigNumber.from(365),
-  loanStartTimeYear: BigNumber.from(2022),
-  loanStartTimeMonth: BigNumber.from(0),
-  loanStartTimeDay: BigNumber.from(1),
-  ipfsHash: 'test',
-};
+import { testAssetBondData } from '../test/utils/testData';
 
 interface Args {
   pool: string;

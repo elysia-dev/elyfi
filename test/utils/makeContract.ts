@@ -15,16 +15,19 @@ import {
   DataPipeline__factory,
   DTokenTest,
   DTokenTest__factory,
+  IncentivePool,
+  IncentivePool__factory,
 } from '../../typechain';
-import { Contract, Wallet, BigNumber, utils } from 'ethers';
+import { Contract, BigNumber, utils } from 'ethers';
 import { ethers } from 'hardhat';
-import { defaultInterestModelParams, defaultReserveData, InterestModelParams } from './Interfaces';
+import { testIncentiveAmountPerSecond, testInterestModelParams, testReserveData } from './testData';
 import ElyfiContracts from '../types/ElyfiContracts';
+import InterestModelParams from '../types/InterestRateModelParams';
 
 export async function makeUnderlyingAsset({
   totalSupply = utils.parseUnits('1', 36),
-  name = defaultReserveData.underlyingAssetName,
-  symbol = defaultReserveData.underlyingAssetSymbol,
+  name = testReserveData.underlyingAssetName,
+  symbol = testReserveData.underlyingAssetSymbol,
 }: {
   totalSupply?: BigNumber;
   name?: string;
@@ -33,7 +36,7 @@ export async function makeUnderlyingAsset({
   let underlyingAsset: ERC20Test;
 
   const underlyingAssetFactory = (await ethers.getContractFactory(
-    'ERC20Test',
+    'ERC20Test'
   )) as ERC20Test__factory;
 
   underlyingAsset = await underlyingAssetFactory.deploy(totalSupply, name, symbol);
@@ -44,9 +47,7 @@ export async function makeUnderlyingAsset({
 export async function makeConnector(): Promise<Connector> {
   let connector: Connector;
 
-  const connectorFactory = (await ethers.getContractFactory(
-    'Connector',
-  )) as Connector__factory;
+  const connectorFactory = (await ethers.getContractFactory('Connector')) as Connector__factory;
 
   connector = await connectorFactory.deploy();
 
@@ -63,7 +64,7 @@ export async function makeMoneyPool({
   let moneyPoolTest: MoneyPoolTest;
 
   const moneyPoolFactory = (await ethers.getContractFactory(
-    'MoneyPoolTest',
+    'MoneyPoolTest'
   )) as MoneyPoolTest__factory;
 
   moneyPoolTest = await moneyPoolFactory.deploy(maxReserveCount_, connector.address);
@@ -71,26 +72,51 @@ export async function makeMoneyPool({
   return moneyPoolTest;
 }
 
+export async function makeIncentivePool({
+  moneyPool,
+  incentiveAsset,
+  amountPerSecond = testIncentiveAmountPerSecond,
+}: {
+  moneyPool: MoneyPoolTest | Contract;
+  incentiveAsset: ERC20Test | Contract;
+  amountPerSecond?: BigNumber;
+}): Promise<IncentivePool> {
+  let incentivePool: IncentivePool;
+
+  const incentivePoolFactory = (await ethers.getContractFactory(
+    'IncentivePool'
+  )) as IncentivePool__factory;
+
+  incentivePool = await incentivePoolFactory.deploy(
+    moneyPool.address,
+    incentiveAsset.address,
+    amountPerSecond
+  );
+
+  return incentivePool;
+}
+
 export async function makeLToken({
   moneyPool,
   underlyingAsset,
+  incentivePool,
   lTokenName = 'LToken',
   lTokenSymbol = 'LT',
 }: {
   moneyPool: MoneyPoolTest | Contract;
   underlyingAsset: Contract;
+  incentivePool: Contract;
   lTokenName?: string;
   lTokenSymbol?: string;
 }): Promise<LTokenTest> {
   let lTokenTest: LTokenTest;
 
-  const lTokenFactory = (await ethers.getContractFactory(
-    'LTokenTest',
-  )) as LTokenTest__factory;
+  const lTokenFactory = (await ethers.getContractFactory('LTokenTest')) as LTokenTest__factory;
 
   lTokenTest = await lTokenFactory.deploy(
     moneyPool.address,
     underlyingAsset.address,
+    incentivePool.address,
     lTokenName,
     lTokenSymbol
   );
@@ -111,9 +137,7 @@ export async function makeDToken({
 }): Promise<DTokenTest> {
   let dTokenTest: DTokenTest;
 
-  const dTokenFactory = (await ethers.getContractFactory(
-    'DTokenTest',
-  )) as DTokenTest__factory;
+  const dTokenFactory = (await ethers.getContractFactory('DTokenTest')) as DTokenTest__factory;
 
   dTokenTest = await dTokenFactory.deploy(
     moneyPool.address,
@@ -126,14 +150,14 @@ export async function makeDToken({
 }
 
 export async function makeInterestRateModel({
-  interestRateModelParam = defaultInterestModelParams,
+  interestRateModelParam = testInterestModelParams,
 }: {
   interestRateModelParam?: InterestModelParams;
 }): Promise<InterestRateModel> {
   let interestRateModel: InterestRateModel;
 
   const interestRateModelFactory = (await ethers.getContractFactory(
-    'InterestRateModel',
+    'InterestRateModel'
   )) as InterestRateModel__factory;
 
   interestRateModel = await interestRateModelFactory.deploy(
@@ -160,7 +184,7 @@ export async function makeTokenizer({
   let tokenizerTest: TokenizerTest;
 
   const tokenizerFactory = (await ethers.getContractFactory(
-    'TokenizerTest',
+    'TokenizerTest'
   )) as TokenizerTest__factory;
 
   tokenizerTest = await tokenizerFactory.deploy(connector.address, moneyPool.address, name, symbol);
@@ -176,7 +200,7 @@ export async function makeDataPipeline({
   let dataPipeline: DataPipeline;
 
   const dataPipelineFactory = (await ethers.getContractFactory(
-    'DataPipeline',
+    'DataPipeline'
   )) as DataPipeline__factory;
 
   dataPipeline = await dataPipelineFactory.deploy(moneyPool.address);
@@ -187,10 +211,17 @@ export async function makeDataPipeline({
 export async function makeAllContracts(): Promise<ElyfiContracts> {
   const underlyingAsset = await makeUnderlyingAsset({});
 
+  const incentiveAsset = await makeUnderlyingAsset({});
+
   const connector = await makeConnector();
 
   const moneyPool = await makeMoneyPool({
     connector,
+  });
+
+  const incentivePool = await makeIncentivePool({
+    moneyPool,
+    incentiveAsset,
   });
 
   const interestRateModel = await makeInterestRateModel({});
@@ -198,6 +229,7 @@ export async function makeAllContracts(): Promise<ElyfiContracts> {
   const lToken = await makeLToken({
     moneyPool,
     underlyingAsset,
+    incentivePool,
   });
 
   const dToken = await makeDToken({
@@ -220,13 +252,15 @@ export async function makeAllContracts(): Promise<ElyfiContracts> {
     dToken.address,
     interestRateModel.address,
     tokenizer.address,
-    defaultReserveData.moneyPoolFactor
+    incentivePool.address,
+    testReserveData.moneyPoolFactor
   );
 
   return {
     underlyingAsset,
     connector,
     moneyPool,
+    incentivePool,
     interestRateModel,
     lToken,
     dToken,

@@ -11,4 +11,8 @@ interface IIncentivePool {
   function beforeTokenTransfer(address from, address to) external;
 
   function claimIncentive(address user) external;
+
+  error OnlyLToken();
+  error OnlyMoneyPool();
+  error AlreadyInitialized();
 }

@@ -5,6 +5,7 @@ import './MoneyPoolStorage.sol';
 import './interfaces/ILToken.sol';
 import './interfaces/IDToken.sol';
 import './interfaces/IMoneyPool.sol';
+import './interfaces/IIncentivePool.sol';
 import './interfaces/ITokenizer.sol';
 import './logic/Index.sol';
 import './logic/Rate.sol';
@@ -268,6 +269,7 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
     address dToken,
     address interestModel,
     address tokenizer,
+    address incentivePool,
     uint256 moneyPoolFactor_
   ) external override {
     DataStruct.ReserveData memory newReserveData = DataStruct.ReserveData({
@@ -289,7 +291,17 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
     _reserves[asset] = newReserveData;
     _addNewReserveToList(asset);
 
-    emit NewReserve(asset, lToken, dToken, interestModel, tokenizer, moneyPoolFactor_);
+    IIncentivePool(incentivePool).initializeIncentivePool(lToken);
+
+    emit NewReserve(
+      asset,
+      lToken,
+      dToken,
+      interestModel,
+      tokenizer,
+      incentivePool,
+      moneyPoolFactor_
+    );
   }
 
   function _addNewReserveToList(address asset) internal {

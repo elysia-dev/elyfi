@@ -1,7 +1,8 @@
 import { BigNumber, constants } from 'ethers';
 import { rayDiv, rayMul, wadToRay } from './Ethereum';
 import { RAY, SECONDSPERYEAR } from './constants';
-import { AssetBondData, InterestModelParams } from './Interfaces';
+import InterestModelParams from '../types/InterestRateModelParams';
+import AssetBondData from '../types/AssetBondData';
 
 export function calculateLinearInterest(
   rate: BigNumber,

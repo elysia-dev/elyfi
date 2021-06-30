@@ -1,4 +1,4 @@
-import { ethers, waffle } from 'hardhat';
+import { waffle } from 'hardhat';
 import { advanceTimeTo, getTimestamp, toRate, toTimestamp } from '../../utils/Ethereum';
 import { expect } from 'chai';
 import {
@@ -7,13 +7,13 @@ import {
   expectUserDataAfterLiquidate,
 } from '../../utils/Expect';
 import ElyfiContracts from '../../types/ElyfiContracts';
-import takeDataSnapshot from '../../utils/takeDataSnapshot';
 import { BigNumber, utils } from 'ethers';
 import loadFixture from '../../utils/loadFixture';
 import utilizedMoneypool from '../../fixtures/utilizedMoneypool';
+import takeDataSnapshot from '../../utils/takeDataSnapshot';
 import { getAssetBondData, settleAssetBond } from '../../utils/Helpers';
-import { AssetBondSettleData } from '../../utils/Interfaces';
 import { calculateAssetBondLiquidationData } from '../../utils/Math';
+import { testAssetBondData } from '../../utils/testData';
 require('../../assertions/equals.ts');
 
 describe('MoneyPool.liquidation', () => {
@@ -22,21 +22,9 @@ describe('MoneyPool.liquidation', () => {
 
   const provider = waffle.provider;
   const [deployer, CSP, borrower, signer, liquidator] = provider.getWallets();
-  const testAssetBondData: AssetBondSettleData = <AssetBondSettleData>{
-    ...(<AssetBondSettleData>{}),
-    borrower: borrower.address,
-    signer: signer.address,
-    tokenId: BigNumber.from('1001002003004005'),
-    principal: ethers.utils.parseEther('1'),
-    debtCeiling: ethers.utils.parseEther('13'),
-    couponRate: toRate(0.1),
-    overdueInterestRate: toRate(0.03),
-    loanDuration: BigNumber.from(365),
-    loanStartTimeYear: BigNumber.from(2022),
-    loanStartTimeMonth: BigNumber.from(0),
-    loanStartTimeDay: BigNumber.from(1),
-    ipfsHash: 'test',
-  };
+
+  testAssetBondData.borrower = borrower.address;
+  testAssetBondData.signer = signer.address;
 
   before('The asset bond is collateralized properly', async () => {
     const fixture = await loadFixture(utilizedMoneypool);

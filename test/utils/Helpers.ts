@@ -1,13 +1,11 @@
 import { BigNumber, ContractTransaction } from 'ethers';
 import { Wallet } from 'ethers';
+import AssetBondData from '../types/AssetBondData';
+import ReserveData from '../types/ReserveData';
+import UserData from '../types/UserData';
+import AssetBondSettleData from '../types/AssetBondSettleData';
 import { DataPipeline, ERC20Test, LTokenTest, TokenizerTest } from '../../typechain';
-import {
-  AssetBondData,
-  AssetBondSettleData,
-  defaultInterestModelParams,
-  ReserveData,
-  UserData,
-} from './Interfaces';
+import { testInterestModelParams } from './testData';
 
 export async function getUserData({
   underlyingAsset,
@@ -62,7 +60,7 @@ export async function getReserveData({
     underlyingAssetSymbol: await underlyingAsset.symbol(),
     underlyingAssetDecimals: BigNumber.from(await underlyingAsset.decimals()),
     underlyingAssetBalance: await underlyingAsset.balanceOf(lToken.address),
-    interestRateModelParams: defaultInterestModelParams,
+    interestRateModelParams: testInterestModelParams,
   };
 }
 

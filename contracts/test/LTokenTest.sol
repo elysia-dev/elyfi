@@ -6,8 +6,9 @@ import '../LToken.sol';
 contract LTokenTest is LToken {
   constructor(
     IMoneyPool moneyPool,
-    address underlyingAsset_,
-    string memory name_,
-    string memory symbol_
-  ) LToken(moneyPool, underlyingAsset_, name_, symbol_) {}
+    address underlyingAsset,
+    IIncentivePool incentivePool,
+    string memory name,
+    string memory symbol
+  ) LToken(moneyPool, underlyingAsset, incentivePool, name, symbol) {}
 }

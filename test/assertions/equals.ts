@@ -1,6 +1,8 @@
 import { Assertion, util, expect } from 'chai';
 import { BigNumber } from 'ethers';
-import { AssetBondData, ReserveData, UserData } from '../utils/Interfaces';
+import AssetBondData from '../types/AssetBondData';
+import ReserveData from '../types/ReserveData';
+import UserData from '../types/UserData';
 
 const flag = util.flag;
 
@@ -35,6 +37,7 @@ Assertion.addMethod('equalReserveData', function (expectedData: ReserveData) {
   const actualData = <ReserveData>this._obj;
 
   (Object.keys(actualData) as (keyof ReserveData)[]).forEach((key) => {
+    console.log(key, expectedData[key].toString(), actualData[key].toString());
     expect(expectedData[key]).to.eq(actualData[key]);
   });
 });
@@ -43,6 +46,7 @@ Assertion.addMethod('equalUserData', function (expectedData: UserData) {
   const actualData = <UserData>this._obj;
 
   (Object.keys(actualData) as (keyof UserData)[]).forEach((key) => {
+    console.log(key, expectedData[key].toString(), actualData[key].toString());
     expect(expectedData[key]).to.eq(actualData[key]);
   });
 });

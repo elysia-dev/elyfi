@@ -1,11 +1,14 @@
 import { Contract, ethers } from 'ethers';
 import { HardhatRuntimeEnvironment } from 'hardhat/types';
 import { DeployFunction } from 'hardhat-deploy/types';
-import { defaultInterestModelParams, defaultReserveData } from '../test/utils/Interfaces';
-import TestnetEL_ABI from '../dependencies/TestnetEL.json';
-import ELToken_ABI from '../dependencies/ELToken.json';
+import {
+  testIncentiveAmountPerSecond,
+  testInterestModelParams,
+  testReserveData,
+} from '../test/utils/testData';
 import { getContractAt } from 'hardhat-deploy-ethers/dist/src/helpers';
 import { MoneyPool } from '../typechain';
+import { getDai, getElyfi, getElysia } from './utils/dependencies';
 //import { saveDeployedContract } from './utils/save';
 
 export enum ELYFIContractType {
@@ -16,45 +19,13 @@ export enum ELYFIContractType {
   TOKENIZER,
   DATA_PIPELINE,
 }
-
-const getElysia = async (hre: HardhatRuntimeEnvironment, signer: string): Promise<Contract> => {
-  const { deployer } = await hre.getNamedAccounts();
-  const { deploy } = hre.deployments;
-  let elysia: Contract;
-  if (hre.network.name) {
-    switch (hre.network.name) {
-      case 'mainnet':
-        elysia = await hre.ethers.getContractAt(
-          ELToken_ABI,
-          '0x2781246fe707bB15CeE3e5ea354e2154a2877B16'
-        );
-        return elysia;
-      case 'binanceTestnet':
-        elysia = await hre.ethers.getContractAt(
-          TestnetEL_ABI,
-          '0xecd32309edFdBA6d51236A4517e9c2589c84C843'
-        );
-        return elysia;
-    }
-  }
-
-  const elysiaLocalDeploy = await deploy('ERC20Test', {
-    from: deployer,
-    args: [ethers.utils.parseUnits('1', 23), 'Test', 'Test'],
-  });
-
-  elysia = await hre.ethers.getContractAt(elysiaLocalDeploy.abi, elysiaLocalDeploy.address);
-
-  console.log(`Asset address ${elysia.address}`);
-
-  return elysia;
-};
-
 const deployTest: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { deployer } = await hre.getNamedAccounts();
   const { deploy } = hre.deployments;
 
-  const elysia = await getElysia(hre, deployer);
+  const testUnderlyingAsset = await getDai(hre, deployer);
+
+  const testIncentiveAsset = await getElyfi(hre, deployer);
 
   const connector = await deploy('Connector', {
     from: deployer,
@@ -67,26 +38,31 @@ const deployTest: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
     log: true,
   });
 
+  const incentivePool = await deploy('IncentivePool', {
+    from: deployer,
+    args: [moneyPool.address, testIncentiveAsset.address, testIncentiveAmountPerSecond],
+  });
+
   const interestRateModel = await deploy('InterestRateModel', {
     from: deployer,
     args: [
-      defaultInterestModelParams.optimalUtilizationRate,
-      defaultInterestModelParams.borrowRateBase,
-      defaultInterestModelParams.borrowRateOptimal,
-      defaultInterestModelParams.borrowRateMax,
+      testInterestModelParams.optimalUtilizationRate,
+      testInterestModelParams.borrowRateBase,
+      testInterestModelParams.borrowRateOptimal,
+      testInterestModelParams.borrowRateMax,
     ],
     log: true,
   });
 
   const lToken = await deploy('LToken', {
     from: deployer,
-    args: [moneyPool.address, elysia?.address, 'testLToken', 'L'],
+    args: [moneyPool.address, testUnderlyingAsset?.address, 'testLToken', 'L'],
     log: true,
   });
 
   const dToken = await deploy('DToken', {
     from: deployer,
-    args: [moneyPool.address, elysia?.address, 'testDToken', 'D'],
+    args: [moneyPool.address, testUnderlyingAsset?.address, 'testDToken', 'D'],
     log: true,
   });
 
@@ -110,12 +86,13 @@ const deployTest: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
   )) as MoneyPool;
 
   await deployedMoneyPool.addNewReserve(
-    elysia?.address,
+    testUnderlyingAsset?.address,
     lToken.address,
     dToken.address,
     interestRateModel.address,
     tokenizer.address,
-    defaultReserveData.moneyPoolFactor
+    incentivePool.address,
+    testReserveData.moneyPoolFactor
   );
 
   if (hre.network.name === 'ganache') return;
@@ -132,21 +109,21 @@ const deployTest: DeployFunction = async function (hre: HardhatRuntimeEnvironmen
   await hre.run('verify:verify', {
     address: interestRateModel.address,
     constructorArguments: [
-      defaultInterestModelParams.optimalUtilizationRate,
-      defaultInterestModelParams.borrowRateBase,
-      defaultInterestModelParams.borrowRateOptimal,
-      defaultInterestModelParams.borrowRateMax,
+      testInterestModelParams.optimalUtilizationRate,
+      testInterestModelParams.borrowRateBase,
+      testInterestModelParams.borrowRateOptimal,
+      testInterestModelParams.borrowRateMax,
     ],
   });
 
   await hre.run('verify:verify', {
     address: lToken.address,
-    constructorArguments: [moneyPool.address, elysia?.address, 'testLToken', 'L'],
+    constructorArguments: [moneyPool.address, testUnderlyingAsset?.address, 'testLToken', 'L'],
   });
 
   await hre.run('verify:verify', {
     address: dToken.address,
-    constructorArguments: [moneyPool.address, elysia?.address, 'testDToken', 'D'],
+    constructorArguments: [moneyPool.address, testUnderlyingAsset?.address, 'testDToken', 'D'],
   });
 
   await hre.run('verify:verify', {

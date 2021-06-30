@@ -19,8 +19,8 @@ import { BigNumber, utils } from 'ethers';
 import loadFixture from '../../utils/loadFixture';
 import utilizedMoneypool from '../../fixtures/utilizedMoneypool';
 import { getAssetBondData, settleAssetBond } from '../../utils/Helpers';
-import { AssetBondSettleData } from '../../utils/Interfaces';
 import { calculateAssetBondDebtData } from '../../utils/Math';
+import { testAssetBondData } from '../../utils/testData';
 require('../../assertions/equals.ts');
 
 describe('MoneyPool.repay', () => {
@@ -28,21 +28,9 @@ describe('MoneyPool.repay', () => {
 
   const provider = waffle.provider;
   const [deployer, CSP, borrower, signer] = provider.getWallets();
-  const testAssetBondData: AssetBondSettleData = <AssetBondSettleData>{
-    ...(<AssetBondSettleData>{}),
-    borrower: borrower.address,
-    signer: signer.address,
-    tokenId: BigNumber.from('1001002003004005'),
-    principal: ethers.utils.parseEther('1'),
-    debtCeiling: ethers.utils.parseEther('13'),
-    couponRate: toRate(0.1),
-    overdueInterestRate: toRate(0.03),
-    loanDuration: BigNumber.from(365),
-    loanStartTimeYear: BigNumber.from(2022),
-    loanStartTimeMonth: BigNumber.from(0),
-    loanStartTimeDay: BigNumber.from(1),
-    ipfsHash: 'test',
-  };
+
+  testAssetBondData.borrower = borrower.address;
+  testAssetBondData.signer = signer.address;
 
   before('The asset bond is settled and signed properly', async () => {
     const fixture = await loadFixture(utilizedMoneypool);

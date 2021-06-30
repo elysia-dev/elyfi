@@ -1,7 +1,6 @@
 import '@nomiclabs/hardhat-waffle';
 import { getContractAt } from 'hardhat-deploy-ethers/dist/src/helpers';
 import {
-  ERC20,
   Tokenizer,
   Connector,
   DataPipeline,
@@ -10,6 +9,7 @@ import {
   LToken,
   MoneyPoolTest,
   ERC20Test,
+  IncentivePool,
 } from '../../typechain';
 import { HardhatRuntimeEnvironment } from 'hardhat/types';
 import fs from 'fs';
@@ -30,6 +30,7 @@ export const getDeployedContracts = async (
   let underlyingAsset!: ERC20Test;
   let connector!: Connector;
   let moneyPool!: MoneyPoolTest;
+  let incentivePool!: IncentivePool;
   let interestRateModel!: InterestRateModel;
   let lToken!: LToken;
   let dToken!: DToken;
@@ -53,6 +54,19 @@ export const getDeployedContracts = async (
               deployedContract.address,
               deployer
             )) as Connector;
+          } catch (e) {
+            console.log(e);
+          }
+          break;
+
+        case 'IncentivePool.json':
+          try {
+            incentivePool = (await getContractAt(
+              hre,
+              deployedContract.abi,
+              deployedContract.address,
+              deployer
+            )) as IncentivePool;
           } catch (e) {
             console.log(e);
           }
@@ -90,7 +104,7 @@ export const getDeployedContracts = async (
               deployedContract.abi,
               deployedContract.address,
               deployer
-            )) as ERC20;
+            )) as ERC20Test;
           } catch (e) {
             console.log(e);
           }
@@ -155,6 +169,7 @@ export const getDeployedContracts = async (
     underlyingAsset,
     connector,
     moneyPool,
+    incentivePool,
     interestRateModel,
     lToken,
     dToken,
