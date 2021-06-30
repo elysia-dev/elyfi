@@ -4,6 +4,8 @@ import getDeployedContracts from '../../test/utils/getDeployedContracts';
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers';
 import { testAssetBondData } from '../../test/utils/testData';
 import { HardhatRuntimeEnvironment } from 'hardhat/types';
+import assetBondIdData from '../../misc/assetBond/assetBondIdDataExample.json';
+import { tokenIdGenerator } from '../../misc/assetBond/generator';
 
 interface Args {
   asset: string;
@@ -55,8 +57,9 @@ task('local:deposit', 'Deposit, default amount : 100, default txSender : deposit
     console.log(`${txSender.address.substr(0, 10)} deposits ${amount}`);
   });
 
-task('local:withdraw', 'Create withdraw, default txSender: depositor, amount: 100').setAction(
-  async (args: Args, hre: HardhatRuntimeEnvironment) => {
+task('local:withdraw', 'Create withdraw, default txSender: depositor, amount: 100')
+  .addOptionalParam('amount', 'The approve amount')
+  .setAction(async (args: Args, hre: HardhatRuntimeEnvironment) => {
     const [deployer, depositor] = await hre.ethers.getSigners();
 
     const deployedElyfiContracts = (await getDeployedContracts(hre, deployer)) as ElyfiContracts;
@@ -71,11 +74,11 @@ task('local:withdraw', 'Create withdraw, default txSender: depositor, amount: 10
       .withdraw(underlyingAsset.address, depositor.address, hre.ethers.utils.parseEther('500'));
 
     console.log(`Depositor withdraws 100ETH and 500ETH`);
-  }
-);
+  });
 
-task('local:borrow', 'Create borrow : 1500ETH').setAction(
-  async (args: Args, hre: HardhatRuntimeEnvironment) => {
+task('local:borrow', 'Create borrow : 1500ETH')
+  .addParam('bond', 'The nonce of the token id')
+  .setAction(async (args: Args, hre: HardhatRuntimeEnvironment) => {
     const [deployer, depositor, borrower, collateralServiceProvider, signer] =
       await hre.ethers.getSigners();
 
@@ -87,6 +90,13 @@ task('local:borrow', 'Create borrow : 1500ETH').setAction(
     const underlyingAsset = deployedElyfiContracts.underlyingAsset;
 
     const snapshot = await hre.ethers.provider.send('evm_snapshot', []);
+
+    assetBondIdData.nonce = +args.bond;
+    if (args.bond.length > 5) {
+      console.log('The nonce of bond is too big. --bond should be less than 10000');
+      assetBondIdData.nonce = 0;
+    }
+    const tokenId = tokenIdGenerator(assetBondIdData);
 
     const isCollateralServiceProvider = await connector.isCollateralServiceProvider(
       collateralServiceProvider.address
@@ -101,12 +111,10 @@ task('local:borrow', 'Create borrow : 1500ETH').setAction(
       await connector.connect(deployer).addCouncil(signer.address);
     }
 
-    const tokenId = testAssetBondData.tokenId.add(snapshot);
-
     await tokenizer
       .connect(collateralServiceProvider)
       .mintAssetBond(collateralServiceProvider.address, tokenId);
-    console.log(`The collateral service provider mints asset token which id is "${snapshot}"`);
+    console.log(`The collateral service provider mints asset token which id is "${args.bond}"`);
 
     await tokenizer
       .connect(collateralServiceProvider)
@@ -126,7 +134,7 @@ task('local:borrow', 'Create borrow : 1500ETH').setAction(
       );
 
     await tokenizer.connect(signer).signAssetBond(tokenId, 'test opinion');
-    console.log(`The signer signs on asset token which id is "${snapshot}"`);
+    console.log(`The signer signs on asset token which id is "${args.bond}"`);
 
     const assetBondData = await tokenizer.getAssetBondData(tokenId);
     const borrowPrincipal = assetBondData.principal;
@@ -157,17 +165,16 @@ task('local:borrow', 'Create borrow : 1500ETH').setAction(
         .connect(collateralServiceProvider)
         .borrow(underlyingAsset.address, tokenId);
       console.log(
-        `The collateral service provider borrows against token id '${snapshot}' which principal amount is '${borrowPrincipal}'`
+        `The collateral service provider borrows against token id '${args.bond}' which principal amount is '${borrowPrincipal}'`
       );
     } else {
       console.log(
         `Borrow failed since current timestamp(${currentTimestamp}) exceeds loanStartTimestamp(${loanStartTimestamp})`
       );
     }
-  }
-);
+  });
 
-task('local:createRepay', 'Create repay : 1500ETH')
+task('local:repay', 'Create repay : 1500ETH')
   .addParam('bond', 'The id of asset bond token')
   .setAction(async (args: Args, hre: HardhatRuntimeEnvironment) => {
     const [deployer, depositor, borrower, collateralServiceProvider, signer] =
@@ -177,6 +184,13 @@ task('local:createRepay', 'Create repay : 1500ETH')
     const moneyPool = deployedElyfiContracts.moneyPool;
     const underlyingAsset = deployedElyfiContracts.underlyingAsset;
 
+    assetBondIdData.nonce = +args.bond;
+    if (args.bond.length > 5) {
+      console.log('The nonce of bond is too big. --bond should be less than 10000');
+      assetBondIdData.nonce = 0;
+    }
+    const tokenId = tokenIdGenerator(assetBondIdData);
+
     await underlyingAsset
       .connect(deployer)
       .transfer(depositor.address, hre.ethers.utils.parseEther('1000'));
@@ -184,11 +198,7 @@ task('local:createRepay', 'Create repay : 1500ETH')
       .connect(borrower)
       .approve(moneyPool.address, hre.ethers.utils.parseEther('1500'));
 
-    if (args.bond == undefined) {
-      args.bond = testAssetBondData.tokenId.toString();
-    }
-
-    await moneyPool.connect(borrower).repay(underlyingAsset.address, args.bond);
+    await moneyPool.connect(borrower).repay(underlyingAsset.address, tokenId);
 
     console.log(`The borrower repays a loan on ${args.bond}`);
   });

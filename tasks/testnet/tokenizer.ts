@@ -136,7 +136,7 @@ task('testnet:createSignedAssetBond', 'Create signed asset bond')
   });
 
 task('testnet:settleAssetBond', 'settle empty asset bond')
-  .addOptionalParam('bond', 'The id of asset bond token')
+  .addParam('bond', 'The id of asset bond token')
   .setAction(async (args: Args, hre: HardhatRuntimeEnvironment) => {
     const [deployer, depositor, borrower, collateralServiceProvider, signer] =
       await hre.ethers.getSigners();
@@ -144,16 +144,19 @@ task('testnet:settleAssetBond', 'settle empty asset bond')
     const deployedElyfiContracts = (await getDeployedContracts(hre, deployer)) as ElyfiContracts;
     const tokenizer = deployedElyfiContracts.tokenizer;
 
-    if (args.bond == undefined) {
-      args.bond = testAssetBondData.tokenId.toString();
+    assetBondIdData.nonce = +args.bond;
+    if (args.bond.length > 5) {
+      console.log('The nonce of bond is too big. --bond should be less than 10000');
+      assetBondIdData.nonce = 0;
     }
+    const tokenId = tokenIdGenerator(assetBondIdData);
 
     await tokenizer
       .connect(collateralServiceProvider)
       .settleAssetBond(
         borrower.address,
         signer.address,
-        testAssetBondData.tokenId,
+        tokenId,
         testAssetBondData.principal,
         testAssetBondData.couponRate,
         testAssetBondData.overdueInterestRate,
@@ -169,7 +172,7 @@ task('testnet:settleAssetBond', 'settle empty asset bond')
   });
 
 task('testnet:signAssetBond', 'sign settled asset bond')
-  .addOptionalParam('bond', 'The id of asset bond token')
+  .addParam('bond', 'The id of asset bond token')
   .setAction(async (args: Args, hre: HardhatRuntimeEnvironment) => {
     const [deployer, depositor, borrower, collateralServiceProvider, signer] =
       await hre.ethers.getSigners();
@@ -178,16 +181,19 @@ task('testnet:signAssetBond', 'sign settled asset bond')
     const connector = deployedElyfiContracts.connector;
     const tokenizer = deployedElyfiContracts.tokenizer;
 
-    if (args.bond == undefined) {
-      args.bond = testAssetBondData.tokenId.toString();
+    assetBondIdData.nonce = +args.bond;
+    if (args.bond.length > 5) {
+      console.log('The nonce of bond is too big. --bond should be less than 10000');
+      assetBondIdData.nonce = 0;
     }
+    const tokenId = tokenIdGenerator(assetBondIdData);
 
     const isCouncil = await connector.isCouncil(signer.address);
     if (!isCouncil) {
       connector.connect(deployer).addCouncil(signer.address);
     }
 
-    await tokenizer.connect(signer).signAssetBond(args.bond, 'test opinion');
+    await tokenizer.connect(signer).signAssetBond(tokenId, 'test opinion');
 
     console.log(`The signer signs on asset token which id is "${args.bond}"`);
   });
