@@ -20,7 +20,6 @@ import loadFixture from '../../utils/loadFixture';
 import utilizedMoneypool from '../../fixtures/utilizedMoneypool';
 import { getAssetBondData, settleAssetBond } from '../../utils/Helpers';
 import { calculateAssetBondDebtData } from '../../utils/Math';
-import AssetBondSettleData from '../../types/AssetBondSettleData';
 import { testAssetBondData } from '../../utils/testData';
 require('../../assertions/equals.ts');
 

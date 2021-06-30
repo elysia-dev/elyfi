@@ -7,12 +7,14 @@ import {
   Connector,
   DataPipeline,
   DTokenTest,
+  IncentivePool,
 } from '../../typechain';
 
 interface ElyfiContracts {
   underlyingAsset: ERC20Test;
   connector: Connector;
   moneyPool: MoneyPoolTest;
+  incentivePool: IncentivePool;
   interestRateModel: InterestRateModel;
   lToken: LTokenTest;
   dToken: DTokenTest;

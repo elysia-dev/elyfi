@@ -1,9 +1,8 @@
 import { ethers } from 'ethers';
 import BigNumber from 'bignumber.js';
 import { AssetBondIdDataDigits, AssetBondIdMask, wholeNumber } from './types';
-import assetBondIdDataDigits from './assetBondIdDataDigits.json';
 
-export const tokenIdMaskPosition = () => {
+export const tokenIdMaskPosition = (assetBondIdDataDigits: AssetBondIdDataDigits) => {
   const positions = <AssetBondIdMask>{};
   let position: number = 0;
   (Object.keys(assetBondIdDataDigits) as (keyof AssetBondIdDataDigits)[]).forEach((key) => {

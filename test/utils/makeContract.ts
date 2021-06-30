@@ -260,6 +260,7 @@ export async function makeAllContracts(): Promise<ElyfiContracts> {
     underlyingAsset,
     connector,
     moneyPool,
+    incentivePool,
     interestRateModel,
     lToken,
     dToken,

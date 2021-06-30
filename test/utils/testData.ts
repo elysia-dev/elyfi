@@ -4,6 +4,8 @@ import { RAY } from './constants';
 import InterestModelParams from '../types/InterestRateModelParams';
 import ReserveData from '../types/ReserveData';
 import AssetBondSettleData from '../types/AssetBondSettleData';
+import assetBondIdData from '../../misc/assetBond/assetBondIdDataExample.json';
+import { tokenIdGenerator } from '../../misc/assetBond/generator';
 
 export const testReserveData: ReserveData = <ReserveData>{
   moneyPoolFactor: toRate(0.03),
@@ -25,7 +27,7 @@ export const testAssetBondData: AssetBondSettleData = <AssetBondSettleData>{
   ...(<AssetBondSettleData>{}),
   borrower: '',
   signer: '',
-  tokenId: BigNumber.from('1001002003004005'),
+  tokenId: BigNumber.from(tokenIdGenerator(assetBondIdData)),
   principal: ethers.utils.parseEther('1'),
   debtCeiling: ethers.utils.parseEther('13'),
   couponRate: toRate(0.1),
