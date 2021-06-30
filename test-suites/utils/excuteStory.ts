@@ -5,7 +5,6 @@ import {
   expectReserveDataAfterWithdraw,
   expectUserDataAfterWithdraw,
 } from '../../test/utils/Expect';
-import { getTimestamp } from '../../test/utils/Ethereum';
 import { BigNumber, utils } from 'ethers';
 import { expect } from 'chai';
 import ActionType from '../enums/ActionType';
@@ -15,6 +14,7 @@ import takeDataSnapshot from '../../test/utils/takeDataSnapshot';
 import { ContractTransaction } from '@ethersproject/contracts';
 import ReserveData from '../../test/types/ReserveData';
 import UserData from '../../test/types/UserData';
+import { getTimestamp } from '../../test/utils/time';
 require('../../test/assertions/equals');
 
 const excuteDepositor = async (

@@ -4,8 +4,11 @@ import 'hardhat-deploy-ethers';
 import 'hardhat-deploy';
 
 import { HardhatUserConfig } from 'hardhat/types';
-import './tasks/doTransactions.ts';
-// import './tasks/testnet/moneyPool';
+import './tasks/local/moneyPool';
+import './tasks/local/underlyingAsset';
+import './tasks/testnet/moneyPool';
+import './tasks/testnet/underlyingAsset';
+import './tasks/testnet/tokenizer';
 
 const testMnemonic = 'suggest mirror pulp horn goat wagon body long fortune dirt glass awesome';
 

@@ -1,12 +1,4 @@
-import { ethers, waffle } from 'hardhat';
-import {
-  advanceTimeTo,
-  getTimestamp,
-  revertFromEVMSnapshot,
-  saveEVMSnapshot,
-  toRate,
-  toTimestamp,
-} from '../../utils/Ethereum';
+import { waffle } from 'hardhat';
 import { expect } from 'chai';
 import {
   expectAssetBondDataAfterRepay,
@@ -21,6 +13,13 @@ import utilizedMoneypool from '../../fixtures/utilizedMoneypool';
 import { getAssetBondData, settleAssetBond } from '../../utils/Helpers';
 import { calculateAssetBondDebtData } from '../../utils/Math';
 import { testAssetBondData } from '../../utils/testData';
+import {
+  toTimestamp,
+  advanceTimeTo,
+  getTimestamp,
+  saveEVMSnapshot,
+  revertFromEVMSnapshot,
+} from '../../utils/time';
 require('../../assertions/equals.ts');
 
 describe('MoneyPool.repay', () => {

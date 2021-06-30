@@ -1,5 +1,4 @@
 import { waffle } from 'hardhat';
-import { advanceTimeTo, getTimestamp, toTimestamp } from '../../utils/Ethereum';
 import { expect } from 'chai';
 import { expectReserveDataAfterBorrow, expectUserDataAfterBorrow } from '../../utils/Expect';
 import { utils } from 'ethers';
@@ -11,6 +10,7 @@ import { RAY } from '../../utils/constants';
 import AssetBondState from '../../types/AssetBondState';
 import ElyfiContracts from '../../types/ElyfiContracts';
 import { testAssetBondData } from '../../utils/testData';
+import { toTimestamp, advanceTimeTo, getTimestamp } from '../../utils/time';
 
 require('../../assertions/equals.ts');
 

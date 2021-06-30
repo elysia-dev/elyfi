@@ -49,8 +49,8 @@ contract IncentivePool is IIncentivePool {
    */
   function updateIncentivePool(address user) external override onlyLToken {
     _accruedIncentive[user] = getUserIncentiveReward(user);
-    _lastUpdateTimestamp = block.timestamp;
     _incentiveIndex = _userIncentiveIndex[user] = getIncentiveIndex();
+    _lastUpdateTimestamp = block.timestamp;
   }
 
   /**

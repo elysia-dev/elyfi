@@ -93,8 +93,6 @@ const deployTestnet: DeployFunction = async function (hre: HardhatRuntimeEnviron
     deployer
   )) as MoneyPool;
 
-  console.log('getContract done');
-
   await deployedMoneyPool.addNewReserve(
     testUnderlyingAsset?.address,
     lToken.address,
@@ -109,53 +107,9 @@ const deployTestnet: DeployFunction = async function (hre: HardhatRuntimeEnviron
 
   if (hre.network.name === 'ganache') return;
 
-  try {
-    console.log('deploy plugin - verify start');
-    await hre.run('etherscan-verify', {
-      network: hre.network.name,
-    });
-  } catch (e) {
-    console.log('deploy plugin - verify error');
-    console.log(e);
-  }
-
-  //   await hre.run('verify:verify', {
-  //     address: connector.address,
-  //   });
-
-  //   await hre.run('verify:verify', {
-  //     address: moneyPool.address,
-  //     constructorArguments: [16, connector.address],
-  //   });
-
-  //   await hre.run('verify:verify', {
-  //     address: interestRateModel.address,
-  //     constructorArguments: [
-  //       testInterestModelParams.optimalUtilizationRate,
-  //       testInterestModelParams.borrowRateBase,
-  //       testInterestModelParams.borrowRateOptimal,
-  //       testInterestModelParams.borrowRateMax,
-  //     ],
-  //   });
-
-  //   await hre.run('verify:verify', {
-  //     address: lToken.address,
-  //     constructorArguments: [moneyPool.address, testUnderlyingAsset?.address, 'testLToken', 'L'],
-  //   });
-
-  //   await hre.run('verify:verify', {
-  //     address: dToken.address,
-  //     constructorArguments: [moneyPool.address, testUnderlyingAsset?.address, 'testDToken', 'D'],
-  //   });
-
-  //   await hre.run('verify:verify', {
-  //     address: tokenizer.address,
-  //     constructorArguments: [connector.address, moneyPool.address, 'testTokenizer', 'T'],
-  //   });
-  //   await hre.run('verify:verify', {
-  //     address: dataPipeline.address,
-  //     constructorArguments: [moneyPool.address],
-  //   });
+  await hre.run('etherscan-verify', {
+    network: hre.network.name,
+  });
 };
 
 deployTestnet.tags = ['testnet'];

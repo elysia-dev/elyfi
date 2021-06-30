@@ -24,8 +24,6 @@ const deployMainnet: DeployFunction = async function (hre: HardhatRuntimeEnviron
 
   const elysia = await getElysia(hre, deployer);
 
-  const testUnderlyingAsset = await getDai(hre, deployer);
-
   const testIncentiveAsset = await getElyfi(hre, deployer);
 
   const connector = await deploy('Connector', {
@@ -98,42 +96,8 @@ const deployMainnet: DeployFunction = async function (hre: HardhatRuntimeEnviron
 
   if (hre.network.name === 'ganache') return;
 
-  await hre.run('verify:verify', {
-    address: connector.address,
-  });
-
-  await hre.run('verify:verify', {
-    address: moneyPool.address,
-    constructorArguments: [16, connector.address],
-  });
-
-  await hre.run('verify:verify', {
-    address: interestRateModel.address,
-    constructorArguments: [
-      testInterestModelParams.optimalUtilizationRate,
-      testInterestModelParams.borrowRateBase,
-      testInterestModelParams.borrowRateOptimal,
-      testInterestModelParams.borrowRateMax,
-    ],
-  });
-
-  await hre.run('verify:verify', {
-    address: lToken.address,
-    constructorArguments: [moneyPool.address, elysia?.address, 'testLToken', 'L'],
-  });
-
-  await hre.run('verify:verify', {
-    address: dToken.address,
-    constructorArguments: [moneyPool.address, elysia?.address, 'testDToken', 'D'],
-  });
-
-  await hre.run('verify:verify', {
-    address: tokenizer.address,
-    constructorArguments: [connector.address, moneyPool.address, 'testTokenizer', 'T'],
-  });
-  await hre.run('verify:verify', {
-    address: dataPipeline.address,
-    constructorArguments: [moneyPool.address],
+  await hre.run('etherscan-verify', {
+    network: hre.network.name,
   });
 };
 

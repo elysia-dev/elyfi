@@ -1,12 +1,12 @@
 import { constants, utils } from 'ethers';
 import { waffle } from 'hardhat';
-import { getTimestamp } from '../../utils/Ethereum';
 import { expect } from 'chai';
 import { expectReserveDataAfterDeposit, expectUserDataAfterWithdraw } from '../../utils/Expect';
 import ElyfiContracts from '../../types/ElyfiContracts';
 import takeDataSnapshot from '../../utils/takeDataSnapshot';
 import loadFixture from '../../utils/loadFixture';
 import utilizedMoneypool from '../../fixtures/utilizedMoneypool';
+import { getTimestamp } from '../../utils/time';
 require('../../assertions/equals.ts');
 
 describe('MoneyPool.withdraw', () => {

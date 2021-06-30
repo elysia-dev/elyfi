@@ -47,8 +47,11 @@ yarn task createWithdraw --network ganache --asset ASSET_ADDRESS --pool POOL_ADD
 
 ```
 ## Deploy local network
-yarn hardhat deploy
+yarn deploy:local
 
 ## Deploy test network
-yarn hardhat --network networkName deploy
+yarn deploy:testnet
+
+## Deploy main network
+yarn deploy:mainnet
 ```

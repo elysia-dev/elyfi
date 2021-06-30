@@ -1,5 +1,4 @@
 import { ethers, waffle } from 'hardhat';
-import { getTimestamp } from '../../utils/Ethereum';
 import { RAY } from '../../utils/constants';
 import { expect } from '../../utils/chai';
 import { expectReserveDataAfterDeposit, expectUserDataAfterDeposit } from '../../utils/Expect';
@@ -8,6 +7,7 @@ import takeDataSnapshot from '../../utils/takeDataSnapshot';
 import { BigNumber, constants } from 'ethers';
 import loadFixture from '../../utils/loadFixture';
 import utilizedMoneypool from '../../fixtures/utilizedMoneypool';
+import { getTimestamp } from '../../utils/time';
 
 describe('MoneyPool.deposit', () => {
   let elyfiContracts: ElyfiContracts;
@@ -135,7 +135,7 @@ describe('MoneyPool.deposit', () => {
   });
 
   context('when account do not approve enough underlyingAsset', async () => {
-    beforeEach(async () => {
+    before(async () => {
       await elyfiContracts.underlyingAsset.connect(deployer).transfer(depositor.address, RAY);
     });
 

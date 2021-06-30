@@ -1,5 +1,4 @@
 import { waffle } from 'hardhat';
-import { advanceTimeTo, getTimestamp, toRate, toTimestamp } from '../../utils/Ethereum';
 import { expect } from 'chai';
 import {
   expectAssetBondDataAfterLiquidate,
@@ -14,6 +13,7 @@ import takeDataSnapshot from '../../utils/takeDataSnapshot';
 import { getAssetBondData, settleAssetBond } from '../../utils/Helpers';
 import { calculateAssetBondLiquidationData } from '../../utils/Math';
 import { testAssetBondData } from '../../utils/testData';
+import { advanceTimeTo, getTimestamp, toTimestamp } from '../../utils/time';
 require('../../assertions/equals.ts');
 
 describe('MoneyPool.liquidation', () => {

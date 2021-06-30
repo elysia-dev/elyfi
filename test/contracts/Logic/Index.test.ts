@@ -1,15 +1,9 @@
 import { BigNumber, constants } from 'ethers';
 import { ModifiableContract, ModifiableContractFactory, smoddit } from '@eth-optimism/smock';
-import {
-  address,
-  advanceBlock,
-  advanceTime,
-  getTimestamp,
-  toIndex,
-  toRate,
-} from '../../utils/Ethereum';
+import { address, toIndex, toRate } from '../../utils/Ethereum';
 import { calculateLinearInterest } from '../../utils/Math';
 import { expect } from 'chai';
+import { advanceBlock, advanceTime, getTimestamp } from '../../utils/time';
 
 describe('Index', () => {
   let indexMock: ModifiableContract;
