@@ -5,8 +5,9 @@ import 'hardhat-deploy';
 
 import { HardhatUserConfig } from 'hardhat/types';
 import './tasks/doTransactions.ts';
+// import './tasks/testnet/moneyPool';
 
-const testMnemonic = 'suggest mirror pulp horn goat wagon body long fortune dirt glass awesome'
+const testMnemonic = 'suggest mirror pulp horn goat wagon body long fortune dirt glass awesome';
 
 const config: HardhatUserConfig = {
   solidity: {
@@ -27,14 +28,14 @@ const config: HardhatUserConfig = {
     ropsten: {
       url: `https://ropsten.infura.io/v3/${process.env.INFURA_API_KEY}`,
       accounts: {
-        mnemonic: process.env.TEST_MNEMONIC || testMnemonic
+        mnemonic: process.env.TEST_MNEMONIC || testMnemonic,
       },
       chainId: 3,
     },
     kovan: {
       url: `https://kovan.infura.io/v3/${process.env.INFURA_API_KEY}`,
       accounts: {
-        mnemonic: process.env.TEST_MNEMONIC || testMnemonic
+        mnemonic: process.env.TEST_MNEMONIC || testMnemonic,
       },
       chainId: 42,
     },
@@ -43,7 +44,7 @@ const config: HardhatUserConfig = {
       chainId: 97,
       gasPrice: 20000000000,
       accounts: {
-        mnemonic: process.env.TEST_MNEMONIC || testMnemonic
+        mnemonic: process.env.TEST_MNEMONIC || testMnemonic,
       },
     },
     ganache: {

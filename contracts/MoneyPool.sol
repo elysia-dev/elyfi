@@ -262,7 +262,6 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
 
   /************ Configuration Functions ************/
 
-  // Need access control, onlyConfigurator can add new reserve.
   function addNewReserve(
     address asset,
     address lToken,
@@ -271,7 +270,7 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
     address tokenizer,
     address incentivePool,
     uint256 moneyPoolFactor_
-  ) external override {
+  ) external override onlyMoneyPoolAdmin {
     DataStruct.ReserveData memory newReserveData = DataStruct.ReserveData({
       moneyPoolFactor: moneyPoolFactor_,
       lTokenInterestIndex: WadRayMath.ray(),
@@ -332,6 +331,8 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
   function unPauseMoneyPool(address asset) external onlyMoneyPoolAdmin {
     _reserves[asset].isPaused = false;
   }
+
+  /**************** Modifier ****************/
 
   modifier onlyCollateralServiceProvider {
     if (!_connector.isCollateralServiceProvider(msg.sender))

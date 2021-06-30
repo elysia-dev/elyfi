@@ -74,15 +74,21 @@ export const getElyfi = async (
   let elyfi: Contract;
   if (hre.network.name) {
     switch (hre.network.name) {
-      case 'mainnet':
-        elyfi = await hre.ethers.getContractAt(Elyfi_ABI, '');
+      //   case 'mainnet':
+      //     elyfi = await hre.ethers.getContractAt(Elyfi_ABI, '');
+      //     return elyfi;
+      case 'kovan':
+        elyfi = await hre.ethers.getContractAt(
+          Elyfi_ABI,
+          '0x9EAF333044ea90c849b127e60BB297AdE115D12c'
+        );
         return elyfi;
     }
   }
 
   const elyfiLocalDeploy = await deploy('ERC20Test', {
     from: deployer,
-    args: [ethers.utils.parseUnits('1', 30), 'Testnet Dai Stablecoin', 'TestDAI'],
+    args: [ethers.utils.parseUnits('1', 30), 'ELYFI', 'ELFI'],
   });
 
   elyfi = await hre.ethers.getContractAt(elyfiLocalDeploy.abi, elyfiLocalDeploy.address);
