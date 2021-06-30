@@ -18,7 +18,6 @@ interface Args {
 task('local:deposit', 'Deposit, default amount : 100, default txSender : depositor')
   .addOptionalParam('amount', 'The approve amount')
   .setAction(async (args: Args, hre: HardhatRuntimeEnvironment) => {
-    let txSender: SignerWithAddress;
     let amount: string;
     const [deployer, depositor, borrower, collateralServiceProvider, signer] =
       await hre.ethers.getSigners();
@@ -27,34 +26,42 @@ task('local:deposit', 'Deposit, default amount : 100, default txSender : deposit
     const moneyPool = deployedElyfiContracts.moneyPool;
     const underlyingAsset = deployedElyfiContracts.underlyingAsset;
 
-    txSender = depositor;
     amount =
       args.amount != undefined
         ? hre.ethers.utils.parseEther(args.amount).toString()
         : hre.ethers.utils.parseEther('100').toString();
 
-    const balance = await underlyingAsset.balanceOf(txSender.address);
+    const balance = await underlyingAsset.balanceOf(depositor.address);
     if (balance.lte(amount)) {
       await hre.run('local:transfer', {
         from: deployer.address,
-        to: txSender.address,
+        to: depositor.address,
         amount: amount,
       });
     }
 
-    const allowance = await underlyingAsset.allowance(txSender.address, moneyPool.address);
+    const allowance = await underlyingAsset.allowance(depositor.address, moneyPool.address);
     if (allowance.lte(amount)) {
       await hre.run('local:approve', {
-        from: txSender.address,
+        from: depositor.address,
         to: moneyPool.address,
         amount: amount,
       });
     }
 
+    console.log(
+      '1',
+      (await underlyingAsset.balanceOf(depositor.address))
+        .sub(hre.ethers.BigNumber.from(amount))
+        .toString()
+    );
+
     const tx = await moneyPool
-      .connect(txSender)
-      .deposit(underlyingAsset.address, txSender.address, amount);
-    console.log(`${txSender.address.substr(0, 10)} deposits ${amount}`);
+      .connect(deployer)
+      .deposit(underlyingAsset.address, depositor.address, amount);
+
+    console.log((await tx.wait()).events);
+    console.log(`${depositor.address.substr(0, 10)} deposits ${amount}`);
   });
 
 task('local:withdraw', 'Create withdraw, default txSender: depositor, amount: 100')

@@ -18,9 +18,7 @@ library Validation {
    **/
   function validateDeposit(DataStruct.ReserveData storage reserve, uint256 amount) internal view {
     if (amount == 0) revert MoneyPoolErrors.InvalidAmount(amount);
-
     if (reserve.isPaused == true) revert MoneyPoolErrors.ReservePaused();
-
     if (reserve.isActivated == false) revert MoneyPoolErrors.ReserveInactivated();
   }
 

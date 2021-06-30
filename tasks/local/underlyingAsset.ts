@@ -27,7 +27,7 @@ task('local:approve', 'Approve, default: 100')
     const from = await hre.ethers.getSigner(args.from);
 
     await underlyingAsset.connect(from).approve(args.to, amount);
-    console.log(`${args.from} approves moneyPool ${amount}`);
+    console.log(`${args.from.substr(0, 10)} approves moneyPool ${amount}`);
   });
 
 task('local:transfer', 'Transfer underlyingAsset to account, default amount: 100')

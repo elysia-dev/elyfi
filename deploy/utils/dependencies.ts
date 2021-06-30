@@ -55,7 +55,8 @@ export const getDai = async (hre: HardhatRuntimeEnvironment, signer: string): Pr
 
   const daiLocalDeploy = await deploy('ERC20Test', {
     from: deployer,
-    args: [ethers.utils.parseUnits('1', 30), 'Testnet Dai Stablecoin', 'TestDAI'],
+    args: [ethers.utils.parseUnits('1', 30), 'Testnet Stablecoin', 'TestStable'],
+    log: true,
   });
 
   dai = await hre.ethers.getContractAt(daiLocalDeploy.abi, daiLocalDeploy.address);
@@ -89,6 +90,7 @@ export const getElyfi = async (
   const elyfiLocalDeploy = await deploy('ERC20Test', {
     from: deployer,
     args: [ethers.utils.parseUnits('1', 30), 'ELYFI', 'ELFI'],
+    log: true,
   });
 
   elyfi = await hre.ethers.getContractAt(elyfiLocalDeploy.abi, elyfiLocalDeploy.address);

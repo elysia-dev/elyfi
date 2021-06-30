@@ -41,6 +41,7 @@ const deployTestnet: DeployFunction = async function (hre: HardhatRuntimeEnviron
   const incentivePool = await deploy('IncentivePool', {
     from: deployer,
     args: [moneyPool.address, testIncentiveAsset.address, testIncentiveAmountPerSecond],
+    log: true,
   });
 
   const interestRateModel = await deploy('InterestRateModel', {
@@ -102,6 +103,10 @@ const deployTestnet: DeployFunction = async function (hre: HardhatRuntimeEnviron
     incentivePool.address,
     testReserveData.moneyPoolFactor
   );
+
+  const reserveData = await deployedMoneyPool.getReserveData(testUnderlyingAsset?.address);
+
+  console.log(reserveData);
 
   console.log('addNewReserve done');
 
