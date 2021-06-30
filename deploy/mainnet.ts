@@ -57,7 +57,7 @@ const deployMainnet: DeployFunction = async function (hre: HardhatRuntimeEnviron
 
   const lToken = await deploy('LToken', {
     from: deployer,
-    args: [moneyPool.address, elysia?.address, 'testLToken', 'L'],
+    args: [moneyPool.address, elysia?.address, incentivePool.address, 'testLToken', 'L'],
     log: true,
   });
 
