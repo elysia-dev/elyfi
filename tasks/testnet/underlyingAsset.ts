@@ -23,7 +23,9 @@ task('testnet:approve', 'Approve to moneyPool, default: 100')
 
     amount = args.amount != undefined ? args.amount : hre.ethers.utils.parseEther('100').toString();
 
-    await underlyingAsset.connect(args.from).approve(args.to, amount);
+    const from = await hre.ethers.getSigner(args.from);
+
+    await underlyingAsset.connect(from).approve(args.to, amount);
     console.log(`${args.from} approves moneyPool ${amount}`);
   });
 
@@ -40,6 +42,8 @@ task('testnet:transfer', 'Transfer underlyingAsset to account, default amount: 1
 
     amount = args.amount != undefined ? args.amount : hre.ethers.utils.parseEther('100').toString();
 
-    await underlyingAsset.connect(args.from).transfer(args.to, amount);
+    const from = await hre.ethers.getSigner(args.from);
+
+    await underlyingAsset.connect(from).transfer(args.to, amount);
     console.log(`${args.from.substr(0, 10)} transfer ${amount} to ${args.to.substr(0, 10)}`);
   });

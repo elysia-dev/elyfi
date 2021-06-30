@@ -8,11 +8,9 @@ import assetBondIdData from '../../misc/assetBond/assetBondIdDataExample.json';
 import { tokenIdGenerator } from '../../misc/assetBond/generator';
 
 interface Args {
-  pool: string;
   asset: string;
   bond: string;
   amount: string;
-  account: string;
   txSender: string;
   loanStart: string;
 }
