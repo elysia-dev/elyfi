@@ -149,12 +149,11 @@ contract DToken is IDToken, Context {
     if (accountBalance == 0) {
       return 0;
     }
-    uint256 cumulatedInterest =
-      Math.calculateCompoundedInterest(
-        stableRate,
-        _userLastUpdateTimestamp[account],
-        block.timestamp
-      );
+    uint256 cumulatedInterest = Math.calculateCompoundedInterest(
+      stableRate,
+      _userLastUpdateTimestamp[account],
+      block.timestamp
+    );
     return accountBalance.rayMul(cumulatedInterest);
   }
 
@@ -222,7 +221,7 @@ contract DToken is IDToken, Context {
     emit Mint(
       account,
       receiver,
-      amount,
+      amount + balanceIncrease,
       currentBalance,
       balanceIncrease,
       vars.newStableRate,
@@ -410,8 +409,11 @@ contract DToken is IDToken, Context {
       return 0;
     }
 
-    uint256 cumulatedInterest =
-      Math.calculateCompoundedInterest(avgRate, _lastUpdateTimestamp, block.timestamp);
+    uint256 cumulatedInterest = Math.calculateCompoundedInterest(
+      avgRate,
+      _lastUpdateTimestamp,
+      block.timestamp
+    );
 
     return principalSupply.rayMul(cumulatedInterest);
   }

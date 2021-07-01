@@ -51,7 +51,7 @@ contract LToken is ILToken, ERC20 {
     _incentivePool.updateIncentivePool(account);
 
     emit Transfer(address(0), account, amount);
-    emit Mint(account, amount, index);
+    emit Mint(account, implicitBalance, index);
   }
 
   function burn(
@@ -69,7 +69,7 @@ contract LToken is ILToken, ERC20 {
 
     IERC20(_underlyingAsset).safeTransfer(receiver, amount);
 
-    emit Burn(account, receiver, amount, index);
+    emit Burn(account, receiver, implicitBalance, index);
   }
 
   /**
