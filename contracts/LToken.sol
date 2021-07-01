@@ -50,7 +50,6 @@ contract LToken is ILToken, ERC20 {
     _mint(account, implicitBalance);
     _incentivePool.updateIncentivePool(account);
 
-    emit Transfer(address(0), account, amount);
     emit Mint(account, implicitBalance, index);
   }
 
