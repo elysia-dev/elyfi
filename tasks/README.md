@@ -1,9 +1,9 @@
 ## Readme
 
-**All tasks are required network name**
+**All tasks requires network name**
 
 ```
-network:action --networkname
+yarn task network:action --networkname --args
 ```
 
 ## Testnet
@@ -50,6 +50,12 @@ testnet:createSignedAssetBond
 testnet:createSignedAssetBondForTest
 # required
 --bond
+(The number of assetBond data in data/assetBond/testnet/)
+# optional
+--txSender
+--loanStart
+(loan start date, 0000-00-00)
+--amount
 
 # optional
 --txSender

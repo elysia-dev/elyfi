@@ -49,13 +49,6 @@ task('local:deposit', 'Deposit, default amount : 100, default txSender : deposit
       });
     }
 
-    console.log(
-      '1',
-      (await underlyingAsset.balanceOf(depositor.address))
-        .sub(hre.ethers.BigNumber.from(amount))
-        .toString()
-    );
-
     const tx = await moneyPool
       .connect(deployer)
       .deposit(underlyingAsset.address, depositor.address, amount);

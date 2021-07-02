@@ -74,10 +74,11 @@ task('testnet:createSignedAssetBond', 'Create signed asset bond from production 
       `Deployer add a council role to ${signer.address.substr(0, 10)}`;
     }
 
-    await tokenizer.connect(txSender).mintAssetBond(txSender.address, tokenId);
-    console.log(`The collateral service provider mints asset token which nonce is "${args.data}"`);
+    const mintTx = await tokenizer.connect(txSender).mintAssetBond(txSender.address, tokenId);
+    await mintTx.wait();
+    console.log(`The collateral service provider mints asset token which data is "${args.data}"`);
 
-    await tokenizer
+    const settleTx = await tokenizer
       .connect(txSender)
       .settleAssetBond(
         borrower.address,
@@ -93,7 +94,11 @@ task('testnet:createSignedAssetBond', 'Create signed asset bond from production 
         assetBondSettleData.loanStartTimeDay,
         assetBondSettleData.ipfsHash
       );
-    console.log(`The collateral service provider settled asset bond which number is ${args.data}`);
+    await settleTx.wait();
+    console.log(
+      `The collateral service provider settled asset bond which number is ${args.data},
+      loan start day is ${assetBondSettleData.loanStartTimeMonth}/${assetBondSettleData.loanStartTimeDay}`
+    );
 
     await tokenizer.connect(signer).signAssetBond(tokenId, 'test opinion');
     console.log(`The signer signs on asset token which id is "${args.data}"`);
@@ -157,6 +162,7 @@ task('testnet:createSignedAssetBondForTest', 'Create signed asset bond for only 
       assetBondIdData.nonce = 0;
     }
     const tokenId = tokenIdGenerator(assetBondIdData);
+    assetBondSettleData = file.data;
     assetBondSettleData.tokenId = hre.ethers.BigNumber.from(tokenId);
 
     amount =
@@ -205,7 +211,7 @@ task('testnet:createSignedAssetBondForTest', 'Create signed asset bond for only 
 
     const loanStartDate = new Date(+loanStart * 1000);
     console.log(loanStartDate);
-    await tokenizer.connect(txSender).settleAssetBond(
+    const settleTx = await tokenizer.connect(txSender).settleAssetBond(
       borrower.address,
       signer.address,
       tokenId,
@@ -219,9 +225,10 @@ task('testnet:createSignedAssetBondForTest', 'Create signed asset bond for only 
       loanStartDate.getUTCDate(),
       testAssetBondData.ipfsHash
     );
+    await settleTx.wait();
     console.log(`The collateral service provider settled asset bond which id is ${args.bond}`);
 
-    await tokenizer.connect(signer).signAssetBond(tokenId, 'test opinion');
+    const signTx = await tokenizer.connect(signer).signAssetBond(tokenId, 'test opinion');
     console.log(`The signer signs on asset token which id is "${args.bond}"`);
 
     await tokenizer.connect(txSender).approve(moneyPool.address, tokenId);

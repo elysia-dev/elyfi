@@ -3,15 +3,13 @@ import ElyfiContracts from '../../test/types/ElyfiContracts';
 import getDeployedContracts from '../../test/utils/getDeployedContracts';
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers';
 import { HardhatRuntimeEnvironment } from 'hardhat/types';
-import assetBondIdData from '../../misc/assetBond/assetBondIdDataExample.json';
-import { tokenIdGenerator } from '../../misc/assetBond/generator';
+import AssetBondSettleData from '../../test/types/AssetBondSettleData';
 
 interface Args {
-  asset: string;
   bond: string;
+  data: string;
   amount: string;
   txSender: string;
-  loanStart: string;
 }
 
 task('testnet:deposit', 'Create deposit, default amount : 100, default txSender : depositor')
@@ -49,6 +47,7 @@ task('testnet:deposit', 'Create deposit, default amount : 100, default txSender 
           break;
       }
     }
+
     amount =
       args.amount != undefined
         ? hre.ethers.utils.parseEther(args.amount).toString()
@@ -113,8 +112,9 @@ task('testnet:withdraw', 'Create withdraw, default amount : 100, default txSende
   });
 
 task('testnet:borrow', 'Create a loan on the token id')
-  .addParam('bond', 'The nonce of asset bond token')
+  .addParam('data', 'The nonce of asset bond token')
   .setAction(async (args: Args, hre: HardhatRuntimeEnvironment) => {
+    let assetBondSettleData: AssetBondSettleData;
     const [deployer, depositor, borrower, collateralServiceProvider, signer] =
       await hre.ethers.getSigners();
 
@@ -123,12 +123,14 @@ task('testnet:borrow', 'Create a loan on the token id')
     const tokenizer = deployedElyfiContracts.tokenizer;
     const underlyingAsset = deployedElyfiContracts.underlyingAsset;
 
-    assetBondIdData.nonce = +args.bond;
-    if (args.bond.length > 5) {
-      console.log('The nonce of bond is too big. --bond should be less than 10000');
-      assetBondIdData.nonce = 0;
+    const file = require(`../../data/assetBond/testnet/assetBond_test_${args.data}`);
+    assetBondSettleData = file.data;
+    if (!assetBondSettleData.principal) {
+      console.log('No data');
+      return;
     }
-    const tokenId = tokenIdGenerator(assetBondIdData);
+
+    const tokenId = assetBondSettleData.tokenId;
 
     const assetBondData = await tokenizer.getAssetBondData(tokenId);
     const borrowPrincipal = assetBondData.principal;
@@ -140,20 +142,23 @@ task('testnet:borrow', 'Create a loan on the token id')
       console.log(
         `Borrow not worked since current timestamp(${currentTimestamp}) is less than loanStartTimestamp(${loanStartTimestamp})`
       );
+      return;
     } else if (currentTimestamp > loanStartTimestamp + 64800) {
       console.log(`Borrow not worked since current timestamp(${currentTimestamp}) is expired`);
+      return;
     } else {
       await moneyPool.connect(collateralServiceProvider).borrow(underlyingAsset.address, tokenId);
       console.log(
-        `The collateral service provider borrows against ${args.bond} which principal amount is ${borrowPrincipal}`
+        `The collateral service provider borrows against ${args.data} which principal amount is ${borrowPrincipal}`
       );
     }
   });
 
 task('testnet:repay', 'Create repay on an asset bond')
   .addOptionalParam('txSender', 'The tx txSender, default : borrower')
-  .addParam('bond', 'The nonce of asset bond token')
+  .addParam('data', 'The nonce of asset bond token')
   .setAction(async (args: Args, hre: HardhatRuntimeEnvironment) => {
+    let assetBondSettleData: AssetBondSettleData;
     let txSender: SignerWithAddress;
     const [deployer, depositor, borrower, collateralServiceProvider, signer] =
       await hre.ethers.getSigners();
@@ -183,12 +188,13 @@ task('testnet:repay', 'Create repay on an asset bond')
         break;
     }
 
-    assetBondIdData.nonce = +args.bond;
-    if (args.bond.length > 5) {
-      console.log('The nonce of bond is too big. --bond should be less than 10000');
-      assetBondIdData.nonce = 0;
+    const file = require(`../../data/assetBond/testnet/assetBond_test_${args.data}`);
+    assetBondSettleData = file.data;
+    if (!assetBondSettleData.principal) {
+      console.log('No data');
+      return;
     }
-    const tokenId = tokenIdGenerator(assetBondIdData);
+    const tokenId = assetBondSettleData.tokenId;
 
     const assetBondData = await tokenizer.getAssetBondDebtData(tokenId);
     const totalRetrieveAmount = assetBondData[0].add(assetBondData[1]).toString();
@@ -215,6 +221,6 @@ task('testnet:repay', 'Create repay on an asset bond')
     await moneyPool.connect(txSender).repay(underlyingAsset.address, tokenId);
 
     console.log(
-      `The borrower repays a loan on ${args.bond} which total retrieve amount is ${totalRetrieveAmount}`
+      `The borrower repays a loan on ${args.data} which total retrieve amount is ${totalRetrieveAmount}`
     );
   });

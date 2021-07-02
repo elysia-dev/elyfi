@@ -25,7 +25,8 @@ task('testnet:approve', 'Approve to moneyPool, default: 100')
 
     const from = await hre.ethers.getSigner(args.from);
 
-    await underlyingAsset.connect(from).approve(args.to, amount);
+    const approveTx = await underlyingAsset.connect(from).approve(args.to, amount);
+    await approveTx.wait();
     console.log(`${args.from} approves moneyPool ${amount}`);
   });
 
@@ -44,6 +45,7 @@ task('testnet:transfer', 'Transfer underlyingAsset to account, default amount: 1
 
     const from = await hre.ethers.getSigner(args.from);
 
-    await underlyingAsset.connect(from).transfer(args.to, amount);
+    const trasnferTx = await underlyingAsset.connect(from).transfer(args.to, amount);
+    await trasnferTx.wait();
     console.log(`${args.from.substr(0, 10)} transfer ${amount} to ${args.to.substr(0, 10)}`);
   });
