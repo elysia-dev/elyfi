@@ -13,22 +13,13 @@ contract ERC20Test is ERC20 {
     string memory symbol_
   ) ERC20(name_, symbol_) {
     _mint(msg.sender, totalSupply_ / 2);
-    _owner = msg.sender;
+    _mint(address(this), totalSupply_ / 2);
   }
-
-  address internal _owner;
 
   /**
    * @notice The faucet is for testing ELYFI functions
    */
-  function faucet() external payable {
-    require(msg.value > 0, 'Not enough msg.value');
-
-    transfer(msg.sender, msg.value * 1000000);
-  }
-
-  function withdraw() external returns (bool) {
-    require(msg.sender == _owner, 'We will give back to the faucet');
-    return payable(address(msg.sender)).send(balanceOf(address(this)));
+  function faucet() external {
+    transfer(msg.sender, 10000 * 1e18);
   }
 }

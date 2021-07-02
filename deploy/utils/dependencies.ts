@@ -84,6 +84,12 @@ export const getElyfi = async (
           '0x9EAF333044ea90c849b127e60BB297AdE115D12c'
         );
         return elyfi;
+      case 'ropsten':
+        elyfi = await hre.ethers.getContractAt(
+          Elyfi_ABI,
+          '0x13a902Bf1D18DaAeA3DC6C401e5171F4Ab2A4833'
+        );
+        return elyfi;
     }
   }
 

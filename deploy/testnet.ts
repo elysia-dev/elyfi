@@ -1,4 +1,3 @@
-import { Contract, ethers } from 'ethers';
 import { HardhatRuntimeEnvironment } from 'hardhat/types';
 import { DeployFunction } from 'hardhat-deploy/types';
 import {
@@ -8,8 +7,7 @@ import {
 } from '../test/utils/testData';
 import { getContractAt } from 'hardhat-deploy-ethers/dist/src/helpers';
 import { MoneyPool } from '../typechain';
-import { getDai, getElyfi, getElysia } from './utils/dependencies';
-//import { saveDeployedContract } from './utils/save';
+import { getDai, getElyfi } from './utils/dependencies';
 
 export enum ELYFIContractType {
   CONNECTOR,

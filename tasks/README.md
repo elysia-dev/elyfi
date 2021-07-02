@@ -84,7 +84,7 @@ local:withdraw
 --amount
 
 local:borrow
-# In the local env, there's no need for create asset bond
+# In the local env, there's no need for creating asset bond
 # required
 --bond
 (nonce, less than 10000)
