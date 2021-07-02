@@ -6,8 +6,9 @@ import {
   testReserveData,
 } from '../test/utils/testData';
 import { getContractAt } from 'hardhat-deploy-ethers/dist/src/helpers';
-import { MoneyPool } from '../typechain';
+import { ERC20Test, MoneyPool } from '../typechain';
 import { getDai, getElyfi } from './utils/dependencies';
+import { ethers } from 'hardhat';
 
 export enum ELYFIContractType {
   CONNECTOR,
@@ -92,21 +93,28 @@ const deployTestnet: DeployFunction = async function (hre: HardhatRuntimeEnviron
     deployer
   )) as MoneyPool;
 
-  await deployedMoneyPool.addNewReserve(
-    testUnderlyingAsset?.address,
-    lToken.address,
-    dToken.address,
-    interestRateModel.address,
-    tokenizer.address,
-    incentivePool.address,
-    testReserveData.moneyPoolFactor
-  );
+  // const deployedTestAsset = (await getContractAt(
+  //   hre,
+  //   testIncentiveAsset.abi,
+  //   testIncentiveAsset.address,
+  //   deployer
+  // )) as ERC20Test;
+
+  // await deployedMoneyPool.addNewReserve(
+  //   testUnderlyingAsset?.address,
+  //   lToken.address,
+  //   dToken.address,
+  //   interestRateModel.address,
+  //   tokenizer.address,
+  //   incentivePool.address,
+  //   testReserveData.moneyPoolFactor
+  // );
 
   const reserveData = await deployedMoneyPool.getReserveData(testUnderlyingAsset?.address);
 
-  console.log(reserveData);
-
   console.log('addNewReserve done');
+
+  await testIncentiveAsset.transfer(incentivePool.address, ethers.utils.parseEther('5000000'));
 
   if (hre.network.name === 'ganache') return;
 

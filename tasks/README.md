@@ -1,3 +1,11 @@
+## Readme
+
+**All tasks are required network name**
+
+```
+network:action --networkname
+```
+
 ## Testnet
 
 #### Moneypool
@@ -31,8 +39,18 @@ testnet:repay
 ```
 testnet:createSignedAssetBond
 # required
+--data
+(The number of assetBond data in data/assetBond/testnet/)
+# optional
+--txSender
+--loanStart
+(loan start date, 0000-00-00)
+--amount
+
+testnet:createSignedAssetBondForTest
+# required
 --bond
-(nonce, less than 10000)
+
 # optional
 --txSender
 --loanStart

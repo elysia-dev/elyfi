@@ -6,23 +6,120 @@ import { testAssetBondData } from '../../test/utils/testData';
 import { HardhatRuntimeEnvironment } from 'hardhat/types';
 import assetBondIdData from '../../misc/assetBond/assetBondIdDataExample.json';
 import { tokenIdGenerator } from '../../misc/assetBond/generator';
+import AssetBondSettleData from '../../test/types/AssetBondSettleData';
+import { AssetBondIdData } from '../../misc/assetBond/types';
 
 interface Args {
   asset: string;
   bond: string;
+  nonce: string;
+  data: string;
   amount: string;
   txSender: string;
   loanStart: string;
 }
 
-task('testnet:createSignedAssetBond', 'Create signed asset bond')
+task('testnet:createSignedAssetBond', 'Create signed asset bond from production data')
   .addOptionalParam('txSender', 'The tx txSender, default: collateral service provider')
-  .addParam('bond', 'The nonce of the asset bond')
+  .addParam('data', 'The asset bond from saved data')
+  .setAction(async (args: Args, hre: HardhatRuntimeEnvironment) => {
+    let txSender: SignerWithAddress;
+    let assetBondSettleData: AssetBondSettleData;
+    const [deployer, depositor, borrower, collateralServiceProvider, signer] =
+      await hre.ethers.getSigners();
+
+    const deployedElyfiContracts = (await getDeployedContracts(hre, deployer)) as ElyfiContracts;
+    const moneyPool = deployedElyfiContracts.moneyPool;
+    const tokenizer = deployedElyfiContracts.tokenizer;
+    const connector = deployedElyfiContracts.connector;
+
+    txSender = collateralServiceProvider;
+
+    switch (args.txSender) {
+      case `${deployer.address}`:
+        txSender = deployer;
+        break;
+      case `${depositor.address}`:
+        txSender = depositor;
+        break;
+      case `${borrower.address}`:
+        txSender = borrower;
+        break;
+      case `${signer.address}`:
+        txSender = signer;
+        break;
+    }
+
+    const file = require(`../../data/assetBond/testnet/assetBond_test_${args.data}`);
+    assetBondSettleData = file.data;
+    if (!assetBondSettleData.principal) {
+      console.log('No data');
+      return;
+    }
+
+    const tokenId = assetBondSettleData.tokenId;
+
+    const isCollateralServiceProvider = await connector.isCollateralServiceProvider(
+      txSender.address
+    );
+    if (!isCollateralServiceProvider) {
+      await connector.connect(deployer).addCollateralServiceProvider(txSender.address);
+      console.log(
+        `Deployer add a collateral service provider role to ${txSender.address.substr(0, 10)}`
+      );
+    }
+    const isCouncil = await connector.isCouncil(signer.address);
+    if (!isCouncil) {
+      await connector.connect(deployer).addCouncil(signer.address);
+      `Deployer add a council role to ${signer.address.substr(0, 10)}`;
+    }
+
+    await tokenizer.connect(txSender).mintAssetBond(txSender.address, tokenId);
+    console.log(`The collateral service provider mints asset token which nonce is "${args.data}"`);
+
+    await tokenizer
+      .connect(txSender)
+      .settleAssetBond(
+        borrower.address,
+        signer.address,
+        tokenId,
+        assetBondSettleData.principal,
+        assetBondSettleData.couponRate,
+        assetBondSettleData.overdueInterestRate,
+        assetBondSettleData.debtCeiling,
+        assetBondSettleData.loanDuration,
+        assetBondSettleData.loanStartTimeYear,
+        assetBondSettleData.loanStartTimeMonth,
+        assetBondSettleData.loanStartTimeDay,
+        assetBondSettleData.ipfsHash
+      );
+    console.log(`The collateral service provider settled asset bond which number is ${args.data}`);
+
+    await tokenizer.connect(signer).signAssetBond(tokenId, 'test opinion');
+    console.log(`The signer signs on asset token which id is "${args.data}"`);
+
+    await tokenizer.connect(txSender).approve(moneyPool.address, tokenId);
+
+    const assetBondData = await tokenizer.getAssetBondData(tokenId);
+    const borrowPrincipal = assetBondData.principal;
+
+    console.log(
+      `${txSender.address.substr(0, 10)} is ready for collateralizing ${
+        args.data
+      }!. The borrow principal is ${borrowPrincipal.toString()}`
+    );
+  });
+
+task('testnet:createSignedAssetBondForTest', 'Create signed asset bond for only test, example data')
+  .addOptionalParam('txSender', 'The tx txSender, default: collateral service provider')
+  .addParam('nonce', 'The nonce of the asset bond')
   .addOptionalParam('loanStart', 'The loan start day, default: tomorrow, example: 2020-01-02')
   .addOptionalParam('amount', 'The principal of the bond, default: 50')
   .setAction(async (args: Args, hre: HardhatRuntimeEnvironment) => {
     let txSender: SignerWithAddress;
     let amount: string;
+    let assetBondSettleData: AssetBondSettleData;
+    let assetBondIdData: AssetBondIdData;
     let loanStart: string;
     const [deployer, depositor, borrower, collateralServiceProvider, signer] =
       await hre.ethers.getSigners();
@@ -51,17 +148,21 @@ task('testnet:createSignedAssetBond', 'Create signed asset bond')
         break;
     }
 
+    const file = require(`../../data/assetBond/testnet/example`);
+
+    assetBondIdData = file.id;
     assetBondIdData.nonce = +args.bond;
     if (args.bond.length > 5) {
       console.log('The nonce of bond is too big. --bond should be less than 10000');
       assetBondIdData.nonce = 0;
     }
     const tokenId = tokenIdGenerator(assetBondIdData);
+    assetBondSettleData.tokenId = hre.ethers.BigNumber.from(tokenId);
 
     amount =
       args.amount != undefined
         ? hre.ethers.utils.parseEther(args.amount).toString()
-        : hre.ethers.utils.parseEther('100').toString();
+        : assetBondSettleData.principal.toString();
 
     const isCollateralServiceProvider = await connector.isCollateralServiceProvider(
       txSender.address

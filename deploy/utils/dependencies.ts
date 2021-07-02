@@ -4,6 +4,7 @@ import TestnetEL_ABI from '../../dependencies/TestnetEL.json';
 import ELToken_ABI from '../../dependencies/ELToken.json';
 import Dai_ABI from '../../dependencies/Dai.json';
 import Elyfi_ABI from '../../dependencies/Elyfi.json';
+import TestERC_ABI from '../../deployments/ropsten/ERC20Test.json';
 
 export const getElysia = async (
   hre: HardhatRuntimeEnvironment,
@@ -50,6 +51,9 @@ export const getDai = async (hre: HardhatRuntimeEnvironment, signer: string): Pr
       case 'mainnet':
         dai = await hre.ethers.getContractAt(Dai_ABI, '0x6B175474E89094C44Da98b954EedeAC495271d0F');
         return dai;
+      case 'ropsten':
+        dai = await hre.ethers.getContractAt(TestERC_ABI.abi, TestERC_ABI.address);
+        return dai;
     }
   }
 
@@ -75,9 +79,12 @@ export const getElyfi = async (
   let elyfi: Contract;
   if (hre.network.name) {
     switch (hre.network.name) {
-      //   case 'mainnet':
-      //     elyfi = await hre.ethers.getContractAt(Elyfi_ABI, '');
-      //     return elyfi;
+      case 'mainnet':
+        elyfi = await hre.ethers.getContractAt(
+          Elyfi_ABI,
+          '0x4dA34f8264CB33A5c9F17081B9EF5Ff6091116f4'
+        );
+        return elyfi;
       case 'kovan':
         elyfi = await hre.ethers.getContractAt(
           Elyfi_ABI,

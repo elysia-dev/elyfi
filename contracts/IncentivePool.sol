@@ -51,6 +51,8 @@ contract IncentivePool is IIncentivePool {
     _accruedIncentive[user] = getUserIncentiveReward(user);
     _incentiveIndex = _userIncentiveIndex[user] = getIncentiveIndex();
     _lastUpdateTimestamp = block.timestamp;
+
+    emit UpdateIncentivePool(_incentiveIndex);
   }
 
   /**
@@ -71,6 +73,8 @@ contract IncentivePool is IIncentivePool {
     _userIncentiveIndex[user] = getIncentiveIndex();
 
     _accruedIncentive[user] = 0;
+
+    emit ClaimIncentive(user, accruedIncentive);
   }
 
   function getIncentiveIndex() public view returns (uint256) {
