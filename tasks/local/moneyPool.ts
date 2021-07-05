@@ -32,7 +32,7 @@ task('local:deposit', 'Deposit, default amount : 100, default txSender : deposit
         : hre.ethers.utils.parseEther('100').toString();
 
     const balance = await underlyingAsset.balanceOf(depositor.address);
-    if (balance.lte(amount)) {
+    if (balance.lt(amount)) {
       await hre.run('local:transfer', {
         from: deployer.address,
         to: depositor.address,
@@ -41,7 +41,7 @@ task('local:deposit', 'Deposit, default amount : 100, default txSender : deposit
     }
 
     const allowance = await underlyingAsset.allowance(depositor.address, moneyPool.address);
-    if (allowance.lte(amount)) {
+    if (allowance.lt(amount)) {
       await hre.run('local:approve', {
         from: depositor.address,
         to: moneyPool.address,
@@ -141,7 +141,7 @@ task('local:borrow', 'Create borrow : 1500ETH')
     const loanStartTimestamp = assetBondData.loanStartTimestamp.toNumber();
     const liquidityAvailable = await underlyingAsset.balanceOf(lToken.address);
 
-    if (liquidityAvailable.lte(borrowPrincipal)) {
+    if (liquidityAvailable.lt(borrowPrincipal)) {
       await underlyingAsset
         .connect(deployer)
         .transfer(depositor.address, hre.ethers.utils.parseEther('1000'));

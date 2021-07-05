@@ -54,7 +54,7 @@ task('testnet:deposit', 'Create deposit, default amount : 100, default txSender 
         : hre.ethers.utils.parseEther('100').toString();
 
     const balance = await underlyingAsset.balanceOf(txSender.address);
-    if (balance.lte(amount)) {
+    if (balance.lt(amount)) {
       await hre.run('testnet:transfer', {
         from: deployer.address,
         to: txSender.address,
@@ -63,7 +63,7 @@ task('testnet:deposit', 'Create deposit, default amount : 100, default txSender 
     }
 
     const allowance = await underlyingAsset.allowance(txSender.address, moneyPool.address);
-    if (allowance.lte(amount)) {
+    if (allowance.lt(amount)) {
       await hre.run('testnet:approve', {
         from: txSender.address,
         to: moneyPool.address,
@@ -201,7 +201,7 @@ task('testnet:repay', 'Create repay on an asset bond')
     console.log(totalRetrieveAmount);
 
     const balance = await underlyingAsset.balanceOf(txSender.address);
-    if (balance.lte(totalRetrieveAmount)) {
+    if (balance.lt(totalRetrieveAmount)) {
       await hre.run('testnet:transfer', {
         from: deployer.address,
         to: txSender.address,
@@ -210,7 +210,7 @@ task('testnet:repay', 'Create repay on an asset bond')
     }
 
     const allowance = await underlyingAsset.allowance(txSender.address, moneyPool.address);
-    if (allowance.lte(totalRetrieveAmount)) {
+    if (allowance.lt(totalRetrieveAmount)) {
       await hre.run('testnet:approve', {
         from: txSender.address,
         to: moneyPool.address,

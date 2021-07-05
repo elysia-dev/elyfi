@@ -30,6 +30,6 @@ export const data: AssetBondSettleData = {
   loanDuration: BigNumber.from(365),
   loanStartTimeYear: BigNumber.from(2021),
   loanStartTimeMonth: BigNumber.from(7),
-  loanStartTimeDay: BigNumber.from(3),
+  loanStartTimeDay: BigNumber.from(6),
   ipfsHash: 'test',
 };

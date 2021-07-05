@@ -23,8 +23,9 @@ testnet:withdraw
 
 testnet:borrow
 # required
---bond
-(nonce, less than 10000)
+--data
+(The number of assetBond data in data/assetBond/testnet/)
+(The asset bond token should be signed before borrowing)
 
 testnet:repay
 # optional

@@ -99,7 +99,6 @@ contract Tokenizer is ITokenizer, TokenizerStorage, ERC721 {
 
   /************ AssetBond Formation Functions ************/
 
-  // tokenId : bitMask
   /**
    * @notice This function can be called by collateral service providers when they want to sign a contract.
    * Borrowers who wants to take out a loan backed by real asset must enter into a contract
@@ -134,16 +133,15 @@ contract Tokenizer is ITokenizer, TokenizerStorage, ERC721 {
   }
 
   /**
-   * @notice This function is called after Based on the documents submitted by the loan applicant,
-   * risk analysis for the relevant asset is conducted, and the loan availability,
-   * maximum loanable amount and the interest rate between collateral service provider
-   * and borrower are calculated.
+   * @notice This function is called after collateral service provider based on the documents submitted by the loan applicant,
+   * risk analysis for the relevant asset is conducted, and the loan availability, maximum loanable amount and the interest
+   * rate between collateral service provider and borrower are calculated.
    * @param borrower The address of the borrower who must repay and retrieve the asset bond
    * @param signer A third-party agency address that reviews entities listed on the asset bond data
-   * @param tokenId Token Id to settle
-   * @param principal The amount
-   * @param couponRate .
-   * @param overdueInterestRate .
+   * @param tokenId Token id to settle
+   * @param principal The borrow amount based on the contract between collateral service provider and borrower in reality
+   * @param couponRate The coupon rate of the bond
+   * @param overdueInterestRate The overdue interest rate of the bond. After the loan duration, the borrower
    * @param debtCeiling .
    * @param loanDuration .
    * @param loanStartTimeYear .

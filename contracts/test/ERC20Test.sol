@@ -20,6 +20,6 @@ contract ERC20Test is ERC20 {
    * @notice The faucet is for testing ELYFI functions
    */
   function faucet() external {
-    transfer(msg.sender, 10000 * 1e18);
+    _transfer(address(this), msg.sender, 10000 * 1e18);
   }
 }

@@ -63,15 +63,19 @@ task('testnet:createSignedAssetBond', 'Create signed asset bond from production 
       txSender.address
     );
     if (!isCollateralServiceProvider) {
-      await connector.connect(deployer).addCollateralServiceProvider(txSender.address);
+      const addCollateralServiceProviderTx = await connector
+        .connect(deployer)
+        .addCollateralServiceProvider(txSender.address);
+      await addCollateralServiceProviderTx.wait();
       console.log(
         `Deployer add a collateral service provider role to ${txSender.address.substr(0, 10)}`
       );
     }
     const isCouncil = await connector.isCouncil(signer.address);
     if (!isCouncil) {
-      await connector.connect(deployer).addCouncil(signer.address);
-      `Deployer add a council role to ${signer.address.substr(0, 10)}`;
+      const addCouncilTx = await connector.connect(deployer).addCouncil(signer.address);
+      await addCouncilTx.wait();
+      console.log(`Deployer add a council role to ${signer.address.substr(0, 10)}`);
     }
 
     const mintTx = await tokenizer.connect(txSender).mintAssetBond(txSender.address, tokenId);
