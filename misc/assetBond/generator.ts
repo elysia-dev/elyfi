@@ -5,8 +5,7 @@ import { bigBinaryStringToHexString } from './position';
 export const tokenIdGenerator = (assetBondIdData: AssetBondIdData) => {
   const bufferLength = totalDigits(assetBondIdDataDigits);
   let position: number = 0;
-  let buffer = '0'.repeat(wholeNumber.length - bufferLength);
-
+  let buffer = '1'.repeat(wholeNumber.length - bufferLength);
   (Object.keys(assetBondIdDataDigits).reverse() as (keyof AssetBondIdDataDigits)[]).forEach(
     (key) => {
       if (assetBondIdData[key] > 2 ** assetBondIdDataDigits[key]) {

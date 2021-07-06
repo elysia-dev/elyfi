@@ -28,3 +28,7 @@ export const bigBinaryStringToHexString = (bigBinaryString: string) => {
   const bigNumberInHex = ethers.BigNumber.from(bigNumberFromJS).toHexString();
   return bigNumberInHex.toLocaleUpperCase();
 };
+
+export const bigDecimalStringToBinaryString = (bigDecimalString: string) => {
+  return new BigNumber(bigDecimalString, 10).toString(2);
+};
