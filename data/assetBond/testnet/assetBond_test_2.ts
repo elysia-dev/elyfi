@@ -6,7 +6,7 @@ import { AssetBondIdData } from '../../../misc/assetBond/types';
 
 // SNU lib
 const id: AssetBondIdData = {
-  nonce: 1,
+  nonce: 2,
   countryCode: 82,
   collateralServiceProviderIdentificationNumber: 1158801240,
   collateralLatitude: 3745927,
@@ -23,13 +23,13 @@ export const data: AssetBondSettleData = {
   borrower: '',
   signer: '',
   tokenId: BigNumber.from(tokenIdGenerator(id)),
-  principal: ethers.utils.parseEther('2000000000'),
+  principal: ethers.utils.parseEther('500000'),
   debtCeiling: ethers.utils.parseEther('2500000000'),
   couponRate: toRate(0.1),
   overdueInterestRate: toRate(0.03),
   loanDuration: BigNumber.from(365),
   loanStartTimeYear: BigNumber.from(2021),
   loanStartTimeMonth: BigNumber.from(7),
-  loanStartTimeDay: BigNumber.from(6),
+  loanStartTimeDay: BigNumber.from(7),
   ipfsHash: 'test',
 };

@@ -122,6 +122,7 @@ task('testnet:borrow', 'Create a loan on the token id')
     const moneyPool = deployedElyfiContracts.moneyPool;
     const tokenizer = deployedElyfiContracts.tokenizer;
     const underlyingAsset = deployedElyfiContracts.underlyingAsset;
+    console.log(underlyingAsset.address);
 
     const file = require(`../../data/assetBond/testnet/assetBond_test_${args.data}`);
     assetBondSettleData = file.data;
@@ -147,6 +148,7 @@ task('testnet:borrow', 'Create a loan on the token id')
       console.log(`Borrow not worked since current timestamp(${currentTimestamp}) is expired`);
       return;
     } else {
+      console.log(tokenId);
       await moneyPool.connect(collateralServiceProvider).borrow(underlyingAsset.address, tokenId);
       console.log(
         `The collateral service provider borrows against ${args.data} which principal amount is ${borrowPrincipal}`

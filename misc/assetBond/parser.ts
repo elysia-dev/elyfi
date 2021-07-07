@@ -48,6 +48,3 @@ export const tokenIdParser = (tokenId: string) => {
 
   return parsedTokenId;
 };
-
-const decimal = '115792089237316195422003243566959780180087883268273794605492595063884523587585';
-console.log(tokenIdParser(decimal));

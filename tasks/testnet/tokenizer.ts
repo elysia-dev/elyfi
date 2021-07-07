@@ -115,7 +115,7 @@ task('testnet:createSignedAssetBond', 'Create signed asset bond from production 
     console.log(
       `${txSender.address.substr(0, 10)} is ready for collateralizing ${
         args.data
-      }!. The borrow principal is ${borrowPrincipal.toString()}`
+      }!. The borrow principal is ${borrowPrincipal.toString()} and token id is ${tokenId}`
     );
   });
 

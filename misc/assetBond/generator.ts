@@ -15,7 +15,7 @@ export const tokenIdGenerator = (assetBondIdData: AssetBondIdData) => {
       position += assetBondIdDataDigits[key];
     }
   );
-  return bigBinaryStringToHexString(buffer);
+  return bigBinaryStringToHexString(buffer).toLocaleLowerCase();
 };
 
 const getInformationFullBinary = (digit: number, info: number) => {
