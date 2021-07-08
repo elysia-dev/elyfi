@@ -115,7 +115,7 @@ describe('MoneyPool.withdraw', () => {
               depositor.address,
               utils.parseEther('2')
             )
-        ).to.be.reverted;
+        ).to.be.revertedWith('ReserveInactivated');
       });
     });
 
@@ -129,12 +129,12 @@ describe('MoneyPool.withdraw', () => {
               depositor.address,
               utils.parseEther('11')
             )
-        );
+        ).to.be.revertedWith('WithdrawInsufficientBalance');
       });
     });
   });
 
-  context('when an account does not deposit', async () => {
+  context('when an account has not deposited', async () => {
     it('reverted', async () => {
       await expect(
         elyfiContracts.moneyPool
@@ -144,7 +144,7 @@ describe('MoneyPool.withdraw', () => {
             depositor.address,
             utils.parseEther('1')
           )
-      );
+      ).to.be.revertedWith('WithdrawInsufficientBalance');
     });
   });
 });

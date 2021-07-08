@@ -58,15 +58,15 @@ library Validation {
     if (msg.sender != assetBond.collateralServiceProvider)
       revert MoneyPoolErrors.OnlyAssetBondOwnerBorrowAllowed();
 
-    if (block.timestamp <= assetBond.loanStartTimestamp)
-      revert MoneyPoolErrors.NotTimeForLoanStart();
-
-    if (assetBond.loanStartTimestamp + 18 hours <= block.timestamp)
-      revert MoneyPoolErrors.TimeOutForCollateralize();
-
     uint256 availableLiquidity = IERC20(asset).balanceOf(reserve.lTokenAddress);
 
     if (availableLiquidity <= borrowAmount) revert MoneyPoolErrors.NotEnoughLiquidityToLoan();
+
+    if (block.timestamp < assetBond.loanStartTimestamp)
+      revert MoneyPoolErrors.NotTimeForLoanStart();
+
+    if (assetBond.loanStartTimestamp + 18 hours < block.timestamp)
+      revert MoneyPoolErrors.TimeOutForCollateralize();
   }
 
   function validateLTokenTrasfer() internal pure {}

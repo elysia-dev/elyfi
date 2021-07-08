@@ -28,7 +28,7 @@ export const testAssetBondData: AssetBondSettleData = <AssetBondSettleData>{
   borrower: '',
   signer: '',
   tokenId: BigNumber.from(tokenIdGenerator(assetBondIdData)),
-  principal: ethers.utils.parseEther('1'),
+  principal: ethers.utils.parseEther('10'),
   debtCeiling: ethers.utils.parseEther('13'),
   couponRate: toRate(0.1),
   overdueInterestRate: toRate(0.03),
