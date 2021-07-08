@@ -25,59 +25,57 @@ describe('Tokenizer.sign', () => {
       .transfer(depositor.address, utils.parseEther('1000'));
     await elyfiContracts.connector.connect(deployer).addCollateralServiceProvider(CSP.address);
     await elyfiContracts.connector.connect(deployer).addCouncil(signer.address);
+    await elyfiContracts.tokenizer
+      .connect(CSP)
+      .mintAssetBond(CSP.address, testAssetBondData.tokenId);
+  });
+
+  it('reverts if the token state is not SETTLED', async () => {
+    await expect(
+      elyfiContracts.tokenizer
+        .connect(signer)
+        .signAssetBond(testAssetBondData.tokenId, signerOpinionHash)
+    ).to.be.revertedWith('OnlySettledTokenSignAllowed');
   });
 
   context('Sign asset bond', async () => {
     beforeEach('Collateral Service Provider settled the asset bond properly', async () => {
-      await elyfiContracts.tokenizer
-        .connect(CSP)
-        .mintAssetBond(CSP.address, testAssetBondData.tokenId);
+      await settleAssetBond({
+        tokenizer: elyfiContracts.tokenizer,
+        txSender: CSP,
+        settleArguments: testAssetBondData,
+      });
+    });
+
+    it('reverts if the caller is not the signer', async () => {
+      await elyfiContracts.connector.connect(deployer).revokeCouncil(signer.address);
+      await expect(
+        elyfiContracts.tokenizer
+          .connect(signer)
+          .signAssetBond(testAssetBondData.tokenId, signerOpinionHash)
+      ).to.be.revertedWith('OnlyCouncil');
     });
 
     it('reverts if the caller is not designated member', async () => {
+      await elyfiContracts.connector.connect(deployer).addCouncil(account.address);
       await expect(
         elyfiContracts.tokenizer
           .connect(account)
           .signAssetBond(testAssetBondData.tokenId, signerOpinionHash)
-      ).to.be.revertedWith('');
+      ).to.be.revertedWith('OnlyDesignatedSignerAllowed');
     });
 
-    context('when signer signs the asset bond but not settled', async () => {
-      it('reverts if the token state is not SETTLED', async () => {
-        await elyfiContracts.connector
-          .connect(deployer)
-          .revokeCollateralServiceProvider(CSP.address);
-        await expect(
-          settleAssetBond({
-            tokenizer: elyfiContracts.tokenizer,
-            txSender: CSP,
-            settleArguments: testAssetBondData,
-          })
-        ).to.be.revertedWith('OnlySettledTokenSignAllowed');
-      });
+    it('signs the asset bond properly', async () => {
+      await elyfiContracts.tokenizer
+        .connect(signer)
+        .signAssetBond(testAssetBondData.tokenId, signerOpinionHash);
 
-      context('when signer signs the settled asset bond', async () => {
-        beforeEach('Collateral Service Provider settled the asset bond properly', async () => {
-          await settleAssetBond({
-            tokenizer: elyfiContracts.tokenizer,
-            txSender: CSP,
-            settleArguments: testAssetBondData,
-          });
-        });
+      const assetBondData = await elyfiContracts.tokenizer.getAssetBondData(
+        testAssetBondData.tokenId
+      );
 
-        it('signs the asset bond properly', async () => {
-          await elyfiContracts.tokenizer
-            .connect(signer)
-            .signAssetBond(testAssetBondData.tokenId, signerOpinionHash);
-
-          const assetBondData = await elyfiContracts.tokenizer.getAssetBondData(
-            testAssetBondData.tokenId
-          );
-
-          expect(assetBondData.state).to.be.equal(AssetBondState.CONFIRMED);
-          expect(assetBondData.signerOpinionHash).to.be.equal(signerOpinionHash);
-        });
-      });
+      expect(assetBondData.state).to.be.equal(AssetBondState.CONFIRMED);
+      expect(assetBondData.signerOpinionHash).to.be.equal(signerOpinionHash);
     });
   });
 });

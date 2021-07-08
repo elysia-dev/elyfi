@@ -85,9 +85,9 @@ library Validation {
   ) internal view {}
 
   function validateSignAssetBond(DataStruct.AssetBondData storage assetBond) internal view {
-    if (assetBond.signer != msg.sender) revert TokenizerErrors.OnlyDesignatedSignerAllowed();
     if (assetBond.state != DataStruct.AssetBondState.SETTLED)
       revert TokenizerErrors.OnlySettledTokenSignAllowed();
+    if (assetBond.signer != msg.sender) revert TokenizerErrors.OnlyDesignatedSignerAllowed();
   }
 
   function validateSettleAssetBond(DataStruct.AssetBondData memory assetBond) internal view {

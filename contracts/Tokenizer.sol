@@ -235,7 +235,7 @@ contract Tokenizer is ITokenizer, TokenizerStorage, ERC721 {
    * @param tokenId The token Id to release
    * @param signerOpinionHash The signer can upload their opinion as a form of official documents on IPFS server.
    */
-  function signAssetBond(uint256 tokenId, string memory signerOpinionHash) external {
+  function signAssetBond(uint256 tokenId, string memory signerOpinionHash) external onlyCouncil {
     DataStruct.AssetBondData storage assetBond = _assetBondData[tokenId];
     Validation.validateSignAssetBond(assetBond);
 
