@@ -91,9 +91,6 @@ library Validation {
   }
 
   function validateSettleAssetBond(DataStruct.AssetBondData memory assetBond) internal view {
-    // checks whether signer authorized
-    // checks the asset bond is 'EMPTY' state
-
     if (block.timestamp >= assetBond.loanStartTimestamp)
       revert TokenizerErrors.SettledLoanStartTimestampInvalid();
     if (assetBond.loanStartTimestamp == assetBond.maturityTimestamp)

@@ -85,7 +85,7 @@ describe('MoneyPool.deposit', () => {
                   depositor.address,
                   ethers.utils.parseEther('1000')
                 )
-            ).to.be.reverted;
+            ).to.be.revertedWith('ReserveInactivated');
           });
         });
 
@@ -103,7 +103,7 @@ describe('MoneyPool.deposit', () => {
                   depositor.address,
                   ethers.utils.parseEther('1000')
                 )
-            ).to.reverted;
+            ).to.revertedWith('ReservePaused');
           });
         });
       });
@@ -114,7 +114,7 @@ describe('MoneyPool.deposit', () => {
             elyfiContracts.moneyPool
               .connect(depositor)
               .deposit(elyfiContracts.underlyingAsset.address, depositor.address, constants.Zero)
-          ).to.be.reverted;
+          ).to.be.revertedWith('InvalidAmount');
         });
       });
     });
