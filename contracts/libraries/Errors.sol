@@ -55,4 +55,5 @@ library TokenizerErrors {
   error SettledLoanStartTimestampInvalid();
   error LoanDurationInvalid();
   error OnlySettledTokenSignAllowed();
+  error OnlyDesignatedSignerAllowed();
 }

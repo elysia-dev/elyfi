@@ -5,6 +5,7 @@ import '../libraries/DataStruct.sol';
 import '../libraries/Errors.sol';
 import '../libraries/Math.sol';
 import '../interfaces/ILToken.sol';
+import 'hardhat/console.sol';
 
 library Validation {
   using WadRayMath for uint256;
@@ -84,6 +85,7 @@ library Validation {
   ) internal view {}
 
   function validateSignAssetBond(DataStruct.AssetBondData storage assetBond) internal view {
+    if (assetBond.signer != msg.sender) revert TokenizerErrors.OnlyDesignatedSignerAllowed();
     if (assetBond.state != DataStruct.AssetBondState.SETTLED)
       revert TokenizerErrors.OnlySettledTokenSignAllowed();
   }
