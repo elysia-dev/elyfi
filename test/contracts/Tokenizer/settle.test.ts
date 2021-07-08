@@ -49,7 +49,9 @@ describe('Tokenizer.settle', () => {
         ).to.be.revertedWith('OnlyCollateralServiceProvider');
       });
       it('reverts if the caller is not the owner.', async () => {
-        await elyfiContracts.connector.connect(deployer).addCollateralServiceProvider(CSP.address);
+        await elyfiContracts.connector
+          .connect(deployer)
+          .addCollateralServiceProvider(account.address);
         await expect(
           settleAssetBond({
             tokenizer: elyfiContracts.tokenizer,
@@ -89,7 +91,6 @@ describe('Tokenizer.settle', () => {
         it('reverts if the loan duration is 0', async () => {
           const invalidAssetBondData = { ...testAssetBondData };
           invalidAssetBondData.loanDuration = BigNumber.from(0);
-          console.log('0', testAssetBondData.loanStartTimeYear.toString());
 
           expect(
             settleAssetBond({
@@ -98,6 +99,19 @@ describe('Tokenizer.settle', () => {
               settleArguments: invalidAssetBondData,
             })
           ).to.be.revertedWith('LoanDurationInvalid');
+        });
+
+        it('reverts if the signer is not council', async () => {
+          const invalidAssetBondData = { ...testAssetBondData };
+          invalidAssetBondData.signer = account.address;
+
+          expect(
+            settleAssetBond({
+              tokenizer: elyfiContracts.tokenizer,
+              txSender: CSP,
+              settleArguments: invalidAssetBondData,
+            })
+          ).to.be.revertedWith('SignerIsNotCouncil');
         });
       });
       it('settles data properly', async () => {

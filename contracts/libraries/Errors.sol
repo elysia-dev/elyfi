@@ -56,4 +56,5 @@ library TokenizerErrors {
   error LoanDurationInvalid();
   error OnlySettledTokenSignAllowed();
   error OnlyDesignatedSignerAllowed();
+  error SignerIsNotCouncil(address signer);
 }

@@ -170,6 +170,8 @@ contract Tokenizer is ITokenizer, TokenizerStorage, ERC721 {
 
     if (_assetBondData[tokenId].state != DataStruct.AssetBondState.EMPTY)
       revert TokenizerErrors.AssetBondAlreadySettled(tokenId);
+
+    if (!_connector.isCouncil(signer)) revert TokenizerErrors.SignerIsNotCouncil(signer);
     vars.loanStartTimestamp = 0;
     vars.maturityTimestamp = 0;
     vars.liquidationTimestamp = 0;
