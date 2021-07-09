@@ -38,7 +38,7 @@ library Math {
     uint256 currentTimestamp
   ) internal pure returns (uint256) {
     //solium-disable-next-line
-    uint256 exp = currentTimestamp - uint256(lastUpdateTimestamp);
+    uint256 exp = currentTimestamp - lastUpdateTimestamp;
 
     if (exp == 0) {
       return WadRayMath.ray();
@@ -69,8 +69,9 @@ library Math {
     uint256 weightedAmountRate = amountIn.wadToRay().rayMul(rate);
 
     uint256 newTotalBalance = totalBalance + amountIn;
-    uint256 newAverageRate =
-      (weightedAverageRate + weightedAmountRate).rayDiv(newTotalBalance.wadToRay());
+    uint256 newAverageRate = (weightedAverageRate + weightedAmountRate).rayDiv(
+      newTotalBalance.wadToRay()
+    );
 
     return (newTotalBalance, newAverageRate);
   }
@@ -96,8 +97,9 @@ library Math {
 
     uint256 newTotalBalance = totalBalance - amountOut;
 
-    uint256 newAverageRate =
-      (weightedAverageRate - weightedAmountRate).rayDiv(newTotalBalance.wadToRay());
+    uint256 newAverageRate = (weightedAverageRate - weightedAmountRate).rayDiv(
+      newTotalBalance.wadToRay()
+    );
 
     return (newTotalBalance, newAverageRate);
   }

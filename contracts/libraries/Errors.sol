@@ -32,6 +32,7 @@ library MoneyPoolErrors {
   error OnlyCouncil();
   error OnlyMoneyPoolAdmin();
   error TimeOutForCollateralize();
+  error OnlyNotPerformedAssetBondLiquidatable(uint256 tokenState);
 }
 
 library TokenErrors {

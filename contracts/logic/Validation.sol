@@ -82,7 +82,10 @@ library Validation {
   function validateLiquidation(
     DataStruct.ReserveData storage reserve,
     DataStruct.AssetBondData memory assetBond
-  ) internal view {}
+  ) internal view {
+    if (assetBond.state != DataStruct.AssetBondState.NOT_PERFORMED)
+      revert MoneyPoolErrors.OnlyNotPerformedAssetBondLiquidatable(uint256(assetBond.state));
+  }
 
   function validateSignAssetBond(DataStruct.AssetBondData storage assetBond) internal view {
     if (assetBond.state != DataStruct.AssetBondState.SETTLED)

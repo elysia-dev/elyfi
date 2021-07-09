@@ -1,4 +1,4 @@
-import { waffle } from 'hardhat';
+import { ethers, waffle } from 'hardhat';
 import { expect } from 'chai';
 import {
   expectAssetBondDataAfterLiquidate,
@@ -25,13 +25,15 @@ describe('MoneyPool.liquidation', () => {
 
   testAssetBondData.borrower = borrower.address;
   testAssetBondData.signer = signer.address;
+  testAssetBondData.principal = ethers.utils.parseEther('1');
 
-  before('The asset bond is collateralized properly', async () => {
+  beforeEach('The asset bond is collateralized properly', async () => {
     const fixture = await loadFixture(utilizedMoneypool);
     const signerOpinionHash = 'test opinion hash';
     elyfiContracts = fixture.elyfiContracts;
 
     await elyfiContracts.connector.connect(deployer).addCollateralServiceProvider(CSP.address);
+    await elyfiContracts.connector.connect(deployer).addCouncil(signer.address);
     await elyfiContracts.connector
       .connect(deployer)
       .addCollateralServiceProvider(liquidator.address);
@@ -66,7 +68,7 @@ describe('MoneyPool.liquidation', () => {
       elyfiContracts.moneyPool
         .connect(borrower)
         .liquidate(elyfiContracts.underlyingAsset.address, testAssetBondData.tokenId)
-    ).to.be.reverted;
+    ).to.be.revertedWith('OnlyCollateralServiceProvider');
   });
 
   it('reverts if the asset bond state is not `NOT_PERFORMED` state', async () => {
@@ -74,11 +76,11 @@ describe('MoneyPool.liquidation', () => {
       elyfiContracts.moneyPool
         .connect(liquidator)
         .liquidate(elyfiContracts.underlyingAsset.address, testAssetBondData.tokenId)
-    ).to.be.reverted;
+    ).to.be.revertedWith('OnlyNotPerformedAssetBondLiquidatable');
   });
 
   context('when the asset bond state is `NOT_PERFORMED`', async () => {
-    before('Time passes', async () => {
+    beforeEach('Time passes', async () => {
       const assetBondData = await elyfiContracts.tokenizer.getAssetBondData(
         testAssetBondData.tokenId
       );
@@ -93,13 +95,13 @@ describe('MoneyPool.liquidation', () => {
     });
 
     context('when the borrower has sufficient underlying asset', async () => {
-      before('The account balance increases', async () => {
+      beforeEach('The account balance increases', async () => {
         await elyfiContracts.underlyingAsset
           .connect(deployer)
-          .transfer(liquidator.address, utils.parseEther('10'));
+          .transfer(liquidator.address, utils.parseEther('20'));
         await elyfiContracts.underlyingAsset
           .connect(liquidator)
-          .approve(elyfiContracts.moneyPool.address, utils.parseEther('10'));
+          .approve(elyfiContracts.moneyPool.address, utils.parseEther('20'));
       });
 
       it('update user data and reserve data', async () => {
