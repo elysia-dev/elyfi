@@ -104,6 +104,17 @@ describe('MoneyPool.liquidation', () => {
           .approve(elyfiContracts.moneyPool.address, utils.parseEther('20'));
       });
 
+      it('reverts if the moneypool is deactivated', async () => {
+        await elyfiContracts.moneyPool
+          .connect(deployer)
+          .deactivateMoneyPool(elyfiContracts.underlyingAsset.address);
+        await expect(
+          elyfiContracts.moneyPool
+            .connect(CSP)
+            .liquidate(elyfiContracts.underlyingAsset.address, testAssetBondData.tokenId)
+        ).to.be.revertedWith('ReserveInactivated');
+      });
+
       it('update user data and reserve data', async () => {
         const [reserveDataBefore, userDataBefore] = await takeDataSnapshot(
           borrower,

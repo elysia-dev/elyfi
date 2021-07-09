@@ -1,13 +1,19 @@
 import { waffle } from 'hardhat';
 import { expect } from 'chai';
-import { utils } from 'ethers';
+import { BigNumber, utils } from 'ethers';
 import { expectReserveDataAfterBorrow, expectUserDataAfterBorrow } from '../../utils/Expect';
 import takeDataSnapshot from '../../utils/takeDataSnapshot';
-import { RAY } from '../../utils/constants';
+import { RAY, SECONDSPERDAY } from '../../utils/constants';
 import loadFixture from '../../utils/loadFixture';
 import { settleAssetBond } from '../../utils/Helpers';
 import { testAssetBondData } from '../../utils/testData';
-import { toTimestamp, advanceTimeTo, getTimestamp } from '../../utils/time';
+import {
+  toTimestamp,
+  advanceTimeTo,
+  getTimestamp,
+  saveEVMSnapshot,
+  revertFromEVMSnapshot,
+} from '../../utils/time';
 import AssetBondState from '../../types/AssetBondState';
 import ElyfiContracts from '../../types/ElyfiContracts';
 import utilizedMoneypool from '../../fixtures/utilizedMoneypool';
@@ -141,7 +147,11 @@ describe('MoneyPool.borrow', () => {
           });
 
           context('when time passes', async () => {
-            before('time passes', async () => {
+            let snapshotId: string;
+            let loanStartTimestamp: BigNumber;
+            beforeEach('time passes', async () => {
+              snapshotId = await saveEVMSnapshot();
+
               const tx = await elyfiContracts.moneyPool
                 .connect(depositor)
                 .deposit(
@@ -149,18 +159,19 @@ describe('MoneyPool.borrow', () => {
                   depositor.address,
                   testAssetBondData.debtCeiling
                 );
-              const loanStartTimestamp = toTimestamp(
+
+              loanStartTimestamp = toTimestamp(
                 testAssetBondData.loanStartTimeYear,
                 testAssetBondData.loanStartTimeMonth,
                 testAssetBondData.loanStartTimeDay
               );
-              await advanceTimeTo(await getTimestamp(tx), loanStartTimestamp.add(100));
-              console.log(
-                'time',
-                (await getTimestamp(tx)).toString(),
-                loanStartTimestamp.toString()
-              );
+              await advanceTimeTo(await getTimestamp(tx), loanStartTimestamp);
             });
+
+            afterEach('', async () => {
+              await revertFromEVMSnapshot(snapshotId);
+            });
+
             it('update borrower balance and reserve and user data after borrow', async () => {
               const [reserveDataBefore, userDataBefore] = await takeDataSnapshot(
                 CSP,
@@ -202,6 +213,18 @@ describe('MoneyPool.borrow', () => {
               );
               expect(reserveDataAfter).equalReserveData(expectedReserveData);
               expect(userDataAfter).equalUserData(expectedUserData);
+            });
+
+            it('reverts if asset bond outdated for borrowing', async () => {
+              await advanceTimeTo(
+                loanStartTimestamp,
+                loanStartTimestamp.add(BigNumber.from(SECONDSPERDAY).div(4).mul(3))
+              );
+              await expect(
+                elyfiContracts.moneyPool
+                  .connect(CSP)
+                  .borrow(elyfiContracts.underlyingAsset.address, testAssetBondData.tokenId)
+              ).to.be.revertedWith('TimeOutForCollateralize');
             });
           });
         });

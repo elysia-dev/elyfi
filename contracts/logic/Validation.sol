@@ -77,12 +77,20 @@ library Validation {
   ) internal view {
     if (reserve.isActivated == false) revert MoneyPoolErrors.ReserveInactivated();
     if (block.timestamp >= assetBond.liquidationTimestamp) revert MoneyPoolErrors.LoanExpired();
+    if (
+      !(assetBond.state == DataStruct.AssetBondState.COLLATERALIZED ||
+        assetBond.state == DataStruct.AssetBondState.MATURED)
+    )
+      revert MoneyPoolErrors.OnlyCollateralizedOrMaturedAssetBondRepayable(
+        uint256(assetBond.state)
+      );
   }
 
   function validateLiquidation(
     DataStruct.ReserveData storage reserve,
     DataStruct.AssetBondData memory assetBond
   ) internal view {
+    if (reserve.isActivated == false) revert MoneyPoolErrors.ReserveInactivated();
     if (assetBond.state != DataStruct.AssetBondState.NOT_PERFORMED)
       revert MoneyPoolErrors.OnlyNotPerformedAssetBondLiquidatable(uint256(assetBond.state));
   }

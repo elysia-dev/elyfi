@@ -160,12 +160,12 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
     DataStruct.AssetBondData memory assetBond = ITokenizer(reserve.tokenizerAddress)
     .getAssetBondData(tokenId);
 
+    Validation.validateRepay(reserve, assetBond);
+
     (uint256 accruedDebtOnMoneyPool, uint256 feeOnCollateralServiceProvider) = assetBond
     .getAssetBondDebtData();
 
     uint256 totalRetrieveAmount = accruedDebtOnMoneyPool + feeOnCollateralServiceProvider;
-
-    Validation.validateRepay(reserve, assetBond);
 
     reserve.updateState(asset);
 
