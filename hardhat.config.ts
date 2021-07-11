@@ -11,6 +11,7 @@ import 'hardhat-abi-exporter';
 // Gas-reporter's parser dependency makes Warning:
 // Accessing non-existent property 'INVALID_ALT_NUMBER' of module exports inside circular dependency
 import 'hardhat-gas-reporter';
+import 'solidity-coverage';
 
 import { HardhatUserConfig } from 'hardhat/types';
 

@@ -148,3 +148,4 @@ workspace.code-workspace
 
 # abi
 data/abi/*
+coverage.json
