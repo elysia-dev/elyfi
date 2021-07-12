@@ -81,7 +81,7 @@ const config: HardhatUserConfig = {
     cache: './cache',
   },
   mocha: {
-    reporter: 'eth-gas-reporter',
+    //reporter: 'eth-gas-reporter',
     reporterOptions: {
       currency: 'KRW',
       showTimeSpent: true,
