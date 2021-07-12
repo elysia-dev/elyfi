@@ -41,6 +41,10 @@ yarn test test-suites/scenario.test.ts
 # Run script for subgrap testing
 yarn hardhat deploy --network ganache
 yarn task createWithdraw --network ganache --asset ASSET_ADDRESS --pool POOL_ADDRESS
+
+# Coverage
+yarn coverage
+open ./coverage/index.html
 ```
 
 ## Deploy
