@@ -79,9 +79,9 @@ library Validation {
     if (block.timestamp >= assetBond.liquidationTimestamp) revert MoneyPoolErrors.LoanExpired();
     if (
       !(assetBond.state == DataStruct.AssetBondState.COLLATERALIZED ||
-        assetBond.state == DataStruct.AssetBondState.MATURED)
+        assetBond.state == DataStruct.AssetBondState.DELINQUENT)
     )
-      revert MoneyPoolErrors.OnlyCollateralizedOrMaturedAssetBondRepayable(
+      revert MoneyPoolErrors.OnlyCollateralizedOrDelinquentAssetBondRepayable(
         uint256(assetBond.state)
       );
   }
@@ -91,7 +91,7 @@ library Validation {
     DataStruct.AssetBondData memory assetBond
   ) internal view {
     if (reserve.isActivated == false) revert MoneyPoolErrors.ReserveInactivated();
-    if (assetBond.state != DataStruct.AssetBondState.NOT_PERFORMED)
+    if (assetBond.state != DataStruct.AssetBondState.LIQUIDATED)
       revert MoneyPoolErrors.OnlyNotPerformedAssetBondLiquidatable(uint256(assetBond.state));
   }
 

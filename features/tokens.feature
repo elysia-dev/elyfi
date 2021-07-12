@@ -43,7 +43,7 @@ Feature: User interacts with Tokens
 
    User interacts with ABToken - Burn
    Background: Maturation
-      Given ABToken matured
+      Given ABToken delinquent
 
    Scenario: Burn ABToken after bond maturation
       Given Collateral service provider redeemed ABToken after repaying loan

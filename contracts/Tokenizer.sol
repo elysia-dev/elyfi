@@ -46,7 +46,7 @@ contract Tokenizer is ITokenizer, TokenizerStorage, ERC721 {
 
   /**
    * @notice Returns the state of the asset bond
-   * @dev The state of the asset bond is `NOT_PERFORMED` when the current timestamp is greater than
+   * @dev The state of the asset bond is `LIQUIDATED` when the current timestamp is greater than
    * liquidation timestamp.
    * @param tokenId The asset bond tokenId
    * @return The data struct of the asset bond
@@ -62,7 +62,7 @@ contract Tokenizer is ITokenizer, TokenizerStorage, ERC721 {
       block.timestamp >= assetBondData.liquidationTimestamp &&
       assetBondData.state == DataStruct.AssetBondState.COLLATERALIZED
     ) {
-      assetBondData.state = DataStruct.AssetBondState.NOT_PERFORMED;
+      assetBondData.state = DataStruct.AssetBondState.LIQUIDATED;
     }
 
     return assetBondData;
@@ -139,9 +139,9 @@ contract Tokenizer is ITokenizer, TokenizerStorage, ERC721 {
    * @param borrower The address of the borrower who must repay and retrieve the asset bond
    * @param signer A third-party agency address that reviews entities listed on the asset bond data
    * @param tokenId Token id to settle
-   * @param principal The borrow amount based on the contract between collateral service provider and borrower in reality
+   * @param principle The borrow amount based on the contract between collateral service provider and borrower in reality
    * @param couponRate The coupon rate of the bond
-   * @param overdueInterestRate The overdue interest rate of the bond. After the loan duration, the borrower
+   * @param delinquencyRate The overdue interest rate of the bond. After the loan duration, the borrower
    * @param debtCeiling .
    * @param loanDuration .
    * @param loanStartTimeYear .
@@ -154,9 +154,9 @@ contract Tokenizer is ITokenizer, TokenizerStorage, ERC721 {
     address borrower,
     address signer,
     uint256 tokenId,
-    uint256 principal,
+    uint256 principle,
     uint256 couponRate,
-    uint256 overdueInterestRate,
+    uint256 delinquencyRate,
     uint256 debtCeiling,
     uint16 loanDuration,
     uint16 loanStartTimeYear,
@@ -189,11 +189,11 @@ contract Tokenizer is ITokenizer, TokenizerStorage, ERC721 {
       borrower: borrower,
       signer: signer,
       collateralServiceProvider: msg.sender,
-      principal: principal,
+      principle: principle,
       debtCeiling: debtCeiling,
       couponRate: couponRate,
       interestRate: 0,
-      overdueInterestRate: overdueInterestRate,
+      delinquencyRate: delinquencyRate,
       loanStartTimestamp: vars.loanStartTimestamp,
       maturityTimestamp: vars.maturityTimestamp,
       liquidationTimestamp: vars.liquidationTimestamp,
@@ -210,9 +210,9 @@ contract Tokenizer is ITokenizer, TokenizerStorage, ERC721 {
       borrower,
       signer,
       tokenId,
-      principal,
+      principle,
       couponRate,
-      overdueInterestRate,
+      delinquencyRate,
       debtCeiling,
       vars.maturityTimestamp,
       vars.liquidationTimestamp,
@@ -228,7 +228,7 @@ contract Tokenizer is ITokenizer, TokenizerStorage, ERC721 {
    * The review is following four items.
    * Determination of the authenticity of collateral security details entered in real estate registration
    * Determination of the authenticity of the contract between a real estate owner and a collateral service provider
-   * Determination of the value of principal and interest through certificates of seal impressions
+   * Determination of the value of principle and interest through certificates of seal impressions
    * of real estate owners and lenders
    * Determination of whether the important information entered in smart contracts match the contract content
    * This allows the asset bond tokens to be recognized as collateral on the blockchain.
@@ -299,7 +299,7 @@ contract Tokenizer is ITokenizer, TokenizerStorage, ERC721 {
    */
   function liquidateAssetBond(address account, uint256 tokenId) external override onlyMoneyPool {
     DataStruct.AssetBondData storage assetBond = _assetBondData[tokenId];
-    assetBond.state = DataStruct.AssetBondState.NOT_PERFORMED;
+    assetBond.state = DataStruct.AssetBondState.LIQUIDATED;
     transferFrom(address(_moneyPool), account, tokenId);
     emit AssetBondLiquidated(account, tokenId);
   }

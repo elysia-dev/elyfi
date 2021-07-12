@@ -16,7 +16,7 @@ library MoneyPoolErrors {
   error ReserveInactivated();
   error InvalidAmount(uint256 amount);
   error WithdrawInsufficientBalance(uint256 amount, uint256 userLTokenBalance);
-  error MaturedAssetBond();
+  error DelinquentAssetBond();
   error NotDepositedAssetBond();
   error NotSettledAssetBond(uint256 id);
   error NotSignedAssetBond(uint256 id);
@@ -33,7 +33,7 @@ library MoneyPoolErrors {
   error OnlyMoneyPoolAdmin();
   error TimeOutForCollateralize();
   error OnlyNotPerformedAssetBondLiquidatable(uint256 tokenState);
-  error OnlyCollateralizedOrMaturedAssetBondRepayable(uint256 tokenState);
+  error OnlyCollateralizedOrDelinquentAssetBondRepayable(uint256 tokenState);
 }
 
 library TokenErrors {

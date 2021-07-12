@@ -126,7 +126,7 @@ task('testnet:borrow', 'Create a loan on the token id')
 
     const file = require(`../../data/assetBond/testnet/assetBond_test_${args.data}`);
     assetBondSettleData = file.data;
-    if (!assetBondSettleData.principal) {
+    if (!assetBondSettleData.principle) {
       console.log('No data');
       return;
     }
@@ -134,7 +134,7 @@ task('testnet:borrow', 'Create a loan on the token id')
     const tokenId = assetBondSettleData.tokenId;
 
     const assetBondData = await tokenizer.getAssetBondData(tokenId);
-    const borrowPrincipal = assetBondData.principal;
+    const borrowprinciple = assetBondData.principle;
     const loanStartTimestamp = assetBondData.loanStartTimestamp.toNumber();
 
     const currentTimestamp = (await hre.ethers.provider.getBlock('latest')).timestamp;
@@ -151,7 +151,7 @@ task('testnet:borrow', 'Create a loan on the token id')
       console.log(tokenId);
       await moneyPool.connect(collateralServiceProvider).borrow(underlyingAsset.address, tokenId);
       console.log(
-        `The collateral service provider borrows against ${args.data} which principal amount is ${borrowPrincipal}`
+        `The collateral service provider borrows against ${args.data} which principle amount is ${borrowprinciple}`
       );
     }
   });
@@ -192,7 +192,7 @@ task('testnet:repay', 'Create repay on an asset bond')
 
     const file = require(`../../data/assetBond/testnet/assetBond_test_${args.data}`);
     assetBondSettleData = file.data;
-    if (!assetBondSettleData.principal) {
+    if (!assetBondSettleData.principle) {
       console.log('No data');
       return;
     }

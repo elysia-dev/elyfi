@@ -25,7 +25,7 @@ describe('MoneyPool.liquidation', () => {
 
   testAssetBondData.borrower = borrower.address;
   testAssetBondData.signer = signer.address;
-  testAssetBondData.principal = ethers.utils.parseEther('1');
+  testAssetBondData.principle = ethers.utils.parseEther('1');
 
   beforeEach('The asset bond is collateralized properly', async () => {
     const fixture = await loadFixture(utilizedMoneypool);
@@ -71,7 +71,7 @@ describe('MoneyPool.liquidation', () => {
     ).to.be.revertedWith('OnlyCollateralServiceProvider');
   });
 
-  it('reverts if the asset bond state is not `NOT_PERFORMED` state', async () => {
+  it('reverts if the asset bond state is not `LIQUIDATED` state', async () => {
     await expect(
       elyfiContracts.moneyPool
         .connect(liquidator)
@@ -79,7 +79,7 @@ describe('MoneyPool.liquidation', () => {
     ).to.be.revertedWith('OnlyNotPerformedAssetBondLiquidatable');
   });
 
-  context('when the asset bond state is `NOT_PERFORMED`', async () => {
+  context('when the asset bond state is `LIQUIDATED`', async () => {
     beforeEach('Time passes', async () => {
       const assetBondData = await elyfiContracts.tokenizer.getAssetBondData(
         testAssetBondData.tokenId

@@ -29,10 +29,9 @@ library Index {
       return reserve.lTokenInterestIndex;
     }
 
-    uint256 newIndex =
-      Math.calculateLinearInterest(reserve.depositAPY, lastUpdateTimestamp, block.timestamp).rayMul(
-        reserve.lTokenInterestIndex
-      );
+    uint256 newIndex = Math
+    .calculateLinearInterest(reserve.depositAPY, lastUpdateTimestamp, block.timestamp)
+    .rayMul(reserve.lTokenInterestIndex);
 
     return newIndex;
   }

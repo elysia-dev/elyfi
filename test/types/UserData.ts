@@ -5,7 +5,7 @@ interface UserData {
   lTokenBalance: BigNumber;
   implicitLtokenBalance: BigNumber;
   dTokenBalance: BigNumber;
-  principalDTokenBalance: BigNumber;
+  principleDTokenBalance: BigNumber;
   averageRealAssetBorrowRate: BigNumber;
   userLastUpdateTimestamp: BigNumber;
 }

@@ -81,7 +81,7 @@ library AssetBond {
       assetBondData.interestRate,
       assetBondData.collateralizeTimestamp,
       block.timestamp
-    ).rayMul(assetBondData.principal);
+    ).rayMul(assetBondData.principle);
 
     uint256 feeOnCollateralServiceProvider = calculateFeeOnRepayment(
       assetBondData,
@@ -138,7 +138,7 @@ library AssetBond {
 
       vars.totalRate = vars.firstTermRate + vars.secondTermRate + vars.thirdTermRate;
 
-      return assetBondData.principal.rayMul(vars.totalRate) - assetBondData.principal;
+      return assetBondData.principle.rayMul(vars.totalRate) - assetBondData.principle;
     }
 
     vars.secondTermRate =
@@ -150,14 +150,14 @@ library AssetBond {
       WadRayMath.ray();
     vars.secondTermOverdueRate =
       Math.calculateCompoundedInterest(
-        assetBondData.couponRate + assetBondData.overdueInterestRate - assetBondData.interestRate,
+        assetBondData.couponRate + assetBondData.delinquencyRate - assetBondData.interestRate,
         assetBondData.maturityTimestamp,
         paymentTimestamp
       ) -
       WadRayMath.ray();
     vars.thirdTermRate =
       Math.calculateCompoundedInterest(
-        assetBondData.couponRate + assetBondData.overdueInterestRate,
+        assetBondData.couponRate + assetBondData.delinquencyRate,
         paymentTimestamp,
         vars.paymentDate
       ) -
@@ -169,7 +169,7 @@ library AssetBond {
       vars.secondTermOverdueRate +
       vars.thirdTermRate;
 
-    return assetBondData.principal.rayMul(vars.totalRate) - assetBondData.principal;
+    return assetBondData.principle.rayMul(vars.totalRate) - assetBondData.principle;
   }
 
   function getAssetBondLiquidationData(DataStruct.AssetBondData memory assetBondData)
@@ -182,7 +182,7 @@ library AssetBond {
       assetBondData.interestRate,
       assetBondData.collateralizeTimestamp,
       block.timestamp
-    ).rayMul(assetBondData.principal);
+    ).rayMul(assetBondData.principle);
 
     uint256 feeOnCollateralServiceProvider = calculateDebtAmountToLiquidation(
       assetBondData,
@@ -220,13 +220,13 @@ library AssetBond {
 
     vars.secondTermRate =
       Math.calculateCompoundedInterest(
-        assetBondData.couponRate + assetBondData.overdueInterestRate,
+        assetBondData.couponRate + assetBondData.delinquencyRate,
         assetBondData.maturityTimestamp,
         vars.paymentDate
       ) -
       WadRayMath.ray();
     vars.totalRate = vars.firstTermRate + vars.secondTermRate;
 
-    return assetBondData.principal.rayMul(vars.totalRate) - assetBondData.principal;
+    return assetBondData.principle.rayMul(vars.totalRate) - assetBondData.principle;
   }
 }

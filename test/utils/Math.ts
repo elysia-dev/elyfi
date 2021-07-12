@@ -189,7 +189,7 @@ export function calculateFeeOnRepayment(
 
     totalRate = firstTermRate.add(secondTermRate).add(thirdTermRate);
 
-    return rayMul(assetBondData.principal, totalRate).sub(assetBondData.principal);
+    return rayMul(assetBondData.principle, totalRate).sub(assetBondData.principle);
   }
 
   secondTermRate = calculateCompoundedInterest(
@@ -199,20 +199,20 @@ export function calculateFeeOnRepayment(
   ).sub(RAY);
 
   secondOverdueRate = calculateCompoundedInterest(
-    assetBondData.couponRate.add(assetBondData.overdueInterestRate).sub(assetBondData.interestRate),
+    assetBondData.couponRate.add(assetBondData.delinquencyRate).sub(assetBondData.interestRate),
     assetBondData.maturityTimestamp,
     paymentTimestamp
   ).sub(RAY);
 
   thirdTermRate = calculateCompoundedInterest(
-    assetBondData.couponRate.add(assetBondData.overdueInterestRate),
+    assetBondData.couponRate.add(assetBondData.delinquencyRate),
     paymentTimestamp,
     BigNumber.from(paymentDate)
   ).sub(RAY);
 
   totalRate = firstTermRate.add(secondTermRate).add(secondOverdueRate).add(thirdTermRate);
 
-  return rayMul(assetBondData.principal, totalRate).sub(assetBondData.principal);
+  return rayMul(assetBondData.principle, totalRate).sub(assetBondData.principle);
 }
 
 export function calculateFeeOnLiquidation(
@@ -239,14 +239,14 @@ export function calculateFeeOnLiquidation(
     ) / 1000;
 
   secondTermRate = calculateCompoundedInterest(
-    assetBondData.couponRate.add(assetBondData.overdueInterestRate),
+    assetBondData.couponRate.add(assetBondData.delinquencyRate),
     assetBondData.maturityTimestamp,
     BigNumber.from(paymentDate)
   ).sub(RAY);
 
   totalRate = firstTermRate.add(secondTermRate);
 
-  return rayMul(assetBondData.principal, totalRate).sub(assetBondData.principal);
+  return rayMul(assetBondData.principle, totalRate).sub(assetBondData.principle);
 }
 
 export function calculateAssetBondDebtData(
@@ -257,7 +257,7 @@ export function calculateAssetBondDebtData(
   let feeOnRepayment: BigNumber;
 
   accruedDebtOnMoneyPool = rayMul(
-    assetBondData.principal,
+    assetBondData.principle,
     calculateCompoundedInterest(
       assetBondData.interestRate,
       assetBondData.collateralizeTimestamp,
@@ -278,7 +278,7 @@ export function calculateAssetBondLiquidationData(
   let feeOnRepayment: BigNumber;
 
   accruedDebtOnMoneyPool = rayMul(
-    assetBondData.principal,
+    assetBondData.principle,
     calculateCompoundedInterest(
       assetBondData.interestRate,
       assetBondData.collateralizeTimestamp,

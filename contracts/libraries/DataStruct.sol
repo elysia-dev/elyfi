@@ -10,7 +10,6 @@ library DataStruct {
     uint256 lTokenInterestIndex;
     uint256 borrowAPY;
     uint256 depositAPY;
-    uint256 totalDepositedAssetBondCount;
     uint256 lastUpdateTimestamp;
     address lTokenAddress;
     address dTokenAddress;
@@ -34,11 +33,11 @@ library DataStruct {
     address borrower;
     address signer;
     address collateralServiceProvider;
-    uint256 principal;
+    uint256 principle;
     uint256 debtCeiling;
     uint256 couponRate;
     uint256 interestRate;
-    uint256 overdueInterestRate;
+    uint256 delinquencyRate;
     uint256 loanStartTimestamp;
     uint256 collateralizeTimestamp;
     uint256 maturityTimestamp;
@@ -66,17 +65,17 @@ library DataStruct {
     * SETTLED:
     * CONFIRMED:
     * COLLATERALIZED:
-    * MATURED:
+    * DELINQUENT:
     * REDEEMED:
-    * NOT_PERFORMED:
+    * LIQUIDATED:
    */
   enum AssetBondState {
     EMPTY,
     SETTLED,
     CONFIRMED,
     COLLATERALIZED,
-    MATURED,
+    DELINQUENT,
     REDEEMED,
-    NOT_PERFORMED
+    LIQUIDATED
   }
 }

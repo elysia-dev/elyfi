@@ -33,7 +33,7 @@ function applyTxTimeStamp(reserveData: ReserveData, txTimestamp: BigNumber): Res
   }
 
   newReserveData.totalDTokenSupply = rayMul(
-    reserveData.principalDTokenSupply,
+    reserveData.principleDTokenSupply,
     calculateCompoundedInterest(
       reserveData.averageRealAssetBorrowRate,
       reserveData.dTokenLastUpdateTimestamp,
@@ -148,7 +148,7 @@ export function expectUserDataAfterDeposit({
 
   // update dToken balance
   const dTokenBalance = rayMul(
-    userDataBefore.principalDTokenBalance,
+    userDataBefore.principleDTokenBalance,
     calculateCompoundedInterest(
       userDataBefore.averageRealAssetBorrowRate,
       userDataBefore.userLastUpdateTimestamp,
@@ -189,7 +189,7 @@ export function expectUserDataAfterWithdraw({
 
   // update dToken balance
   expectedUserData.dTokenBalance = rayMul(
-    userDataBefore.principalDTokenBalance,
+    userDataBefore.principleDTokenBalance,
     calculateCompoundedInterest(
       userDataBefore.averageRealAssetBorrowRate,
       userDataBefore.userLastUpdateTimestamp,
@@ -225,7 +225,7 @@ export function expectReserveDataAfterBorrow({
   );
 
   const previousUpdatedDTokenBalance = rayMul(
-    reserveDataBefore.principalDTokenSupply,
+    reserveDataBefore.principleDTokenSupply,
     dTokenAccruedInterest
   );
 
@@ -237,7 +237,7 @@ export function expectReserveDataAfterBorrow({
     reserveDataBefore.borrowAPY
   );
 
-  expectedReserveData.principalDTokenSupply = totalDTokenSupply;
+  expectedReserveData.principleDTokenSupply = totalDTokenSupply;
   expectedReserveData.totalDTokenSupply = totalDTokenSupply;
   expectedReserveData.dTokenLastUpdateTimestamp = txTimestamp;
 
@@ -281,7 +281,7 @@ export function expectUserDataAfterBorrow({
 
   // update and mint dToken balance
   const previousUpdatedDTokenBalance = rayMul(
-    userDataBefore.principalDTokenBalance,
+    userDataBefore.principleDTokenBalance,
     calculateCompoundedInterest(
       userDataBefore.averageRealAssetBorrowRate,
       userDataBefore.userLastUpdateTimestamp,
@@ -291,7 +291,7 @@ export function expectUserDataAfterBorrow({
   const dTokenBalance = previousUpdatedDTokenBalance.add(amountBorrow);
 
   expectedUserData.dTokenBalance = dTokenBalance;
-  expectedUserData.principalDTokenBalance = dTokenBalance;
+  expectedUserData.principleDTokenBalance = dTokenBalance;
 
   // update average Borrow rate and timestamp
   const averageRealAssetBorrowRate = calculateRateInIncreasingBalance(
@@ -335,7 +335,7 @@ export function expectReserveDataAfterRepay({
     txTimestamp
   );
   const previousUpdatedDTokenBalance = rayMul(
-    reserveData.principalDTokenSupply,
+    reserveData.principleDTokenSupply,
     dTokenAccruedInterest
   );
   const totalDTokenSupply = previousUpdatedDTokenBalance.sub(accruedDebtOnMoneyPool);
@@ -347,7 +347,7 @@ export function expectReserveDataAfterRepay({
     accruedDebtOnMoneyPool,
     assetBondData.interestRate
   );
-  newReserveData.principalDTokenSupply = totalDTokenSupply;
+  newReserveData.principleDTokenSupply = totalDTokenSupply;
   newReserveData.totalDTokenSupply = totalDTokenSupply;
   newReserveData.averageRealAssetBorrowRate = newAverageRealAssetBorrowRate;
 
@@ -409,7 +409,7 @@ export function expectUserDataAfterRepay({
 
   // update and burn dToken balance
   const previousUpdatedDTokenBalance = rayMul(
-    userDataBefore.principalDTokenBalance,
+    userDataBefore.principleDTokenBalance,
     calculateCompoundedInterest(
       userDataBefore.averageRealAssetBorrowRate,
       userDataBefore.userLastUpdateTimestamp,
@@ -419,7 +419,7 @@ export function expectUserDataAfterRepay({
   const dTokenBalance = previousUpdatedDTokenBalance.sub(accruedDebtOnMoneyPool);
 
   expectedUserData.dTokenBalance = dTokenBalance;
-  expectedUserData.principalDTokenBalance = dTokenBalance;
+  expectedUserData.principleDTokenBalance = dTokenBalance;
 
   // update average Borrow rate and timestamp
   if (dTokenBalance.eq(0)) {
@@ -470,7 +470,7 @@ export function expectReserveDataAfterLiquidate({
     txTimestamp
   );
   const previousUpdatedDTokenBalance = rayMul(
-    reserveData.principalDTokenSupply,
+    reserveData.principleDTokenSupply,
     dTokenAccruedInterest
   );
   const totalDTokenSupply = previousUpdatedDTokenBalance.sub(accruedDebtOnMoneyPool);
@@ -482,7 +482,7 @@ export function expectReserveDataAfterLiquidate({
     accruedDebtOnMoneyPool,
     assetBondData.interestRate
   );
-  newReserveData.principalDTokenSupply = totalDTokenSupply;
+  newReserveData.principleDTokenSupply = totalDTokenSupply;
   newReserveData.totalDTokenSupply = totalDTokenSupply;
   newReserveData.averageRealAssetBorrowRate = newAverageRealAssetBorrowRate;
 
@@ -544,7 +544,7 @@ export function expectUserDataAfterLiquidate({
 
   // update and burn dToken balance
   const previousUpdatedDTokenBalance = rayMul(
-    userDataBefore.principalDTokenBalance,
+    userDataBefore.principleDTokenBalance,
     calculateCompoundedInterest(
       userDataBefore.averageRealAssetBorrowRate,
       userDataBefore.userLastUpdateTimestamp,
@@ -554,7 +554,7 @@ export function expectUserDataAfterLiquidate({
   const dTokenBalance = previousUpdatedDTokenBalance.sub(accruedDebtOnMoneyPool);
 
   expectedUserData.dTokenBalance = dTokenBalance;
-  expectedUserData.principalDTokenBalance = dTokenBalance;
+  expectedUserData.principleDTokenBalance = dTokenBalance;
 
   // update average Borrow rate and timestamp
   if (dTokenBalance.eq(0)) {
@@ -606,7 +606,7 @@ export function expectAssetBondDataAfterLiquidate({
 
   expectedAssetBondData.feeOnCollateralServiceProvider = constants.Zero;
 
-  expectedAssetBondData.state = AssetBondState.NOT_PERFORMED;
+  expectedAssetBondData.state = AssetBondState.LIQUIDATED;
 
   expectedAssetBondData.tokenOwner = liquidator.address;
 

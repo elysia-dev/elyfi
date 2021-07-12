@@ -140,13 +140,11 @@ describe('Tokenizer.settle', () => {
         expect(assetBondData.borrower).to.be.equal(testAssetBondData.borrower);
         expect(assetBondData.signer).to.be.equal(testAssetBondData.signer);
         expect(assetBondData.collateralServiceProvider).to.be.equal(CSP.address);
-        expect(assetBondData.principal).to.be.equal(testAssetBondData.principal);
+        expect(assetBondData.principle).to.be.equal(testAssetBondData.principle);
         expect(assetBondData.debtCeiling).to.be.equal(testAssetBondData.debtCeiling);
         expect(assetBondData.couponRate).to.be.equal(testAssetBondData.couponRate);
         expect(assetBondData.interestRate).to.be.equal(constants.Zero);
-        expect(assetBondData.overdueInterestRate).to.be.equal(
-          testAssetBondData.overdueInterestRate
-        );
+        expect(assetBondData.delinquencyRate).to.be.equal(testAssetBondData.delinquencyRate);
         expect(assetBondData.loanStartTimestamp).to.be.equal(expectedLoanStartTimestamp);
         expect(assetBondData.collateralizeTimestamp).to.be.equal(constants.Zero);
         expect(assetBondData.maturityTimestamp).to.be.equal(expectedMaturityTimestamp);

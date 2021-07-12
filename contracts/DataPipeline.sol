@@ -26,7 +26,7 @@ contract DataPipeline {
     uint256 lTokenBalance;
     uint256 implicitLtokenBalance;
     uint256 dTokenBalance;
-    uint256 principalDTokenBalance;
+    uint256 principleDTokenBalance;
     uint256 averageRealAssetBorrowRate;
     uint256 lastUpdateTimestamp;
   }
@@ -46,9 +46,9 @@ contract DataPipeline {
     vars.lTokenBalance = ILToken(reserve.lTokenAddress).balanceOf(user);
     vars.implicitLtokenBalance = ILToken(reserve.lTokenAddress).implicitBalanceOf(user);
     vars.dTokenBalance = IDToken(reserve.dTokenAddress).balanceOf(user);
-    vars.principalDTokenBalance = IDToken(reserve.dTokenAddress).principalBalanceOf(user);
+    vars.principleDTokenBalance = IDToken(reserve.dTokenAddress).principleBalanceOf(user);
     vars.averageRealAssetBorrowRate = IDToken(reserve.dTokenAddress)
-      .getUserAverageRealAssetBorrowRate(user);
+    .getUserAverageRealAssetBorrowRate(user);
     vars.lastUpdateTimestamp = IDToken(reserve.dTokenAddress).getUserLastUpdateTimestamp(user);
 
     return vars;
@@ -58,7 +58,7 @@ contract DataPipeline {
     uint256 totalLTokenSupply;
     uint256 implicitLTokenSupply;
     uint256 lTokenInterestIndex;
-    uint256 principalDTokenSupply;
+    uint256 principleDTokenSupply;
     uint256 totalDTokenSupply;
     uint256 averageRealAssetBorrowRate;
     uint256 dTokenLastUpdateTimestamp;
@@ -78,7 +78,7 @@ contract DataPipeline {
     vars.implicitLTokenSupply = ILToken(reserve.lTokenAddress).implicitTotalSupply();
     vars.lTokenInterestIndex = reserve.lTokenInterestIndex;
     (
-      vars.principalDTokenSupply,
+      vars.principleDTokenSupply,
       vars.totalDTokenSupply,
       vars.averageRealAssetBorrowRate,
       vars.dTokenLastUpdateTimestamp
@@ -106,16 +106,14 @@ contract DataPipeline {
 
     DataStruct.ReserveData memory reserve = moneyPool.getReserveData(asset);
 
-    DataStruct.AssetBondData memory assetBond =
-      ITokenizer(reserve.tokenizerAddress).getAssetBondData(tokenId);
+    DataStruct.AssetBondData memory assetBond = ITokenizer(reserve.tokenizerAddress)
+    .getAssetBondData(tokenId);
 
     vars.tokenOwner = ITokenizer(reserve.tokenizerAddress).ownerOf(tokenId);
     vars.assetBondState = assetBond.state;
     (vars.debtOnMoneyPool, vars.feeOnCollateralServiceProvider) = ITokenizer(
-      reserve
-        .tokenizerAddress
-    )
-      .getAssetBondDebtData(tokenId);
+      reserve.tokenizerAddress
+    ).getAssetBondDebtData(tokenId);
 
     return vars;
   }

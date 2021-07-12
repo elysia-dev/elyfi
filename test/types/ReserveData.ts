@@ -11,7 +11,7 @@ interface ReserveData {
   totalLTokenSupply: BigNumber;
   implicitLTokenSupply: BigNumber;
   lTokenInterestIndex: BigNumber;
-  principalDTokenSupply: BigNumber;
+  principleDTokenSupply: BigNumber;
   totalDTokenSupply: BigNumber;
   averageRealAssetBorrowRate: BigNumber;
   borrowAPY: BigNumber;

@@ -52,7 +52,7 @@ task('testnet:createSignedAssetBond', 'Create signed asset bond from production 
 
     const file = require(`../../data/assetBond/testnet/assetBond_test_${args.data}`);
     assetBondSettleData = file.data;
-    if (!assetBondSettleData.principal) {
+    if (!assetBondSettleData.principle) {
       console.log('No data');
       return;
     }
@@ -88,9 +88,9 @@ task('testnet:createSignedAssetBond', 'Create signed asset bond from production 
         borrower.address,
         signer.address,
         tokenId,
-        assetBondSettleData.principal,
+        assetBondSettleData.principle,
         assetBondSettleData.couponRate,
-        assetBondSettleData.overdueInterestRate,
+        assetBondSettleData.delinquencyRate,
         assetBondSettleData.debtCeiling,
         assetBondSettleData.loanDuration,
         assetBondSettleData.loanStartTimeYear,
@@ -110,12 +110,12 @@ task('testnet:createSignedAssetBond', 'Create signed asset bond from production 
     await tokenizer.connect(txSender).approve(moneyPool.address, tokenId);
 
     const assetBondData = await tokenizer.getAssetBondData(tokenId);
-    const borrowPrincipal = assetBondData.principal;
+    const borrowprinciple = assetBondData.principle;
 
     console.log(
       `${txSender.address.substr(0, 10)} is ready for collateralizing ${
         args.data
-      }!. The borrow principal is ${borrowPrincipal.toString()} and token id is ${tokenId}`
+      }!. The borrow principle is ${borrowprinciple.toString()} and token id is ${tokenId}`
     );
   });
 
@@ -123,7 +123,7 @@ task('testnet:createSignedAssetBondForTest', 'Create signed asset bond for only 
   .addOptionalParam('txSender', 'The tx txSender, default: collateral service provider')
   .addParam('nonce', 'The nonce of the asset bond')
   .addOptionalParam('loanStart', 'The loan start day, default: tomorrow, example: 2020-01-02')
-  .addOptionalParam('amount', 'The principal of the bond, default: 50')
+  .addOptionalParam('amount', 'The principle of the bond, default: 50')
   .setAction(async (args: Args, hre: HardhatRuntimeEnvironment) => {
     let txSender: SignerWithAddress;
     let amount: string;
@@ -172,7 +172,7 @@ task('testnet:createSignedAssetBondForTest', 'Create signed asset bond for only 
     amount =
       args.amount != undefined
         ? hre.ethers.utils.parseEther(args.amount).toString()
-        : assetBondSettleData.principal.toString();
+        : assetBondSettleData.principle.toString();
 
     const isCollateralServiceProvider = await connector.isCollateralServiceProvider(
       txSender.address
@@ -219,9 +219,9 @@ task('testnet:createSignedAssetBondForTest', 'Create signed asset bond for only 
       borrower.address,
       signer.address,
       tokenId,
-      testAssetBondData.principal,
+      testAssetBondData.principle,
       testAssetBondData.couponRate,
-      testAssetBondData.overdueInterestRate,
+      testAssetBondData.delinquencyRate,
       testAssetBondData.debtCeiling,
       testAssetBondData.loanDuration,
       loanStartDate.getUTCFullYear(),
@@ -238,12 +238,12 @@ task('testnet:createSignedAssetBondForTest', 'Create signed asset bond for only 
     await tokenizer.connect(txSender).approve(moneyPool.address, tokenId);
 
     const assetBondData = await tokenizer.getAssetBondData(tokenId);
-    const borrowPrincipal = assetBondData.principal;
+    const borrowprinciple = assetBondData.principle;
 
     console.log(
       `${txSender.address.substr(0, 10)} is ready for collateralizing ${
         args.bond
-      }!. The borrow principal is ${borrowPrincipal.toString()}`
+      }!. The borrow principle is ${borrowprinciple.toString()}`
     );
   });
 
@@ -269,9 +269,9 @@ task('testnet:settleAssetBond', 'settle empty asset bond')
         borrower.address,
         signer.address,
         tokenId,
-        testAssetBondData.principal,
+        testAssetBondData.principle,
         testAssetBondData.couponRate,
-        testAssetBondData.overdueInterestRate,
+        testAssetBondData.delinquencyRate,
         testAssetBondData.debtCeiling,
         testAssetBondData.loanDuration,
         testAssetBondData.loanStartTimeYear,

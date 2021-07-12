@@ -9,11 +9,11 @@ interface AssetBondData {
   borrower: string;
   signer: string;
   collateralServiceProvider: string;
-  principal: BigNumber;
+  principle: BigNumber;
   debtCeiling: BigNumber;
   couponRate: BigNumber;
   interestRate: BigNumber;
-  overdueInterestRate: BigNumber;
+  delinquencyRate: BigNumber;
   loanStartTimestamp: BigNumber;
   collateralizeTimestamp: BigNumber;
   maturityTimestamp: BigNumber;

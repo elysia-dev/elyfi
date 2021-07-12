@@ -3,9 +3,9 @@ enum AssetBondState {
   SETTLED,
   CONFIRMED,
   COLLATERALIZED,
-  MATURED,
+  DELINQUENT,
   REDEEMED,
-  NOT_PERFORMED,
+  LIQUIDATED,
 }
 
 export default AssetBondState;
