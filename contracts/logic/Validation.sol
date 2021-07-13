@@ -33,6 +33,7 @@ library Validation {
    **/
   function validateWithdraw(
     DataStruct.ReserveData storage reserve,
+    address asset,
     uint256 amount,
     uint256 userLTokenBalance
   ) internal view {
@@ -41,6 +42,9 @@ library Validation {
     if (reserve.isActivated == false) revert MoneyPoolErrors.ReserveInactivated();
     if (amount > userLTokenBalance)
       revert MoneyPoolErrors.WithdrawInsufficientBalance(amount, userLTokenBalance);
+    uint256 availableLiquidity = IERC20(asset).balanceOf(reserve.lTokenAddress);
+    if (availableLiquidity <= amount)
+      revert MoneyPoolErrors.NotEnoughLiquidityToWithdraw(availableLiquidity);
   }
 
   function validateBorrow(
@@ -108,7 +112,7 @@ library Validation {
       revert TokenizerErrors.LoanDurationInvalid();
   }
 
-  function validateTokenId(uint256 tokenId) internal {
+  function validateTokenId(uint256 tokenId) internal pure {
     // validate id
     //// error InvalidAssetBondID(id)
   }

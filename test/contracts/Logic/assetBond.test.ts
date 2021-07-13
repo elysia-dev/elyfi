@@ -25,7 +25,6 @@ describe('AssetBond', () => {
   };
 
   const assetBondId = tokenIdGenerator(assetBondIdData);
-  console.log(assetBondId.length);
 
   before('Governance added roles to each participant', async () => {
     elyfiContracts = await makeAllContracts();

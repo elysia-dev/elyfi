@@ -1,7 +1,11 @@
 import { constants, utils } from 'ethers';
 import { waffle } from 'hardhat';
 import { expect } from 'chai';
-import { expectReserveDataAfterDeposit, expectUserDataAfterWithdraw } from '../../utils/Expect';
+import {
+  expectReserveDataAfterDeposit,
+  expectReserveDataAfterWithdraw,
+  expectUserDataAfterWithdraw,
+} from '../../utils/Expect';
 import ElyfiContracts from '../../types/ElyfiContracts';
 import takeDataSnapshot from '../../utils/takeDataSnapshot';
 import loadFixture from '../../utils/loadFixture';
@@ -24,7 +28,7 @@ describe('MoneyPool.withdraw', () => {
 
     await elyfiContracts.underlyingAsset
       .connect(deployer)
-      .transfer(depositor.address, utils.parseEther('5000'));
+      .transfer(depositor.address, utils.parseEther('20'));
   });
 
   context('when an account deposited', async () => {
@@ -54,7 +58,7 @@ describe('MoneyPool.withdraw', () => {
 
         const [reserveDataAfter, userDataAfter] = await takeDataSnapshot(depositor, elyfiContracts);
 
-        const expectedReserveData = expectReserveDataAfterDeposit({
+        const expectedReserveData = expectReserveDataAfterWithdraw({
           amount: amountWithdraw,
           reserveData: reserveDataBefore,
           txTimestamp: await getTimestamp(tx),
@@ -66,13 +70,10 @@ describe('MoneyPool.withdraw', () => {
           txTimestamp: await getTimestamp(tx),
         });
 
+        console.log('contract', userDataAfter.underlyingAssetBalance.toString());
+
         expect(reserveDataAfter).to.equalReserveData(expectedReserveData);
         expect(userDataAfter).to.equalUserData(expectedUserData);
-
-        expect(await elyfiContracts.underlyingAsset.balanceOf(depositor.address)).to.eq(
-          utils.parseEther('4995')
-        );
-
         const reservedAfter = await reserved();
         expect(reservedBefore.sub(reservedAfter)).to.eq(utils.parseEther('5'));
       });
@@ -97,7 +98,7 @@ describe('MoneyPool.withdraw', () => {
           (await elyfiContracts.underlyingAsset.balanceOf(depositor.address)).sub(
             accountBalanceBefore
           )
-        ).to.gte(utils.parseEther('5000'));
+        ).to.gte(utils.parseEther('10'));
       });
     });
 

@@ -180,7 +180,7 @@ export function expectUserDataAfterWithdraw({
 
   // transfer underlyingAsset
   expectedUserData.underlyingAssetBalance =
-    userDataBefore.underlyingAssetBalance.sub(amountWithdraw);
+    userDataBefore.underlyingAssetBalance.add(amountWithdraw);
   // update lToken balance
   expectedUserData.lTokenBalance = rayMul(
     expectedUserData.implicitLtokenBalance,
