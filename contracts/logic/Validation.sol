@@ -1,8 +1,7 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.4;
+pragma solidity 0.8.3;
 
 import '../libraries/DataStruct.sol';
-import '../libraries/Errors.sol';
 import '../libraries/Math.sol';
 import '../interfaces/ILToken.sol';
 import 'hardhat/console.sol';
@@ -18,9 +17,9 @@ library Validation {
    * @param amount Deposit amount
    **/
   function validateDeposit(DataStruct.ReserveData storage reserve, uint256 amount) internal view {
-    if (amount == 0) revert MoneyPoolErrors.InvalidAmount(amount);
-    if (reserve.isPaused == true) revert MoneyPoolErrors.ReservePaused();
-    if (reserve.isActivated == false) revert MoneyPoolErrors.ReserveInactivated();
+    require(amount != 0, 'InvalidAmount');
+    require(reserve.isPaused != true, 'ReservePaused');
+    require(reserve.isActivated != false, 'ReserveInactivated');
   }
 
   /**
@@ -37,14 +36,12 @@ library Validation {
     uint256 amount,
     uint256 userLTokenBalance
   ) internal view {
-    if (amount == 0) revert MoneyPoolErrors.InvalidAmount(amount);
-    if (reserve.isPaused == true) revert MoneyPoolErrors.ReservePaused();
-    if (reserve.isActivated == false) revert MoneyPoolErrors.ReserveInactivated();
-    if (amount > userLTokenBalance)
-      revert MoneyPoolErrors.WithdrawInsufficientBalance(amount, userLTokenBalance);
+    require(amount != 0, 'InvalidAmount');
+    require(reserve.isPaused != true, 'ReservePaused');
+    require(reserve.isActivated != false, 'ReserveInactivated');
+    require(amount <= userLTokenBalance, 'WithdrawInsufficientBalance');
     uint256 availableLiquidity = IERC20(asset).balanceOf(reserve.lTokenAddress);
-    if (availableLiquidity <= amount)
-      revert MoneyPoolErrors.NotEnoughLiquidityToWithdraw(availableLiquidity);
+    require(availableLiquidity > amount, 'NotEnoughLiquidityToWithdraw');
   }
 
   function validateBorrow(
@@ -53,24 +50,14 @@ library Validation {
     address asset,
     uint256 borrowAmount
   ) internal view {
-    if (reserve.isPaused == true) revert MoneyPoolErrors.ReservePaused();
-    if (reserve.isActivated == false) revert MoneyPoolErrors.ReserveInactivated();
-
-    if (assetBond.state != DataStruct.AssetBondState.CONFIRMED)
-      revert MoneyPoolErrors.OnlySignedTokenBorrowAllowed();
-
-    if (msg.sender != assetBond.collateralServiceProvider)
-      revert MoneyPoolErrors.OnlyAssetBondOwnerBorrowAllowed();
-
+    require(reserve.isPaused != true, 'ReservePaused');
+    require(reserve.isActivated != false, 'ReserveInactivated');
+    require(assetBond.state == DataStruct.AssetBondState.CONFIRMED, 'OnlySignedTokenBorrowAllowed');
+    require(msg.sender == assetBond.collateralServiceProvider, 'OnlyAssetBondOwnerBorrowAllowed');
     uint256 availableLiquidity = IERC20(asset).balanceOf(reserve.lTokenAddress);
-
-    if (availableLiquidity <= borrowAmount) revert MoneyPoolErrors.NotEnoughLiquidityToLoan();
-
-    if (block.timestamp < assetBond.loanStartTimestamp)
-      revert MoneyPoolErrors.NotTimeForLoanStart();
-
-    if (assetBond.loanStartTimestamp + 18 hours < block.timestamp)
-      revert MoneyPoolErrors.TimeOutForCollateralize();
+    require(availableLiquidity > borrowAmount, 'NotEnoughLiquidityToLoan');
+    require(block.timestamp >= assetBond.loanStartTimestamp, 'NotTimeForLoanStart');
+    require(assetBond.loanStartTimestamp + 18 hours >= block.timestamp, 'TimeOutForCollateralize');
   }
 
   function validateLTokenTrasfer() internal pure {}
@@ -79,37 +66,34 @@ library Validation {
     DataStruct.ReserveData storage reserve,
     DataStruct.AssetBondData memory assetBond
   ) internal view {
-    if (reserve.isActivated == false) revert MoneyPoolErrors.ReserveInactivated();
-    if (block.timestamp >= assetBond.liquidationTimestamp) revert MoneyPoolErrors.LoanExpired();
-    if (
-      !(assetBond.state == DataStruct.AssetBondState.COLLATERALIZED ||
-        assetBond.state == DataStruct.AssetBondState.DELINQUENT)
-    )
-      revert MoneyPoolErrors.OnlyCollateralizedOrDelinquentAssetBondRepayable(
-        uint256(assetBond.state)
-      );
+    require(reserve.isActivated != false, 'ReserveInactivated');
+    require(block.timestamp < assetBond.liquidationTimestamp, 'LoanExpired');
+    require(
+      (assetBond.state == DataStruct.AssetBondState.COLLATERALIZED ||
+        assetBond.state == DataStruct.AssetBondState.DELINQUENT),
+      'OnlyCollateralizedOrDelinquentAssetBondRepayable'
+    );
   }
 
   function validateLiquidation(
     DataStruct.ReserveData storage reserve,
     DataStruct.AssetBondData memory assetBond
   ) internal view {
-    if (reserve.isActivated == false) revert MoneyPoolErrors.ReserveInactivated();
-    if (assetBond.state != DataStruct.AssetBondState.LIQUIDATED)
-      revert MoneyPoolErrors.OnlyNotPerformedAssetBondLiquidatable(uint256(assetBond.state));
+    require(reserve.isActivated != false, 'ReserveInactivated');
+    require(
+      assetBond.state == DataStruct.AssetBondState.LIQUIDATED,
+      'OnlyNotPerformedAssetBondLiquidatable'
+    );
   }
 
   function validateSignAssetBond(DataStruct.AssetBondData storage assetBond) internal view {
-    if (assetBond.state != DataStruct.AssetBondState.SETTLED)
-      revert TokenizerErrors.OnlySettledTokenSignAllowed();
-    if (assetBond.signer != msg.sender) revert TokenizerErrors.OnlyDesignatedSignerAllowed();
+    require(assetBond.state == DataStruct.AssetBondState.SETTLED, 'OnlySettledTokenSignAllowed');
+    require(assetBond.signer == msg.sender, 'OnlyDesignatedSignerAllowed');
   }
 
   function validateSettleAssetBond(DataStruct.AssetBondData memory assetBond) internal view {
-    if (block.timestamp >= assetBond.loanStartTimestamp)
-      revert TokenizerErrors.SettledLoanStartTimestampInvalid();
-    if (assetBond.loanStartTimestamp == assetBond.maturityTimestamp)
-      revert TokenizerErrors.LoanDurationInvalid();
+    require(block.timestamp < assetBond.loanStartTimestamp, 'SettledLoanStartTimestampInvalid');
+    require(assetBond.loanStartTimestamp != assetBond.maturityTimestamp, 'LoanDurationInvalid');
   }
 
   function validateTokenId(uint256 tokenId) internal pure {

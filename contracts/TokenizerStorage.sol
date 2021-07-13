@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.4;
+pragma solidity 0.8.3;
 
 import './libraries/DataStruct.sol';
 import './logic/Index.sol';
@@ -19,7 +19,7 @@ contract TokenizerStorage {
 
   address internal _underlyingAsset;
 
-  /// @notice A mapping from an asset bond's identifier to the asset bond data struct.
-  /// The token id is a unique identifier for asset bond.
+  // A mapping from an asset bond's identifier to the asset bond data struct.
+  // The token id is a unique identifier for asset bond.
   mapping(uint256 => DataStruct.AssetBondData) internal _assetBondData;
 }

@@ -19,7 +19,7 @@ const testMnemonic = 'suggest mirror pulp horn goat wagon body long fortune dirt
 
 const config: HardhatUserConfig = {
   solidity: {
-    version: '0.8.4',
+    version: '0.8.3',
     settings: {
       outputSelection: {
         '*': {

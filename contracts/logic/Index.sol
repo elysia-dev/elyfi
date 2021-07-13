@@ -1,8 +1,7 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.4;
+pragma solidity 0.8.3;
 
 import '../libraries/DataStruct.sol';
-import '../libraries/Errors.sol';
 import '../libraries/Math.sol';
 
 library Index {

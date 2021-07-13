@@ -1,9 +1,8 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.4;
+pragma solidity 0.8.3;
 
 import '@openzeppelin/contracts/token/ERC721/ERC721.sol';
 import './libraries/WadRayMath.sol';
-import './libraries/Errors.sol';
 import './libraries/DataStruct.sol';
 import './libraries/Math.sol';
 import './libraries/Role.sol';
@@ -112,8 +111,7 @@ contract Tokenizer is ITokenizer, TokenizerStorage, ERC721 {
     override
     onlyCollateralServiceProvider
   {
-    if (!_connector.isCollateralServiceProvider(account))
-      revert TokenizerErrors.MintedAssetBondReceiverNotAllowed(tokenId);
+    require(_connector.isCollateralServiceProvider(account), 'MintedAssetBondReceiverNotAllowed');
 
     // validate tokenId : tokenId should have information about
     Validation.validateTokenId(tokenId);
@@ -165,13 +163,14 @@ contract Tokenizer is ITokenizer, TokenizerStorage, ERC721 {
     string memory ipfsHash
   ) external onlyCollateralServiceProvider {
     SettleAssetBondLocalVars memory vars;
-    if (ownerOf(tokenId) != msg.sender)
-      revert TokenizerErrors.OnlyOwnerHasAuthrotyToSettle(tokenId);
+    require(ownerOf(tokenId) == msg.sender, 'OnlyOwnerHasAuthrotyToSettle');
 
-    if (_assetBondData[tokenId].state != DataStruct.AssetBondState.EMPTY)
-      revert TokenizerErrors.AssetBondAlreadySettled(tokenId);
+    require(
+      _assetBondData[tokenId].state == DataStruct.AssetBondState.EMPTY,
+      'AssetBondAlreadySettled'
+    );
 
-    if (!_connector.isCouncil(signer)) revert TokenizerErrors.SignerIsNotCouncil(signer);
+    require(_connector.isCouncil(signer), 'SignerIsNotCouncil');
     vars.loanStartTimestamp = 0;
     vars.maturityTimestamp = 0;
     vars.liquidationTimestamp = 0;
@@ -307,18 +306,17 @@ contract Tokenizer is ITokenizer, TokenizerStorage, ERC721 {
   /************ Access Functions ************/
 
   modifier onlyMoneyPool {
-    if (_msgSender() != address(_moneyPool)) revert TokenizerErrors.OnlyMoneyPool();
+    require(_msgSender() == address(_moneyPool), 'OnlyMoneyPool');
     _;
   }
 
   modifier onlyCollateralServiceProvider {
-    if (!_connector.isCollateralServiceProvider(msg.sender))
-      revert TokenizerErrors.OnlyCollateralServiceProvider();
+    require(_connector.isCollateralServiceProvider(msg.sender), 'OnlyCollateralServiceProvider');
     _;
   }
 
   modifier onlyCouncil {
-    if (!_connector.isCouncil(msg.sender)) revert TokenizerErrors.OnlyCouncil();
+    require(_connector.isCouncil(msg.sender), 'OnlyCouncil');
     _;
   }
 }

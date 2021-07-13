@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.4;
+pragma solidity 0.8.3;
 
 import '../libraries/DataStruct.sol';
 
@@ -15,8 +15,4 @@ interface IIncentivePool {
   function beforeTokenTransfer(address from, address to) external;
 
   function claimIncentive(address user) external;
-
-  error OnlyLToken();
-  error OnlyMoneyPool();
-  error AlreadyInitialized();
 }
