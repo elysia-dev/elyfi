@@ -110,11 +110,11 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
   /************ AssetBond Formation Functions ************/
 
   /**
-   * @notice The collateral service provider can take out a loan of value equivalent to the principle
+   * @notice The collateral service provider can take out a loan of value equivalent to the principal
    * recorded in the asset bond data. As asset bonds are deposited as collateral in the Money Pool
    * and loans are made, financial services that link real assets and cryptoassets can be achieved.
    * @dev Transfer asset bond from the collateral service provider to the moneypool and mint dTokens
-   *  corresponding to principle. After that, transfer the underlying asset
+   *  corresponding to principal. After that, transfer the underlying asset
    * @param asset The address of the underlying asset to withdraw
    * @param tokenId The id of the token to collateralize
    **/
@@ -123,7 +123,7 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
     DataStruct.AssetBondData memory assetBond = ITokenizer(reserve.tokenizerAddress)
     .getAssetBondData(tokenId);
 
-    uint256 borrowAmount = assetBond.principle;
+    uint256 borrowAmount = assetBond.principal;
     address receiver = assetBond.borrower;
 
     Validation.validateBorrow(reserve, assetBond, asset, borrowAmount);

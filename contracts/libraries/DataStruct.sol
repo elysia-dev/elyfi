@@ -33,7 +33,7 @@ library DataStruct {
     address borrower;
     address signer;
     address collateralServiceProvider;
-    uint256 principle;
+    uint256 principal;
     uint256 debtCeiling;
     uint256 couponRate;
     uint256 interestRate;

@@ -122,7 +122,7 @@ task('local:borrow', 'Create borrow : 1500ETH')
         borrower.address,
         signer.address,
         tokenId,
-        testAssetBondData.principle,
+        testAssetBondData.principal,
         testAssetBondData.couponRate,
         testAssetBondData.delinquencyRate,
         testAssetBondData.debtCeiling,
@@ -137,11 +137,11 @@ task('local:borrow', 'Create borrow : 1500ETH')
     console.log(`The signer signs on asset token which id is "${args.bond}"`);
 
     const assetBondData = await tokenizer.getAssetBondData(tokenId);
-    const borrowprinciple = assetBondData.principle;
+    const borrowprincipal = assetBondData.principal;
     const loanStartTimestamp = assetBondData.loanStartTimestamp.toNumber();
     const liquidityAvailable = await underlyingAsset.balanceOf(lToken.address);
 
-    if (liquidityAvailable.lt(borrowprinciple)) {
+    if (liquidityAvailable.lt(borrowprincipal)) {
       await underlyingAsset
         .connect(deployer)
         .transfer(depositor.address, hre.ethers.utils.parseEther('1000'));
@@ -165,7 +165,7 @@ task('local:borrow', 'Create borrow : 1500ETH')
         .connect(collateralServiceProvider)
         .borrow(underlyingAsset.address, tokenId);
       console.log(
-        `The collateral service provider borrows against token id '${args.bond}' which principle amount is '${borrowprinciple}'`
+        `The collateral service provider borrows against token id '${args.bond}' which principal amount is '${borrowprincipal}'`
       );
     } else {
       console.log(

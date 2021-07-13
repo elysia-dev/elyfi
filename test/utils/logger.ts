@@ -6,7 +6,7 @@ export function logReserveData(reserveData: ReserveData) {
       'totalLTokenSupply',
       'implicitLTokenSupply',
       'lTokenInterestIndex',
-      'principleDTokenSupply',
+      'principalDTokenSupply',
       'totalDTokenSupply',
       'averageRealAssetBorrowRate',
       'borrowAPY',

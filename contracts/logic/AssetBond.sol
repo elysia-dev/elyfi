@@ -81,7 +81,7 @@ library AssetBond {
       assetBondData.interestRate,
       assetBondData.collateralizeTimestamp,
       block.timestamp
-    ).rayMul(assetBondData.principle);
+    ).rayMul(assetBondData.principal);
 
     uint256 feeOnCollateralServiceProvider = calculateFeeOnRepayment(
       assetBondData,
@@ -138,7 +138,7 @@ library AssetBond {
 
       vars.totalRate = vars.firstTermRate + vars.secondTermRate + vars.thirdTermRate;
 
-      return assetBondData.principle.rayMul(vars.totalRate) - assetBondData.principle;
+      return assetBondData.principal.rayMul(vars.totalRate) - assetBondData.principal;
     }
 
     vars.secondTermRate =
@@ -169,7 +169,7 @@ library AssetBond {
       vars.secondTermOverdueRate +
       vars.thirdTermRate;
 
-    return assetBondData.principle.rayMul(vars.totalRate) - assetBondData.principle;
+    return assetBondData.principal.rayMul(vars.totalRate) - assetBondData.principal;
   }
 
   function getAssetBondLiquidationData(DataStruct.AssetBondData memory assetBondData)
@@ -182,7 +182,7 @@ library AssetBond {
       assetBondData.interestRate,
       assetBondData.collateralizeTimestamp,
       block.timestamp
-    ).rayMul(assetBondData.principle);
+    ).rayMul(assetBondData.principal);
 
     uint256 feeOnCollateralServiceProvider = calculateDebtAmountToLiquidation(
       assetBondData,
@@ -227,6 +227,6 @@ library AssetBond {
       WadRayMath.ray();
     vars.totalRate = vars.firstTermRate + vars.secondTermRate;
 
-    return assetBondData.principle.rayMul(vars.totalRate) - assetBondData.principle;
+    return assetBondData.principal.rayMul(vars.totalRate) - assetBondData.principal;
   }
 }

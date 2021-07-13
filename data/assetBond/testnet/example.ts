@@ -23,7 +23,7 @@ export const data: AssetBondSettleData = {
   borrower: '',
   signer: '',
   tokenId: BigNumber.from(tokenIdGenerator(id)),
-  principle: ethers.utils.parseEther('100000'),
+  principal: ethers.utils.parseEther('100000'),
   debtCeiling: ethers.utils.parseEther('2500000000'),
   couponRate: toRate(0.1),
   delinquencyRate: toRate(0.03),

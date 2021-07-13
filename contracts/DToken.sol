@@ -169,7 +169,7 @@ contract DToken is IDToken, Context {
    * @dev Mints debt token to the `receiver` address.
    * -  Only callable by the LendingPool
    * - The resulting rate is the weighted average between the rate of the new debt
-   * and the rate of the principle debt
+   * and the rate of the principal debt
    * @param account The address receiving the borrowed underlying, being the delegatee in case
    * of credit delegate, or same as `receiver` otherwise
    * @param receiver The address receiving the debt tokens
@@ -311,7 +311,7 @@ contract DToken is IDToken, Context {
   /**
    * @dev Calculates the increase in balance since the last account interaction
    * @param account The address of the account for which the interest is being accumulated
-   * @return The principle principle balance, the new principle balance and the balance increase
+   * @return The principal principal balance, the new principal balance and the balance increase
    **/
   function _calculateBalanceIncrease(address account)
     internal
@@ -322,20 +322,20 @@ contract DToken is IDToken, Context {
       uint256
     )
   {
-    uint256 previousprincipleBalance = _balances[account];
+    uint256 previousprincipalBalance = _balances[account];
 
-    if (previousprincipleBalance == 0) {
+    if (previousprincipalBalance == 0) {
       return (0, 0, 0);
     }
 
     // Calculation of the accrued interest since the last accumulation
-    uint256 balanceIncrease = balanceOf(account) - previousprincipleBalance;
+    uint256 balanceIncrease = balanceOf(account) - previousprincipalBalance;
 
-    return (previousprincipleBalance, previousprincipleBalance + balanceIncrease, balanceIncrease);
+    return (previousprincipalBalance, previousprincipalBalance + balanceIncrease, balanceIncrease);
   }
 
   /**
-   * @dev Returns the principle and total supply, the average borrow rate and the last supply update timestamp
+   * @dev Returns the principal and total supply, the average borrow rate and the last supply update timestamp
    **/
   function getDTokenData()
     public
@@ -375,11 +375,11 @@ contract DToken is IDToken, Context {
   }
 
   /**
-   * @dev Returns the principle debt balance of the account from
+   * @dev Returns the principal debt balance of the account from
    * @param account The account's address
    * @return The debt balance of the account since the last burn/mint action
    **/
-  function principleBalanceOf(address account) external view virtual override returns (uint256) {
+  function principalBalanceOf(address account) external view virtual override returns (uint256) {
     return _balances[account];
   }
 
@@ -403,9 +403,9 @@ contract DToken is IDToken, Context {
    * @return The debt balance of the account since the last burn/mint action
    **/
   function _calcTotalSupply(uint256 avgRate) internal view virtual returns (uint256) {
-    uint256 principleSupply = _totalSupply;
+    uint256 principalSupply = _totalSupply;
 
-    if (principleSupply == 0) {
+    if (principalSupply == 0) {
       return 0;
     }
 
@@ -415,7 +415,7 @@ contract DToken is IDToken, Context {
       block.timestamp
     );
 
-    return principleSupply.rayMul(cumulatedInterest);
+    return principalSupply.rayMul(cumulatedInterest);
   }
 
   /**

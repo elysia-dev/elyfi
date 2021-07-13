@@ -26,7 +26,7 @@ contract DataPipeline {
     uint256 lTokenBalance;
     uint256 implicitLtokenBalance;
     uint256 dTokenBalance;
-    uint256 principleDTokenBalance;
+    uint256 principalDTokenBalance;
     uint256 averageRealAssetBorrowRate;
     uint256 lastUpdateTimestamp;
   }
@@ -46,7 +46,7 @@ contract DataPipeline {
     vars.lTokenBalance = ILToken(reserve.lTokenAddress).balanceOf(user);
     vars.implicitLtokenBalance = ILToken(reserve.lTokenAddress).implicitBalanceOf(user);
     vars.dTokenBalance = IDToken(reserve.dTokenAddress).balanceOf(user);
-    vars.principleDTokenBalance = IDToken(reserve.dTokenAddress).principleBalanceOf(user);
+    vars.principalDTokenBalance = IDToken(reserve.dTokenAddress).principalBalanceOf(user);
     vars.averageRealAssetBorrowRate = IDToken(reserve.dTokenAddress)
     .getUserAverageRealAssetBorrowRate(user);
     vars.lastUpdateTimestamp = IDToken(reserve.dTokenAddress).getUserLastUpdateTimestamp(user);
@@ -58,7 +58,7 @@ contract DataPipeline {
     uint256 totalLTokenSupply;
     uint256 implicitLTokenSupply;
     uint256 lTokenInterestIndex;
-    uint256 principleDTokenSupply;
+    uint256 principalDTokenSupply;
     uint256 totalDTokenSupply;
     uint256 averageRealAssetBorrowRate;
     uint256 dTokenLastUpdateTimestamp;
@@ -78,7 +78,7 @@ contract DataPipeline {
     vars.implicitLTokenSupply = ILToken(reserve.lTokenAddress).implicitTotalSupply();
     vars.lTokenInterestIndex = reserve.lTokenInterestIndex;
     (
-      vars.principleDTokenSupply,
+      vars.principalDTokenSupply,
       vars.totalDTokenSupply,
       vars.averageRealAssetBorrowRate,
       vars.dTokenLastUpdateTimestamp

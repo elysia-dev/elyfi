@@ -25,7 +25,7 @@ describe('MoneyPool.liquidation', () => {
 
   testAssetBondData.borrower = borrower.address;
   testAssetBondData.signer = signer.address;
-  testAssetBondData.principle = ethers.utils.parseEther('1');
+  testAssetBondData.principal = ethers.utils.parseEther('1');
 
   beforeEach('The asset bond is collateralized properly', async () => {
     const fixture = await loadFixture(utilizedMoneypool);

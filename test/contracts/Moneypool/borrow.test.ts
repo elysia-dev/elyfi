@@ -177,7 +177,7 @@ describe('MoneyPool.borrow', () => {
                 CSP,
                 elyfiContracts
               );
-              const amount = testAssetBondData.principle;
+              const amount = testAssetBondData.principal;
 
               const tx = await elyfiContracts.moneyPool
                 .connect(CSP)

@@ -89,7 +89,7 @@ interface IDToken is IERC20Metadata {
   function getUserLastUpdateTimestamp(address account) external view returns (uint256);
 
   /**
-   * @dev Returns the principle, the total supply and the average stable rate
+   * @dev Returns the principal, the total supply and the average stable rate
    **/
   function getDTokenData()
     external
@@ -113,8 +113,8 @@ interface IDToken is IERC20Metadata {
   function getTotalSupplyAndAvgRate() external view returns (uint256, uint256);
 
   /**
-   * @dev Returns the principle debt balance of the account
+   * @dev Returns the principal debt balance of the account
    * @return The debt balance of the account since the last burn/mint action
    **/
-  function principleBalanceOf(address account) external view returns (uint256);
+  function principalBalanceOf(address account) external view returns (uint256);
 }

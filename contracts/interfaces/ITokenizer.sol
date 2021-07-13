@@ -19,7 +19,7 @@ interface ITokenizer is IERC721 {
     address indexed borrower,
     address indexed signer,
     uint256 tokenId,
-    uint256 principle,
+    uint256 principal,
     uint256 couponRate,
     uint256 delinquencyRate,
     uint256 debtCeiling,
