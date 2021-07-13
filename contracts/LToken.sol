@@ -1,11 +1,10 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.4;
+pragma solidity 0.8.3;
 
 import '@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol';
 import '@openzeppelin/contracts/token/ERC20/ERC20.sol';
 import '@openzeppelin/contracts/utils/Address.sol';
 import './libraries/WadRayMath.sol';
-import './libraries/Errors.sol';
 import './interfaces/ILToken.sol';
 import './interfaces/IMoneyPool.sol';
 import './interfaces/IIncentivePool.sol';
@@ -45,7 +44,7 @@ contract LToken is ILToken, ERC20 {
   ) external override onlyMoneyPool {
     uint256 implicitBalance = amount.rayDiv(index);
 
-    if (amount == 0) revert TokenErrors.LTokenInvalidMintAmount(implicitBalance);
+    require(amount != 0, 'LTokenInvalidMintAmount');
 
     _mint(account, implicitBalance);
     _incentivePool.updateIncentivePool(account);
@@ -61,7 +60,7 @@ contract LToken is ILToken, ERC20 {
   ) external override onlyMoneyPool {
     uint256 implicitBalance = amount.rayDiv(index);
 
-    if (amount == 0) revert TokenErrors.LTokenInvalidBurnAmount(implicitBalance);
+    require(amount != 0, 'LTokenInvalidBurnAmount');
 
     _burn(account, implicitBalance);
     _incentivePool.updateIncentivePool(account);
@@ -147,7 +146,7 @@ contract LToken is ILToken, ERC20 {
   }
 
   modifier onlyMoneyPool {
-    if (_msgSender() != address(_moneyPool)) revert TokenErrors.OnlyMoneyPool();
+    require(_msgSender() == address(_moneyPool), 'OnlyMoneyPool');
     _;
   }
 }

@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.4;
+pragma solidity 0.8.3;
 
 import 'hardhat/console.sol';
 import './libraries/WadRayMath.sol';
@@ -39,7 +39,7 @@ contract IncentivePool is IIncentivePool {
   mapping(address => uint256) internal _accruedIncentive;
 
   function initializeIncentivePool(address lToken) external override onlyMoneyPool {
-    if (_initialized) revert AlreadyInitialized();
+    require(!_initialized, 'AlreadyInitialized');
     _initialized = true;
     _lToken = lToken;
   }
@@ -108,12 +108,12 @@ contract IncentivePool is IIncentivePool {
   }
 
   modifier onlyMoneyPool {
-    if (msg.sender != address(_moneyPool)) revert OnlyMoneyPool();
+    require(msg.sender == address(_moneyPool), 'OnlyMoneyPool');
     _;
   }
 
   modifier onlyLToken {
-    if (msg.sender != address(_lToken)) revert OnlyLToken();
+    require(msg.sender == address(_lToken), 'OnlyLToken');
     _;
   }
 }

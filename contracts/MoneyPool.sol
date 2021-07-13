@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.4;
+pragma solidity 0.8.3;
 
 import './MoneyPoolStorage.sol';
 import './interfaces/ILToken.sol';
@@ -305,9 +305,9 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
   function _addNewReserveToList(address asset) internal {
     uint256 reserveCount = _reserveCount;
 
-    if (reserveCount >= _maxReserveCount) revert MoneyPoolErrors.MaxReserveCountExceeded();
+    require(reserveCount < _maxReserveCount, 'MaxReserveCountExceeded');
 
-    if (_reserves[asset].id != 0) revert MoneyPoolErrors.DigitalAssetAlreadyAdded(asset);
+    require(_reserves[asset].id == 0, 'DigitalAssetAlreadyAdded');
 
     _reserves[asset].id = uint8(reserveCount);
     _reservesList[reserveCount] = asset;
@@ -334,18 +334,17 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
   /**************** Modifier ****************/
 
   modifier onlyCollateralServiceProvider {
-    if (!_connector.isCollateralServiceProvider(msg.sender))
-      revert MoneyPoolErrors.OnlyCollateralServiceProvider();
+    require(_connector.isCollateralServiceProvider(msg.sender), 'OnlyCollateralServiceProvider');
     _;
   }
 
   modifier onlyCouncil {
-    if (!_connector.isCouncil(msg.sender)) revert MoneyPoolErrors.OnlyCouncil();
+    require(_connector.isCouncil(msg.sender), 'OnlyCouncil');
     _;
   }
 
   modifier onlyMoneyPoolAdmin {
-    if (!_connector.isMoneyPoolAdmin(msg.sender)) revert MoneyPoolErrors.OnlyMoneyPoolAdmin();
+    require(_connector.isMoneyPoolAdmin(msg.sender), 'OnlyMoneyPoolAdmin');
     _;
   }
 }

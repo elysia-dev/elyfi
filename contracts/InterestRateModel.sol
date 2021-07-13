@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.4;
+pragma solidity 0.8.3;
 
 import './InterestRateModelStorage.sol';
 import './libraries/WadRayMath.sol';
@@ -94,8 +94,8 @@ contract InterestRateModel is IInterestRateModel, InterestRateModelStorage {
         _borrowRateOptimal +
         (
           (_borrowRateMax - _borrowRateOptimal)
-            .rayDiv(WadRayMath.ray() - _optimalUtilizationRate)
-            .rayMul(vars.utilizationRate - _borrowRateOptimal)
+          .rayDiv(WadRayMath.ray() - _optimalUtilizationRate)
+          .rayMul(vars.utilizationRate - _borrowRateOptimal)
         );
     }
 

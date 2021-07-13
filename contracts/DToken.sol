@@ -1,9 +1,8 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.4;
+pragma solidity 0.8.3;
 
 import './libraries/WadRayMath.sol';
 import './libraries/Math.sol';
-import './libraries/Errors.sol';
 import './interfaces/IDToken.sol';
 import './interfaces/IMoneyPool.sol';
 import '@openzeppelin/contracts/utils/Context.sol';
@@ -70,7 +69,8 @@ contract DToken is IDToken, Context {
   function transfer(address recipient, uint256 amount) public virtual override returns (bool) {
     recipient;
     amount;
-    revert TokenErrors.DTokenTransferNotAllowed();
+    require(true != true, 'DTokenTransferNotAllowed');
+    revert();
   }
 
   function transferFrom(
@@ -81,7 +81,8 @@ contract DToken is IDToken, Context {
     sender;
     recipient;
     amount;
-    revert TokenErrors.DTokenTransferFromNotAllowed();
+    require(true != true, 'DTokenTransferFromNotAllowed');
+    revert();
   }
 
   function allowance(address owner, address spender)
@@ -93,13 +94,15 @@ contract DToken is IDToken, Context {
   {
     owner;
     spender;
-    revert TokenErrors.DTokenAllowanceNotAllowed();
+    require(true != true, 'DTokenAllowanceNotAllowed');
+    revert();
   }
 
   function approve(address spender, uint256 amount) public virtual override returns (bool) {
     spender;
     amount;
-    revert TokenErrors.DTokenApproveNotAllowed();
+    require(true != true, 'DTokenApproveNotAllowed');
+    revert();
   }
 
   /**
@@ -439,7 +442,7 @@ contract DToken is IDToken, Context {
   }
 
   modifier onlyMoneyPool {
-    if (_msgSender() != address(_moneyPool)) revert TokenErrors.OnlyMoneyPool();
+    require(_msgSender() == address(_moneyPool), 'OnlyMoneyPool');
     _;
   }
 }
