@@ -6,8 +6,8 @@ import {
   testReserveData,
 } from '../test/utils/testData';
 import { getContractAt } from 'hardhat-deploy-ethers/dist/src/helpers';
-import { ERC20Test, MoneyPool } from '../typechain';
-import { getDai, getElyfi } from './utils/dependencies';
+import { MoneyPool } from '../typechain';
+import { getAssetBond, getDai, getElyfi, getValidation } from './utils/dependencies';
 import { ethers } from 'hardhat';
 
 export enum ELYFIContractType {
@@ -26,6 +26,10 @@ const deployTestnet: DeployFunction = async function (hre: HardhatRuntimeEnviron
 
   const testIncentiveAsset = await getElyfi(hre, deployer);
 
+  const validation = await getValidation(hre);
+
+  const assetBond = await getAssetBond(hre);
+
   const connector = await deploy('Connector', {
     from: deployer,
     log: true,
@@ -35,6 +39,10 @@ const deployTestnet: DeployFunction = async function (hre: HardhatRuntimeEnviron
     from: deployer,
     args: ['16', connector.address],
     log: true,
+    libraries: {
+      Validation: validation.address,
+      AssetBond: assetBond.address,
+    },
   });
 
   const incentivePool = await deploy('IncentivePool', {
@@ -76,6 +84,10 @@ const deployTestnet: DeployFunction = async function (hre: HardhatRuntimeEnviron
     from: deployer,
     args: [connector.address, moneyPool.address, 'testTokenizer', 'T'],
     log: true,
+    libraries: {
+      Validation: validation.address,
+      AssetBond: assetBond.address,
+    },
   });
 
   const dataPipeline = await deploy('DataPipeline', {

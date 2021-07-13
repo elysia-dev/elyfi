@@ -23,7 +23,7 @@ export const testInterestModelParams: InterestModelParams = <InterestModelParams
   borrowRateMax: toRate(1),
 };
 
-export const testAssetBondData: AssetBondSettleData = <AssetBondSettleData>{
+export const testAssetBond: AssetBondSettleData = <AssetBondSettleData>{
   ...(<AssetBondSettleData>{}),
   borrower: '',
   signer: '',

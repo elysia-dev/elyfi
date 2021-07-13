@@ -42,7 +42,7 @@ library AssetBond {
   uint256 constant PRODUCT_NUMBER_START = 180;
 
   function parseAssetBondId(uint256 tokenId)
-    internal
+    external
     pure
     returns (DataStruct.AssetBondIdData memory)
   {
@@ -68,7 +68,7 @@ library AssetBond {
   }
 
   function getAssetBondDebtData(DataStruct.AssetBondData memory assetBondData)
-    internal
+    external
     view
     returns (uint256, uint256)
   {
@@ -84,6 +84,26 @@ library AssetBond {
     ).rayMul(assetBondData.principal);
 
     uint256 feeOnCollateralServiceProvider = calculateFeeOnRepayment(
+      assetBondData,
+      block.timestamp
+    );
+
+    return (accruedDebtOnMoneyPool, feeOnCollateralServiceProvider);
+  }
+
+  function getAssetBondLiquidationData(DataStruct.AssetBondData memory assetBondData)
+    external
+    view
+    returns (uint256, uint256)
+  {
+    uint256 accruedDebtOnMoneyPool = Math
+    .calculateCompoundedInterest(
+      assetBondData.interestRate,
+      assetBondData.collateralizeTimestamp,
+      block.timestamp
+    ).rayMul(assetBondData.principal);
+
+    uint256 feeOnCollateralServiceProvider = calculateDebtAmountToLiquidation(
       assetBondData,
       block.timestamp
     );
@@ -170,26 +190,6 @@ library AssetBond {
       vars.thirdTermRate;
 
     return assetBondData.principal.rayMul(vars.totalRate) - assetBondData.principal;
-  }
-
-  function getAssetBondLiquidationData(DataStruct.AssetBondData memory assetBondData)
-    internal
-    view
-    returns (uint256, uint256)
-  {
-    uint256 accruedDebtOnMoneyPool = Math
-    .calculateCompoundedInterest(
-      assetBondData.interestRate,
-      assetBondData.collateralizeTimestamp,
-      block.timestamp
-    ).rayMul(assetBondData.principal);
-
-    uint256 feeOnCollateralServiceProvider = calculateDebtAmountToLiquidation(
-      assetBondData,
-      block.timestamp
-    );
-
-    return (accruedDebtOnMoneyPool, feeOnCollateralServiceProvider);
   }
 
   struct CalculateDebtAmountToLiquidationLocalVars {

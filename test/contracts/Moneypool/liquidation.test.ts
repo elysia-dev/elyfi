@@ -12,7 +12,7 @@ import utilizedMoneypool from '../../fixtures/utilizedMoneypool';
 import takeDataSnapshot from '../../utils/takeDataSnapshot';
 import { getAssetBondData, settleAssetBond } from '../../utils/Helpers';
 import { calculateAssetBondLiquidationData } from '../../utils/Math';
-import { testAssetBondData } from '../../utils/testData';
+import { testAssetBond } from '../../utils/testData';
 import { advanceTimeTo, getTimestamp, toTimestamp } from '../../utils/time';
 require('../../assertions/equals.ts');
 
@@ -20,11 +20,13 @@ describe('MoneyPool.liquidation', () => {
   let elyfiContracts: ElyfiContracts;
   let borrowTxTimestamp: BigNumber;
 
+  const testAssetBondData = { ...testAssetBond };
   const provider = waffle.provider;
   const [deployer, CSP, borrower, signer, liquidator] = provider.getWallets();
 
   testAssetBondData.borrower = borrower.address;
   testAssetBondData.signer = signer.address;
+  console.log('address before', signer.address);
   testAssetBondData.principal = ethers.utils.parseEther('1');
 
   beforeEach('The asset bond is collateralized properly', async () => {
@@ -32,14 +34,15 @@ describe('MoneyPool.liquidation', () => {
     const signerOpinionHash = 'test opinion hash';
     elyfiContracts = fixture.elyfiContracts;
 
-    await elyfiContracts.connector.connect(deployer).addCollateralServiceProvider(CSP.address);
     await elyfiContracts.connector.connect(deployer).addCouncil(signer.address);
+    await elyfiContracts.connector.connect(deployer).addCollateralServiceProvider(CSP.address);
     await elyfiContracts.connector
       .connect(deployer)
       .addCollateralServiceProvider(liquidator.address);
     await elyfiContracts.tokenizer
       .connect(CSP)
       .mintAssetBond(CSP.address, testAssetBondData.tokenId);
+    console.log('address', signer.address, testAssetBondData.signer);
     await settleAssetBond({
       tokenizer: elyfiContracts.tokenizer,
       txSender: CSP,
@@ -57,6 +60,7 @@ describe('MoneyPool.liquidation', () => {
       testAssetBondData.loanStartTimeDay
     );
     await advanceTimeTo(await getTimestamp(tx), loanStartTimestamp);
+
     const borrowTx = await elyfiContracts.moneyPool
       .connect(CSP)
       .borrow(elyfiContracts.underlyingAsset.address, testAssetBondData.tokenId);

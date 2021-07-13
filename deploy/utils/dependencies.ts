@@ -5,6 +5,42 @@ import ELToken_ABI from '../../dependencies/ELToken.json';
 import Dai_ABI from '../../dependencies/Dai.json';
 import Elyfi_ABI from '../../dependencies/Elyfi.json';
 
+export const getValidation = async (hre: HardhatRuntimeEnvironment): Promise<Contract> => {
+  const { deployer } = await hre.getNamedAccounts();
+  const { deploy } = hre.deployments;
+  let validation: Contract;
+
+  const validationLocalDeploy = await deploy('Validation', {
+    from: deployer,
+    log: true,
+  });
+
+  validation = await hre.ethers.getContractAt(
+    validationLocalDeploy.abi,
+    validationLocalDeploy.address
+  );
+
+  return validation;
+};
+
+export const getAssetBond = async (hre: HardhatRuntimeEnvironment): Promise<Contract> => {
+  const { deployer } = await hre.getNamedAccounts();
+  const { deploy } = hre.deployments;
+  let assetBond: Contract;
+
+  const assetBondLocalDeploy = await deploy('AssetBond', {
+    from: deployer,
+    log: true,
+  });
+
+  assetBond = await hre.ethers.getContractAt(
+    assetBondLocalDeploy.abi,
+    assetBondLocalDeploy.address
+  );
+
+  return assetBond;
+};
+
 export const getElysia = async (
   hre: HardhatRuntimeEnvironment,
   signer: string

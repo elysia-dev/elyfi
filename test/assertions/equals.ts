@@ -37,7 +37,6 @@ Assertion.addMethod('equalReserveData', function (expectedData: ReserveData) {
   const actualData = <ReserveData>this._obj;
 
   (Object.keys(actualData) as (keyof ReserveData)[]).forEach((key) => {
-    console.log(key, expectedData[key].toString());
     expect(expectedData[key]).to.eq(actualData[key]);
   });
 });
@@ -46,7 +45,6 @@ Assertion.addMethod('equalUserData', function (expectedData: UserData) {
   const actualData = <UserData>this._obj;
 
   (Object.keys(actualData) as (keyof UserData)[]).forEach((key) => {
-    console.log(key, expectedData[key].toString(), actualData[key].toString());
     expect(expectedData[key]).to.eq(actualData[key]);
   });
 });

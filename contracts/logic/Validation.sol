@@ -17,7 +17,7 @@ library Validation {
    * @param reserve The reserve object
    * @param amount Deposit amount
    **/
-  function validateDeposit(DataStruct.ReserveData storage reserve, uint256 amount) internal view {
+  function validateDeposit(DataStruct.ReserveData storage reserve, uint256 amount) external view {
     if (amount == 0) revert MoneyPoolErrors.InvalidAmount(amount);
     if (reserve.isPaused == true) revert MoneyPoolErrors.ReservePaused();
     if (reserve.isActivated == false) revert MoneyPoolErrors.ReserveInactivated();
@@ -36,7 +36,7 @@ library Validation {
     address asset,
     uint256 amount,
     uint256 userLTokenBalance
-  ) internal view {
+  ) external view {
     if (amount == 0) revert MoneyPoolErrors.InvalidAmount(amount);
     if (reserve.isPaused == true) revert MoneyPoolErrors.ReservePaused();
     if (reserve.isActivated == false) revert MoneyPoolErrors.ReserveInactivated();
@@ -52,7 +52,7 @@ library Validation {
     DataStruct.AssetBondData memory assetBond,
     address asset,
     uint256 borrowAmount
-  ) internal view {
+  ) external view {
     if (reserve.isPaused == true) revert MoneyPoolErrors.ReservePaused();
     if (reserve.isActivated == false) revert MoneyPoolErrors.ReserveInactivated();
 
@@ -78,7 +78,7 @@ library Validation {
   function validateRepay(
     DataStruct.ReserveData storage reserve,
     DataStruct.AssetBondData memory assetBond
-  ) internal view {
+  ) external view {
     if (reserve.isActivated == false) revert MoneyPoolErrors.ReserveInactivated();
     if (block.timestamp >= assetBond.liquidationTimestamp) revert MoneyPoolErrors.LoanExpired();
     if (
@@ -93,19 +93,19 @@ library Validation {
   function validateLiquidation(
     DataStruct.ReserveData storage reserve,
     DataStruct.AssetBondData memory assetBond
-  ) internal view {
+  ) external view {
     if (reserve.isActivated == false) revert MoneyPoolErrors.ReserveInactivated();
     if (assetBond.state != DataStruct.AssetBondState.LIQUIDATED)
       revert MoneyPoolErrors.OnlyNotPerformedAssetBondLiquidatable(uint256(assetBond.state));
   }
 
-  function validateSignAssetBond(DataStruct.AssetBondData storage assetBond) internal view {
+  function validateSignAssetBond(DataStruct.AssetBondData storage assetBond) external view {
     if (assetBond.state != DataStruct.AssetBondState.SETTLED)
       revert TokenizerErrors.OnlySettledTokenSignAllowed();
     if (assetBond.signer != msg.sender) revert TokenizerErrors.OnlyDesignatedSignerAllowed();
   }
 
-  function validateSettleAssetBond(DataStruct.AssetBondData memory assetBond) internal view {
+  function validateSettleAssetBond(DataStruct.AssetBondData memory assetBond) external view {
     if (block.timestamp >= assetBond.loanStartTimestamp)
       revert TokenizerErrors.SettledLoanStartTimestampInvalid();
     if (assetBond.loanStartTimestamp == assetBond.maturityTimestamp)

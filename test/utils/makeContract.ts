@@ -17,12 +17,34 @@ import {
   DTokenTest__factory,
   IncentivePool,
   IncentivePool__factory,
+  Validation__factory,
+  Validation,
+  AssetBond__factory,
+  AssetBond,
 } from '../../typechain';
 import { Contract, BigNumber, utils } from 'ethers';
 import { ethers } from 'hardhat';
 import { testIncentiveAmountPerSecond, testInterestModelParams, testReserveData } from './testData';
 import ElyfiContracts from '../types/ElyfiContracts';
 import InterestModelParams from '../types/InterestRateModelParams';
+
+export const makeValidation = async (): Promise<Validation> => {
+  let validation: Validation;
+  const validationFactory = (await ethers.getContractFactory('Validation')) as Validation__factory;
+
+  validation = await validationFactory.deploy();
+
+  return validation;
+};
+
+export const makeAssetBond = async (): Promise<AssetBond> => {
+  let assetBond: AssetBond;
+  const assetBondFactory = (await ethers.getContractFactory('AssetBond')) as AssetBond__factory;
+
+  assetBond = await assetBondFactory.deploy();
+
+  return assetBond;
+};
 
 export async function makeUnderlyingAsset({
   totalSupply = utils.parseUnits('1', 36),
@@ -57,15 +79,22 @@ export async function makeConnector(): Promise<Connector> {
 export async function makeMoneyPool({
   maxReserveCount_ = BigNumber.from(16).toString(),
   connector,
+  validation,
+  assetBond,
 }: {
   maxReserveCount_?: string;
   connector: Connector | Contract;
+  validation: Validation | Contract;
+  assetBond: AssetBond | Contract;
 }): Promise<MoneyPoolTest> {
   let moneyPoolTest: MoneyPoolTest;
 
-  const moneyPoolFactory = (await ethers.getContractFactory(
-    'MoneyPoolTest'
-  )) as MoneyPoolTest__factory;
+  const moneyPoolFactory = (await ethers.getContractFactory('MoneyPoolTest', {
+    libraries: {
+      AssetBond: assetBond.address,
+      Validation: validation.address,
+    },
+  })) as MoneyPoolTest__factory;
 
   moneyPoolTest = await moneyPoolFactory.deploy(maxReserveCount_, connector.address);
 
@@ -173,19 +202,26 @@ export async function makeInterestRateModel({
 export async function makeTokenizer({
   connector,
   moneyPool,
+  validation,
+  assetBond,
   name = '',
   symbol = '',
 }: {
   connector: Connector | Contract;
   moneyPool: MoneyPoolTest | Contract;
+  validation: Validation | Contract;
+  assetBond: AssetBond | Contract;
   name?: string;
   symbol?: string;
 }): Promise<TokenizerTest> {
   let tokenizerTest: TokenizerTest;
 
-  const tokenizerFactory = (await ethers.getContractFactory(
-    'TokenizerTest'
-  )) as TokenizerTest__factory;
+  const tokenizerFactory = (await ethers.getContractFactory('TokenizerTest', {
+    libraries: {
+      AssetBond: assetBond.address,
+      Validation: validation.address,
+    },
+  })) as TokenizerTest__factory;
 
   tokenizerTest = await tokenizerFactory.deploy(connector.address, moneyPool.address, name, symbol);
 
@@ -209,6 +245,10 @@ export async function makeDataPipeline({
 }
 
 export async function makeAllContracts(): Promise<ElyfiContracts> {
+  const validation = await makeValidation();
+
+  const assetBond = await makeAssetBond();
+
   const underlyingAsset = await makeUnderlyingAsset({});
 
   const incentiveAsset = await makeUnderlyingAsset({});
@@ -217,6 +257,8 @@ export async function makeAllContracts(): Promise<ElyfiContracts> {
 
   const moneyPool = await makeMoneyPool({
     connector,
+    validation,
+    assetBond,
   });
 
   const incentivePool = await makeIncentivePool({
@@ -240,6 +282,8 @@ export async function makeAllContracts(): Promise<ElyfiContracts> {
   const tokenizer = await makeTokenizer({
     connector,
     moneyPool,
+    validation,
+    assetBond,
   });
 
   const dataPipeline = await makeDataPipeline({

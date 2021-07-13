@@ -7,7 +7,7 @@ import {
 } from '../test/utils/testData';
 import { getContractAt } from 'hardhat-deploy-ethers/dist/src/helpers';
 import { MoneyPool } from '../typechain';
-import { getDai, getElyfi, getElysia } from './utils/dependencies';
+import { getAssetBond, getDai, getElyfi, getElysia, getValidation } from './utils/dependencies';
 
 export enum ELYFIContractType {
   CONNECTOR,
@@ -26,6 +26,10 @@ const deployMainnet: DeployFunction = async function (hre: HardhatRuntimeEnviron
 
   const testIncentiveAsset = await getElyfi(hre, deployer);
 
+  const validation = await getValidation(hre);
+
+  const assetBond = await getAssetBond(hre);
+
   const connector = await deploy('Connector', {
     from: deployer,
     log: true,
@@ -35,6 +39,10 @@ const deployMainnet: DeployFunction = async function (hre: HardhatRuntimeEnviron
     from: deployer,
     args: ['16', connector.address],
     log: true,
+    libraries: {
+      Validation: validation.address,
+      AssetBond: assetBond.address,
+    },
   });
 
   const incentivePool = await deploy('IncentivePool', {
@@ -69,6 +77,10 @@ const deployMainnet: DeployFunction = async function (hre: HardhatRuntimeEnviron
     from: deployer,
     args: [connector.address, moneyPool.address, 'testTokenizer', 'T'],
     log: true,
+    libraries: {
+      Validation: validation.address,
+      AssetBond: assetBond.address,
+    },
   });
 
   const dataPipeline = await deploy('DataPipeline', {
