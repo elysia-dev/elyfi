@@ -41,8 +41,6 @@ Assertion.addMethod('deepEqualWithBigNumber', function (expectedData: ElyfiData)
   (Object.keys(actualData) as (keyof ElyfiData)[]).forEach((key) => {
     const castedData = expectedData[key] as { _isBigNumber: boolean }
 
-    console.log(`${key} ${expectedData[key]} ${actualData[key]}`)
-
     if (castedData?._isBigNumber) {
       expect(expectedData[key], key).to.bigNumberCloseTo(actualData[key] as BigNumber, 1, '');
     } else {
