@@ -1,0 +1,35 @@
+{
+  "description": "Simple Cycle (deposit -> borrow -> repay -> withdrawAll)",
+  "abTokens": [
+    {
+      "borrower": "Account3",
+      "principal": 5
+    }
+  ],
+  "stories": [
+    {
+      "actionType": "deposit",
+      "actionMaker": "Account1",
+      "value": 10,
+      "expected": true
+    },
+    {
+      "actionType": "borrow",
+      "actionMaker": "CSP",
+      "expected": true,
+      "abToken": 0
+    },
+    {
+      "actionType": "repay",
+      "actionMaker": "Account3",
+      "expected": true,
+      "abToken": 0
+    },
+    {
+      "actionType": "withdrawAll",
+      "actionMaker": "Account1",
+      "value": 10,
+      "expected": true
+    }
+  ]
+}

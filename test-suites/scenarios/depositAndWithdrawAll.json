@@ -2,16 +2,14 @@
   "description": "Deposit and withdrawAll",
   "stories": [
     {
-      "description": "Account0 deposit 10 USD",
       "actionType": "deposit",
-      "actionMaker": 0,
+      "actionMaker": "Account1",
       "value": 10,
       "expected": true
     },
     {
-      "description": "Account0 withdraw all",
       "actionType": "withdrawAll",
-      "actionMaker": 0,
+      "actionMaker": "Account1",
       "value": 10,
       "expected": true
     }
