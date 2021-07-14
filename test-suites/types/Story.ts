@@ -1,10 +1,10 @@
 import ActionType from "../enums/ActionType"
 
 type Story = {
-  description: string,
   actionType: ActionType,
-  actionMaker: 0 | 1 | 2 | 3,
-  value: number,
+  actionMaker: 'Deployer' | 'CSP' | 'Account1' | 'Account2' | 'Account3' | 'Account4'
+  value?: number,
+  abToken?: number,
   expected: boolean
 }
 
