@@ -11,10 +11,12 @@ import {
   calculateAssetBondLiquidationData,
   calculateCompoundedInterest,
   calculateDataAfterUpdate,
+  calculateIncentiveIndex,
   calculateLTokenIndexAfterAction,
   calculateRateInDecreasingBalance,
   calculateRateInIncreasingBalance,
   calculateRateInInterestRateModel,
+  calculateUserIncentive,
 } from './Math';
 
 // Update lTokenInterestIndex, moneyPoolLastUpdateTimestamp, totalDTokenSupply
@@ -661,14 +663,30 @@ export function expectIncentiveDataAfterWithdraw(
   return [newIncentivePoolData, newUserIncentiveData];
 }
 
-export function expectDataAfterClaim(
+export function expectIncentiveDataAfterClaim(
   incentivePoolData: IncentivePoolData,
   userIncentiveData: UserIncentiveData,
-  txTimeStamp: BigNumber,
-  amount: BigNumber
+  txTimeStamp: BigNumber
 ): [IncentivePoolData, UserIncentiveData] {
-  const [newIncentivePoolData, newUserIncentiveData]: [IncentivePoolData, UserIncentiveData] =
-    calculateDataAfterUpdate(incentivePoolData, userIncentiveData, txTimeStamp);
+  const newUserIncentiveData = { ...userIncentiveData };
+  const newIncentivePoolData = { ...incentivePoolData };
+
+  const accruedUserIncentive = calculateUserIncentive(
+    incentivePoolData,
+    userIncentiveData,
+    txTimeStamp
+  );
+  const newUserIncentiveBalance = userIncentiveData.incentiveAssetBalance.add(accruedUserIncentive);
+  newUserIncentiveData.incentiveAssetBalance = newUserIncentiveBalance;
+
+  const newTotalIncentiveAssetBalance =
+    incentivePoolData.totalRewardAssetBalance.sub(accruedUserIncentive);
+  newIncentivePoolData.totalRewardAssetBalance = newTotalIncentiveAssetBalance;
+
+  const newUserIncentiveIndex = calculateIncentiveIndex(incentivePoolData, txTimeStamp);
+  newUserIncentiveData.userIndex = newUserIncentiveIndex;
+
+  newUserIncentiveData.userIncentive = BigNumber.from(0);
 
   return [newIncentivePoolData, newUserIncentiveData];
 }

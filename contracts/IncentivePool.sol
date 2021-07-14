@@ -50,7 +50,7 @@ contract IncentivePool is IIncentivePool {
    * @notice Update user incentive index and last update timestamp in minting or burining lTokens.
    */
   function updateIncentivePool(address user) external override onlyLToken {
-    _accruedIncentive[user] = getUserIncentiveReward(user);
+    _accruedIncentive[user] = getUserIncentive(user);
     _incentiveIndex = _userIncentiveIndex[user] = getIncentiveIndex();
     _lastUpdateTimestamp = block.timestamp;
 
@@ -62,13 +62,15 @@ contract IncentivePool is IIncentivePool {
    * and user index will be set to the current index
    */
   function beforeTokenTransfer(address from, address to) external override onlyLToken {
-    _accruedIncentive[from] = getUserIncentiveReward(from);
-    _accruedIncentive[to] = getUserIncentiveReward(to);
+    _accruedIncentive[from] = getUserIncentive(from);
+    _accruedIncentive[to] = getUserIncentive(to);
     _userIncentiveIndex[from] = _userIncentiveIndex[to] = getIncentiveIndex();
   }
 
-  function claimIncentive(address user) external override {
-    uint256 accruedIncentive = getUserIncentiveReward(user);
+  function claimIncentive() external override {
+    address user = msg.sender;
+
+    uint256 accruedIncentive = getUserIncentive(user);
 
     IERC20(_incentiveAsset).transfer(user, accruedIncentive);
 
@@ -97,7 +99,7 @@ contract IncentivePool is IIncentivePool {
     return _incentiveIndex + IncentiveIndexDiff;
   }
 
-  function getUserIncentiveReward(address user) public view returns (uint256) {
+  function getUserIncentive(address user) public view returns (uint256) {
     uint256 indexDiff = 0;
 
     if (getIncentiveIndex() >= _userIncentiveIndex[user]) {
@@ -119,11 +121,7 @@ contract IncentivePool is IIncentivePool {
       uint256 userLTokenBalance
     )
   {
-    return (
-      _userIncentiveIndex[user],
-      getUserIncentiveReward(user),
-      IERC20(lToken).balanceOf(user)
-    );
+    return (_userIncentiveIndex[user], getUserIncentive(user), IERC20(lToken).balanceOf(user));
   }
 
   function getIncentivePoolData()

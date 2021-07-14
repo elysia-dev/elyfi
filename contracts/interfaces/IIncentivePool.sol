@@ -14,5 +14,5 @@ interface IIncentivePool {
 
   function beforeTokenTransfer(address from, address to) external;
 
-  function claimIncentive(address user) external;
+  function claimIncentive() external;
 }
