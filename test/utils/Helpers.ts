@@ -4,8 +4,17 @@ import AssetBondData from '../types/AssetBondData';
 import ReserveData from '../types/ReserveData';
 import UserData from '../types/UserData';
 import AssetBondSettleData from '../types/AssetBondSettleData';
-import { DataPipeline, ERC20Test, LTokenTest, TokenizerTest } from '../../typechain';
+import {
+  DataPipeline,
+  ERC20Test,
+  IncentivePool,
+  LToken,
+  LTokenTest,
+  TokenizerTest,
+} from '../../typechain';
 import { testInterestModelParams } from './testData';
+import UserIncentiveData from '../types/UserIncentiveData';
+import IncentivePoolData from '../types/IncentivePoolData';
 
 export async function getUserData({
   underlyingAsset,
@@ -103,6 +112,52 @@ export async function getAssetBondData({
     feeOnCollateralServiceProvider: contractAssetBondStateData.feeOnCollateralServiceProvider,
     ipfsHash: contractAssetBondData.ipfsHash,
     signerOpinionHash: contractAssetBondData.signerOpinionHash,
+  };
+}
+
+export async function getUserIncentiveData({
+  incentivePool,
+  lToken,
+  incentiveAsset,
+  user,
+}: {
+  incentivePool: IncentivePool;
+  lToken: LToken;
+  incentiveAsset: ERC20Test;
+  user: Wallet;
+}): Promise<UserIncentiveData> {
+  const userIncentiveData = <UserIncentiveData>{};
+  const contractUserIncentiveData = await incentivePool.getUserIncentiveData(user);
+
+  return {
+    ...userIncentiveData,
+    userIndex: contractIncentiveData.userIndex,
+    userReward: contractIncentiveData.userReward,
+    userLTokenBalance: await lToken.balanceOf(user.address),
+    incentiveAssetBalance: await incentiveAsset.balanceOf(user.address),
+  };
+}
+
+export async function getIncentivePoolData({
+  incentivePool,
+  lToken,
+  incentiveAsset,
+  user,
+}: {
+  incentivePool: IncentivePool;
+  lToken: LToken;
+  incentiveAsset: ERC20Test;
+  user: Wallet;
+}): Promise<IncentivePoolData> {
+  const incentivePoolData = <IncentivePoolData>{};
+  const contractIncentiveData = await incentivePool.getIncentivePoolData();
+
+  return {
+    ...incentivePoolData,
+    incentiveIndex: contractIncentiveData.incentiveIndex,
+    lastUpdateTimestamp: contractIncentiveData.lastUpdateTimestamp,
+    totalLTokenSupply: await lToken.totalSupply(),
+    totalRewardAssetBalance: await incentiveAsset.balanceOf(incentivePool.address),
   };
 }
 

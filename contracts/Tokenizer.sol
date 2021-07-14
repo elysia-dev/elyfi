@@ -14,7 +14,6 @@ import './interfaces/IMoneyPool.sol';
 import './interfaces/ITokenizer.sol';
 import './interfaces/IConnector.sol';
 import './TokenizerStorage.sol';
-import 'hardhat/console.sol';
 
 /**
  * @title ELYFI Tokenizer
@@ -92,7 +91,6 @@ contract Tokenizer is ITokenizer, TokenizerStorage, ERC721 {
     returns (DataStruct.AssetBondIdData memory)
   {
     DataStruct.AssetBondIdData memory vars = AssetBond.parseAssetBondId(tokenId);
-    console.log(vars.nonce, vars.productNumber);
     return AssetBond.parseAssetBondId(tokenId);
   }
 
@@ -114,7 +112,10 @@ contract Tokenizer is ITokenizer, TokenizerStorage, ERC721 {
     require(_connector.isCollateralServiceProvider(account), 'MintedAssetBondReceiverNotAllowed');
 
     // validate tokenId : tokenId should have information about
-    Validation.validateTokenId(tokenId);
+
+    DataStruct.AssetBondIdData memory idData = AssetBond.parseAssetBondId(tokenId);
+
+    Validation.validateTokenId(idData);
 
     // mint AssetBond to CollateralServiceProvider
     _safeMint(account, tokenId);
@@ -194,9 +195,9 @@ contract Tokenizer is ITokenizer, TokenizerStorage, ERC721 {
       interestRate: 0,
       delinquencyRate: delinquencyRate,
       loanStartTimestamp: vars.loanStartTimestamp,
+      collateralizeTimestamp: 0,
       maturityTimestamp: vars.maturityTimestamp,
       liquidationTimestamp: vars.liquidationTimestamp,
-      collateralizeTimestamp: 0,
       ipfsHash: ipfsHash,
       signerOpinionHash: ''
     });

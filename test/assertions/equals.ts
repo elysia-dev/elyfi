@@ -1,8 +1,10 @@
 import { Assertion, util, expect } from 'chai';
 import { BigNumber } from 'ethers';
 import AssetBondData from '../types/AssetBondData';
+import IncentivePoolData from '../types/IncentivePoolData';
 import ReserveData from '../types/ReserveData';
 import UserData from '../types/UserData';
+import UserIncentiveData from '../types/UserIncentiveData';
 
 const flag = util.flag;
 
@@ -13,6 +15,8 @@ declare global {
       equalUserData(expectedData: UserData): void;
       equalReserveData(expect: ReserveData): void;
       equalAssetBondData(expect: AssetBondData): void;
+      equalUserIncentiveData(expectedData: UserIncentiveData): void;
+      equalIncentivePoolData(expect: IncentivePoolData): void;
     }
   }
 }
@@ -37,7 +41,6 @@ Assertion.addMethod('equalReserveData', function (expectedData: ReserveData) {
   const actualData = <ReserveData>this._obj;
 
   (Object.keys(actualData) as (keyof ReserveData)[]).forEach((key) => {
-    console.log(key, expectedData[key].toString());
     expect(expectedData[key]).to.eq(actualData[key]);
   });
 });
@@ -46,7 +49,6 @@ Assertion.addMethod('equalUserData', function (expectedData: UserData) {
   const actualData = <UserData>this._obj;
 
   (Object.keys(actualData) as (keyof UserData)[]).forEach((key) => {
-    console.log(key, expectedData[key].toString(), actualData[key].toString());
     expect(expectedData[key]).to.eq(actualData[key]);
   });
 });
@@ -55,6 +57,22 @@ Assertion.addMethod('equalAssetBondData', function (expectedData: AssetBondData)
   const actualData = <AssetBondData>this._obj;
 
   (Object.keys(actualData) as (keyof AssetBondData)[]).forEach((key) => {
+    expect(expectedData[key]).to.eq(actualData[key]);
+  });
+});
+
+Assertion.addMethod('equalIncentivePoolData', function (expectedData: IncentivePoolData) {
+  const actualData = <IncentivePoolData>this._obj;
+
+  (Object.keys(actualData) as (keyof IncentivePoolData)[]).forEach((key) => {
+    expect(expectedData[key]).to.eq(actualData[key]);
+  });
+});
+
+Assertion.addMethod('equalUserData', function (expectedData: UserIncentiveData) {
+  const actualData = <UserIncentiveData>this._obj;
+
+  (Object.keys(actualData) as (keyof UserIncentiveData)[]).forEach((key) => {
     expect(expectedData[key]).to.eq(actualData[key]);
   });
 });

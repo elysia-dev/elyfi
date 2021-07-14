@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.3;
 
-import 'hardhat/console.sol';
 import './libraries/WadRayMath.sol';
 import './interfaces/IIncentivePool.sol';
 import './interfaces/IMoneyPool.sol';
@@ -105,6 +104,30 @@ contract IncentivePool is IIncentivePool {
     uint256 result = _accruedIncentive[user] + (balance * indexDiff) / 1e9;
 
     return result;
+  }
+
+  function getUserIncentiveData(address user)
+    public
+    view
+    returns (
+      uint256 userIndex,
+      uint256 userReward,
+      uint256 userLTokenBalance
+    )
+  {
+    return (
+      _userIncentiveIndex[user],
+      getUserIncentiveReward(user),
+      IERC20(_lToken).balanceOf(user)
+    );
+  }
+
+  function getIncentivePoolData()
+    public
+    view
+    returns (uint256 incentiveIndex, uint256 lastUpdateTimestamp)
+  {
+    return (_incentiveIndex, _lastUpdateTimestamp);
   }
 
   modifier onlyMoneyPool {

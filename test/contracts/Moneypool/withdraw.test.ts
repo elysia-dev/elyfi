@@ -70,8 +70,6 @@ describe('MoneyPool.withdraw', () => {
           txTimestamp: await getTimestamp(tx),
         });
 
-        console.log('contract', userDataAfter.underlyingAssetBalance.toString());
-
         expect(reserveDataAfter).to.equalReserveData(expectedReserveData);
         expect(userDataAfter).to.equalUserData(expectedUserData);
         const reservedAfter = await reserved();

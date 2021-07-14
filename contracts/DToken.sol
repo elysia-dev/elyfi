@@ -69,8 +69,8 @@ contract DToken is IDToken, Context {
   function transfer(address recipient, uint256 amount) public virtual override returns (bool) {
     recipient;
     amount;
-    require(true != true, 'DTokenTransferNotAllowed');
-    revert();
+    require(false, 'DTokenTransferNotAllowed');
+    return true;
   }
 
   function transferFrom(
@@ -81,8 +81,8 @@ contract DToken is IDToken, Context {
     sender;
     recipient;
     amount;
-    require(true != true, 'DTokenTransferFromNotAllowed');
-    revert();
+    require(false, 'DTokenTransferFromNotAllowed');
+    return true;
   }
 
   function allowance(address owner, address spender)
@@ -94,15 +94,15 @@ contract DToken is IDToken, Context {
   {
     owner;
     spender;
-    require(true != true, 'DTokenAllowanceNotAllowed');
-    revert();
+    require(false, 'DTokenAllowanceNotAllowed');
+    return 0;
   }
 
   function approve(address spender, uint256 amount) public virtual override returns (bool) {
     spender;
     amount;
-    require(true != true, 'DTokenApproveNotAllowed');
-    revert();
+    require(false, 'DTokenApproveNotAllowed');
+    return true;
   }
 
   /**
@@ -442,7 +442,7 @@ contract DToken is IDToken, Context {
   }
 
   modifier onlyMoneyPool {
-    require(_msgSender() == address(_moneyPool), 'OnlyMoneyPool');
+    require(_msgSender() != address(_moneyPool), 'OnlyMoneyPool');
     _;
   }
 }

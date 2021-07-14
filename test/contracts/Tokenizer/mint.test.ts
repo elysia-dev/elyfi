@@ -38,9 +38,9 @@ describe('Tokenizer.mint', () => {
 
     context('when an account has collateral service provider role', async () => {
       context('when the token id is invalid', async () => {
-        it('reverts if the latitude is invalid');
-        it('reverts if the longitude is invalid');
-        it('reverts when the latitude in token id is invalid');
+        it('reverts if the latitude is invalid', async () => {});
+        it('reverts if the longitude is invalid', async () => {});
+        it('reverts when the latitude in token id is invalid', async () => {});
       });
 
       context('when the token id is vaild', async () => {

@@ -4,7 +4,6 @@ pragma solidity 0.8.3;
 import '../libraries/DataStruct.sol';
 import '../libraries/Math.sol';
 import '../interfaces/ILToken.sol';
-import 'hardhat/console.sol';
 
 library Validation {
   using WadRayMath for uint256;
@@ -18,8 +17,8 @@ library Validation {
    **/
   function validateDeposit(DataStruct.ReserveData storage reserve, uint256 amount) internal view {
     require(amount != 0, 'InvalidAmount');
-    require(reserve.isPaused != true, 'ReservePaused');
-    require(reserve.isActivated != false, 'ReserveInactivated');
+    require(reserve.isPaused, 'ReservePaused');
+    require(!reserve.isActivated, 'ReserveInactivated');
   }
 
   /**
@@ -37,8 +36,8 @@ library Validation {
     uint256 userLTokenBalance
   ) internal view {
     require(amount != 0, 'InvalidAmount');
-    require(reserve.isPaused != true, 'ReservePaused');
-    require(reserve.isActivated != false, 'ReserveInactivated');
+    require(reserve.isPaused, 'ReservePaused');
+    require(!reserve.isActivated, 'ReserveInactivated');
     require(amount <= userLTokenBalance, 'WithdrawInsufficientBalance');
     uint256 availableLiquidity = IERC20(asset).balanceOf(reserve.lTokenAddress);
     require(availableLiquidity > amount, 'NotEnoughLiquidityToWithdraw');
@@ -50,8 +49,8 @@ library Validation {
     address asset,
     uint256 borrowAmount
   ) internal view {
-    require(reserve.isPaused != true, 'ReservePaused');
-    require(reserve.isActivated != false, 'ReserveInactivated');
+    require(reserve.isPaused, 'ReservePaused');
+    require(!reserve.isActivated, 'ReserveInactivated');
     require(assetBond.state == DataStruct.AssetBondState.CONFIRMED, 'OnlySignedTokenBorrowAllowed');
     require(msg.sender == assetBond.collateralServiceProvider, 'OnlyAssetBondOwnerBorrowAllowed');
     uint256 availableLiquidity = IERC20(asset).balanceOf(reserve.lTokenAddress);
@@ -66,7 +65,7 @@ library Validation {
     DataStruct.ReserveData storage reserve,
     DataStruct.AssetBondData memory assetBond
   ) internal view {
-    require(reserve.isActivated != false, 'ReserveInactivated');
+    require(!reserve.isActivated, 'ReserveInactivated');
     require(block.timestamp < assetBond.liquidationTimestamp, 'LoanExpired');
     require(
       (assetBond.state == DataStruct.AssetBondState.COLLATERALIZED ||
@@ -79,7 +78,7 @@ library Validation {
     DataStruct.ReserveData storage reserve,
     DataStruct.AssetBondData memory assetBond
   ) internal view {
-    require(reserve.isActivated != false, 'ReserveInactivated');
+    require(!reserve.isActivated, 'ReserveInactivated');
     require(
       assetBond.state == DataStruct.AssetBondState.LIQUIDATED,
       'OnlyNotPerformedAssetBondLiquidatable'
@@ -96,8 +95,8 @@ library Validation {
     require(assetBond.loanStartTimestamp != assetBond.maturityTimestamp, 'LoanDurationInvalid');
   }
 
-  function validateTokenId(uint256 tokenId) internal pure {
-    // validate id
-    //// error InvalidAssetBondID(id)
+  function validateTokenId(DataStruct.AssetBondIdData memory idData) internal pure {
+    require(idData.collateralLatitude < 90, 'InvaildLatitude');
+    require(idData.collateralLongitude < 180, 'InvaildLongitude');
   }
 }
