@@ -212,8 +212,8 @@ describe('MoneyPool.borrow', () => {
               expect(await elyfiContracts.tokenizer.ownerOf(testAssetBondData.tokenId)).to.be.equal(
                 elyfiContracts.moneyPool.address
               );
-              expect(reserveDataAfter).equalReserveData(expectedReserveData);
-              expect(userDataAfter).equalUserData(expectedUserData);
+              expect(reserveDataAfter).deepEqualWithBigNumber(expectedReserveData);
+              expect(userDataAfter).deepEqualWithBigNumber(expectedUserData);
             });
 
             it('reverts if asset bond outdated for borrowing', async () => {

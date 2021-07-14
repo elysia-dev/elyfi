@@ -182,9 +182,9 @@ describe('MoneyPool.liquidation', () => {
         expect(collateralServiceProviderLTokenBalanceAfter).to.be.equal(
           collateralServiceProviderLTokenBalanceBefore.add(feeOnLiquidate)
         );
-        expect(assetBondDataAfter).to.be.equalAssetBondData(expectedAssetBondData);
-        expect(reserveDataAfter).equalReserveData(expectedReserveData);
-        expect(userDataAfter).equalUserData(expectedUserData);
+        expect(assetBondDataAfter).to.be.deepEqualWithBigNumber(expectedAssetBondData);
+        expect(reserveDataAfter).deepEqualWithBigNumber(expectedReserveData);
+        expect(userDataAfter).deepEqualWithBigNumber(expectedUserData);
       });
     });
   });

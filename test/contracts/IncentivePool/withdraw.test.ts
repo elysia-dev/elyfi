@@ -79,11 +79,11 @@ describe('', () => {
         incentiveAsset: elyfiContracts.incentiveAsset,
       });
 
-      expect(expectedIncentivePoolData).to.be.equalIncentivePoolData(incentivePoolDataAfter);
-      expect(expectedUserIncentiveData).to.be.equalUserIncentiveData(userIncentiveDataAfter);
+      expect(expectedIncentivePoolData).to.be.deepEqualWithBigNumber(incentivePoolDataAfter);
+      expect(expectedUserIncentiveData).to.be.deepEqualWithBigNumber(userIncentiveDataAfter);
     });
   });
   context('claimReward', async () => {
-    it('update userLastUpdateTimestamp and accured reward after claim reward', async () => {});
+    it('update userLastUpdateTimestamp and accured reward after claim reward', async () => { });
   });
 });

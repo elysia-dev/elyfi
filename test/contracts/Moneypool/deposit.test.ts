@@ -64,8 +64,8 @@ describe('MoneyPool.deposit', () => {
             txTimestamp: await getTimestamp(depositTx),
           });
 
-          expect(reserveDataAfter).to.equalReserveData(expectedReserveData);
-          expect(userDataAfter).to.equalUserData(expectedUserData);
+          expect(reserveDataAfter).to.deepEqualWithBigNumber(expectedReserveData);
+          expect(userDataAfter).to.deepEqualWithBigNumber(expectedUserData);
 
           const afterBalance = await elyfiContracts.underlyingAsset.balanceOf(depositor.address);
           expect(beforeBalance.sub(afterBalance)).to.eq(amountDeposit);

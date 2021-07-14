@@ -66,8 +66,8 @@ describe('MoneyPool.withdraw', () => {
           txTimestamp: await getTimestamp(tx),
         });
 
-        expect(reserveDataAfter).to.equalReserveData(expectedReserveData);
-        expect(userDataAfter).to.equalUserData(expectedUserData);
+        expect(reserveDataAfter).to.deepEqualWithBigNumber(expectedReserveData);
+        expect(userDataAfter).to.deepEqualWithBigNumber(expectedUserData);
         const reservedAfter = await reserved();
         expect(reservedBefore.sub(reservedAfter)).to.eq(utils.parseEther('5'));
       });

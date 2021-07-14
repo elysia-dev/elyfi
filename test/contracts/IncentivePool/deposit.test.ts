@@ -75,8 +75,8 @@ describe('', () => {
         incentiveAsset: elyfiContracts.incentiveAsset,
       });
 
-      expect(expectedIncentivePoolData).to.be.equalIncentivePoolData(incentivePoolDataAfter);
-      expect(expectedUserIncentiveData).to.be.equalUserIncentiveData(userIncentiveDataAfter);
+      expect(expectedIncentivePoolData).to.be.deepEqualWithBigNumber(incentivePoolDataAfter);
+      expect(expectedUserIncentiveData).to.be.deepEqualWithBigNumber(userIncentiveDataAfter);
     });
 
     it('updates index and timestamp after another deposit', async () => {
@@ -120,8 +120,8 @@ describe('', () => {
         incentiveAsset: elyfiContracts.incentiveAsset,
       });
 
-      expect(expectedIncentivePoolData).to.be.equalIncentivePoolData(incentivePoolDataAfter);
-      expect(expectedUserIncentiveData).to.be.equalUserIncentiveData(userIncentiveDataAfter);
+      expect(expectedIncentivePoolData).to.be.deepEqualWithBigNumber(incentivePoolDataAfter);
+      expect(expectedUserIncentiveData).to.be.deepEqualWithBigNumber(userIncentiveDataAfter);
     });
   });
 });
