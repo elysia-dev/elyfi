@@ -105,21 +105,27 @@ const excuteStory = async (story: Story, account: Wallet, elyfiContracts: ElyfiC
       });
       break;
 
+    case ActionType.withdrawAll:
     case ActionType.withdraw:
       await excutor({
         account,
-        amount,
+        amount: story.actionType === ActionType.withdrawAll ? constants.MaxUint256 : amount,
         elyfiContracts,
         doTransaction: async () => {
           try {
             const tx = await elyfiContracts.moneyPool
               .connect(account)
-              .withdraw(elyfiContracts.underlyingAsset.address, account.address, amount);
+              .withdraw(
+                elyfiContracts.underlyingAsset.address,
+                account.address,
+                story.actionType === ActionType.withdrawAll ? constants.MaxUint256 : amount
+              );
 
             expect(story.expected).to.be.true;
 
             return tx;
           } catch (e) {
+            console.log("hi")
             console.log(e);
             expect(story.expected).to.be.false;
           }
