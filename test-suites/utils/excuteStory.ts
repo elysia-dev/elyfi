@@ -61,8 +61,8 @@ const excutor = async (args: {
     await getTimestamp(tx)
   );
 
-  expect(reserveDataAfter).to.equalReserveData(expectedReserveDataAfter);
-  expect(userDataAfter).to.equalUserData(expectedUserDataAfter);
+  expect(reserveDataAfter).to.deepEqualWithBigNumber(expectedReserveDataAfter);
+  expect(userDataAfter).to.deepEqualWithBigNumber(expectedUserDataAfter);
 };
 
 const excuteStory = async (
