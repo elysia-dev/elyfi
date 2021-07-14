@@ -442,7 +442,7 @@ contract DToken is IDToken, Context {
   }
 
   modifier onlyMoneyPool {
-    require(_msgSender() != address(_moneyPool), 'OnlyMoneyPool');
+    require(_msgSender() == address(_moneyPool), 'OnlyMoneyPool');
     _;
   }
 }
