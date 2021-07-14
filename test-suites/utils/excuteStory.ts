@@ -40,12 +40,15 @@ const excutor = async (args: {
     reserveDateBefore: ReserveData,
     reserveDataAfter: ReserveData,
     txTimestamp: BigNumber
-  ) => UserData
+  ) => UserData,
+  expected: boolean,
 }) => {
-  const { account, elyfiContracts, doTransaction, calculateReserveData, calculateUserData } = args
+  const { account, elyfiContracts, doTransaction, calculateReserveData, calculateUserData, expected } = args
   const [reserveDataBefore, userDataBefore] = await takeDataSnapshot(account, elyfiContracts);
 
   const tx = await doTransaction();
+
+  if (!expected) return;
 
   const [reserveDataAfter, userDataAfter] = await takeDataSnapshot(account, elyfiContracts);
 
@@ -77,6 +80,7 @@ const excuteStory = async (
   switch (story.actionType) {
     case ActionType.deposit:
       await excutor({
+        expected: story.expected,
         account: wallets[UserType[story.actionMaker]],
         elyfiContracts,
         doTransaction: async () => {
@@ -93,7 +97,9 @@ const excuteStory = async (
 
             return tx;
           } catch (e) {
-            console.log(e);
+            if (story.expected) {
+              console.log(e);
+            }
             expect(story.expected).to.be.false;
           }
         },
@@ -119,6 +125,7 @@ const excuteStory = async (
       amount = await elyfiContracts.lToken.balanceOf(wallets[UserType[story.actionMaker]].address)
     case ActionType.withdraw:
       await excutor({
+        expected: story.expected,
         account: wallets[UserType[story.actionMaker]],
         elyfiContracts,
         doTransaction: async () => {
@@ -135,7 +142,9 @@ const excuteStory = async (
 
             return tx;
           } catch (e) {
-            console.log(e);
+            if (story.expected) {
+              console.log(e);
+            }
             expect(story.expected).to.be.false;
           }
         },
@@ -161,6 +170,7 @@ const excuteStory = async (
       amount = abTokens[story.abToken!].principal
 
       await excutor({
+        expected: story.expected,
         account: wallets[UserType[rawAbTokenData[story.abToken!].borrower]],
         elyfiContracts,
         doTransaction: async () => {
@@ -173,7 +183,9 @@ const excuteStory = async (
 
             return tx;
           } catch (e) {
-            console.log(e);
+            if (story.expected) {
+              console.log(e);
+            }
             expect(story.expected).to.be.false;
           }
         },
@@ -204,6 +216,7 @@ const excuteStory = async (
       });
 
       await excutor({
+        expected: story.expected,
         account: wallets[UserType[rawAbTokenData[story.abToken!].borrower]],
         elyfiContracts,
         doTransaction: async () => {
@@ -216,7 +229,9 @@ const excuteStory = async (
 
             return tx;
           } catch (e) {
-            console.log(e);
+            if (story.expected) {
+              console.log(e);
+            }
             expect(story.expected).to.be.false;
           }
         },
