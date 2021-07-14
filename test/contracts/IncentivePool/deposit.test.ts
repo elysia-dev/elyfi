@@ -1,15 +1,15 @@
 import { ethers, waffle } from 'hardhat';
-import ElyfiContracts from '../types/ElyfiContracts';
+import ElyfiContracts from '../../types/ElyfiContracts';
 import { BigNumber, utils } from 'ethers';
-import { makeAllContracts } from '../utils/makeContract';
-import { RAY } from '../utils/constants';
-import { getIncentivePoolData, getUserIncentiveData } from '../utils/Helpers';
-import { expectIncentiveDataAfterDeposit } from '../utils/Expect';
-import { getTimestamp } from '../utils/time';
-import IncentivePoolData from '../types/IncentivePoolData';
-import UserIncentiveData from '../types/UserIncentiveData';
+import { makeAllContracts } from '../../utils/makeContract';
+import { RAY } from '../../utils/constants';
+import { getIncentivePoolData, getUserIncentiveData } from '../../utils/Helpers';
+import { expectIncentiveDataAfterDeposit } from '../../utils/Expect';
+import { getTimestamp } from '../../utils/time';
+import IncentivePoolData from '../../types/IncentivePoolData';
+import UserIncentiveData from '../../types/UserIncentiveData';
 import { expect } from 'chai';
-require('../assertions/equals.ts');
+require('../../assertions/equals.ts');
 
 describe('', () => {
   let elyfiContracts: ElyfiContracts;
@@ -123,11 +123,5 @@ describe('', () => {
       expect(expectedIncentivePoolData).to.be.equalIncentivePoolData(incentivePoolDataAfter);
       expect(expectedUserIncentiveData).to.be.equalUserIncentiveData(userIncentiveDataAfter);
     });
-  });
-  context('withdraw', async () => {
-    it('updates index and timestamp after withdraw', async () => {});
-  });
-  context('claimReward', async () => {
-    it('update userLastUpdateTimestamp and accured reward after claim reward', async () => {});
   });
 });

@@ -98,10 +98,6 @@ contract IncentivePool is IIncentivePool {
   }
 
   function getUserIncentiveReward(address user) public view returns (uint256) {
-    if (_userIncentiveIndex[user] == 0) {
-      return 0;
-    }
-
     uint256 indexDiff = 0;
 
     if (getIncentiveIndex() >= _userIncentiveIndex[user]) {

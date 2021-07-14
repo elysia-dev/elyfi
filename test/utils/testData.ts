@@ -39,4 +39,4 @@ export const testAssetBond: AssetBondSettleData = <AssetBondSettleData>{
   ipfsHash: 'test',
 };
 
-export const testIncentiveAmountPerSecond = BigNumber.from(RAY).mul(33334).div(86400);
+export const testIncentiveAmountPerSecond = BigNumber.from((1e18).toFixed()).mul(33334).div(86400);

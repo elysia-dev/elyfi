@@ -323,10 +323,6 @@ export function calculateUserIncentive(
   userIncentiveData: UserIncentiveData,
   txTimeStamp: BigNumber
 ): BigNumber {
-  if (userIncentiveData.userIndex.eq(0)) {
-    return BigNumber.from(0);
-  }
-
   const indexDiff = calculateIncentiveIndex(incentivePoolData, txTimeStamp).sub(
     userIncentiveData.userIndex
   );
