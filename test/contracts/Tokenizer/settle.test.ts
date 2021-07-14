@@ -7,11 +7,12 @@ import { settleAssetBond } from '../../utils/Helpers';
 import { SECONDSPERDAY } from '../../utils/constants';
 import AssetBondState from '../../types/AssetBondState';
 import { toTimestamp } from '../../utils/time';
-import { testAssetBondData } from '../../utils/testData';
+import { testAssetBond } from '../../utils/testData';
 
 describe('Tokenizer.settle', () => {
   let elyfiContracts: ElyfiContracts;
 
+  const testAssetBondData = { ...testAssetBond };
   const provider = waffle.provider;
   const [deployer, depositor, CSP, borrower, signer, account] = provider.getWallets();
 

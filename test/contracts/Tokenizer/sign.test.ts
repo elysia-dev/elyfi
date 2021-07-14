@@ -5,11 +5,12 @@ import { expect } from 'chai';
 import ElyfiContracts from '../../types/ElyfiContracts';
 import { settleAssetBond } from '../../utils/Helpers';
 import AssetBondState from '../../types/AssetBondState';
-import { testAssetBondData } from '../../utils/testData';
+import { testAssetBond } from '../../utils/testData';
 
 describe('Tokenizer.sign', () => {
   let elyfiContracts: ElyfiContracts;
 
+  const testAssetBondData = { ...testAssetBond };
   const provider = waffle.provider;
   const [deployer, depositor, CSP, borrower, signer, account] = provider.getWallets();
 

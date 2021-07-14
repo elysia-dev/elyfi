@@ -6,7 +6,7 @@ import takeDataSnapshot from '../../utils/takeDataSnapshot';
 import { RAY, SECONDSPERDAY } from '../../utils/constants';
 import loadFixture from '../../utils/loadFixture';
 import { settleAssetBond } from '../../utils/Helpers';
-import { testAssetBondData } from '../../utils/testData';
+import { testAssetBond } from '../../utils/testData';
 import {
   toTimestamp,
   advanceTimeTo,
@@ -21,6 +21,7 @@ import utilizedMoneypool from '../../fixtures/utilizedMoneypool';
 require('../../assertions/equals.ts');
 
 describe('MoneyPool.borrow', () => {
+  const testAssetBondData = { ...testAssetBond };
   let elyfiContracts: ElyfiContracts;
 
   const provider = waffle.provider;

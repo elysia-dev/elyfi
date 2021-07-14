@@ -12,7 +12,7 @@ import { getTimestamp } from '../../utils/time';
 describe('MoneyPool.deposit', () => {
   let elyfiContracts: ElyfiContracts;
 
-  const [deployer, depositor] = waffle.provider.getWallets();
+  const [deployer, depositor, CSP, borrower, signer, otherCSP] = waffle.provider.getWallets();
 
   beforeEach(async () => {
     const fixture = await loadFixture(utilizedMoneypool);

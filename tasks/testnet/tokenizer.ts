@@ -2,7 +2,7 @@ import { task } from 'hardhat/config';
 import ElyfiContracts from '../../test/types/ElyfiContracts';
 import getDeployedContracts from '../../test/utils/getDeployedContracts';
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers';
-import { testAssetBondData } from '../../test/utils/testData';
+import { testAssetBond } from '../../test/utils/testData';
 import { HardhatRuntimeEnvironment } from 'hardhat/types';
 import assetBondIdData from '../../misc/assetBond/assetBondIdDataExample.json';
 import { tokenIdGenerator } from '../../misc/assetBond/generator';
@@ -219,15 +219,15 @@ task('testnet:createSignedAssetBondForTest', 'Create signed asset bond for only 
       borrower.address,
       signer.address,
       tokenId,
-      testAssetBondData.principal,
-      testAssetBondData.couponRate,
-      testAssetBondData.delinquencyRate,
-      testAssetBondData.debtCeiling,
-      testAssetBondData.loanDuration,
+      testAssetBond.principal,
+      testAssetBond.couponRate,
+      testAssetBond.delinquencyRate,
+      testAssetBond.debtCeiling,
+      testAssetBond.loanDuration,
       loanStartDate.getUTCFullYear(),
       loanStartDate.getUTCMonth() + 1, //javascript UTC should be +1
       loanStartDate.getUTCDate(),
-      testAssetBondData.ipfsHash
+      testAssetBond.ipfsHash
     );
     await settleTx.wait();
     console.log(`The collateral service provider settled asset bond which id is ${args.bond}`);
@@ -269,15 +269,15 @@ task('testnet:settleAssetBond', 'settle empty asset bond')
         borrower.address,
         signer.address,
         tokenId,
-        testAssetBondData.principal,
-        testAssetBondData.couponRate,
-        testAssetBondData.delinquencyRate,
-        testAssetBondData.debtCeiling,
-        testAssetBondData.loanDuration,
-        testAssetBondData.loanStartTimeYear,
-        testAssetBondData.loanStartTimeMonth,
-        testAssetBondData.loanStartTimeDay,
-        testAssetBondData.ipfsHash
+        testAssetBond.principal,
+        testAssetBond.couponRate,
+        testAssetBond.delinquencyRate,
+        testAssetBond.debtCeiling,
+        testAssetBond.loanDuration,
+        testAssetBond.loanStartTimeYear,
+        testAssetBond.loanStartTimeMonth,
+        testAssetBond.loanStartTimeDay,
+        testAssetBond.ipfsHash
       );
 
     console.log(`The collateral service provider settles asset token which id is "${args.bond}"`);

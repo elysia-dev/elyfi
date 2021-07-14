@@ -12,7 +12,7 @@ import loadFixture from '../../utils/loadFixture';
 import utilizedMoneypool from '../../fixtures/utilizedMoneypool';
 import { getAssetBondData, settleAssetBond } from '../../utils/Helpers';
 import { calculateAssetBondDebtData } from '../../utils/Math';
-import { testAssetBondData } from '../../utils/testData';
+import { testAssetBond } from '../../utils/testData';
 import {
   toTimestamp,
   advanceTimeTo,
@@ -26,6 +26,7 @@ require('../../assertions/equals.ts');
 describe('MoneyPool.repay', () => {
   let elyfiContracts: ElyfiContracts;
 
+  const testAssetBondData = { ...testAssetBond };
   const provider = waffle.provider;
   const [deployer, depositor, CSP, borrower, signer] = provider.getWallets();
 
