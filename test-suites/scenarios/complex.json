@@ -1,0 +1,135 @@
+{
+  "description": "Complex scenario",
+  "abTokens": [
+    {
+      "borrower": "Account3",
+      "principal": 5
+    },
+    {
+      "borrower": "Account4",
+      "principal": 10
+    }
+  ],
+  "stories": [
+    {
+      "actionType": "deposit",
+      "actionMaker": "Account1",
+      "value": 10,
+      "expected": true
+    },
+    {
+      "actionType": "deposit",
+      "actionMaker": "Account1",
+      "value": 5,
+      "expected": true
+    },
+    {
+      "actionType": "deposit",
+      "actionMaker": "Account2",
+      "value": 15,
+      "expected": true
+    },
+    {
+      "actionType": "deposit",
+      "actionMaker": "Account1",
+      "value": 10,
+      "expected": true
+    },
+    {
+      "actionType": "deposit",
+      "actionMaker": "Account1",
+      "value": 10,
+      "expected": true
+    },
+    {
+      "actionType": "borrow",
+      "actionMaker": "CSP",
+      "expected": true,
+      "abToken": 0
+    },
+    {
+      "actionType": "deposit",
+      "actionMaker": "Account1",
+      "value": 10,
+      "expected": true
+    },
+    {
+      "actionType": "repay",
+      "actionMaker": "Account3",
+      "expected": true,
+      "abToken": 0
+    },
+    {
+      "actionType": "withdraw",
+      "actionMaker": "Account1",
+      "value": 1,
+      "expected": true
+    },
+    {
+      "actionType": "deposit",
+      "actionMaker": "Account1",
+      "value": 100,
+      "expected": true
+    },
+    {
+      "actionType": "deposit",
+      "actionMaker": "Account3",
+      "value": 50,
+      "expected": true
+    },
+    {
+      "actionType": "borrow",
+      "actionMaker": "CSP",
+      "expected": true,
+      "abToken": 1
+    },
+    {
+      "actionType": "deposit",
+      "actionMaker": "Account1",
+      "value": 100,
+      "expected": true
+    },
+    {
+      "actionType": "deposit",
+      "actionMaker": "Account3",
+      "value": 50,
+      "expected": true
+    },
+    {
+      "actionType": "deposit",
+      "actionMaker": "Account1",
+      "value": 100,
+      "expected": true
+    },
+    {
+      "actionType": "deposit",
+      "actionMaker": "Account3",
+      "value": 50,
+      "expected": true
+    },
+    {
+      "actionType": "repay",
+      "actionMaker": "Account4",
+      "expected": true,
+      "abToken": 1
+    },
+    {
+      "actionType": "withdrawAll",
+      "actionMaker": "Account1",
+      "value": 10,
+      "expected": true
+    },
+    {
+      "actionType": "withdrawAll",
+      "actionMaker": "Account2",
+      "value": 10,
+      "expected": true
+    },
+    {
+      "actionType": "withdrawAll",
+      "actionMaker": "Account3",
+      "value": 10,
+      "expected": true
+    }
+  ]
+}
