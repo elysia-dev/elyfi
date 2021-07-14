@@ -15,7 +15,7 @@ declare global {
       equalUserData(expectedData: UserData): void;
       equalReserveData(expect: ReserveData): void;
       equalAssetBondData(expect: AssetBondData): void;
-      equalUserIncentiveData(expectedData: UserIncentiveData): void;
+      equalUserIncentiveData(expect: UserIncentiveData): void;
       equalIncentivePoolData(expect: IncentivePoolData): void;
     }
   }
@@ -65,14 +65,26 @@ Assertion.addMethod('equalIncentivePoolData', function (expectedData: IncentiveP
   const actualData = <IncentivePoolData>this._obj;
 
   (Object.keys(actualData) as (keyof IncentivePoolData)[]).forEach((key) => {
+    console.log(
+      'pool contract | test',
+      key,
+      expectedData[key].toString(),
+      actualData[key].toString()
+    );
     expect(expectedData[key]).to.eq(actualData[key]);
   });
 });
 
-Assertion.addMethod('equalUserData', function (expectedData: UserIncentiveData) {
+Assertion.addMethod('equalUserIncentiveData', function (expectedData: UserIncentiveData) {
   const actualData = <UserIncentiveData>this._obj;
 
   (Object.keys(actualData) as (keyof UserIncentiveData)[]).forEach((key) => {
+    console.log(
+      'user contract | test',
+      key,
+      expectedData[key].toString(),
+      actualData[key].toString()
+    );
     expect(expectedData[key]).to.eq(actualData[key]);
   });
 });

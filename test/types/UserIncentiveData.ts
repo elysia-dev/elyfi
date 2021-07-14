@@ -2,7 +2,7 @@ import { BigNumber } from 'ethers';
 
 interface UserIncentiveData {
   userIndex: BigNumber;
-  userReward: BigNumber;
+  userIncentive: BigNumber;
   userLTokenBalance: BigNumber;
   incentiveAssetBalance: BigNumber;
 }

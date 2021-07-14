@@ -3,6 +3,8 @@ import { rayDiv, rayMul, wadToRay } from './Ethereum';
 import { RAY, SECONDSPERYEAR } from './constants';
 import InterestModelParams from '../types/InterestRateModelParams';
 import AssetBondData from '../types/AssetBondData';
+import IncentivePoolData from '../types/IncentivePoolData';
+import UserIncentiveData from '../types/UserIncentiveData';
 
 export function calculateLinearInterest(
   rate: BigNumber,
@@ -289,4 +291,73 @@ export function calculateAssetBondLiquidationData(
   feeOnRepayment = calculateFeeOnLiquidation(assetBondData, paymentTimestamp);
 
   return [accruedDebtOnMoneyPool, feeOnRepayment];
+}
+
+export function calculateIncentiveIndex(
+  incentivePoolData: IncentivePoolData,
+  txTimeStamp: BigNumber
+): BigNumber {
+  let timeDiff: BigNumber;
+  timeDiff = txTimeStamp.lt(incentivePoolData.endTimestamp)
+    ? (timeDiff = txTimeStamp.sub(incentivePoolData.lastUpdateTimestamp))
+    : (timeDiff = txTimeStamp.sub(incentivePoolData.endTimestamp));
+
+  if (timeDiff.eq(0)) {
+    return BigNumber.from(0);
+  }
+
+  if (incentivePoolData.totalLTokenSupply.eq(0)) {
+    return BigNumber.from(0);
+  }
+
+  const incentiveIndexDiff = timeDiff
+    .mul(incentivePoolData.amountPerSecond)
+    .mul(1e9)
+    .div(incentivePoolData.totalLTokenSupply);
+
+  return incentivePoolData.incentiveIndex.add(incentiveIndexDiff);
+}
+
+export function calculateUserIncentive(
+  incentivePoolData: IncentivePoolData,
+  userIncentiveData: UserIncentiveData,
+  txTimeStamp: BigNumber
+): BigNumber {
+  if (userIncentiveData.userIndex.eq(0)) {
+    return BigNumber.from(0);
+  }
+
+  const indexDiff = calculateIncentiveIndex(incentivePoolData, txTimeStamp).sub(
+    userIncentiveData.userIndex
+  );
+  const balance = userIncentiveData.userLTokenBalance;
+  const incentiveAdded = balance.mul(indexDiff).div(1e9);
+  const result = userIncentiveData.userIncentive.add(incentiveAdded);
+
+  return result;
+}
+
+export function calculateDataAfterUpdate(
+  incentivePoolData: IncentivePoolData,
+  userIncentiveData: UserIncentiveData,
+  txTimestamp: BigNumber
+): [IncentivePoolData, UserIncentiveData] {
+  const newIncentivePoolData = { ...incentivePoolData } as IncentivePoolData;
+  const newUserIncentiveData = { ...userIncentiveData } as UserIncentiveData;
+
+  const newUserIncentive = calculateUserIncentive(
+    incentivePoolData,
+    userIncentiveData,
+    txTimestamp
+  );
+  const newIndex = calculateIncentiveIndex(incentivePoolData, txTimestamp);
+
+  newUserIncentiveData.userIncentive = newUserIncentive;
+
+  newIncentivePoolData.incentiveIndex = newIndex;
+  newUserIncentiveData.userIndex = newIndex;
+
+  newIncentivePoolData.lastUpdateTimestamp = txTimestamp;
+
+  return [newIncentivePoolData, newUserIncentiveData];
 }

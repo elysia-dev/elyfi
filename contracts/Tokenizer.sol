@@ -86,7 +86,7 @@ contract Tokenizer is ITokenizer, TokenizerStorage, ERC721 {
 
   function getAssetBondIdData(uint256 tokenId)
     external
-    view
+    pure
     override
     returns (DataStruct.AssetBondIdData memory)
   {

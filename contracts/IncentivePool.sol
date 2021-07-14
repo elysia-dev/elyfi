@@ -12,11 +12,11 @@ contract IncentivePool is IIncentivePool {
   constructor(
     IMoneyPool moneyPool,
     address incentiveAsset,
-    uint256 amountPerSecond
+    uint256 amountPerSecond_
   ) {
     _moneyPool = moneyPool;
     _incentiveAsset = incentiveAsset;
-    _amountPerSecond = amountPerSecond;
+    amountPerSecond = amountPerSecond_;
   }
 
   bool private _initialized;
@@ -25,22 +25,25 @@ contract IncentivePool is IIncentivePool {
 
   IMoneyPool internal _moneyPool;
   // ray : for obviating underflow error
-  uint256 internal _amountPerSecond;
+  uint256 public amountPerSecond;
 
-  address internal _lToken;
+  address public lToken;
 
   uint256 internal _incentiveIndex;
 
   uint256 internal _lastUpdateTimestamp;
 
+  uint256 public endTimestamp;
+
   mapping(address => uint256) internal _userIncentiveIndex;
 
   mapping(address => uint256) internal _accruedIncentive;
 
-  function initializeIncentivePool(address lToken) external override onlyMoneyPool {
+  function initializeIncentivePool(address lToken_) external override onlyMoneyPool {
     require(!_initialized, 'AlreadyInitialized');
     _initialized = true;
-    _lToken = lToken;
+    lToken = lToken_;
+    endTimestamp = block.timestamp + 180 * 1 days;
   }
 
   /**
@@ -77,8 +80,9 @@ contract IncentivePool is IIncentivePool {
   }
 
   function getIncentiveIndex() public view returns (uint256) {
-    uint256 timeDiff = block.timestamp - _lastUpdateTimestamp;
-    uint256 totalSupply = IERC20(_lToken).totalSupply();
+    uint256 currentTimestamp = block.timestamp < endTimestamp ? block.timestamp : endTimestamp;
+    uint256 timeDiff = currentTimestamp - _lastUpdateTimestamp;
+    uint256 totalSupply = IERC20(lToken).totalSupply();
 
     if (timeDiff == 0) {
       return _incentiveIndex;
@@ -88,7 +92,7 @@ contract IncentivePool is IIncentivePool {
       return 0;
     }
 
-    uint256 IncentiveIndexDiff = (timeDiff * _amountPerSecond) / totalSupply;
+    uint256 IncentiveIndexDiff = (timeDiff * amountPerSecond * 1e9) / totalSupply;
 
     return _incentiveIndex + IncentiveIndexDiff;
   }
@@ -103,7 +107,7 @@ contract IncentivePool is IIncentivePool {
     if (getIncentiveIndex() >= _userIncentiveIndex[user]) {
       indexDiff = getIncentiveIndex() - _userIncentiveIndex[user];
     }
-    uint256 balance = IERC20(_lToken).balanceOf(user);
+    uint256 balance = IERC20(lToken).balanceOf(user);
 
     uint256 result = _accruedIncentive[user] + (balance * indexDiff) / 1e9;
 
@@ -122,7 +126,7 @@ contract IncentivePool is IIncentivePool {
     return (
       _userIncentiveIndex[user],
       getUserIncentiveReward(user),
-      IERC20(_lToken).balanceOf(user)
+      IERC20(lToken).balanceOf(user)
     );
   }
 
@@ -140,7 +144,7 @@ contract IncentivePool is IIncentivePool {
   }
 
   modifier onlyLToken {
-    require(msg.sender == address(_lToken), 'OnlyLToken');
+    require(msg.sender == address(lToken), 'OnlyLToken');
     _;
   }
 }

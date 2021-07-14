@@ -12,6 +12,7 @@ import {
 
 interface ElyfiContracts {
   underlyingAsset: ERC20Test;
+  incentiveAsset: ERC20Test;
   connector: Connector;
   moneyPool: MoneyPoolTest;
   incentivePool: IncentivePool;

@@ -1,13 +1,16 @@
 import { BigNumber, constants, Wallet } from 'ethers';
 import AssetBondData from '../types/AssetBondData';
 import AssetBondState from '../types/AssetBondState';
+import IncentivePoolData from '../types/IncentivePoolData';
 import ReserveData from '../types/ReserveData';
 import UserData from '../types/UserData';
+import UserIncentiveData from '../types/UserIncentiveData';
 import { rayDiv, rayMul } from './Ethereum';
 import {
   calculateAssetBondDebtData,
   calculateAssetBondLiquidationData,
   calculateCompoundedInterest,
+  calculateDataAfterUpdate,
   calculateLTokenIndexAfterAction,
   calculateRateInDecreasingBalance,
   calculateRateInIncreasingBalance,
@@ -611,4 +614,61 @@ export function expectAssetBondDataAfterLiquidate({
   expectedAssetBondData.tokenOwner = liquidator.address;
 
   return expectedAssetBondData;
+}
+
+const logger = (object: Object) => {
+  (Object.keys(object) as (keyof Object)[]).forEach((key) => {
+    console.log(key, object[key].toString());
+  });
+};
+
+export function expectIncentiveDataAfterDeposit(
+  incentivePoolData: IncentivePoolData,
+  userIncentiveData: UserIncentiveData,
+  txTimeStamp: BigNumber,
+  amount: BigNumber
+): [IncentivePoolData, UserIncentiveData] {
+  const [newIncentivePoolData, newUserIncentiveData]: [IncentivePoolData, UserIncentiveData] =
+    calculateDataAfterUpdate(incentivePoolData, userIncentiveData, txTimeStamp);
+
+  logger(newIncentivePoolData);
+  logger(newUserIncentiveData);
+
+  const newUserLTokenBalance = newUserIncentiveData.userLTokenBalance.add(amount);
+  newUserIncentiveData.userLTokenBalance = newUserLTokenBalance;
+
+  const newTotalLTokenSupply = newIncentivePoolData.totalLTokenSupply.add(amount);
+  newIncentivePoolData.totalLTokenSupply = newTotalLTokenSupply;
+
+  return [newIncentivePoolData, newUserIncentiveData];
+}
+
+export function expectIncentiveDataAfterWithdraw(
+  incentivePoolData: IncentivePoolData,
+  userIncentiveData: UserIncentiveData,
+  txTimeStamp: BigNumber,
+  amount: BigNumber
+): [IncentivePoolData, UserIncentiveData] {
+  const [newIncentivePoolData, newUserIncentiveData]: [IncentivePoolData, UserIncentiveData] =
+    calculateDataAfterUpdate(incentivePoolData, userIncentiveData, txTimeStamp);
+
+  const newUserLTokenBalance = newUserIncentiveData.userLTokenBalance.sub(amount);
+  newUserIncentiveData.userLTokenBalance = newUserLTokenBalance;
+
+  const newTotalLTokenSupply = newIncentivePoolData.totalLTokenSupply.sub(amount);
+  newIncentivePoolData.totalLTokenSupply = newTotalLTokenSupply;
+
+  return [newIncentivePoolData, newUserIncentiveData];
+}
+
+export function expectDataAfterClaim(
+  incentivePoolData: IncentivePoolData,
+  userIncentiveData: UserIncentiveData,
+  txTimeStamp: BigNumber,
+  amount: BigNumber
+): [IncentivePoolData, UserIncentiveData] {
+  const [newIncentivePoolData, newUserIncentiveData]: [IncentivePoolData, UserIncentiveData] =
+    calculateDataAfterUpdate(incentivePoolData, userIncentiveData, txTimeStamp);
+
+  return [newIncentivePoolData, newUserIncentiveData];
 }

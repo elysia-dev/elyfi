@@ -46,8 +46,8 @@ contract LToken is ILToken, ERC20 {
 
     require(amount != 0, 'LTokenInvalidMintAmount');
 
-    _mint(account, implicitBalance);
     _incentivePool.updateIncentivePool(account);
+    _mint(account, implicitBalance);
 
     emit Mint(account, implicitBalance, index);
   }
@@ -62,8 +62,8 @@ contract LToken is ILToken, ERC20 {
 
     require(amount != 0, 'LTokenInvalidBurnAmount');
 
-    _burn(account, implicitBalance);
     _incentivePool.updateIncentivePool(account);
+    _burn(account, implicitBalance);
 
     IERC20(_underlyingAsset).safeTransfer(receiver, amount);
 

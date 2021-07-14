@@ -132,7 +132,7 @@ export async function getUserIncentiveData({
   return {
     ...userIncentiveData,
     userIndex: contractUserIncentiveData.userIndex,
-    userReward: contractUserIncentiveData.userReward,
+    userIncentive: contractUserIncentiveData.userReward,
     userLTokenBalance: await lToken.balanceOf(user.address),
     incentiveAssetBalance: await incentiveAsset.balanceOf(user.address),
   };
@@ -142,12 +142,10 @@ export async function getIncentivePoolData({
   incentivePool,
   lToken,
   incentiveAsset,
-  user,
 }: {
   incentivePool: IncentivePool;
   lToken: LToken;
   incentiveAsset: ERC20Test;
-  user: Wallet;
 }): Promise<IncentivePoolData> {
   const incentivePoolData = <IncentivePoolData>{};
   const contractIncentiveData = await incentivePool.getIncentivePoolData();
@@ -158,6 +156,8 @@ export async function getIncentivePoolData({
     lastUpdateTimestamp: contractIncentiveData.lastUpdateTimestamp,
     totalLTokenSupply: await lToken.totalSupply(),
     totalRewardAssetBalance: await incentiveAsset.balanceOf(incentivePool.address),
+    endTimestamp: await incentivePool.endTimestamp(),
+    amountPerSecond: await incentivePool.amountPerSecond(),
   };
 }
 
