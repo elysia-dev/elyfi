@@ -5,7 +5,7 @@ import {
   expectReserveDataAfterWithdraw,
   expectUserDataAfterWithdraw,
 } from '../../test/utils/Expect';
-import { BigNumber, utils } from 'ethers';
+import { BigNumber, constants, utils } from 'ethers';
 import { expect } from 'chai';
 import ActionType from '../enums/ActionType';
 import Story from '../types/Story';
@@ -17,7 +17,7 @@ import UserData from '../../test/types/UserData';
 import { getTimestamp } from '../../test/utils/time';
 require('../../test/assertions/equals');
 
-const excuteDepositor = async (
+const excutor = async (args: {
   account: Wallet,
   amount: BigNumber,
   elyfiContracts: ElyfiContracts,
@@ -34,7 +34,8 @@ const excuteDepositor = async (
     reserveDataAfter: ReserveData,
     txTimestamp: BigNumber
   ) => UserData
-) => {
+}) => {
+  const { account, amount, elyfiContracts, doTransaction, calculateReserveData, calculateUserData } = args
   const [reserveDataBefore, userDataBefore] = await takeDataSnapshot(account, elyfiContracts);
 
   const tx = await doTransaction();
@@ -64,19 +65,19 @@ const excuteStory = async (story: Story, account: Wallet, elyfiContracts: ElyfiC
 
   switch (story.actionType) {
     case ActionType.deposit:
-      await excuteDepositor(
+      await excutor({
         account,
         amount,
         elyfiContracts,
-        async () => {
+        doTransaction: async () => {
           await elyfiContracts.underlyingAsset
             .connect(account)
-            .approve(elyfiContracts.moneyPool.address, utils.parseEther('1000'));
+            .approve(elyfiContracts.moneyPool.address, constants.MaxUint256);
 
           try {
             const tx = await elyfiContracts.moneyPool
               .connect(account)
-              .deposit(elyfiContracts.underlyingAsset.address, account.address, amount.toString());
+              .deposit(elyfiContracts.underlyingAsset.address, account.address, amount);
 
             expect(story.expected).to.be.true;
 
@@ -86,14 +87,14 @@ const excuteStory = async (story: Story, account: Wallet, elyfiContracts: ElyfiC
             expect(story.expected).to.be.false;
           }
         },
-        (amountDeposit, reserveDataBefore, txTimestamp) => {
+        calculateReserveData: (amountDeposit, reserveDataBefore, txTimestamp) => {
           return expectReserveDataAfterDeposit({
             amount: amountDeposit,
             reserveData: reserveDataBefore,
             txTimestamp,
           });
         },
-        (amountDeposit, userDataBefore, reserveDataBefore, reserveDataAfter, txTimestamp) => {
+        calculateUserData: (amountDeposit, userDataBefore, reserveDataBefore, reserveDataAfter, txTimestamp) => {
           return expectUserDataAfterDeposit({
             amountDeposit,
             userDataBefore,
@@ -101,19 +102,19 @@ const excuteStory = async (story: Story, account: Wallet, elyfiContracts: ElyfiC
             txTimestamp,
           });
         }
-      );
+      });
       break;
 
     case ActionType.withdraw:
-      await excuteDepositor(
+      await excutor({
         account,
         amount,
         elyfiContracts,
-        async () => {
+        doTransaction: async () => {
           try {
             const tx = await elyfiContracts.moneyPool
               .connect(account)
-              .withdraw(elyfiContracts.underlyingAsset.address, account.address, amount.toString());
+              .withdraw(elyfiContracts.underlyingAsset.address, account.address, amount);
 
             expect(story.expected).to.be.true;
 
@@ -123,14 +124,14 @@ const excuteStory = async (story: Story, account: Wallet, elyfiContracts: ElyfiC
             expect(story.expected).to.be.false;
           }
         },
-        (amountWithdraw, reserveDataBefore, txTimestamp) => {
+        calculateReserveData: (amountWithdraw, reserveDataBefore, txTimestamp) => {
           return expectReserveDataAfterWithdraw({
             amount: amountWithdraw,
             reserveData: reserveDataBefore,
             txTimestamp,
           });
         },
-        (amountWithdraw, userDataBefore, reserveDataBefore, reserveDataAfter, txTimestamp) => {
+        calculateUserData: (amountWithdraw, userDataBefore, reserveDataBefore, reserveDataAfter, txTimestamp) => {
           return expectUserDataAfterWithdraw({
             amountWithdraw,
             userDataBefore,
@@ -138,7 +139,7 @@ const excuteStory = async (story: Story, account: Wallet, elyfiContracts: ElyfiC
             txTimestamp,
           });
         }
-      );
+      });
       break;
 
     case ActionType.borrow:
