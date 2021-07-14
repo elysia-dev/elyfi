@@ -4,6 +4,10 @@ import {
   expectUserDataAfterDeposit,
   expectReserveDataAfterWithdraw,
   expectUserDataAfterWithdraw,
+  expectReserveDataAfterBorrow,
+  expectUserDataAfterBorrow,
+  expectReserveDataAfterRepay,
+  expectUserDataAfterRepay,
 } from '../../test/utils/Expect';
 import { BigNumber, constants, utils } from 'ethers';
 import { expect } from 'chai';
@@ -15,27 +19,30 @@ import { ContractTransaction } from '@ethersproject/contracts';
 import ReserveData from '../../test/types/ReserveData';
 import UserData from '../../test/types/UserData';
 import { getTimestamp } from '../../test/utils/time';
+import AssetBondSettleData from '../../test/types/AssetBondSettleData';
+import hre from 'hardhat';
+import UserType from '../enums/UserType';
+import AbToken from '../types/AbToken';
+import { getAssetBondData } from '../../test/utils/Helpers';
+
 require('../../test/assertions/equals');
 
 const excutor = async (args: {
   account: Wallet,
-  amount: BigNumber,
   elyfiContracts: ElyfiContracts,
   doTransaction: () => Promise<ContractTransaction | undefined>,
   calculateReserveData: (
-    amount: BigNumber,
     reserveData: ReserveData,
     txTimestamp: BigNumber
   ) => ReserveData,
   calculateUserData: (
-    amount: BigNumber,
     userData: UserData,
     reserveDateBefore: ReserveData,
     reserveDataAfter: ReserveData,
     txTimestamp: BigNumber
   ) => UserData
 }) => {
-  const { account, amount, elyfiContracts, doTransaction, calculateReserveData, calculateUserData } = args
+  const { account, elyfiContracts, doTransaction, calculateReserveData, calculateUserData } = args
   const [reserveDataBefore, userDataBefore] = await takeDataSnapshot(account, elyfiContracts);
 
   const tx = await doTransaction();
@@ -43,13 +50,11 @@ const excutor = async (args: {
   const [reserveDataAfter, userDataAfter] = await takeDataSnapshot(account, elyfiContracts);
 
   const expectedReserveDataAfter = calculateReserveData(
-    amount,
     reserveDataBefore,
     await getTimestamp(tx)
   );
 
   const expectedUserDataAfter = calculateUserData(
-    amount,
     userDataBefore,
     reserveDataBefore,
     reserveDataAfter,
@@ -60,24 +65,29 @@ const excutor = async (args: {
   expect(userDataAfter).to.equalUserData(expectedUserDataAfter);
 };
 
-const excuteStory = async (story: Story, account: Wallet, elyfiContracts: ElyfiContracts) => {
-  let amount = utils.parseEther(story.value.toFixed());
+const excuteStory = async (
+  story: Story,
+  elyfiContracts: ElyfiContracts,
+  abTokens: AssetBondSettleData[],
+  rawAbTokenData: AbToken[],
+) => {
+  const wallets = hre.waffle.provider.getWallets();
+  let amount = utils.parseEther((story.value || 0).toFixed());
 
   switch (story.actionType) {
     case ActionType.deposit:
       await excutor({
-        account,
-        amount,
+        account: wallets[UserType[story.actionMaker]],
         elyfiContracts,
         doTransaction: async () => {
           await elyfiContracts.underlyingAsset
-            .connect(account)
+            .connect(wallets[UserType[story.actionMaker]])
             .approve(elyfiContracts.moneyPool.address, constants.MaxUint256);
 
           try {
             const tx = await elyfiContracts.moneyPool
-              .connect(account)
-              .deposit(elyfiContracts.underlyingAsset.address, account.address, amount);
+              .connect(wallets[UserType[story.actionMaker]])
+              .deposit(elyfiContracts.underlyingAsset.address, wallets[UserType[story.actionMaker]].address, amount);
 
             expect(story.expected).to.be.true;
 
@@ -87,16 +97,16 @@ const excuteStory = async (story: Story, account: Wallet, elyfiContracts: ElyfiC
             expect(story.expected).to.be.false;
           }
         },
-        calculateReserveData: (amountDeposit, reserveDataBefore, txTimestamp) => {
+        calculateReserveData: (reserveDataBefore, txTimestamp) => {
           return expectReserveDataAfterDeposit({
-            amount: amountDeposit,
+            amount,
             reserveData: reserveDataBefore,
             txTimestamp,
           });
         },
-        calculateUserData: (amountDeposit, userDataBefore, reserveDataBefore, reserveDataAfter, txTimestamp) => {
+        calculateUserData: (userDataBefore, _reserveDataBefore, reserveDataAfter, txTimestamp) => {
           return expectUserDataAfterDeposit({
-            amountDeposit,
+            amountDeposit: amount,
             userDataBefore,
             reserveDataAfter,
             txTimestamp,
@@ -106,19 +116,18 @@ const excuteStory = async (story: Story, account: Wallet, elyfiContracts: ElyfiC
       break;
 
     case ActionType.withdrawAll:
-      amount = await elyfiContracts.lToken.balanceOf(account.address)
+      amount = await elyfiContracts.lToken.balanceOf(wallets[UserType[story.actionMaker]].address)
     case ActionType.withdraw:
       await excutor({
-        account,
-        amount,
+        account: wallets[UserType[story.actionMaker]],
         elyfiContracts,
         doTransaction: async () => {
           try {
             const tx = await elyfiContracts.moneyPool
-              .connect(account)
+              .connect(wallets[UserType[story.actionMaker]])
               .withdraw(
                 elyfiContracts.underlyingAsset.address,
-                account.address,
+                wallets[UserType[story.actionMaker]].address,
                 story.actionType === ActionType.withdrawAll ? constants.MaxUint256 : amount
               );
 
@@ -130,16 +139,16 @@ const excuteStory = async (story: Story, account: Wallet, elyfiContracts: ElyfiC
             expect(story.expected).to.be.false;
           }
         },
-        calculateReserveData: (amountWithdraw, reserveDataBefore, txTimestamp) => {
+        calculateReserveData: (reserveDataBefore, txTimestamp) => {
           return expectReserveDataAfterWithdraw({
-            amount: amountWithdraw,
+            amount,
             reserveData: reserveDataBefore,
             txTimestamp,
           });
         },
-        calculateUserData: (amountWithdraw, userDataBefore, reserveDataBefore, reserveDataAfter, txTimestamp) => {
+        calculateUserData: (userDataBefore, _reserveDataBefore, reserveDataAfter, txTimestamp) => {
           return expectUserDataAfterWithdraw({
-            amountWithdraw,
+            amountWithdraw: amount,
             userDataBefore,
             reserveDataAfter,
             txTimestamp,
@@ -149,8 +158,84 @@ const excuteStory = async (story: Story, account: Wallet, elyfiContracts: ElyfiC
       break;
 
     case ActionType.borrow:
+      amount = abTokens[story.abToken!].principal
+
+      await excutor({
+        account: wallets[UserType[rawAbTokenData[story.abToken!].borrower]],
+        elyfiContracts,
+        doTransaction: async () => {
+          try {
+            const tx = await elyfiContracts.moneyPool
+              .connect(wallets[UserType[story.actionMaker]])
+              .borrow(elyfiContracts.underlyingAsset.address, abTokens[story.abToken!].tokenId);
+
+            expect(story.expected).to.be.true;
+
+            return tx;
+          } catch (e) {
+            console.log(e);
+            expect(story.expected).to.be.false;
+          }
+        },
+        calculateReserveData: (reserveDataBefore, txTimestamp) => {
+          return expectReserveDataAfterBorrow({
+            amountBorrow: amount,
+            reserveDataBefore,
+            txTimestamp,
+          });
+        },
+        calculateUserData: (userDataBefore, reserveDataBefore, reserveDataAfter, txTimestamp) => {
+          return expectUserDataAfterBorrow({
+            amountBorrow: amount,
+            userDataBefore,
+            reserveDataBefore,
+            reserveDataAfter,
+            txTimestamp,
+          });
+        }
+      });
       break;
     case ActionType.repay:
+      const assetBondData = await getAssetBondData({
+        underlyingAsset: elyfiContracts.underlyingAsset,
+        dataPipeline: elyfiContracts.dataPipeline,
+        tokenizer: elyfiContracts.tokenizer,
+        tokenId: abTokens[story.abToken!].tokenId,
+      });
+
+      await excutor({
+        account: wallets[UserType[rawAbTokenData[story.abToken!].borrower]],
+        elyfiContracts,
+        doTransaction: async () => {
+          try {
+            const tx = await elyfiContracts.moneyPool
+              .connect(wallets[UserType[story.actionMaker]])
+              .repay(elyfiContracts.underlyingAsset.address, abTokens[story.abToken!].tokenId);
+
+            expect(story.expected).to.be.true;
+
+            return tx;
+          } catch (e) {
+            console.log(e);
+            expect(story.expected).to.be.false;
+          }
+        },
+        calculateReserveData: (reserveData, txTimestamp) => {
+          return expectReserveDataAfterRepay({
+            assetBondData,
+            reserveData,
+            txTimestamp,
+          });
+        },
+        calculateUserData: (userDataBefore, _reserveDataBefore, reserveDataAfter, txTimestamp) => {
+          return expectUserDataAfterRepay({
+            assetBondData,
+            userDataBefore,
+            reserveDataAfter,
+            txTimestamp,
+          });
+        }
+      });
       break;
     default:
   }
