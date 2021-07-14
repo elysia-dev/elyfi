@@ -11,8 +11,24 @@ const makeTestSuiteContracts = async (provider: MockProvider): Promise<ElyfiCont
   const deployer = wallets[UserType.Deployer];
   const elyfiContracts = await makeAllContracts();
 
-  [UserType.Account1, UserType.Account2, UserType.Account3].forEach(async (user) => {
-    await elyfiContracts.underlyingAsset.connect(deployer).transfer(wallets[user].address, ethers.utils.parseEther('1000'));
+  const nonce = await provider.getTransactionCount(deployer.address);
+
+  [
+    UserType.Account1,
+    UserType.Account2,
+    UserType.Account3,
+    UserType.Account4,
+    UserType.Account5
+  ].forEach(async (user, index) => {
+    const { data } = await elyfiContracts.underlyingAsset.populateTransaction.transfer(wallets[user].address, ethers.utils.parseEther('1000'))
+
+    const tx = await deployer.sendTransaction({
+      to: elyfiContracts.underlyingAsset.address,
+      data,
+      nonce: nonce + index
+    })
+
+    await provider.waitForTransaction(tx.hash);
   })
 
   return elyfiContracts
