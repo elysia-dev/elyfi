@@ -184,7 +184,7 @@ contract DToken is IDToken, Context {
     address receiver,
     uint256 amount,
     uint256 rate
-  ) external override onlyMoneyPool returns (bool) {
+  ) external override onlyMoneyPool {
     MintLocalVars memory vars;
 
     (, uint256 currentBalance, uint256 balanceIncrease) = _calculateBalanceIncrease(receiver);
@@ -231,8 +231,6 @@ contract DToken is IDToken, Context {
       vars.currentAvgStableRate,
       vars.nextSupply
     );
-
-    return currentBalance == 0;
   }
 
   /**

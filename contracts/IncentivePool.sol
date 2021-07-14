@@ -5,9 +5,11 @@ import './libraries/WadRayMath.sol';
 import './interfaces/IIncentivePool.sol';
 import './interfaces/IMoneyPool.sol';
 import '@openzeppelin/contracts/token/ERC20/ERC20.sol';
+import '@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol';
 
 contract IncentivePool is IIncentivePool {
   using WadRayMath for uint256;
+  using SafeERC20 for IERC20;
 
   constructor(
     IMoneyPool moneyPool,
@@ -54,7 +56,7 @@ contract IncentivePool is IIncentivePool {
     _incentiveIndex = _userIncentiveIndex[user] = getIncentiveIndex();
     _lastUpdateTimestamp = block.timestamp;
 
-    emit UpdateIncentivePool(_incentiveIndex);
+    emit UpdateIncentivePool(user, _accruedIncentive[user], _incentiveIndex);
   }
 
   /**
@@ -72,13 +74,13 @@ contract IncentivePool is IIncentivePool {
 
     uint256 accruedIncentive = getUserIncentive(user);
 
-    IERC20(_incentiveAsset).transfer(user, accruedIncentive);
-
     _userIncentiveIndex[user] = getIncentiveIndex();
 
     _accruedIncentive[user] = 0;
 
-    emit ClaimIncentive(user, accruedIncentive);
+    IERC20(_incentiveAsset).safeTransfer(user, accruedIncentive);
+
+    emit ClaimIncentive(user, accruedIncentive, _userIncentiveIndex[user]);
   }
 
   function getIncentiveIndex() public view returns (uint256) {

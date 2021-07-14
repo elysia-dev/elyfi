@@ -64,7 +64,5 @@ interface ILToken is IERC20 {
 
   function implicitTotalSupply() external view returns (uint256);
 
-  function transferUnderlyingTo(address underlyingAssetReceiver, uint256 amount)
-    external
-    returns (uint256);
+  function transferUnderlyingTo(address underlyingAssetReceiver, uint256 amount) external;
 }

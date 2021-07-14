@@ -1,4 +1,4 @@
-import { ethers, waffle } from 'hardhat';
+import { waffle } from 'hardhat';
 import { makeAllContracts } from '../../utils/makeContract';
 import { expect } from 'chai';
 import ElyfiContracts from '../../types/ElyfiContracts';

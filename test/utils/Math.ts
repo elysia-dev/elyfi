@@ -323,12 +323,22 @@ export function calculateUserIncentive(
   userIncentiveData: UserIncentiveData,
   txTimeStamp: BigNumber
 ): BigNumber {
-  const indexDiff = calculateIncentiveIndex(incentivePoolData, txTimeStamp).sub(
-    userIncentiveData.userIndex
-  );
+  let indexDiff = BigNumber.from(0);
+  if (calculateIncentiveIndex(incentivePoolData, txTimeStamp).gte(userIncentiveData.userIndex)) {
+    indexDiff = calculateIncentiveIndex(incentivePoolData, txTimeStamp).sub(
+      userIncentiveData.userIndex
+    );
+  }
   const balance = userIncentiveData.userLTokenBalance;
   const incentiveAdded = balance.mul(indexDiff).div(1e9);
   const result = userIncentiveData.userIncentive.add(incentiveAdded);
+
+  console.log(
+    'calculateIncentive',
+    userIncentiveData.userIncentive.toString(),
+    result.toString(),
+    incentiveAdded.toString()
+  );
 
   return result;
 }

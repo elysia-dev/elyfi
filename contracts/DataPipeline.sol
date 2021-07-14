@@ -105,12 +105,11 @@ contract DataPipeline {
     AssetBondStateDataLocalVars memory vars;
 
     DataStruct.ReserveData memory reserve = moneyPool.getReserveData(asset);
-
     DataStruct.AssetBondData memory assetBond = ITokenizer(reserve.tokenizerAddress)
     .getAssetBondData(tokenId);
 
-    vars.tokenOwner = ITokenizer(reserve.tokenizerAddress).ownerOf(tokenId);
     vars.assetBondState = assetBond.state;
+    vars.tokenOwner = ITokenizer(reserve.tokenizerAddress).ownerOf(tokenId);
     (vars.debtOnMoneyPool, vars.feeOnCollateralServiceProvider) = ITokenizer(
       reserve.tokenizerAddress
     ).getAssetBondDebtData(tokenId);

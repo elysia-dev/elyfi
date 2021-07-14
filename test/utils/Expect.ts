@@ -633,9 +633,6 @@ export function expectIncentiveDataAfterDeposit(
   const [newIncentivePoolData, newUserIncentiveData]: [IncentivePoolData, UserIncentiveData] =
     calculateDataAfterUpdate(incentivePoolData, userIncentiveData, txTimeStamp);
 
-  logger(newIncentivePoolData);
-  logger(newUserIncentiveData);
-
   const newUserLTokenBalance = newUserIncentiveData.userLTokenBalance.add(amount);
   newUserIncentiveData.userLTokenBalance = newUserLTokenBalance;
 
@@ -689,4 +686,42 @@ export function expectIncentiveDataAfterClaim(
   newUserIncentiveData.userIncentive = BigNumber.from(0);
 
   return [newIncentivePoolData, newUserIncentiveData];
+}
+
+export function expectIncentiveDataAfterTransfer(
+  incentivePoolData: IncentivePoolData,
+  senderIncentiveData: UserIncentiveData,
+  receiverIncentiveData: UserIncentiveData,
+  txTimeStamp: BigNumber,
+  amount: BigNumber
+): [IncentivePoolData, UserIncentiveData, UserIncentiveData] {
+  const newSenderIncentiveData = { ...senderIncentiveData };
+  const newReceiverIncentiveData = { ...receiverIncentiveData };
+  const newIncentivePoolData = { ...incentivePoolData };
+
+  const accruedSenderIncentive = calculateUserIncentive(
+    incentivePoolData,
+    senderIncentiveData,
+    txTimeStamp
+  );
+  const accruedReceiverIncentive = calculateUserIncentive(
+    incentivePoolData,
+    receiverIncentiveData,
+    txTimeStamp
+  );
+  logger(senderIncentiveData);
+  console.log('ok');
+  logger(receiverIncentiveData);
+  newSenderIncentiveData.userIncentive = accruedSenderIncentive;
+  newReceiverIncentiveData.userIncentive = accruedReceiverIncentive;
+
+  const newIncentiveIndex = calculateIncentiveIndex(incentivePoolData, txTimeStamp);
+
+  newSenderIncentiveData.userIndex = newIncentiveIndex;
+  newReceiverIncentiveData.userIndex = newIncentiveIndex;
+
+  newSenderIncentiveData.userLTokenBalance = senderIncentiveData.userLTokenBalance.sub(amount);
+  newReceiverIncentiveData.userLTokenBalance = receiverIncentiveData.userLTokenBalance.add(amount);
+
+  return [newIncentivePoolData, newSenderIncentiveData, newReceiverIncentiveData];
 }

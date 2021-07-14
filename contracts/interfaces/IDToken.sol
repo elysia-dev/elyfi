@@ -59,7 +59,7 @@ interface IDToken is IERC20Metadata {
     address receiver,
     uint256 amount,
     uint256 rate
-  ) external returns (bool);
+  ) external;
 
   /**
    * @dev Burns debt of `account`

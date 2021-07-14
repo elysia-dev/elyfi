@@ -39,22 +39,15 @@ library Index {
    * @dev Updates the reserve indexes and the timestamp
    * @param reserve The reserve to be updated
    **/
-  function updateState(DataStruct.ReserveData storage reserve, address asset)
-    internal
-    returns (uint256)
-  {
-    uint256 previousLTokenIndex = reserve.lTokenInterestIndex;
-
+  function updateState(DataStruct.ReserveData storage reserve, address asset) internal {
     if (reserve.depositAPY == 0) {
       reserve.lastUpdateTimestamp = block.timestamp;
-      return (previousLTokenIndex);
+      return;
     }
 
     reserve.lTokenInterestIndex = getLTokenInterestIndex(reserve);
     reserve.lastUpdateTimestamp = block.timestamp;
 
     emit LTokenIndexUpdated(asset, reserve.lTokenInterestIndex, reserve.lastUpdateTimestamp);
-
-    return (reserve.lTokenInterestIndex);
   }
 }

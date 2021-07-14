@@ -4,9 +4,9 @@ pragma solidity 0.8.3;
 import '../libraries/DataStruct.sol';
 
 interface IIncentivePool {
-  event ClaimIncentive(address indexed user, uint256 accruedIncentive);
+  event ClaimIncentive(address indexed user, uint256 claimedIncentive, uint256 userIncentiveIndex);
 
-  event UpdateIncentivePool(uint256 incentiveIndex);
+  event UpdateIncentivePool(address indexed user, uint256 accruedIncentive, uint256 incentiveIndex);
 
   function initializeIncentivePool(address lToken) external;
 

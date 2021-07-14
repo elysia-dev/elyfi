@@ -4,11 +4,7 @@ import { BigNumber, utils } from 'ethers';
 import { makeAllContracts } from '../../utils/makeContract';
 import { RAY } from '../../utils/constants';
 import { getIncentivePoolData, getUserIncentiveData } from '../../utils/Helpers';
-import {
-  expectIncentiveDataAfterClaim,
-  expectIncentiveDataAfterDeposit,
-  expectIncentiveDataAfterWithdraw,
-} from '../../utils/Expect';
+import { expectIncentiveDataAfterClaim } from '../../utils/Expect';
 import { getTimestamp } from '../../utils/time';
 import IncentivePoolData from '../../types/IncentivePoolData';
 import UserIncentiveData from '../../types/UserIncentiveData';

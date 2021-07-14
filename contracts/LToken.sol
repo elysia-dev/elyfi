@@ -93,16 +93,9 @@ contract LToken is ILToken, ERC20 {
    * @dev Transfers the underlying asset to receiver.
    * @param receiver The recipient of the underlying asset
    * @param amount The amount getting transferred
-   * @return The amount transferred
    **/
-  function transferUnderlyingTo(address receiver, uint256 amount)
-    external
-    override
-    onlyMoneyPool
-    returns (uint256)
-  {
+  function transferUnderlyingTo(address receiver, uint256 amount) external override onlyMoneyPool {
     IERC20(_underlyingAsset).safeTransfer(receiver, amount);
-    return amount;
   }
 
   /**
