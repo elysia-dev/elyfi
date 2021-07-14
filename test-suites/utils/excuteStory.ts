@@ -61,7 +61,7 @@ const excutor = async (args: {
 };
 
 const excuteStory = async (story: Story, account: Wallet, elyfiContracts: ElyfiContracts) => {
-  const amount = utils.parseEther(story.value.toFixed());
+  let amount = utils.parseEther(story.value.toFixed());
 
   switch (story.actionType) {
     case ActionType.deposit:
@@ -106,10 +106,11 @@ const excuteStory = async (story: Story, account: Wallet, elyfiContracts: ElyfiC
       break;
 
     case ActionType.withdrawAll:
+      amount = await elyfiContracts.lToken.balanceOf(account.address)
     case ActionType.withdraw:
       await excutor({
         account,
-        amount: story.actionType === ActionType.withdrawAll ? constants.MaxUint256 : amount,
+        amount,
         elyfiContracts,
         doTransaction: async () => {
           try {
@@ -125,7 +126,6 @@ const excuteStory = async (story: Story, account: Wallet, elyfiContracts: ElyfiC
 
             return tx;
           } catch (e) {
-            console.log("hi")
             console.log(e);
             expect(story.expected).to.be.false;
           }
