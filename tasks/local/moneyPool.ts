@@ -2,7 +2,7 @@ import { task } from 'hardhat/config';
 import ElyfiContracts from '../../test/types/ElyfiContracts';
 import getDeployedContracts from '../../test/utils/getDeployedContracts';
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers';
-import { testAssetBondData } from '../../test/utils/testData';
+import { testAssetBond } from '../../test/utils/testData';
 import { HardhatRuntimeEnvironment } from 'hardhat/types';
 import assetBondIdData from '../../misc/assetBond/assetBondIdDataExample.json';
 import { tokenIdGenerator } from '../../misc/assetBond/generator';
@@ -122,15 +122,15 @@ task('local:borrow', 'Create borrow : 1500ETH')
         borrower.address,
         signer.address,
         tokenId,
-        testAssetBondData.principal,
-        testAssetBondData.couponRate,
-        testAssetBondData.delinquencyRate,
-        testAssetBondData.debtCeiling,
-        testAssetBondData.loanDuration,
-        testAssetBondData.loanStartTimeYear,
-        testAssetBondData.loanStartTimeMonth,
-        testAssetBondData.loanStartTimeDay.add(snapshot),
-        testAssetBondData.ipfsHash
+        testAssetBond.principal,
+        testAssetBond.couponRate,
+        testAssetBond.delinquencyRate,
+        testAssetBond.debtCeiling,
+        testAssetBond.loanDuration,
+        testAssetBond.loanStartTimeYear,
+        testAssetBond.loanStartTimeMonth,
+        testAssetBond.loanStartTimeDay.add(snapshot),
+        testAssetBond.ipfsHash
       );
 
     await tokenizer.connect(signer).signAssetBond(tokenId, 'test opinion');

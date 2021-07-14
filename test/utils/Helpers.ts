@@ -127,12 +127,12 @@ export async function getUserIncentiveData({
   user: Wallet;
 }): Promise<UserIncentiveData> {
   const userIncentiveData = <UserIncentiveData>{};
-  const contractUserIncentiveData = await incentivePool.getUserIncentiveData(user);
+  const contractUserIncentiveData = await incentivePool.getUserIncentiveData(user.address);
 
   return {
     ...userIncentiveData,
-    userIndex: contractIncentiveData.userIndex,
-    userReward: contractIncentiveData.userReward,
+    userIndex: contractUserIncentiveData.userIndex,
+    userReward: contractUserIncentiveData.userReward,
     userLTokenBalance: await lToken.balanceOf(user.address),
     incentiveAssetBalance: await incentiveAsset.balanceOf(user.address),
   };

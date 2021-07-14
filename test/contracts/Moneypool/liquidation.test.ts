@@ -26,7 +26,6 @@ describe('MoneyPool.liquidation', () => {
 
   testAssetBondData.borrower = borrower.address;
   testAssetBondData.signer = signer.address;
-  console.log('address before', signer.address);
   testAssetBondData.principal = ethers.utils.parseEther('1');
 
   beforeEach('The asset bond is collateralized properly', async () => {
@@ -42,7 +41,6 @@ describe('MoneyPool.liquidation', () => {
     await elyfiContracts.tokenizer
       .connect(CSP)
       .mintAssetBond(CSP.address, testAssetBondData.tokenId);
-    console.log('address', signer.address, testAssetBondData.signer);
     await settleAssetBond({
       tokenizer: elyfiContracts.tokenizer,
       txSender: CSP,

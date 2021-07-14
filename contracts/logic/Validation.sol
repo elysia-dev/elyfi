@@ -15,7 +15,7 @@ library Validation {
    * @param reserve The reserve object
    * @param amount Deposit amount
    **/
-  function validateDeposit(DataStruct.ReserveData storage reserve, uint256 amount) internal view {
+  function validateDeposit(DataStruct.ReserveData storage reserve, uint256 amount) external view {
     require(amount != 0, 'InvalidAmount');
     require(reserve.isPaused, 'ReservePaused');
     require(!reserve.isActivated, 'ReserveInactivated');
@@ -34,7 +34,7 @@ library Validation {
     address asset,
     uint256 amount,
     uint256 userLTokenBalance
-  ) internal view {
+  ) external view {
     require(amount != 0, 'InvalidAmount');
     require(reserve.isPaused, 'ReservePaused');
     require(!reserve.isActivated, 'ReserveInactivated');
@@ -48,7 +48,7 @@ library Validation {
     DataStruct.AssetBondData memory assetBond,
     address asset,
     uint256 borrowAmount
-  ) internal view {
+  ) external view {
     require(reserve.isPaused, 'ReservePaused');
     require(!reserve.isActivated, 'ReserveInactivated');
     require(assetBond.state == DataStruct.AssetBondState.CONFIRMED, 'OnlySignedTokenBorrowAllowed');
@@ -64,7 +64,7 @@ library Validation {
   function validateRepay(
     DataStruct.ReserveData storage reserve,
     DataStruct.AssetBondData memory assetBond
-  ) internal view {
+  ) external view {
     require(!reserve.isActivated, 'ReserveInactivated');
     require(block.timestamp < assetBond.liquidationTimestamp, 'LoanExpired');
     require(
@@ -77,7 +77,7 @@ library Validation {
   function validateLiquidation(
     DataStruct.ReserveData storage reserve,
     DataStruct.AssetBondData memory assetBond
-  ) internal view {
+  ) external view {
     require(!reserve.isActivated, 'ReserveInactivated');
     require(
       assetBond.state == DataStruct.AssetBondState.LIQUIDATED,
@@ -85,12 +85,12 @@ library Validation {
     );
   }
 
-  function validateSignAssetBond(DataStruct.AssetBondData storage assetBond) internal view {
+  function validateSignAssetBond(DataStruct.AssetBondData storage assetBond) external view {
     require(assetBond.state == DataStruct.AssetBondState.SETTLED, 'OnlySettledTokenSignAllowed');
     require(assetBond.signer == msg.sender, 'OnlyDesignatedSignerAllowed');
   }
 
-  function validateSettleAssetBond(DataStruct.AssetBondData memory assetBond) internal view {
+  function validateSettleAssetBond(DataStruct.AssetBondData memory assetBond) external view {
     require(block.timestamp < assetBond.loanStartTimestamp, 'SettledLoanStartTimestampInvalid');
     require(assetBond.loanStartTimestamp != assetBond.maturityTimestamp, 'LoanDurationInvalid');
   }

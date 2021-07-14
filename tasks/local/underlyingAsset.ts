@@ -1,8 +1,6 @@
 import { task } from 'hardhat/config';
 import ElyfiContracts from '../../test/types/ElyfiContracts';
 import getDeployedContracts from '../../test/utils/getDeployedContracts';
-import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers';
-import { testAssetBondData } from '../../test/utils/testData';
 import { HardhatRuntimeEnvironment } from 'hardhat/types';
 
 interface Args {

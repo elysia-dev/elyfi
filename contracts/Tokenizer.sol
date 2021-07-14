@@ -90,7 +90,6 @@ contract Tokenizer is ITokenizer, TokenizerStorage, ERC721 {
     override
     returns (DataStruct.AssetBondIdData memory)
   {
-    DataStruct.AssetBondIdData memory vars = AssetBond.parseAssetBondId(tokenId);
     return AssetBond.parseAssetBondId(tokenId);
   }
 
