@@ -4,6 +4,7 @@ pragma solidity 0.8.3;
 import '../libraries/DataStruct.sol';
 import '../libraries/Math.sol';
 import '../interfaces/ILToken.sol';
+import 'hardhat/console.sol';
 
 library Validation {
   using WadRayMath for uint256;
@@ -40,7 +41,8 @@ library Validation {
     require(reserve.isActivated, 'ReserveInactivated');
     require(amount <= userLTokenBalance, 'WithdrawInsufficientBalance');
     uint256 availableLiquidity = IERC20(asset).balanceOf(reserve.lTokenAddress);
-    require(availableLiquidity > amount, 'NotEnoughLiquidityToWithdraw');
+    console.log('liquid', availableLiquidity, amount);
+    require(availableLiquidity >= amount, 'NotEnoughLiquidityToWithdraw');
   }
 
   function validateBorrow(
@@ -54,7 +56,7 @@ library Validation {
     require(assetBond.state == DataStruct.AssetBondState.CONFIRMED, 'OnlySignedTokenBorrowAllowed');
     require(msg.sender == assetBond.collateralServiceProvider, 'OnlyAssetBondOwnerBorrowAllowed');
     uint256 availableLiquidity = IERC20(asset).balanceOf(reserve.lTokenAddress);
-    require(availableLiquidity > borrowAmount, 'NotEnoughLiquidityToLoan');
+    require(availableLiquidity >= borrowAmount, 'NotEnoughLiquidityToLoan');
     require(block.timestamp >= assetBond.loanStartTimestamp, 'NotTimeForLoanStart');
     require(assetBond.loanStartTimestamp + 18 hours >= block.timestamp, 'TimeOutForCollateralize');
   }

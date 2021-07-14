@@ -97,8 +97,12 @@ contract IncentivePool is IIncentivePool {
     if (_userIncentiveIndex[user] == 0) {
       return 0;
     }
-    uint256 indexDiff = getIncentiveIndex() - _userIncentiveIndex[user];
 
+    uint256 indexDiff = 0;
+
+    if (getIncentiveIndex() >= _userIncentiveIndex[user]) {
+      indexDiff = getIncentiveIndex() - _userIncentiveIndex[user];
+    }
     uint256 balance = IERC20(_lToken).balanceOf(user);
 
     uint256 result = _accruedIncentive[user] + (balance * indexDiff) / 1e9;

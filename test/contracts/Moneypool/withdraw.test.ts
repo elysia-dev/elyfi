@@ -1,11 +1,7 @@
 import { constants, utils } from 'ethers';
 import { waffle } from 'hardhat';
 import { expect } from 'chai';
-import {
-  expectReserveDataAfterDeposit,
-  expectReserveDataAfterWithdraw,
-  expectUserDataAfterWithdraw,
-} from '../../utils/Expect';
+import { expectReserveDataAfterWithdraw, expectUserDataAfterWithdraw } from '../../utils/Expect';
 import ElyfiContracts from '../../types/ElyfiContracts';
 import takeDataSnapshot from '../../utils/takeDataSnapshot';
 import loadFixture from '../../utils/loadFixture';
