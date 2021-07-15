@@ -13,9 +13,9 @@ export const daiReserveData = {
     symbol: 'ELFI_DAI_DToken',
   },
   interestRateModel: <InterestModelParams>{
-    optimalUtilizationRate: toRate(0.8),
-    borrowRateBase: toRate(0.02),
-    borrowRateOptimal: toRate(0.1),
+    optimalUtilizationRate: toRate(0.75),
+    borrowRateBase: toRate(0.05),
+    borrowRateOptimal: toRate(0.06),
     borrowRateMax: toRate(1),
   },
   tokenizer: {
