@@ -118,7 +118,8 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
    * @param asset The address of the underlying asset to withdraw
    * @param tokenId The id of the token to collateralize
    **/
-  function borrow(address asset, uint256 tokenId) external override onlyCollateralServiceProvider {
+  function borrow(address asset, uint256 tokenId) external override {
+    require(_connector.isCollateralServiceProvider(msg.sender), 'OnlyCollateralServiceProvider');
     DataStruct.ReserveData storage reserve = _reserves[asset];
     DataStruct.AssetBondData memory assetBond = ITokenizer(reserve.tokenizerAddress)
     .getAssetBondData(tokenId);
@@ -192,11 +193,8 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
     );
   }
 
-  function liquidate(address asset, uint256 tokenId)
-    external
-    override
-    onlyCollateralServiceProvider
-  {
+  function liquidate(address asset, uint256 tokenId) external override {
+    require(_connector.isCollateralServiceProvider(msg.sender), 'OnlyCollateralServiceProvider');
     DataStruct.ReserveData storage reserve = _reserves[asset];
     DataStruct.AssetBondData memory assetBond = ITokenizer(reserve.tokenizerAddress)
     .getAssetBondData(tokenId);
@@ -329,18 +327,6 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
 
   function unPauseMoneyPool(address asset) external onlyMoneyPoolAdmin {
     _reserves[asset].isPaused = false;
-  }
-
-  /**************** Modifier ****************/
-
-  modifier onlyCollateralServiceProvider {
-    require(_connector.isCollateralServiceProvider(msg.sender), 'OnlyCollateralServiceProvider');
-    _;
-  }
-
-  modifier onlyCouncil {
-    require(_connector.isCouncil(msg.sender), 'OnlyCouncil');
-    _;
   }
 
   modifier onlyMoneyPoolAdmin {

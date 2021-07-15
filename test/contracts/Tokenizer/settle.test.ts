@@ -59,7 +59,7 @@ describe('Tokenizer.settle', () => {
             txSender: account,
             settleArguments: testAssetBondData,
           })
-        ).to.be.revertedWith('OnlyOwnerHasAuthrotyToSettle');
+        ).to.be.revertedWith('OnlyOnwerCanSettle');
       });
       it('reverts if the state of asset bond is not empty', async () => {
         await settleAssetBond({
@@ -73,7 +73,7 @@ describe('Tokenizer.settle', () => {
             txSender: CSP,
             settleArguments: testAssetBondData,
           })
-        ).to.be.revertedWith('AssetBondAlreadySettled');
+        ).to.be.revertedWith('AlreadySettled');
       });
 
       context('when token owner settles asset bond but the informations are invalid', async () => {
@@ -87,7 +87,7 @@ describe('Tokenizer.settle', () => {
               txSender: CSP,
               settleArguments: invalidAssetBondData,
             })
-          ).to.be.revertedWith('SettledLoanStartTimestampInvalid');
+          ).to.be.revertedWith('OnlySettledSigned');
         });
         it('reverts if the loan duration is 0', async () => {
           const invalidAssetBondData = { ...testAssetBondData };

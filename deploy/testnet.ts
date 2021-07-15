@@ -7,7 +7,15 @@ import {
 } from '../test/utils/testData';
 import { getContractAt } from 'hardhat-deploy-ethers/dist/src/helpers';
 import { MoneyPool } from '../typechain';
-import { getAssetBond, getDai, getElyfi, getValidation } from './utils/dependencies';
+import {
+  getAssetBond,
+  getDai,
+  getElyfi,
+  getIndex,
+  getRate,
+  getTimeConverter,
+  getValidation,
+} from './utils/dependencies';
 import { ethers } from 'hardhat';
 
 export enum ELYFIContractType {
@@ -26,9 +34,15 @@ const deployTestnet: DeployFunction = async function (hre: HardhatRuntimeEnviron
 
   const testIncentiveAsset = await getElyfi(hre, deployer);
 
+  const timeConverter = await getTimeConverter(hre);
+
+  const index = await getIndex(hre);
+
+  const rate = await getRate(hre);
+
   const validation = await getValidation(hre);
 
-  const assetBond = await getAssetBond(hre);
+  const assetBond = await getAssetBond(hre, timeConverter);
 
   const connector = await deploy('Connector', {
     from: deployer,
@@ -40,8 +54,11 @@ const deployTestnet: DeployFunction = async function (hre: HardhatRuntimeEnviron
     args: ['16', connector.address],
     log: true,
     libraries: {
-      Validation: validation.address,
       AssetBond: assetBond.address,
+      Validation: validation.address,
+      TimeConverter: timeConverter.address,
+      Index: index.address,
+      Rate: rate.address,
     },
   });
 
@@ -85,8 +102,9 @@ const deployTestnet: DeployFunction = async function (hre: HardhatRuntimeEnviron
     args: [connector.address, moneyPool.address, 'testTokenizer', 'T'],
     log: true,
     libraries: {
-      Validation: validation.address,
       AssetBond: assetBond.address,
+      Validation: validation.address,
+      TimeConverter: timeConverter.address,
     },
   });
 

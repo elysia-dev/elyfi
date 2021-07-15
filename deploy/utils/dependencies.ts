@@ -4,6 +4,7 @@ import TestnetEL_ABI from '../../dependencies/TestnetEL.json';
 import ELToken_ABI from '../../dependencies/ELToken.json';
 import Dai_ABI from '../../dependencies/Dai.json';
 import Elyfi_ABI from '../../dependencies/Elyfi.json';
+import { TimeConverter } from '../../typechain';
 
 export const getValidation = async (hre: HardhatRuntimeEnvironment): Promise<Contract> => {
   const { deployer } = await hre.getNamedAccounts();
@@ -23,7 +24,28 @@ export const getValidation = async (hre: HardhatRuntimeEnvironment): Promise<Con
   return validation;
 };
 
-export const getAssetBond = async (hre: HardhatRuntimeEnvironment): Promise<Contract> => {
+export const getTimeConverter = async (hre: HardhatRuntimeEnvironment): Promise<Contract> => {
+  const { deployer } = await hre.getNamedAccounts();
+  const { deploy } = hre.deployments;
+  let timeConverter: Contract;
+
+  const timeConverterLocalDeploy = await deploy('TimeConverter', {
+    from: deployer,
+    log: true,
+  });
+
+  timeConverter = await hre.ethers.getContractAt(
+    timeConverterLocalDeploy.abi,
+    timeConverterLocalDeploy.address
+  );
+
+  return timeConverter;
+};
+
+export const getAssetBond = async (
+  hre: HardhatRuntimeEnvironment,
+  timeConverter: Contract
+): Promise<Contract> => {
   const { deployer } = await hre.getNamedAccounts();
   const { deploy } = hre.deployments;
   let assetBond: Contract;
@@ -31,6 +53,9 @@ export const getAssetBond = async (hre: HardhatRuntimeEnvironment): Promise<Cont
   const assetBondLocalDeploy = await deploy('AssetBond', {
     from: deployer,
     log: true,
+    libraries: {
+      TimeConverter: timeConverter.address,
+    },
   });
 
   assetBond = await hre.ethers.getContractAt(
@@ -39,6 +64,36 @@ export const getAssetBond = async (hre: HardhatRuntimeEnvironment): Promise<Cont
   );
 
   return assetBond;
+};
+
+export const getIndex = async (hre: HardhatRuntimeEnvironment): Promise<Contract> => {
+  const { deployer } = await hre.getNamedAccounts();
+  const { deploy } = hre.deployments;
+  let index: Contract;
+
+  const indexLocalDeploy = await deploy('Index', {
+    from: deployer,
+    log: true,
+  });
+
+  index = await hre.ethers.getContractAt(indexLocalDeploy.abi, indexLocalDeploy.address);
+
+  return index;
+};
+
+export const getRate = async (hre: HardhatRuntimeEnvironment): Promise<Contract> => {
+  const { deployer } = await hre.getNamedAccounts();
+  const { deploy } = hre.deployments;
+  let rate: Contract;
+
+  const rateLocalDeploy = await deploy('Rate', {
+    from: deployer,
+    log: true,
+  });
+
+  rate = await hre.ethers.getContractAt(rateLocalDeploy.abi, rateLocalDeploy.address);
+
+  return rate;
 };
 
 export const getElysia = async (

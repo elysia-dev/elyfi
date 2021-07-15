@@ -124,7 +124,7 @@ describe('MoneyPool.withdraw', () => {
               depositor.address,
               utils.parseEther('11')
             )
-        ).to.be.revertedWith('WithdrawInsufficientBalance');
+        ).to.be.revertedWith('InsufficientBalance');
       });
     });
   });
@@ -139,7 +139,7 @@ describe('MoneyPool.withdraw', () => {
             depositor.address,
             utils.parseEther('1')
           )
-      ).to.be.revertedWith('WithdrawInsufficientBalance');
+      ).to.be.revertedWith('InsufficientBalance');
     });
   });
 });

@@ -50,7 +50,7 @@ describe('Tokenizer.mint', () => {
             elyfiContracts.tokenizer
               .connect(CSP)
               .mintAssetBond(account.address, testAssetBondData.tokenId)
-          ).to.be.revertedWith('MintedAssetBondReceiverNotAllowed');
+          ).to.be.revertedWith('NotAllowedMinter');
         });
         it('mints asset bond to oneself and saves minter', async () => {
           await expect(

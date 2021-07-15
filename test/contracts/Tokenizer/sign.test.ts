@@ -63,7 +63,7 @@ describe('Tokenizer.sign', () => {
         elyfiContracts.tokenizer
           .connect(account)
           .signAssetBond(testAssetBondData.tokenId, signerOpinionHash)
-      ).to.be.revertedWith('OnlyDesignatedSignerAllowed');
+      ).to.be.revertedWith('NotAllowedSigner');
     });
 
     it('signs the asset bond properly', async () => {

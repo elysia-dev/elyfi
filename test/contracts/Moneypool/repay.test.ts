@@ -58,7 +58,7 @@ describe('MoneyPool.repay', () => {
       elyfiContracts.moneyPool
         .connect(borrower)
         .repay(elyfiContracts.underlyingAsset.address, testAssetBondData.tokenId)
-    ).to.be.revertedWith('OnlyCollateralizedOrDelinquentAssetBondRepayable');
+    ).to.be.revertedWith('NotRepayableState');
   });
 
   context('when the borrower has borrowed against asset bond', async () => {

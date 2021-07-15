@@ -108,7 +108,7 @@ contract Tokenizer is ITokenizer, TokenizerStorage, ERC721 {
     override
     onlyCollateralServiceProvider
   {
-    require(_connector.isCollateralServiceProvider(account), 'MintedAssetBondReceiverNotAllowed');
+    require(_connector.isCollateralServiceProvider(account), 'NotAllowedMinter');
 
     // validate tokenId : tokenId should have information about
 
@@ -163,12 +163,9 @@ contract Tokenizer is ITokenizer, TokenizerStorage, ERC721 {
     string memory ipfsHash
   ) external onlyCollateralServiceProvider {
     SettleAssetBondLocalVars memory vars;
-    require(ownerOf(tokenId) == msg.sender, 'OnlyOwnerHasAuthrotyToSettle');
+    require(ownerOf(tokenId) == msg.sender, 'OnlyOnwerCanSettle');
 
-    require(
-      _assetBondData[tokenId].state == DataStruct.AssetBondState.EMPTY,
-      'AssetBondAlreadySettled'
-    );
+    require(_assetBondData[tokenId].state == DataStruct.AssetBondState.EMPTY, 'AlreadySettled');
 
     require(_connector.isCouncil(signer), 'SignerIsNotCouncil');
     vars.loanStartTimestamp = 0;

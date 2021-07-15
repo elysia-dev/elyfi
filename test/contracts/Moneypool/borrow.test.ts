@@ -114,7 +114,7 @@ describe('MoneyPool.borrow', () => {
             elyfiContracts.moneyPool
               .connect(otherCSP)
               .borrow(elyfiContracts.underlyingAsset.address, testAssetBondData.tokenId)
-          ).to.be.revertedWith('OnlyAssetBondOwnerBorrowAllowed');
+          ).to.be.revertedWith('OnlyOwnerBorrowAllowed');
         });
 
         it('reverts if liquidity is insufficient', async () => {
@@ -122,7 +122,7 @@ describe('MoneyPool.borrow', () => {
             elyfiContracts.moneyPool
               .connect(CSP)
               .borrow(elyfiContracts.underlyingAsset.address, testAssetBondData.tokenId)
-          ).to.be.revertedWith('NotEnoughLiquidityToLoan');
+          ).to.be.revertedWith('NotEnoughLiquidity');
         });
 
         context('when liquidity is sufficient', async () => {

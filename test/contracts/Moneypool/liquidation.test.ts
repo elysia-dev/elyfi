@@ -78,7 +78,7 @@ describe('MoneyPool.liquidation', () => {
       elyfiContracts.moneyPool
         .connect(liquidator)
         .liquidate(elyfiContracts.underlyingAsset.address, testAssetBondData.tokenId)
-    ).to.be.revertedWith('OnlyNotPerformedAssetBondLiquidatable');
+    ).to.be.revertedWith('NotLiquidatbleState');
   });
 
   context('when the asset bond state is `LIQUIDATED`', async () => {
