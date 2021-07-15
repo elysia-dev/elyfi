@@ -47,6 +47,8 @@ library Math {
 
     uint256 expMinusTwo = exp > 2 ? exp - 2 : 0;
 
+    // loss of precision is endurable
+    // slither-disable-next-line divide-before-multiply
     uint256 ratePerSecond = rate / SECONDSPERYEAR;
 
     uint256 basePowerTwo = ratePerSecond.rayMul(ratePerSecond);
