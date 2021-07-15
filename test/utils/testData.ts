@@ -33,7 +33,7 @@ export const testAssetBond: AssetBondSettleData = <AssetBondSettleData>{
   couponRate: toRate(0.1),
   delinquencyRate: toRate(0.03),
   loanDuration: BigNumber.from(365),
-  loanStartTimeYear: BigNumber.from(2022),
+  loanStartTimeYear: BigNumber.from(2030),
   loanStartTimeMonth: BigNumber.from(0),
   loanStartTimeDay: BigNumber.from(1),
   ipfsHash: 'test',

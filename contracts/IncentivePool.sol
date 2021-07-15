@@ -26,7 +26,7 @@ contract IncentivePool is IIncentivePool {
   address internal _incentiveAsset;
 
   IMoneyPool internal _moneyPool;
-  // ray : for obviating underflow error
+
   uint256 public amountPerSecond;
 
   address public lToken;
@@ -48,12 +48,24 @@ contract IncentivePool is IIncentivePool {
     endTimestamp = block.timestamp + 180 * 1 days;
   }
 
+  function isClosed() public view returns (bool) {
+    if (block.timestamp > endTimestamp) {
+      return true;
+    }
+    return false;
+  }
+
   /**
    * @notice Update user incentive index and last update timestamp in minting or burining lTokens.
    */
   function updateIncentivePool(address user) external override onlyLToken {
     _accruedIncentive[user] = getUserIncentive(user);
     _incentiveIndex = _userIncentiveIndex[user] = getIncentiveIndex();
+
+    if (isClosed()) {
+      _lastUpdateTimestamp = endTimestamp;
+      return;
+    }
     _lastUpdateTimestamp = block.timestamp;
 
     emit UpdateIncentivePool(user, _accruedIncentive[user], _incentiveIndex);
@@ -73,6 +85,8 @@ contract IncentivePool is IIncentivePool {
     address user = msg.sender;
 
     uint256 accruedIncentive = getUserIncentive(user);
+
+    require(accruedIncentive > 0, 'NotEnoughUserAccruedIncentive');
 
     _userIncentiveIndex[user] = getIncentiveIndex();
 

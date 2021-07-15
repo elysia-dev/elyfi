@@ -179,8 +179,10 @@ describe('MoneyPool.liquidation', () => {
         expect(liquidatorBalanceAfter).to.be.equal(
           liquidatorBalanceBefore.sub(totalRetrieveAmount)
         );
-        expect(collateralServiceProviderLTokenBalanceAfter).to.be.equal(
-          collateralServiceProviderLTokenBalanceBefore.add(feeOnLiquidate)
+        expect(collateralServiceProviderLTokenBalanceAfter).to.be.bigNumberCloseTo(
+          collateralServiceProviderLTokenBalanceBefore.add(feeOnLiquidate),
+          1,
+          ''
         );
         expect(assetBondDataAfter).to.be.deepEqualWithBigNumber(expectedAssetBondData);
         expect(reserveDataAfter).deepEqualWithBigNumber(expectedReserveData);

@@ -5,7 +5,7 @@ import { makeAllContracts } from '../../utils/makeContract';
 import { RAY } from '../../utils/constants';
 import { getIncentivePoolData, getUserIncentiveData } from '../../utils/Helpers';
 import { expectIncentiveDataAfterDeposit } from '../../utils/Expect';
-import { getTimestamp } from '../../utils/time';
+import { advanceTimeTo, getTimestamp } from '../../utils/time';
 import IncentivePoolData from '../../types/IncentivePoolData';
 import UserIncentiveData from '../../types/UserIncentiveData';
 import { expect } from 'chai';
@@ -37,6 +37,13 @@ describe('', () => {
         .connect(otherDepositor)
         .approve(elyfiContracts.moneyPool.address, RAY);
     });
+
+    it('reverts if general account call updateIncentivePool', async () => {
+      await expect(
+        elyfiContracts.incentivePool.connect(deployer).updateIncentivePool(depositor.address)
+      ).to.be.revertedWith('OnlyLToken');
+    });
+
     it('updates index and timestamp after deposit', async () => {
       const userIncentiveDataBefore = await getUserIncentiveData({
         incentivePool: elyfiContracts.incentivePool,
@@ -122,6 +129,57 @@ describe('', () => {
 
       expect(expectedIncentivePoolData).to.be.deepEqualWithBigNumber(incentivePoolDataAfter);
       expect(expectedUserIncentiveData).to.be.deepEqualWithBigNumber(userIncentiveDataAfter);
+    });
+
+    context('end timestamp', async () => {
+      beforeEach('deposit and time passes', async () => {
+        const tx = await elyfiContracts.moneyPool
+          .connect(otherDepositor)
+          .deposit(elyfiContracts.underlyingAsset.address, otherDepositor.address, amount);
+        const endTimestamp = await elyfiContracts.incentivePool.endTimestamp();
+        await advanceTimeTo(await getTimestamp(tx), endTimestamp.add(1));
+      });
+      it('incentive calculation should be stopped after end timestamp', async () => {
+        const userIncentiveDataBefore = await getUserIncentiveData({
+          incentivePool: elyfiContracts.incentivePool,
+          lToken: elyfiContracts.lToken,
+          incentiveAsset: elyfiContracts.incentiveAsset,
+          user: depositor,
+        });
+        const incentivePoolDataBefore = await getIncentivePoolData({
+          incentivePool: elyfiContracts.incentivePool,
+          lToken: elyfiContracts.lToken,
+          incentiveAsset: elyfiContracts.incentiveAsset,
+        });
+        const tx = await elyfiContracts.moneyPool
+          .connect(depositor)
+          .deposit(elyfiContracts.underlyingAsset.address, depositor.address, amount);
+
+        const [expectedIncentivePoolData, expectedUserIncentiveData]: [
+          IncentivePoolData,
+          UserIncentiveData
+        ] = expectIncentiveDataAfterDeposit(
+          incentivePoolDataBefore,
+          userIncentiveDataBefore,
+          await getTimestamp(tx),
+          amount
+        );
+
+        const userIncentiveDataAfter = await getUserIncentiveData({
+          incentivePool: elyfiContracts.incentivePool,
+          lToken: elyfiContracts.lToken,
+          incentiveAsset: elyfiContracts.incentiveAsset,
+          user: depositor,
+        });
+        const incentivePoolDataAfter = await getIncentivePoolData({
+          incentivePool: elyfiContracts.incentivePool,
+          lToken: elyfiContracts.lToken,
+          incentiveAsset: elyfiContracts.incentiveAsset,
+        });
+
+        expect(expectedIncentivePoolData).to.be.deepEqualWithBigNumber(incentivePoolDataAfter);
+        expect(expectedUserIncentiveData).to.be.deepEqualWithBigNumber(userIncentiveDataAfter);
+      });
     });
   });
 });

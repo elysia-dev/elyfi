@@ -264,8 +264,10 @@ describe('MoneyPool.repay', () => {
               assetBondData: assetBondDataBefore,
             });
 
-            expect(collateralServiceProviderLTokenBalanceAfter).to.be.equal(
-              collateralServiceProviderLTokenBalanceBefore.add(feeOnRepayment)
+            expect(collateralServiceProviderLTokenBalanceAfter).to.be.bigNumberCloseTo(
+              collateralServiceProviderLTokenBalanceBefore.add(feeOnRepayment),
+              1,
+              ''
             );
             expect(assetBondDataAfter).deepEqualWithBigNumber(expectedAssetBondData);
             expect(reserveDataAfter).deepEqualWithBigNumber(expectedReserveData);

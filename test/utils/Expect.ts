@@ -709,9 +709,6 @@ export function expectIncentiveDataAfterTransfer(
     receiverIncentiveData,
     txTimeStamp
   );
-  logger(senderIncentiveData);
-  console.log('ok');
-  logger(receiverIncentiveData);
   newSenderIncentiveData.userIncentive = accruedSenderIncentive;
   newReceiverIncentiveData.userIncentive = accruedReceiverIncentive;
 

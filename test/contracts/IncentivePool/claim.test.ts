@@ -5,7 +5,7 @@ import { makeAllContracts } from '../../utils/makeContract';
 import { RAY } from '../../utils/constants';
 import { getIncentivePoolData, getUserIncentiveData } from '../../utils/Helpers';
 import { expectIncentiveDataAfterClaim } from '../../utils/Expect';
-import { getTimestamp } from '../../utils/time';
+import { getTimestamp, revertFromEVMSnapshot, saveEVMSnapshot } from '../../utils/time';
 import IncentivePoolData from '../../types/IncentivePoolData';
 import UserIncentiveData from '../../types/UserIncentiveData';
 import { expect } from 'chai';
@@ -78,6 +78,14 @@ describe('', () => {
 
       expect(expectedIncentivePoolData).to.be.deepEqualWithBigNumber(incentivePoolDataAfter);
       expect(expectedUserIncentiveData).to.be.deepEqualWithBigNumber(userIncentiveDataAfter);
+    });
+
+    it('reverts if user accrued incentive is 0', async () => {
+      await elyfiContracts.incentivePool.connect(depositor).claimIncentive();
+      console.log(await elyfiContracts.incentivePool.getUserIncentive(depositor.address));
+      await expect(
+        elyfiContracts.incentivePool.connect(depositor).claimIncentive()
+      ).to.be.revertedWith('NotEnoughUserAccruedIncentive');
     });
   });
 });
