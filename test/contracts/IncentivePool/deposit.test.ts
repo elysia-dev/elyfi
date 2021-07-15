@@ -32,6 +32,9 @@ describe('', () => {
     await elyfiContracts.underlyingAsset
       .connect(deployer)
       .transfer(otherDepositor.address, utils.parseEther('1000'));
+    await elyfiContracts.incentiveAsset
+      .connect(deployer)
+      .transfer(elyfiContracts.incentivePool.address, RAY);
   });
   context('deposit', async () => {
     beforeEach('', async () => {
@@ -195,12 +198,61 @@ describe('', () => {
         expect(expectedIncentivePoolData).to.be.deepEqualWithBigNumber(incentivePoolDataAfter);
         expect(expectedUserIncentiveData).to.be.deepEqualWithBigNumber(userIncentiveDataAfter);
       });
+
+      it('scenario : withdraw - claimReward - deposit', async () => {
+        const logger = (object: Object) => {
+          (Object.keys(object) as (keyof Object)[]).forEach((key) => {
+            console.log(key, object[key].toString());
+          });
+        };
+        await elyfiContracts.moneyPool
+          .connect(depositor)
+          .withdraw(elyfiContracts.underlyingAsset.address, depositor.address, amount);
+        await elyfiContracts.incentivePool.connect(depositor).claimIncentive();
+        const userIncentiveDataBefore = await getUserIncentiveData({
+          incentivePool: elyfiContracts.incentivePool,
+          lToken: elyfiContracts.lToken,
+          incentiveAsset: elyfiContracts.incentiveAsset,
+          user: depositor,
+        });
+        const incentivePoolDataBefore = await getIncentivePoolData({
+          incentivePool: elyfiContracts.incentivePool,
+          lToken: elyfiContracts.lToken,
+          incentiveAsset: elyfiContracts.incentiveAsset,
+        });
+        const tx = await elyfiContracts.moneyPool
+          .connect(depositor)
+          .deposit(elyfiContracts.underlyingAsset.address, depositor.address, amount);
+
+        const [expectedIncentivePoolData, expectedUserIncentiveData]: [
+          IncentivePoolData,
+          UserIncentiveData
+        ] = expectIncentiveDataAfterDeposit(
+          incentivePoolDataBefore,
+          userIncentiveDataBefore,
+          await getTimestamp(tx),
+          amount
+        );
+
+        const userIncentiveDataAfter = await getUserIncentiveData({
+          incentivePool: elyfiContracts.incentivePool,
+          lToken: elyfiContracts.lToken,
+          incentiveAsset: elyfiContracts.incentiveAsset,
+          user: depositor,
+        });
+        const incentivePoolDataAfter = await getIncentivePoolData({
+          incentivePool: elyfiContracts.incentivePool,
+          lToken: elyfiContracts.lToken,
+          incentiveAsset: elyfiContracts.incentiveAsset,
+        });
+        logger(expectedIncentivePoolData);
+        logger(incentivePoolDataAfter);
+        logger(expectedUserIncentiveData);
+        logger(userIncentiveDataAfter);
+
+        expect(expectedIncentivePoolData).to.be.deepEqualWithBigNumber(incentivePoolDataAfter);
+        expect(expectedUserIncentiveData).to.be.deepEqualWithBigNumber(userIncentiveDataAfter);
+      });
     });
   });
 });
-
-const logger = (object: Object) => {
-  (Object.keys(object) as (keyof Object)[]).forEach((key) => {
-    console.log(key, object[key].toString());
-  });
-};

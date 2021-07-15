@@ -303,7 +303,7 @@ export function calculateIncentiveIndex(
   const timeDiff = currentTimestamp.sub(incentivePoolData.lastUpdateTimestamp);
 
   if (timeDiff.eq(0)) {
-    return BigNumber.from(0);
+    return incentivePoolData.incentiveIndex;
   }
 
   if (incentivePoolData.totalLTokenSupply.eq(0)) {
@@ -357,6 +357,10 @@ export function calculateDataAfterUpdate(
   newUserIncentiveData.userIndex = newIndex;
 
   newIncentivePoolData.lastUpdateTimestamp = txTimestamp;
+
+  if (txTimestamp.gt(incentivePoolData.endTimestamp)) {
+    newIncentivePoolData.lastUpdateTimestamp = incentivePoolData.endTimestamp;
+  }
 
   return [newIncentivePoolData, newUserIncentiveData];
 }
