@@ -149,6 +149,9 @@ contract DToken is IDToken, Context {
   function balanceOf(address account) public view virtual override returns (uint256) {
     uint256 accountBalance = _balances[account];
     uint256 stableRate = _userAverageRealAssetBorrowRate[account];
+
+    // strict equality is not dangerous here
+    // divide-before-multiply dangerous-strict-equalities
     if (accountBalance == 0) {
       return 0;
     }
@@ -325,6 +328,8 @@ contract DToken is IDToken, Context {
   {
     uint256 previousprincipalBalance = _balances[account];
 
+    // strict equality is not dangerous here
+    // divide-before-multiply dangerous-strict-equalities
     if (previousprincipalBalance == 0) {
       return (0, 0, 0);
     }
@@ -406,6 +411,8 @@ contract DToken is IDToken, Context {
   function _calcTotalSupply(uint256 avgRate) internal view virtual returns (uint256) {
     uint256 principalSupply = _totalSupply;
 
+    // strict equality is not dangerous here
+    // divide-before-multiply dangerous-strict-equalities
     if (principalSupply == 0) {
       return 0;
     }

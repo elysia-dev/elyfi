@@ -56,6 +56,8 @@ contract Tokenizer is ITokenizer, TokenizerStorage, ERC721 {
     returns (DataStruct.AssetBondData memory)
   {
     DataStruct.AssetBondData memory assetBondData = _assetBondData[tokenId];
+    // assetBondData.state is enum
+    // divide-before-multiply dangerous-strict-equalities
     if (
       block.timestamp >= assetBondData.liquidationTimestamp &&
       assetBondData.state == DataStruct.AssetBondState.COLLATERALIZED

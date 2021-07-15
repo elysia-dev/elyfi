@@ -24,6 +24,8 @@ library Index {
   {
     uint256 lastUpdateTimestamp = reserve.lastUpdateTimestamp;
 
+    // strict equality is not dangerous here
+    // divide-before-multiply dangerous-strict-equalities
     if (lastUpdateTimestamp == block.timestamp) {
       return reserve.lTokenInterestIndex;
     }
