@@ -1,7 +1,7 @@
 {
   "scripts": {
     "deploy:mainnet": "hardhat --network mainnet deploy --tags mainnet",
-    "deploy:testnet": "hardhat --network ropsten deploy --tags testnet",
+    "deploy:testnet": "hardhat --network kovan deploy --tags testnet",
     "deploy:local": "hardhat --network ganache deploy --tags testnet",
     "test": "yarn hardhat test",
     "test:zap": "yarn hardhat test --no-compile",

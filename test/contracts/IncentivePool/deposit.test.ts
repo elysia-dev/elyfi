@@ -200,11 +200,6 @@ describe('', () => {
       });
 
       it('scenario : withdraw - claimReward - deposit', async () => {
-        const logger = (object: Object) => {
-          (Object.keys(object) as (keyof Object)[]).forEach((key) => {
-            console.log(key, object[key].toString());
-          });
-        };
         await elyfiContracts.moneyPool
           .connect(depositor)
           .withdraw(elyfiContracts.underlyingAsset.address, depositor.address, amount);
@@ -245,10 +240,6 @@ describe('', () => {
           lToken: elyfiContracts.lToken,
           incentiveAsset: elyfiContracts.incentiveAsset,
         });
-        logger(expectedIncentivePoolData);
-        logger(incentivePoolDataAfter);
-        logger(expectedUserIncentiveData);
-        logger(userIncentiveDataAfter);
 
         expect(expectedIncentivePoolData).to.be.deepEqualWithBigNumber(incentivePoolDataAfter);
         expect(expectedUserIncentiveData).to.be.deepEqualWithBigNumber(userIncentiveDataAfter);

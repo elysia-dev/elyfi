@@ -144,9 +144,7 @@ const deployMainnet: DeployFunction = async function (hre: HardhatRuntimeEnviron
 
   await addNewReserveTx.wait();
 
-  await hre.run('etherscan-verify', {
-    network: hre.network.name,
-  });
+  console.log('addNewReserve done, incentive pool mining start');
 };
 
 deployMainnet.tags = ['mainnet'];
