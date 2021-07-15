@@ -99,9 +99,9 @@ describe('', () => {
         incentiveAsset: elyfiContracts.incentiveAsset,
       });
 
-      expect(expectedIncentivePoolData).to.be.equalIncentivePoolData(incentivePoolDataAfter);
-      expect(expectedSenderIncentiveData).to.be.equalUserIncentiveData(senderIncentiveDataAfter);
-      expect(expectedReceiverIncentiveData).to.be.equalUserIncentiveData(
+      expect(expectedIncentivePoolData).to.be.deepEqualWithBigNumber(incentivePoolDataAfter);
+      expect(expectedSenderIncentiveData).to.be.deepEqualWithBigNumber(senderIncentiveDataAfter);
+      expect(expectedReceiverIncentiveData).to.be.deepEqualWithBigNumber(
         receiverIncentiveDataAfter
       );
     });

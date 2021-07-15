@@ -123,7 +123,7 @@ contract IncentivePool is IIncentivePool {
       uint256 userLTokenBalance
     )
   {
-    return (_userIncentiveIndex[user], getUserIncentive(user), IERC20(lToken).balanceOf(user));
+    return (_userIncentiveIndex[user], _accruedIncentive[user], IERC20(lToken).balanceOf(user));
   }
 
   function getIncentivePoolData()

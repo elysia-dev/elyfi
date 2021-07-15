@@ -27,7 +27,7 @@ Assertion.addMethod('bigNumberCloseTo', function (expected, delta, msg) {
 
   this.assert(
     BigNumber.prototype.gte.bind(actualData)(expected.sub(delta)) &&
-    BigNumber.prototype.lte.bind(actualData)(expected.add(delta)),
+      BigNumber.prototype.lte.bind(actualData)(expected.add(delta)),
     `expected #{act} to be within '${delta}' of #{exp}`,
     `expected #{act} to be further than '${delta}' from #{exp}`,
     expected.toString(),
@@ -39,7 +39,7 @@ Assertion.addMethod('deepEqualWithBigNumber', function (expectedData: ElyfiData)
   const actualData = <ElyfiData>this._obj;
 
   (Object.keys(actualData) as (keyof ElyfiData)[]).forEach((key) => {
-    const castedData = expectedData[key] as { _isBigNumber: boolean }
+    const castedData = expectedData[key] as { _isBigNumber: boolean };
 
     if (castedData?._isBigNumber) {
       expect(expectedData[key], key).to.bigNumberCloseTo(actualData[key] as BigNumber, 1, '');
