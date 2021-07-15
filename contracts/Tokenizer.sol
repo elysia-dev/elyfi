@@ -212,6 +212,7 @@ contract Tokenizer is ITokenizer, TokenizerStorage, ERC721 {
       debtCeiling,
       vars.maturityTimestamp,
       vars.liquidationTimestamp,
+      vars.loanStartTimestamp,
       ipfsHash
     );
   }

@@ -25,6 +25,7 @@ interface ITokenizer is IERC721 {
     uint256 debtCeiling,
     uint256 maturityTimestamp,
     uint256 liquidationTimestamp,
+    uint256 loanStartTimestamp,
     string ifpsHash
   );
 
