@@ -192,16 +192,6 @@ describe('', () => {
           incentiveAsset: elyfiContracts.incentiveAsset,
         });
 
-        logger(expectedIncentivePoolData);
-        console.log('ts -> contract');
-        logger(incentivePoolDataAfter);
-
-        console.log('pool >>> user');
-
-        logger(expectedUserIncentiveData);
-        console.log('ts -> contract');
-        logger(userIncentiveDataAfter);
-
         expect(expectedIncentivePoolData).to.be.deepEqualWithBigNumber(incentivePoolDataAfter);
         expect(expectedUserIncentiveData).to.be.deepEqualWithBigNumber(userIncentiveDataAfter);
       });

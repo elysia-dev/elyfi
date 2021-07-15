@@ -618,12 +618,6 @@ export function expectAssetBondDataAfterLiquidate({
   return expectedAssetBondData;
 }
 
-const logger = (object: Object) => {
-  (Object.keys(object) as (keyof Object)[]).forEach((key) => {
-    console.log(key, object[key].toString());
-  });
-};
-
 export function expectIncentiveDataAfterDeposit(
   incentivePoolData: IncentivePoolData,
   userIncentiveData: UserIncentiveData,

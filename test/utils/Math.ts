@@ -333,13 +333,6 @@ export function calculateUserIncentive(
   const incentiveAdded = balance.mul(indexDiff).div(1e9);
   const result = userIncentiveData.userIncentive.add(incentiveAdded);
 
-  console.log(
-    'calculateIncentive',
-    userIncentiveData.userIncentive.toString(),
-    result.toString(),
-    incentiveAdded.toString()
-  );
-
   return result;
 }
 
@@ -357,8 +350,6 @@ export function calculateDataAfterUpdate(
     txTimestamp
   );
   const newIndex = calculateIncentiveIndex(incentivePoolData, txTimestamp);
-
-  console.log('newIndex in calculate ts', newIndex.toString());
 
   newUserIncentiveData.userIncentive = newUserIncentive;
 

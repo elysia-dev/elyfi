@@ -4,7 +4,6 @@ import TestnetEL_ABI from '../../dependencies/TestnetEL.json';
 import ELToken_ABI from '../../dependencies/ELToken.json';
 import Dai_ABI from '../../dependencies/Dai.json';
 import Elyfi_ABI from '../../dependencies/Elyfi.json';
-import { TimeConverter } from '../../typechain';
 
 export const getValidation = async (hre: HardhatRuntimeEnvironment): Promise<Contract> => {
   const { deployer } = await hre.getNamedAccounts();
