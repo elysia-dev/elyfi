@@ -130,7 +130,7 @@ const deployTestnet: DeployFunction = async function (hre: HardhatRuntimeEnviron
   //   deployer
   // )) as ERC20Test;
 
-  await deployedMoneyPool.addNewReserve(
+  const addNewReserveTx = await deployedMoneyPool.addNewReserve(
     testUnderlyingAsset?.address,
     lToken.address,
     dToken.address,

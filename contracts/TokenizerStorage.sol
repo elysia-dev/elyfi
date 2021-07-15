@@ -2,7 +2,9 @@
 pragma solidity 0.8.3;
 
 import './libraries/DataStruct.sol';
+
 import './logic/Index.sol';
+
 import './interfaces/IConnector.sol';
 import './interfaces/IMoneyPool.sol';
 

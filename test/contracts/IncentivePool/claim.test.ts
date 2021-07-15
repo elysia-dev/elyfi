@@ -41,6 +41,12 @@ describe('', () => {
       .deposit(elyfiContracts.underlyingAsset.address, depositor.address, amount);
   });
   context('claimReward', async () => {
+    it('reverts if user accrued incentive is 0', async () => {
+      await expect(
+        elyfiContracts.incentivePool.connect(otherDepositor).claimIncentive()
+      ).to.be.revertedWith('NotEnoughUserAccruedIncentive');
+    });
+
     it('update userLastUpdateTimestamp and accured reward after claim reward', async () => {
       const userIncentiveDataBefore = await getUserIncentiveData({
         incentivePool: elyfiContracts.incentivePool,
@@ -78,14 +84,6 @@ describe('', () => {
 
       expect(expectedIncentivePoolData).to.be.deepEqualWithBigNumber(incentivePoolDataAfter);
       expect(expectedUserIncentiveData).to.be.deepEqualWithBigNumber(userIncentiveDataAfter);
-    });
-
-    it('reverts if user accrued incentive is 0', async () => {
-      await elyfiContracts.incentivePool.connect(depositor).claimIncentive();
-      console.log(await elyfiContracts.incentivePool.getUserIncentive(depositor.address));
-      await expect(
-        elyfiContracts.incentivePool.connect(depositor).claimIncentive()
-      ).to.be.revertedWith('NotEnoughUserAccruedIncentive');
     });
   });
 });

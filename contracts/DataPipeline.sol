@@ -1,12 +1,14 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.3;
 
+import '@openzeppelin/contracts/token/ERC20/IERC20.sol';
+
+import './libraries/DataStruct.sol';
+
 import './interfaces/ILToken.sol';
 import './interfaces/IDToken.sol';
 import './interfaces/IMoneyPool.sol';
 import './interfaces/ITokenizer.sol';
-import './libraries/DataStruct.sol';
-import '@openzeppelin/contracts/token/ERC20/IERC20.sol';
 
 /**
  * @title ELYFI Data Pipeline

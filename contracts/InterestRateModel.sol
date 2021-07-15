@@ -1,10 +1,13 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.3;
 
-import './InterestRateModelStorage.sol';
-import './libraries/WadRayMath.sol';
-import './interfaces/IInterestRateModel.sol';
 import '@openzeppelin/contracts/token/ERC20/IERC20.sol';
+
+import './libraries/WadRayMath.sol';
+
+import './interfaces/IInterestRateModel.sol';
+
+import './InterestRateModelStorage.sol';
 
 /**
  * @title ELYFI InterestRateModel

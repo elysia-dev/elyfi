@@ -297,10 +297,10 @@ export function calculateIncentiveIndex(
   incentivePoolData: IncentivePoolData,
   txTimeStamp: BigNumber
 ): BigNumber {
-  let timeDiff: BigNumber;
-  timeDiff = txTimeStamp.lt(incentivePoolData.endTimestamp)
-    ? (timeDiff = txTimeStamp.sub(incentivePoolData.lastUpdateTimestamp))
-    : (timeDiff = txTimeStamp.sub(incentivePoolData.endTimestamp));
+  const currentTimestamp = txTimeStamp.lt(incentivePoolData.endTimestamp)
+    ? txTimeStamp
+    : incentivePoolData.endTimestamp;
+  const timeDiff = currentTimestamp.sub(incentivePoolData.lastUpdateTimestamp);
 
   if (timeDiff.eq(0)) {
     return BigNumber.from(0);
@@ -357,6 +357,8 @@ export function calculateDataAfterUpdate(
     txTimestamp
   );
   const newIndex = calculateIncentiveIndex(incentivePoolData, txTimestamp);
+
+  console.log('newIndex in calculate ts', newIndex.toString());
 
   newUserIncentiveData.userIncentive = newUserIncentive;
 

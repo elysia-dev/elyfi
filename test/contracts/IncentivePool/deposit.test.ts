@@ -5,7 +5,12 @@ import { makeAllContracts } from '../../utils/makeContract';
 import { RAY } from '../../utils/constants';
 import { getIncentivePoolData, getUserIncentiveData } from '../../utils/Helpers';
 import { expectIncentiveDataAfterDeposit } from '../../utils/Expect';
-import { advanceTimeTo, getTimestamp } from '../../utils/time';
+import {
+  advanceTimeTo,
+  getTimestamp,
+  revertFromEVMSnapshot,
+  saveEVMSnapshot,
+} from '../../utils/time';
 import IncentivePoolData from '../../types/IncentivePoolData';
 import UserIncentiveData from '../../types/UserIncentiveData';
 import { expect } from 'chai';
@@ -132,13 +137,23 @@ describe('', () => {
     });
 
     context('end timestamp', async () => {
+      let snapshotId: string;
       beforeEach('deposit and time passes', async () => {
         const tx = await elyfiContracts.moneyPool
-          .connect(otherDepositor)
-          .deposit(elyfiContracts.underlyingAsset.address, otherDepositor.address, amount);
+          .connect(depositor)
+          .deposit(elyfiContracts.underlyingAsset.address, depositor.address, amount);
         const endTimestamp = await elyfiContracts.incentivePool.endTimestamp();
         await advanceTimeTo(await getTimestamp(tx), endTimestamp.add(1));
       });
+
+      beforeEach('take EVM snapshot', async () => {
+        snapshotId = await saveEVMSnapshot();
+      });
+
+      afterEach('revert from EVM snapshot', async () => {
+        await revertFromEVMSnapshot(snapshotId);
+      });
+
       it('incentive calculation should be stopped after end timestamp', async () => {
         const userIncentiveDataBefore = await getUserIncentiveData({
           incentivePool: elyfiContracts.incentivePool,
@@ -177,9 +192,25 @@ describe('', () => {
           incentiveAsset: elyfiContracts.incentiveAsset,
         });
 
+        logger(expectedIncentivePoolData);
+        console.log('ts -> contract');
+        logger(incentivePoolDataAfter);
+
+        console.log('pool >>> user');
+
+        logger(expectedUserIncentiveData);
+        console.log('ts -> contract');
+        logger(userIncentiveDataAfter);
+
         expect(expectedIncentivePoolData).to.be.deepEqualWithBigNumber(incentivePoolDataAfter);
         expect(expectedUserIncentiveData).to.be.deepEqualWithBigNumber(userIncentiveDataAfter);
       });
     });
   });
 });
+
+const logger = (object: Object) => {
+  (Object.keys(object) as (keyof Object)[]).forEach((key) => {
+    console.log(key, object[key].toString());
+  });
+};

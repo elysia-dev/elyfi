@@ -1,10 +1,13 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.3;
 
-import './libraries/Role.sol';
-import './ConnectorStorage.sol';
-import './interfaces/IConnector.sol';
 import '@openzeppelin/contracts/access/Ownable.sol';
+
+import './libraries/Role.sol';
+
+import './interfaces/IConnector.sol';
+
+import './ConnectorStorage.sol';
 
 /**
  * @title ELYFI Connector

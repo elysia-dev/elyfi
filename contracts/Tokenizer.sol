@@ -2,17 +2,21 @@
 pragma solidity 0.8.3;
 
 import '@openzeppelin/contracts/token/ERC721/ERC721.sol';
+
 import './libraries/WadRayMath.sol';
 import './libraries/DataStruct.sol';
 import './libraries/Math.sol';
 import './libraries/Role.sol';
 import './libraries/TimeConverter.sol';
+
 import './logic/AssetBond.sol';
 import './logic/Index.sol';
 import './logic/Validation.sol';
+
 import './interfaces/IMoneyPool.sol';
 import './interfaces/ITokenizer.sol';
 import './interfaces/IConnector.sol';
+
 import './TokenizerStorage.sol';
 
 /**
@@ -142,12 +146,12 @@ contract Tokenizer is ITokenizer, TokenizerStorage, ERC721 {
    * @param principal The borrow amount based on the contract between collateral service provider and borrower in reality
    * @param couponRate The coupon rate of the bond
    * @param delinquencyRate The overdue interest rate of the bond. After the loan duration, the borrower
-   * @param debtCeiling .
-   * @param loanDuration .
-   * @param loanStartTimeYear .
-   * @param loanStartTimeMonth .
-   * @param loanStartTimeDay .
-   * @param ipfsHash .
+   * @param debtCeiling DebtCeiling, the available value of collateral asset when liquidated
+   * @param loanDuration LoanDuration
+   * @param loanStartTimeYear LoanStartTimeYear
+   * @param loanStartTimeMonth LoanStartTimeMonth
+   * @param loanStartTimeDay LoanStartTimeDay
+   * @param ipfsHash IpfsHash which contract and collateral data stored
    The interest rate paid on a bond by its issuer for the term of the security
    */
   function settleAssetBond(

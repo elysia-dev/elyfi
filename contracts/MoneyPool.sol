@@ -1,18 +1,22 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.3;
 
-import './MoneyPoolStorage.sol';
+import '@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol';
+
+import './libraries/DataStruct.sol';
+
+import './logic/Index.sol';
+import './logic/Rate.sol';
+import './logic/Validation.sol';
+import './logic/AssetBond.sol';
+
 import './interfaces/ILToken.sol';
 import './interfaces/IDToken.sol';
 import './interfaces/IMoneyPool.sol';
 import './interfaces/IIncentivePool.sol';
 import './interfaces/ITokenizer.sol';
-import './logic/Index.sol';
-import './logic/Rate.sol';
-import './logic/Validation.sol';
-import './logic/AssetBond.sol';
-import './libraries/DataStruct.sol';
-import '@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol';
+
+import './MoneyPoolStorage.sol';
 
 /**
  * @title Main contract for ELYFI version 1.

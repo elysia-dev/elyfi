@@ -1,6 +1,6 @@
 import { BigNumber, constants, ethers } from 'ethers';
 import { toRate } from './Ethereum';
-import { RAY } from './constants';
+import { RAY, SECONDSPERDAY, WAD } from './constants';
 import InterestModelParams from '../types/InterestRateModelParams';
 import ReserveData from '../types/ReserveData';
 import AssetBondSettleData from '../types/AssetBondSettleData';
@@ -39,4 +39,7 @@ export const testAssetBond: AssetBondSettleData = <AssetBondSettleData>{
   ipfsHash: 'test',
 };
 
-export const testIncentiveAmountPerSecond = BigNumber.from((1e18).toFixed()).mul(33334).div(86400);
+export const testIncentiveAmountPerSecond = BigNumber.from(WAD)
+  .mul(3000000)
+  .div(180)
+  .div(SECONDSPERDAY);
