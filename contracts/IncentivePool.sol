@@ -27,23 +27,23 @@ contract IncentivePool is IIncentivePool {
 
   bool private _initialized;
 
-  address internal _incentiveAsset;
-
   IMoneyPool internal _moneyPool;
 
-  uint256 public amountPerSecond;
-
-  address public lToken;
+  address internal _incentiveAsset;
 
   uint256 internal _incentiveIndex;
 
   uint256 internal _lastUpdateTimestamp;
 
-  uint256 public endTimestamp;
-
   mapping(address => uint256) internal _userIncentiveIndex;
 
   mapping(address => uint256) internal _accruedIncentive;
+
+  uint256 public amountPerSecond;
+
+  address public lToken;
+
+  uint256 public endTimestamp;
 
   function initializeIncentivePool(address lToken_) external override onlyMoneyPool {
     require(!_initialized, 'AlreadyInitialized');

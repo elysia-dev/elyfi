@@ -4,8 +4,13 @@ import { BigNumber, utils } from 'ethers';
 import { makeAllContracts } from '../../utils/makeContract';
 import { RAY } from '../../utils/constants';
 import { getIncentivePoolData, getUserIncentiveData } from '../../utils/Helpers';
-import { expectIncentiveDataAfterClaim } from '../../utils/Expect';
-import { getTimestamp, revertFromEVMSnapshot, saveEVMSnapshot } from '../../utils/time';
+import { expectIncentiveDataAfterClaim, expectIncentiveDataAfterDeposit } from '../../utils/Expect';
+import {
+  advanceTimeTo,
+  getTimestamp,
+  revertFromEVMSnapshot,
+  saveEVMSnapshot,
+} from '../../utils/time';
 import IncentivePoolData from '../../types/IncentivePoolData';
 import UserIncentiveData from '../../types/UserIncentiveData';
 import { expect } from 'chai';
@@ -68,6 +73,66 @@ describe('', () => {
         incentivePoolDataBefore,
         userIncentiveDataBefore,
         await getTimestamp(tx)
+      );
+
+      const userIncentiveDataAfter = await getUserIncentiveData({
+        incentivePool: elyfiContracts.incentivePool,
+        lToken: elyfiContracts.lToken,
+        incentiveAsset: elyfiContracts.incentiveAsset,
+        user: depositor,
+      });
+      const incentivePoolDataAfter = await getIncentivePoolData({
+        incentivePool: elyfiContracts.incentivePool,
+        lToken: elyfiContracts.lToken,
+        incentiveAsset: elyfiContracts.incentiveAsset,
+      });
+
+      expect(expectedIncentivePoolData).to.be.deepEqualWithBigNumber(incentivePoolDataAfter);
+      expect(expectedUserIncentiveData).to.be.deepEqualWithBigNumber(userIncentiveDataAfter);
+    });
+  });
+  context('end timestamp', async () => {
+    let snapshotId: string;
+    beforeEach('deposit and time passes', async () => {
+      const tx = await elyfiContracts.moneyPool
+        .connect(depositor)
+        .deposit(elyfiContracts.underlyingAsset.address, depositor.address, amount);
+      const endTimestamp = await elyfiContracts.incentivePool.endTimestamp();
+      await advanceTimeTo(await getTimestamp(tx), endTimestamp.add(1));
+    });
+
+    beforeEach('take EVM snapshot', async () => {
+      snapshotId = await saveEVMSnapshot();
+    });
+
+    afterEach('revert from EVM snapshot', async () => {
+      await revertFromEVMSnapshot(snapshotId);
+    });
+
+    it('reverts if another claimIncentive after endTimestamp', async () => {
+      const userIncentiveDataBefore = await getUserIncentiveData({
+        incentivePool: elyfiContracts.incentivePool,
+        lToken: elyfiContracts.lToken,
+        incentiveAsset: elyfiContracts.incentiveAsset,
+        user: depositor,
+      });
+      const incentivePoolDataBefore = await getIncentivePoolData({
+        incentivePool: elyfiContracts.incentivePool,
+        lToken: elyfiContracts.lToken,
+        incentiveAsset: elyfiContracts.incentiveAsset,
+      });
+      const tx = await elyfiContracts.moneyPool
+        .connect(depositor)
+        .deposit(elyfiContracts.underlyingAsset.address, depositor.address, amount);
+
+      const [expectedIncentivePoolData, expectedUserIncentiveData]: [
+        IncentivePoolData,
+        UserIncentiveData
+      ] = expectIncentiveDataAfterDeposit(
+        incentivePoolDataBefore,
+        userIncentiveDataBefore,
+        await getTimestamp(tx),
+        amount
       );
 
       const userIncentiveDataAfter = await getUserIncentiveData({
