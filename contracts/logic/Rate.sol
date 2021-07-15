@@ -34,7 +34,7 @@ library Rate {
     address underlyingAssetAddress,
     uint256 depositAmount,
     uint256 borrowAmount
-  ) internal {
+  ) public {
     UpdateRatesLocalVars memory vars;
 
     vars.totalDToken = IDToken(reserve.dTokenAddress).totalSupply();

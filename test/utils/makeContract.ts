@@ -7,8 +7,8 @@ import {
   ERC20Test__factory,
   InterestRateModel,
   InterestRateModel__factory,
-  TokenizerTest,
-  TokenizerTest__factory,
+  Tokenizer,
+  Tokenizer__factory,
   Connector,
   Connector__factory,
   DataPipeline,
@@ -21,6 +21,12 @@ import {
   Validation,
   AssetBond__factory,
   AssetBond,
+  Index,
+  Index__factory,
+  Rate,
+  Rate__factory,
+  TimeConverter,
+  TimeConverter__factory,
 } from '../../typechain';
 import { Contract, BigNumber, utils } from 'ethers';
 import { ethers } from 'hardhat';
@@ -31,19 +37,44 @@ import InterestModelParams from '../types/InterestRateModelParams';
 export const makeValidation = async (): Promise<Validation> => {
   let validation: Validation;
   const validationFactory = (await ethers.getContractFactory('Validation')) as Validation__factory;
-
   validation = await validationFactory.deploy();
-
   return validation;
 };
 
-export const makeAssetBond = async (): Promise<AssetBond> => {
+//Tokenizer
+export const makeTimeConverter = async (): Promise<TimeConverter> => {
+  let timeConverter: TimeConverter;
+  const timeConverterFactory = (await ethers.getContractFactory(
+    'TimeConverter'
+  )) as TimeConverter__factory;
+  timeConverter = await timeConverterFactory.deploy();
+  return timeConverter;
+};
+
+export const makeAssetBond = async (timeConverter: TimeConverter): Promise<AssetBond> => {
   let assetBond: AssetBond;
-  const assetBondFactory = (await ethers.getContractFactory('AssetBond')) as AssetBond__factory;
-
+  const assetBondFactory = (await ethers.getContractFactory('AssetBond', {
+    libraries: {
+      TimeConverter: timeConverter.address,
+    },
+  })) as AssetBond__factory;
   assetBond = await assetBondFactory.deploy();
-
   return assetBond;
+};
+//tokenizer, moneypool
+export const makeIndex = async (): Promise<Index> => {
+  let index: Index;
+  const indexFactory = (await ethers.getContractFactory('Index')) as Index__factory;
+  index = await indexFactory.deploy();
+  return index;
+};
+
+//Moneypool
+export const makeRate = async (): Promise<Rate> => {
+  let rate: Rate;
+  const rateFactory = (await ethers.getContractFactory('Rate')) as Rate__factory;
+  rate = await rateFactory.deploy();
+  return rate;
 };
 
 export async function makeUnderlyingAsset({
@@ -81,11 +112,17 @@ export async function makeMoneyPool({
   connector,
   validation,
   assetBond,
+  timeConverter,
+  index,
+  rate,
 }: {
   maxReserveCount_?: string;
   connector: Connector | Contract;
   validation: Validation | Contract;
   assetBond: AssetBond | Contract;
+  timeConverter: TimeConverter | Contract;
+  index: Index | Contract;
+  rate: Rate | Contract;
 }): Promise<MoneyPoolTest> {
   let moneyPoolTest: MoneyPoolTest;
 
@@ -93,6 +130,9 @@ export async function makeMoneyPool({
     libraries: {
       AssetBond: assetBond.address,
       Validation: validation.address,
+      TimeConverter: timeConverter.address,
+      Index: index.address,
+      Rate: rate.address,
     },
   })) as MoneyPoolTest__factory;
 
@@ -204,6 +244,8 @@ export async function makeTokenizer({
   moneyPool,
   validation,
   assetBond,
+  index,
+  timeConverter,
   name = '',
   symbol = '',
 }: {
@@ -211,21 +253,24 @@ export async function makeTokenizer({
   moneyPool: MoneyPoolTest | Contract;
   validation: Validation | Contract;
   assetBond: AssetBond | Contract;
+  index: Index | Contract;
+  timeConverter: TimeConverter | Contract;
   name?: string;
   symbol?: string;
-}): Promise<TokenizerTest> {
-  let tokenizerTest: TokenizerTest;
+}): Promise<Tokenizer> {
+  let Tokenizer: Tokenizer;
 
-  const tokenizerFactory = (await ethers.getContractFactory('TokenizerTest', {
+  const tokenizerFactory = (await ethers.getContractFactory('Tokenizer', {
     libraries: {
       AssetBond: assetBond.address,
       Validation: validation.address,
+      TimeConverter: timeConverter.address,
     },
-  })) as TokenizerTest__factory;
+  })) as Tokenizer__factory;
 
-  tokenizerTest = await tokenizerFactory.deploy(connector.address, moneyPool.address, name, symbol);
+  Tokenizer = await tokenizerFactory.deploy(connector.address, moneyPool.address, name, symbol);
 
-  return tokenizerTest;
+  return Tokenizer;
 }
 
 export async function makeDataPipeline({
@@ -247,7 +292,13 @@ export async function makeDataPipeline({
 export async function makeAllContracts(): Promise<ElyfiContracts> {
   const validation = await makeValidation();
 
-  const assetBond = await makeAssetBond();
+  const timeConverter = await makeTimeConverter();
+
+  const assetBond = await makeAssetBond(timeConverter);
+
+  const rate = await makeRate();
+
+  const index = await makeIndex();
 
   const underlyingAsset = await makeUnderlyingAsset({});
 
@@ -259,6 +310,9 @@ export async function makeAllContracts(): Promise<ElyfiContracts> {
     connector,
     validation,
     assetBond,
+    timeConverter,
+    index,
+    rate,
   });
 
   const incentivePool = await makeIncentivePool({
@@ -284,6 +338,8 @@ export async function makeAllContracts(): Promise<ElyfiContracts> {
     moneyPool,
     validation,
     assetBond,
+    index,
+    timeConverter,
   });
 
   const dataPipeline = await makeDataPipeline({

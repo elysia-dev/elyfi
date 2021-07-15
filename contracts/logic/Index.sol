@@ -18,7 +18,7 @@ library Index {
    * @return the normalized income. expressed in ray
    **/
   function getLTokenInterestIndex(DataStruct.ReserveData storage reserve)
-    internal
+    public
     view
     returns (uint256)
   {

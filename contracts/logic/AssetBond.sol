@@ -4,6 +4,7 @@ pragma solidity 0.8.3;
 import '../libraries/DataStruct.sol';
 import '../libraries/Math.sol';
 import '../libraries/WadRayMath.sol';
+import '../libraries/TimeConverter.sol';
 
 library AssetBond {
   using WadRayMath for uint256;
@@ -41,7 +42,7 @@ library AssetBond {
   uint256 constant PRODUCT_NUMBER_START = 180;
 
   function parseAssetBondId(uint256 tokenId)
-    external
+    public
     pure
     returns (DataStruct.AssetBondIdData memory)
   {
@@ -67,7 +68,7 @@ library AssetBond {
   }
 
   function getAssetBondDebtData(DataStruct.AssetBondData memory assetBondData)
-    external
+    public
     view
     returns (uint256, uint256)
   {
@@ -83,26 +84,6 @@ library AssetBond {
     ).rayMul(assetBondData.principal);
 
     uint256 feeOnCollateralServiceProvider = calculateFeeOnRepayment(
-      assetBondData,
-      block.timestamp
-    );
-
-    return (accruedDebtOnMoneyPool, feeOnCollateralServiceProvider);
-  }
-
-  function getAssetBondLiquidationData(DataStruct.AssetBondData memory assetBondData)
-    external
-    view
-    returns (uint256, uint256)
-  {
-    uint256 accruedDebtOnMoneyPool = Math
-    .calculateCompoundedInterest(
-      assetBondData.interestRate,
-      assetBondData.collateralizeTimestamp,
-      block.timestamp
-    ).rayMul(assetBondData.principal);
-
-    uint256 feeOnCollateralServiceProvider = calculateDebtAmountToLiquidation(
       assetBondData,
       block.timestamp
     );
@@ -189,6 +170,26 @@ library AssetBond {
       vars.thirdTermRate;
 
     return assetBondData.principal.rayMul(vars.totalRate) - assetBondData.principal;
+  }
+
+  function getAssetBondLiquidationData(DataStruct.AssetBondData memory assetBondData)
+    internal
+    view
+    returns (uint256, uint256)
+  {
+    uint256 accruedDebtOnMoneyPool = Math
+    .calculateCompoundedInterest(
+      assetBondData.interestRate,
+      assetBondData.collateralizeTimestamp,
+      block.timestamp
+    ).rayMul(assetBondData.principal);
+
+    uint256 feeOnCollateralServiceProvider = calculateDebtAmountToLiquidation(
+      assetBondData,
+      block.timestamp
+    );
+
+    return (accruedDebtOnMoneyPool, feeOnCollateralServiceProvider);
   }
 
   struct CalculateDebtAmountToLiquidationLocalVars {

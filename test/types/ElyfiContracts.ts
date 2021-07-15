@@ -3,7 +3,7 @@ import {
   MoneyPoolTest,
   ERC20Test,
   InterestRateModel,
-  TokenizerTest,
+  Tokenizer,
   Connector,
   DataPipeline,
   DTokenTest,
@@ -19,7 +19,7 @@ interface ElyfiContracts {
   interestRateModel: InterestRateModel;
   lToken: LTokenTest;
   dToken: DTokenTest;
-  tokenizer: TokenizerTest;
+  tokenizer: Tokenizer;
   dataPipeline: DataPipeline;
 }
 

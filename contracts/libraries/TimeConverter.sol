@@ -63,7 +63,7 @@ library TimeConverter {
     }
   }
 
-  function parseTimestamp(uint256 timestamp) internal pure returns (DateTime memory dateTime) {
+  function parseTimestamp(uint256 timestamp) public pure returns (DateTime memory dateTime) {
     uint256 secondsAccountedFor = 0;
     uint256 buf;
     uint8 i;
@@ -156,7 +156,7 @@ library TimeConverter {
     uint16 year,
     uint8 month,
     uint8 day
-  ) internal pure returns (uint256 timestamp) {
+  ) public pure returns (uint256 timestamp) {
     return toTimestamp(year, month, day, 0, 0, 0);
   }
 
@@ -165,18 +165,8 @@ library TimeConverter {
     uint8 month,
     uint8 day,
     uint8 hour
-  ) internal pure returns (uint256 timestamp) {
+  ) public pure returns (uint256 timestamp) {
     return toTimestamp(year, month, day, hour, 0, 0);
-  }
-
-  function toTimestamp(
-    uint16 year,
-    uint8 month,
-    uint8 day,
-    uint8 hour,
-    uint8 minute
-  ) internal pure returns (uint256 timestamp) {
-    return toTimestamp(year, month, day, hour, minute, 0);
   }
 
   function toTimestamp(
@@ -186,7 +176,7 @@ library TimeConverter {
     uint8 hour,
     uint8 minute,
     uint8 second
-  ) internal pure returns (uint256 timestamp) {
+  ) public pure returns (uint256 timestamp) {
     uint16 i;
 
     // Year

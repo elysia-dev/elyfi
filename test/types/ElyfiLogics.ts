@@ -1,8 +1,11 @@
-import { AssetBond, Validation } from '../../typechain';
+import { AssetBond, Index, Rate, TimeConverter, Validation } from '../../typechain';
 
-interface ElyfiLogics {
+interface ElyfiLibraries {
   validation: Validation;
   assetBond: AssetBond;
+  timeConverter: TimeConverter;
+  rate: Rate;
+  index: Index;
 }
 
-export default ElyfiLogics;
+export default ElyfiLibraries;

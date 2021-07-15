@@ -10,7 +10,7 @@ import {
   IncentivePool,
   LToken,
   LTokenTest,
-  TokenizerTest,
+  Tokenizer,
 } from '../../typechain';
 import { testInterestModelParams } from './testData';
 import UserIncentiveData from '../types/UserIncentiveData';
@@ -81,7 +81,7 @@ export async function getAssetBondData({
 }: {
   underlyingAsset: ERC20Test;
   dataPipeline: DataPipeline;
-  tokenizer: TokenizerTest;
+  tokenizer: Tokenizer;
   tokenId: BigNumber;
 }): Promise<AssetBondData> {
   const assetBondData = <AssetBondData>{};
@@ -166,7 +166,7 @@ export async function settleAssetBond({
   txSender,
   settleArguments,
 }: {
-  tokenizer: TokenizerTest;
+  tokenizer: Tokenizer;
   txSender: Wallet;
   settleArguments: AssetBondSettleData;
 }): Promise<ContractTransaction> {
