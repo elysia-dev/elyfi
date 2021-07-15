@@ -20,7 +20,10 @@ contract IncentivePool is IIncentivePool {
     _moneyPool = moneyPool;
     _incentiveAsset = incentiveAsset;
     amountPerSecond = amountPerSecond_;
+    _owner = msg.sender;
   }
+
+  address private _owner;
 
   bool private _initialized;
 
@@ -147,6 +150,14 @@ contract IncentivePool is IIncentivePool {
     returns (uint256 incentiveIndex, uint256 lastUpdateTimestamp)
   {
     return (_incentiveIndex, _lastUpdateTimestamp);
+  }
+
+  function withdrawResidue() external override {
+    require(msg.sender == _owner, 'onlyAdmin');
+    require(isClosed(), 'OnlyClosed');
+    uint256 residue = IERC20(_incentiveAsset).balanceOf(address(this));
+    IERC20(_incentiveAsset).safeTransfer(_owner, residue);
+    emit IncentivePoolEnded();
   }
 
   modifier onlyMoneyPool {

@@ -140,6 +140,10 @@ contract LToken is ILToken, ERC20 {
     return _underlyingAsset;
   }
 
+  function updateIncentivePool(address newIncentivePool) external override onlyMoneyPool {
+    _incentivePool = IIncentivePool(newIncentivePool);
+  }
+
   modifier onlyMoneyPool {
     require(_msgSender() == address(_moneyPool), 'OnlyMoneyPool');
     _;

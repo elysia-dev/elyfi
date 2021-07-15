@@ -8,6 +8,8 @@ interface IIncentivePool {
 
   event UpdateIncentivePool(address indexed user, uint256 accruedIncentive, uint256 incentiveIndex);
 
+  event IncentivePoolEnded();
+
   function initializeIncentivePool(address lToken) external;
 
   function updateIncentivePool(address user) external;
@@ -15,4 +17,6 @@ interface IIncentivePool {
   function beforeTokenTransfer(address from, address to) external;
 
   function claimIncentive() external;
+
+  function withdrawResidue() external;
 }

@@ -37,4 +37,34 @@ describe('', () => {
       expect(await elyfiContracts.incentivePool.isClosed()).to.be.true;
     });
   });
+  context('After endTimestamp', async () => {
+    beforeEach('', async () => {
+      const tx = await elyfiContracts.moneyPool
+        .connect(depositor)
+        .deposit(elyfiContracts.underlyingAsset.address, depositor.address, amount);
+      const endTimestamp = await elyfiContracts.incentivePool.endTimestamp();
+      await advanceTimeTo(await getTimestamp(tx), endTimestamp.add(1));
+      expect(await elyfiContracts.incentivePool.isClosed()).to.be.true;
+    });
+    it('lastUpdatetimestamp incentiveIndex should not be updated after the endTimestamp', async () => {});
+
+    it('reverts if general account withdraw residue', async () => {
+      await expect(
+        elyfiContracts.incentivePool.connect(depositor).withdrawResidue()
+      ).to.be.revertedWith('onlyAdmin');
+    });
+    it('admin can withdraw residue', async () => {
+      const adminBalanceBefore = await elyfiContracts.incentiveAsset.balanceOf(depositor.address);
+      const incentiveResidue = await elyfiContracts.incentiveAsset.balanceOf(
+        elyfiContracts.incentivePool.address
+      );
+      const tx = await elyfiContracts.incentivePool.connect(deployer).withdrawResidue();
+      const adminBalanceAfter = await elyfiContracts.incentiveAsset.balanceOf(depositor.address);
+      const incentiveResidueAfter = await elyfiContracts.incentiveAsset.balanceOf(
+        elyfiContracts.incentivePool.address
+      );
+      expect(adminBalanceAfter).to.be.equal(adminBalanceBefore.add(incentiveResidue));
+      expect(incentiveResidueAfter).to.be.equal(0);
+    });
+  });
 });

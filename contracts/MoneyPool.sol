@@ -333,6 +333,14 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
     _reserves[asset].isPaused = false;
   }
 
+  function updateIncentivePool(address asset, address newIncentivePool)
+    external
+    onlyMoneyPoolAdmin
+  {
+    DataStruct.ReserveData storage reserve = _reserves[asset];
+    ILToken(reserve.lTokenAddress).updateIncentivePool(newIncentivePool);
+  }
+
   modifier onlyMoneyPoolAdmin {
     require(_connector.isMoneyPoolAdmin(msg.sender), 'OnlyMoneyPoolAdmin');
     _;
