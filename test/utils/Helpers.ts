@@ -73,7 +73,7 @@ export async function getReserveData({
   };
 }
 
-export async function deployAssetBondData({
+export async function getAssetBondData({
   underlyingAsset,
   dataPipeline,
   tokenizer,

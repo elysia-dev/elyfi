@@ -12,9 +12,9 @@ import {
   IncentivePool,
 } from '../typechain';
 import { HardhatRuntimeEnvironment } from 'hardhat/types';
-import fs from 'fs';
 import ElyfiContracts from '../test/types/ElyfiContracts';
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers';
+import fs from 'fs';
 import path from 'path';
 import { Contract } from 'ethers';
 
@@ -30,7 +30,6 @@ async function getDeployedContract(
 ): Promise<Contract> {
   return getContractAt(hre, deployedContract.abi, deployedContract.address, signer);
 }
-
 //need refactor
 export const getDeployedContracts = async (
   hre: HardhatRuntimeEnvironment,

@@ -1,6 +1,6 @@
 import { task } from 'hardhat/config';
 import ElyfiContracts from '../../test/types/ElyfiContracts';
-import getDeployedContracts from '../../utils/getContracts';
+import getDeployedContracts from '../../utils/getDeployedContracts';
 import { HardhatRuntimeEnvironment } from 'hardhat/types';
 
 interface Args {

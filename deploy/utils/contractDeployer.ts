@@ -65,7 +65,7 @@ export const deployAssetBond = async (
   return assetBond;
 };
 
-export const getIndex = async (hre: HardhatRuntimeEnvironment): Promise<Contract> => {
+export const deployIndex = async (hre: HardhatRuntimeEnvironment): Promise<Contract> => {
   const { deployer } = await hre.getNamedAccounts();
   const { deploy } = hre.deployments;
   let index: Contract;
@@ -80,7 +80,7 @@ export const getIndex = async (hre: HardhatRuntimeEnvironment): Promise<Contract
   return index;
 };
 
-export const getRate = async (hre: HardhatRuntimeEnvironment): Promise<Contract> => {
+export const deployRate = async (hre: HardhatRuntimeEnvironment): Promise<Contract> => {
   const { deployer } = await hre.getNamedAccounts();
   const { deploy } = hre.deployments;
   let rate: Contract;

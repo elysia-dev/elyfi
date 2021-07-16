@@ -4,11 +4,11 @@ import { getContractAt } from 'hardhat-deploy-ethers/dist/src/helpers';
 import { daiReserveData } from '../data/moneyPool/reserves';
 import { MoneyPool } from '../typechain';
 import {
-  getAssetBond,
+  deployAssetBond,
   getDai,
   getElyfi,
-  getIndex,
-  getRate,
+  deployIndex,
+  deployRate,
   deployTimeConverter,
   deployValidation,
 } from './utils/contractDeployer';
@@ -34,13 +34,13 @@ const deployMainnet: DeployFunction = async function (hre: HardhatRuntimeEnviron
 
   const timeConverter = await deployTimeConverter(hre);
 
-  const index = await getIndex(hre);
+  const index = await deployIndex(hre);
 
-  const rate = await getRate(hre);
+  const rate = await deployRate(hre);
 
   const validation = await deployValidation(hre);
 
-  const assetBond = await getAssetBond(hre, timeConverter);
+  const assetBond = await deployAssetBond(hre, timeConverter);
 
   const connector = await deploy('Connector', {
     from: deployer,
