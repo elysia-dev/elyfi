@@ -1,7 +1,7 @@
 import { ethers, waffle } from 'hardhat';
 import ElyfiContracts from '../../types/ElyfiContracts';
 import { utils } from 'ethers';
-import { makeAllContracts } from '../../utils/makeContract';
+import { setupAllContracts } from '../../utils/makeContract';
 import { RAY } from '../../utils/constants';
 import { getIncentivePoolData, getUserIncentiveData } from '../../utils/Helpers';
 import { expectIncentiveDataAfterTransfer } from '../../utils/Expect';
@@ -20,7 +20,7 @@ describe('', () => {
   const amount = ethers.utils.parseEther('1');
 
   beforeEach('', async () => {
-    elyfiContracts = await makeAllContracts();
+    elyfiContracts = await setupAllContracts();
     await elyfiContracts.underlyingAsset
       .connect(deployer)
       .transfer(sender.address, utils.parseEther('1000'));
@@ -62,11 +62,6 @@ describe('', () => {
         incentiveAsset: elyfiContracts.incentiveAsset,
       });
       const tx = await elyfiContracts.lToken.connect(sender).transfer(receiver.address, amount);
-
-      console.log(
-        'contract sender incentive',
-        (await elyfiContracts.incentivePool.getUserIncentive(sender.address)).toString()
-      );
 
       const [
         expectedIncentivePoolData,

@@ -34,7 +34,7 @@ import { testIncentiveAmountPerSecond, testInterestModelParams, testReserveData 
 import ElyfiContracts from '../types/ElyfiContracts';
 import InterestModelParams from '../types/InterestRateModelParams';
 
-export const makeValidation = async (): Promise<Validation> => {
+export const setupValidation = async (): Promise<Validation> => {
   let validation: Validation;
   const validationFactory = (await ethers.getContractFactory('Validation')) as Validation__factory;
   validation = await validationFactory.deploy();
@@ -42,7 +42,7 @@ export const makeValidation = async (): Promise<Validation> => {
 };
 
 //Tokenizer
-export const makeTimeConverter = async (): Promise<TimeConverter> => {
+export const setupTimeConverter = async (): Promise<TimeConverter> => {
   let timeConverter: TimeConverter;
   const timeConverterFactory = (await ethers.getContractFactory(
     'TimeConverter'
@@ -51,7 +51,7 @@ export const makeTimeConverter = async (): Promise<TimeConverter> => {
   return timeConverter;
 };
 
-export const makeAssetBond = async (timeConverter: TimeConverter): Promise<AssetBond> => {
+export const setupAssetBond = async (timeConverter: TimeConverter): Promise<AssetBond> => {
   let assetBond: AssetBond;
   const assetBondFactory = (await ethers.getContractFactory('AssetBond', {
     libraries: {
@@ -62,7 +62,7 @@ export const makeAssetBond = async (timeConverter: TimeConverter): Promise<Asset
   return assetBond;
 };
 //tokenizer, moneypool
-export const makeIndex = async (): Promise<Index> => {
+export const setupIndex = async (): Promise<Index> => {
   let index: Index;
   const indexFactory = (await ethers.getContractFactory('Index')) as Index__factory;
   index = await indexFactory.deploy();
@@ -70,14 +70,14 @@ export const makeIndex = async (): Promise<Index> => {
 };
 
 //Moneypool
-export const makeRate = async (): Promise<Rate> => {
+export const setupRate = async (): Promise<Rate> => {
   let rate: Rate;
   const rateFactory = (await ethers.getContractFactory('Rate')) as Rate__factory;
   rate = await rateFactory.deploy();
   return rate;
 };
 
-export async function makeUnderlyingAsset({
+export async function setupUnderlyingAsset({
   totalSupply = utils.parseUnits('1', 36),
   name = testReserveData.underlyingAssetName,
   symbol = testReserveData.underlyingAssetSymbol,
@@ -97,7 +97,7 @@ export async function makeUnderlyingAsset({
   return underlyingAsset;
 }
 
-export async function makeConnector(): Promise<Connector> {
+export async function setupConnector(): Promise<Connector> {
   let connector: Connector;
 
   const connectorFactory = (await ethers.getContractFactory('Connector')) as Connector__factory;
@@ -107,7 +107,7 @@ export async function makeConnector(): Promise<Connector> {
   return connector;
 }
 
-export async function makeMoneyPool({
+export async function setupMoneyPool({
   maxReserveCount_ = BigNumber.from(16).toString(),
   connector,
   validation,
@@ -141,7 +141,7 @@ export async function makeMoneyPool({
   return moneyPoolTest;
 }
 
-export async function makeIncentivePool({
+export async function setupIncentivePool({
   moneyPool,
   incentiveAsset,
   amountPerSecond = testIncentiveAmountPerSecond,
@@ -165,7 +165,7 @@ export async function makeIncentivePool({
   return incentivePool;
 }
 
-export async function makeLToken({
+export async function setupLToken({
   moneyPool,
   underlyingAsset,
   incentivePool,
@@ -193,7 +193,7 @@ export async function makeLToken({
   return lTokenTest;
 }
 
-export async function makeDToken({
+export async function setupDToken({
   moneyPool,
   underlyingAsset,
   dTokenName = 'DToken',
@@ -218,7 +218,7 @@ export async function makeDToken({
   return dTokenTest;
 }
 
-export async function makeInterestRateModel({
+export async function setupInterestRateModel({
   interestRateModelParam = testInterestModelParams,
 }: {
   interestRateModelParam?: InterestModelParams;
@@ -239,7 +239,7 @@ export async function makeInterestRateModel({
   return interestRateModel;
 }
 
-export async function makeTokenizer({
+export async function setupTokenizer({
   connector,
   moneyPool,
   validation,
@@ -273,7 +273,7 @@ export async function makeTokenizer({
   return Tokenizer;
 }
 
-export async function makeDataPipeline({
+export async function setupDataPipeline({
   moneyPool,
 }: {
   moneyPool: MoneyPoolTest | Contract;
@@ -289,24 +289,24 @@ export async function makeDataPipeline({
   return dataPipeline;
 }
 
-export async function makeAllContracts(): Promise<ElyfiContracts> {
-  const validation = await makeValidation();
+export async function setupAllContracts(): Promise<ElyfiContracts> {
+  const validation = await setupValidation();
 
-  const timeConverter = await makeTimeConverter();
+  const timeConverter = await setupTimeConverter();
 
-  const assetBond = await makeAssetBond(timeConverter);
+  const assetBond = await setupAssetBond(timeConverter);
 
-  const rate = await makeRate();
+  const rate = await setupRate();
 
-  const index = await makeIndex();
+  const index = await setupIndex();
 
-  const underlyingAsset = await makeUnderlyingAsset({});
+  const underlyingAsset = await setupUnderlyingAsset({});
 
-  const incentiveAsset = await makeUnderlyingAsset({});
+  const incentiveAsset = await setupUnderlyingAsset({});
 
-  const connector = await makeConnector();
+  const connector = await setupConnector();
 
-  const moneyPool = await makeMoneyPool({
+  const moneyPool = await setupMoneyPool({
     connector,
     validation,
     assetBond,
@@ -315,25 +315,25 @@ export async function makeAllContracts(): Promise<ElyfiContracts> {
     rate,
   });
 
-  const incentivePool = await makeIncentivePool({
+  const incentivePool = await setupIncentivePool({
     moneyPool,
     incentiveAsset,
   });
 
-  const interestRateModel = await makeInterestRateModel({});
+  const interestRateModel = await setupInterestRateModel({});
 
-  const lToken = await makeLToken({
+  const lToken = await setupLToken({
     moneyPool,
     underlyingAsset,
     incentivePool,
   });
 
-  const dToken = await makeDToken({
+  const dToken = await setupDToken({
     moneyPool,
     underlyingAsset,
   });
 
-  const tokenizer = await makeTokenizer({
+  const tokenizer = await setupTokenizer({
     connector,
     moneyPool,
     validation,
@@ -342,7 +342,7 @@ export async function makeAllContracts(): Promise<ElyfiContracts> {
     timeConverter,
   });
 
-  const dataPipeline = await makeDataPipeline({
+  const dataPipeline = await setupDataPipeline({
     moneyPool,
   });
 

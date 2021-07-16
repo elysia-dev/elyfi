@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import { ethers, waffle } from 'hardhat';
 import ElyfiContracts from '../../types/ElyfiContracts';
-import { makeAllContracts } from '../../utils/makeContract';
+import { setupAllContracts } from '../../utils/makeContract';
 import { testInterestModelParams } from '../../utils/testData';
 
 describe('Rate', () => {
@@ -11,7 +11,7 @@ describe('Rate', () => {
   const [deployer] = provider.getWallets();
 
   beforeEach(async () => {
-    elyfiContracts = await makeAllContracts();
+    elyfiContracts = await setupAllContracts();
   });
 
   it('returns base rates at 0% utilization rate', async () => {

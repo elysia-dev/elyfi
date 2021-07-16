@@ -1,5 +1,5 @@
 import { waffle } from 'hardhat';
-import { makeAllContracts } from '../../utils/makeContract';
+import { setupAllContracts } from '../../utils/makeContract';
 import { expect } from 'chai';
 import ElyfiContracts from '../../types/ElyfiContracts';
 import { AssetBondIdData } from '../../../misc/assetBond/types';
@@ -27,7 +27,7 @@ describe('AssetBond', () => {
   const assetBondId = tokenIdGenerator(assetBondIdData);
 
   before('Governance added roles to each participant', async () => {
-    elyfiContracts = await makeAllContracts();
+    elyfiContracts = await setupAllContracts();
     await elyfiContracts.connector.connect(deployer).addCollateralServiceProvider(CSP.address);
     await elyfiContracts.tokenizer.connect(CSP).mintAssetBond(CSP.address, assetBondId);
   });

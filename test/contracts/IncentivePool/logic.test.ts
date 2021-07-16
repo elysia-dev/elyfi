@@ -1,7 +1,7 @@
 import { ethers, waffle } from 'hardhat';
 import ElyfiContracts from '../../types/ElyfiContracts';
 import { utils } from 'ethers';
-import { makeAllContracts } from '../../utils/makeContract';
+import { setupAllContracts } from '../../utils/makeContract';
 import { advanceTimeTo, getTimestamp } from '../../utils/time';
 import { expect } from 'chai';
 require('../../assertions/equals.ts');
@@ -15,7 +15,7 @@ describe('', () => {
   const amount = ethers.utils.parseEther('1');
 
   beforeEach('', async () => {
-    elyfiContracts = await makeAllContracts();
+    elyfiContracts = await setupAllContracts();
     await elyfiContracts.underlyingAsset
       .connect(deployer)
       .transfer(depositor.address, utils.parseEther('1000'));

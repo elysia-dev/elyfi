@@ -1,6 +1,6 @@
 import { utils } from 'ethers';
 import { waffle } from 'hardhat';
-import { makeAllContracts } from '../../utils/makeContract';
+import { setupAllContracts } from '../../utils/makeContract';
 import { expect } from 'chai';
 import ElyfiContracts from '../../types/ElyfiContracts';
 import { settleAssetBond } from '../../utils/Helpers';
@@ -19,7 +19,7 @@ describe('Tokenizer.sign', () => {
   const signerOpinionHash: string = 'test hash';
 
   beforeEach('Governance added roles to each participant', async () => {
-    elyfiContracts = await makeAllContracts();
+    elyfiContracts = await setupAllContracts();
 
     await elyfiContracts.underlyingAsset
       .connect(deployer)
