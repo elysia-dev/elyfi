@@ -11,7 +11,7 @@ import { BigNumber, utils } from 'ethers';
 import loadFixture from '../../utils/loadFixture';
 import utilizedMoneypool from '../../fixtures/utilizedMoneypool';
 import { getAssetBondData, settleAssetBond } from '../../utils/Helpers';
-import { calculateAssetBondDebtData } from '../../utils/Math';
+import { calculateAssetBondDebtData } from '../../utils/calculations';
 import { testAssetBond } from '../../utils/testData';
 import {
   toTimestamp,

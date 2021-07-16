@@ -11,7 +11,7 @@ import loadFixture from '../../utils/loadFixture';
 import utilizedMoneypool from '../../fixtures/utilizedMoneypool';
 import takeDataSnapshot from '../../utils/takeDataSnapshot';
 import { getAssetBondData, settleAssetBond } from '../../utils/Helpers';
-import { calculateAssetBondLiquidationData } from '../../utils/Math';
+import { calculateAssetBondLiquidationData } from '../../utils/calculations';
 import { testAssetBond } from '../../utils/testData';
 import { advanceTimeTo, getTimestamp, toTimestamp } from '../../utils/time';
 require('../../assertions/equals.ts');

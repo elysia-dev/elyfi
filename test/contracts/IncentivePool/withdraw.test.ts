@@ -1,7 +1,7 @@
 import { ethers, waffle } from 'hardhat';
 import ElyfiContracts from '../../types/ElyfiContracts';
 import { BigNumber, utils } from 'ethers';
-import { setupAllContracts } from '../../utils/makeContract';
+import { setupAllContracts } from '../../utils/setup';
 import { RAY } from '../../utils/constants';
 import { getIncentivePoolData, getUserIncentiveData } from '../../utils/Helpers';
 import {

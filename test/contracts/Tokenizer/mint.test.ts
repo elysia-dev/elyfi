@@ -1,6 +1,6 @@
 import { utils } from 'ethers';
 import { waffle } from 'hardhat';
-import { setupAllContracts } from '../../utils/makeContract';
+import { setupAllContracts } from '../../utils/setup';
 import { expect } from 'chai';
 import ElyfiContracts from '../../types/ElyfiContracts';
 import AssetBondState from '../../types/AssetBondState';

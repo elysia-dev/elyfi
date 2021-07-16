@@ -10,17 +10,26 @@ import {
   MoneyPoolTest,
   ERC20Test,
   IncentivePool,
-} from '../../typechain';
+} from '../typechain';
 import { HardhatRuntimeEnvironment } from 'hardhat/types';
 import fs from 'fs';
-import ElyfiContracts from '../..//test/types/ElyfiContracts';
+import ElyfiContracts from '../test/types/ElyfiContracts';
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers';
 import path from 'path';
+import { Contract } from 'ethers';
 
 type DeployedContract = {
   address: string;
   abi: [];
 };
+
+async function getDeployedContract(
+  hre: HardhatRuntimeEnvironment,
+  deployedContract: DeployedContract,
+  signer: SignerWithAddress
+): Promise<Contract> {
+  return getContractAt(hre, deployedContract.abi, deployedContract.address, signer);
+}
 
 //need refactor
 export const getDeployedContracts = async (
@@ -30,6 +39,7 @@ export const getDeployedContracts = async (
   let underlyingAsset!: ERC20Test;
   let connector!: Connector;
   let moneyPool!: MoneyPoolTest;
+  let incentiveAsset!: ERC20Test;
   let incentivePool!: IncentivePool;
   let interestRateModel!: InterestRateModel;
   let lToken!: LToken;
@@ -37,9 +47,13 @@ export const getDeployedContracts = async (
   let tokenizer!: Tokenizer;
   let dataPipeline!: DataPipeline;
 
-  const deploymentDataPath = path.join(__dirname, '..', '..', 'deployments', hre.network.name);
+  const deploymentDataPath = path.join(__dirname, '..', 'deployments', hre.network.name);
 
   const files = fs.readdirSync(deploymentDataPath);
+
+  const getDeployedContract = (deployedContract: DeployedContract) => {
+    return getContractAt(hre, deployedContract.abi, deployedContract.address, deployer);
+  };
 
   for (const file of files) {
     if (path.extname(file) == '.json') {
@@ -48,12 +62,7 @@ export const getDeployedContracts = async (
       switch (file) {
         case 'Connector.json':
           try {
-            connector = (await getContractAt(
-              hre,
-              deployedContract.abi,
-              deployedContract.address,
-              deployer
-            )) as Connector;
+            connector = (await getDeployedContract(deployedContract)) as Connector;
           } catch (e) {
             console.log(e);
           }
@@ -61,24 +70,15 @@ export const getDeployedContracts = async (
 
         case 'IncentivePool.json':
           try {
-            incentivePool = (await getContractAt(
-              hre,
-              deployedContract.abi,
-              deployedContract.address,
-              deployer
-            )) as IncentivePool;
+            incentivePool = (await getDeployedContract(deployedContract)) as IncentivePool;
           } catch (e) {
             console.log(e);
           }
           break;
+
         case 'DataPipeline.json':
           try {
-            dataPipeline = (await getContractAt(
-              hre,
-              deployedContract.abi,
-              deployedContract.address,
-              deployer
-            )) as DataPipeline;
+            dataPipeline = (await getDeployedContract(deployedContract)) as DataPipeline;
           } catch (e) {
             console.log(e);
           }
@@ -86,12 +86,7 @@ export const getDeployedContracts = async (
 
         case 'DToken.json':
           try {
-            dToken = (await getContractAt(
-              hre,
-              deployedContract.abi,
-              deployedContract.address,
-              deployer
-            )) as DToken;
+            dToken = (await getDeployedContract(deployedContract)) as DToken;
           } catch (e) {
             console.log(e);
           }
@@ -99,12 +94,15 @@ export const getDeployedContracts = async (
 
         case 'ERC20Test.json':
           try {
-            underlyingAsset = (await getContractAt(
-              hre,
-              deployedContract.abi,
-              deployedContract.address,
-              deployer
-            )) as ERC20Test;
+            underlyingAsset = (await getDeployedContract(deployedContract)) as ERC20Test;
+          } catch (e) {
+            console.log(e);
+          }
+          break;
+
+        case 'ERC20Test.json':
+          try {
+            incentiveAsset = (await getDeployedContract(deployedContract)) as ERC20Test;
           } catch (e) {
             console.log(e);
           }
@@ -112,12 +110,7 @@ export const getDeployedContracts = async (
 
         case 'InteresRateModel.json':
           try {
-            interestRateModel = (await getContractAt(
-              hre,
-              deployedContract.abi,
-              deployedContract.address,
-              deployer
-            )) as InterestRateModel;
+            interestRateModel = (await getDeployedContract(deployedContract)) as InterestRateModel;
           } catch (e) {
             console.log(e);
           }
@@ -125,12 +118,7 @@ export const getDeployedContracts = async (
 
         case 'LToken.json':
           try {
-            lToken = (await getContractAt(
-              hre,
-              deployedContract.abi,
-              deployedContract.address,
-              deployer
-            )) as LToken;
+            lToken = (await getDeployedContract(deployedContract)) as LToken;
           } catch (e) {
             console.log(e);
           }
@@ -138,12 +126,7 @@ export const getDeployedContracts = async (
 
         case 'MoneyPool.json':
           try {
-            moneyPool = (await getContractAt(
-              hre,
-              deployedContract.abi,
-              deployedContract.address,
-              deployer
-            )) as MoneyPoolTest;
+            moneyPool = (await getDeployedContract(deployedContract)) as MoneyPoolTest;
           } catch (e) {
             console.log(e);
           }
@@ -151,12 +134,7 @@ export const getDeployedContracts = async (
 
         case 'Tokenizer.json':
           try {
-            tokenizer = (await getContractAt(
-              hre,
-              deployedContract.abi,
-              deployedContract.address,
-              deployer
-            )) as Tokenizer;
+            tokenizer = (await getDeployedContract(deployedContract)) as Tokenizer;
           } catch (e) {
             console.log(e);
           }
@@ -167,6 +145,7 @@ export const getDeployedContracts = async (
 
   const elyfiContracts = {
     underlyingAsset,
+    incentiveAsset,
     connector,
     moneyPool,
     incentivePool,

@@ -1,5 +1,5 @@
 import { BigNumber, constants, ethers } from 'ethers';
-import { toRate } from './Ethereum';
+import { toRate } from './wadRayMath';
 import { RAY, SECONDSPERDAY, WAD } from './constants';
 import InterestModelParams from '../types/InterestRateModelParams';
 import ReserveData from '../types/ReserveData';

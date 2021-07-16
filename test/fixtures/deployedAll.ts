@@ -1,7 +1,7 @@
 import { MockProvider } from '@ethereum-waffle/provider';
 import { Wallet } from '@ethersproject/wallet';
 import ElyfiContracts from '../types/ElyfiContracts';
-import { setupAllContracts } from '../utils/makeContract';
+import { setupAllContracts } from '../utils/setup';
 
 export default async function deployedAll(
   wallets: Wallet[],

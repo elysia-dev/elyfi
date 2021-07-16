@@ -1,6 +1,6 @@
 import { BigNumber, constants, utils, Wallet } from 'ethers';
 import { ethers, waffle } from 'hardhat';
-import { setupAllContracts } from '../../utils/makeContract';
+import { setupAllContracts } from '../../utils/setup';
 import { expect } from 'chai';
 import ElyfiContracts from '../../types/ElyfiContracts';
 import { settleAssetBond } from '../../utils/Helpers';

@@ -1,5 +1,5 @@
 import { BigNumber, constants } from 'ethers';
-import { rayDiv, rayMul, wadToRay } from './Ethereum';
+import { rayDiv, rayMul, wadToRay } from './wadRayMath';
 import { RAY, SECONDSPERYEAR } from './constants';
 import InterestModelParams from '../types/InterestRateModelParams';
 import AssetBondData from '../types/AssetBondData';

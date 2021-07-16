@@ -1,7 +1,7 @@
 import { BigNumber } from 'ethers';
 import InterestModelParams from '../../test/types/InterestRateModelParams';
 import { SECONDSPERDAY, WAD } from '../../test/utils/constants';
-import { toRate } from '../../test/utils/Ethereum';
+import { toRate } from '../../test/utils/wadRayMath';
 
 export const daiReserveData = {
   lToken: {

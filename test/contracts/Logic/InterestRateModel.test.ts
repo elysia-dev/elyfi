@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import { ethers, waffle } from 'hardhat';
 import ElyfiContracts from '../../types/ElyfiContracts';
-import { setupAllContracts } from '../../utils/makeContract';
+import { setupAllContracts } from '../../utils/setup';
 import { testInterestModelParams } from '../../utils/testData';
 
 describe('Rate', () => {

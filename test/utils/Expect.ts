@@ -5,7 +5,7 @@ import IncentivePoolData from '../types/IncentivePoolData';
 import ReserveData from '../types/ReserveData';
 import UserData from '../types/UserData';
 import UserIncentiveData from '../types/UserIncentiveData';
-import { rayDiv, rayMul } from './Ethereum';
+import { rayDiv, rayMul } from './wadRayMath';
 import {
   calculateAssetBondDebtData,
   calculateAssetBondLiquidationData,
@@ -17,7 +17,7 @@ import {
   calculateRateInIncreasingBalance,
   calculateRateInInterestRateModel,
   calculateUserIncentive,
-} from './Math';
+} from './calculations';
 
 // Update lTokenInterestIndex, moneyPoolLastUpdateTimestamp, totalDTokenSupply
 function applyTxTimeStamp(reserveData: ReserveData, txTimestamp: BigNumber): ReserveData {

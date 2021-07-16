@@ -13,9 +13,9 @@ import {
   getElyfi,
   getIndex,
   getRate,
-  getTimeConverter,
-  getValidation,
-} from './utils/dependencies';
+  deployTimeConverter,
+  deployValidation,
+} from './utils/contractDeployer';
 import { ethers } from 'hardhat';
 
 export enum ELYFIContractType {
@@ -34,13 +34,13 @@ const deployTestnet: DeployFunction = async function (hre: HardhatRuntimeEnviron
 
   const testIncentiveAsset = await getElyfi(hre, deployer);
 
-  const timeConverter = await getTimeConverter(hre);
+  const timeConverter = await deployTimeConverter(hre);
 
   const index = await getIndex(hre);
 
   const rate = await getRate(hre);
 
-  const validation = await getValidation(hre);
+  const validation = await deployValidation(hre);
 
   const assetBond = await getAssetBond(hre, timeConverter);
 

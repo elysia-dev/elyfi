@@ -1,7 +1,7 @@
 import { ethers, waffle } from 'hardhat';
 import ElyfiContracts from '../../types/ElyfiContracts';
 import { utils } from 'ethers';
-import { setupAllContracts } from '../../utils/makeContract';
+import { setupAllContracts } from '../../utils/setup';
 import { advanceTimeTo, getTimestamp } from '../../utils/time';
 import { expect } from 'chai';
 require('../../assertions/equals.ts');

@@ -3,7 +3,7 @@ import { Wallet } from '@ethersproject/wallet';
 import { utils } from 'ethers';
 import UserType from '../../test-suites/enums/UserType';
 import ElyfiContracts from '../types/ElyfiContracts';
-import { setupAllContracts } from '../utils/makeContract';
+import { setupAllContracts } from '../utils/setup';
 
 export default async function utilizedMoneypool(
   wallets: Wallet[],

@@ -23,27 +23,31 @@ import AssetBondSettleData from '../../test/types/AssetBondSettleData';
 import hre from 'hardhat';
 import UserType from '../enums/UserType';
 import AbToken from '../types/AbToken';
-import { getAssetBondData } from '../../test/utils/Helpers';
+import { deployAssetBondData } from '../../test/utils/Helpers';
 
 require('../../test/assertions/equals');
 
 const excutor = async (args: {
-  account: Wallet,
-  elyfiContracts: ElyfiContracts,
-  doTransaction: () => Promise<ContractTransaction | undefined>,
-  calculateReserveData: (
-    reserveData: ReserveData,
-    txTimestamp: BigNumber
-  ) => ReserveData,
+  account: Wallet;
+  elyfiContracts: ElyfiContracts;
+  doTransaction: () => Promise<ContractTransaction | undefined>;
+  calculateReserveData: (reserveData: ReserveData, txTimestamp: BigNumber) => ReserveData;
   calculateUserData: (
     userData: UserData,
     reserveDateBefore: ReserveData,
     reserveDataAfter: ReserveData,
     txTimestamp: BigNumber
-  ) => UserData,
-  expected: boolean,
+  ) => UserData;
+  expected: boolean;
 }) => {
-  const { account, elyfiContracts, doTransaction, calculateReserveData, calculateUserData, expected } = args
+  const {
+    account,
+    elyfiContracts,
+    doTransaction,
+    calculateReserveData,
+    calculateUserData,
+    expected,
+  } = args;
   const [reserveDataBefore, userDataBefore] = await takeDataSnapshot(account, elyfiContracts);
 
   const tx = await doTransaction();
@@ -52,10 +56,7 @@ const excutor = async (args: {
 
   const [reserveDataAfter, userDataAfter] = await takeDataSnapshot(account, elyfiContracts);
 
-  const expectedReserveDataAfter = calculateReserveData(
-    reserveDataBefore,
-    await getTimestamp(tx)
-  );
+  const expectedReserveDataAfter = calculateReserveData(reserveDataBefore, await getTimestamp(tx));
 
   const expectedUserDataAfter = calculateUserData(
     userDataBefore,
@@ -72,7 +73,7 @@ const excuteStory = async (
   story: Story,
   elyfiContracts: ElyfiContracts,
   abTokens: AssetBondSettleData[],
-  rawAbTokenData: AbToken[],
+  rawAbTokenData: AbToken[]
 ) => {
   const wallets = hre.waffle.provider.getWallets();
   let amount = utils.parseEther((story.value || 0).toFixed());
@@ -91,7 +92,11 @@ const excuteStory = async (
           try {
             const tx = await elyfiContracts.moneyPool
               .connect(wallets[UserType[story.actionMaker]])
-              .deposit(elyfiContracts.underlyingAsset.address, wallets[UserType[story.actionMaker]].address, amount);
+              .deposit(
+                elyfiContracts.underlyingAsset.address,
+                wallets[UserType[story.actionMaker]].address,
+                amount
+              );
 
             expect(story.expected).to.be.true;
 
@@ -117,12 +122,12 @@ const excuteStory = async (
             reserveDataAfter,
             txTimestamp,
           });
-        }
+        },
       });
       break;
 
     case ActionType.withdrawAll:
-      amount = await elyfiContracts.lToken.balanceOf(wallets[UserType[story.actionMaker]].address)
+      amount = await elyfiContracts.lToken.balanceOf(wallets[UserType[story.actionMaker]].address);
     case ActionType.withdraw:
       await excutor({
         expected: story.expected,
@@ -162,12 +167,12 @@ const excuteStory = async (
             reserveDataAfter,
             txTimestamp,
           });
-        }
+        },
       });
       break;
 
     case ActionType.borrow:
-      amount = abTokens[story.abToken!].principal
+      amount = abTokens[story.abToken!].principal;
 
       await excutor({
         expected: story.expected,
@@ -204,11 +209,11 @@ const excuteStory = async (
             reserveDataAfter,
             txTimestamp,
           });
-        }
+        },
       });
       break;
     case ActionType.repay:
-      const assetBondData = await getAssetBondData({
+      const assetBondData = await deployAssetBondData({
         underlyingAsset: elyfiContracts.underlyingAsset,
         dataPipeline: elyfiContracts.dataPipeline,
         tokenizer: elyfiContracts.tokenizer,
@@ -249,7 +254,7 @@ const excuteStory = async (
             reserveDataAfter,
             txTimestamp,
           });
-        }
+        },
       });
       break;
     default:

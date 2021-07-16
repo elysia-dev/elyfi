@@ -1,4 +1,4 @@
-import { setupAllContracts } from '../../test/utils/makeContract';
+import { setupAllContracts } from '../../test/utils/setup';
 import { MockProvider } from '@ethereum-waffle/provider';
 import UserType from '../enums/UserType';
 import { ethers } from 'hardhat';

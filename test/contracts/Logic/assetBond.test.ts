@@ -1,5 +1,5 @@
 import { waffle } from 'hardhat';
-import { setupAllContracts } from '../../utils/makeContract';
+import { setupAllContracts } from '../../utils/setup';
 import { expect } from 'chai';
 import ElyfiContracts from '../../types/ElyfiContracts';
 import { AssetBondIdData } from '../../../misc/assetBond/types';

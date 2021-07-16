@@ -5,7 +5,7 @@ import ELToken_ABI from '../../dependencies/ELToken.json';
 import Dai_ABI from '../../dependencies/Dai.json';
 import Elyfi_ABI from '../../dependencies/Elyfi.json';
 
-export const getValidation = async (hre: HardhatRuntimeEnvironment): Promise<Contract> => {
+export const deployValidation = async (hre: HardhatRuntimeEnvironment): Promise<Contract> => {
   const { deployer } = await hre.getNamedAccounts();
   const { deploy } = hre.deployments;
   let validation: Contract;
@@ -23,7 +23,7 @@ export const getValidation = async (hre: HardhatRuntimeEnvironment): Promise<Con
   return validation;
 };
 
-export const getTimeConverter = async (hre: HardhatRuntimeEnvironment): Promise<Contract> => {
+export const deployTimeConverter = async (hre: HardhatRuntimeEnvironment): Promise<Contract> => {
   const { deployer } = await hre.getNamedAccounts();
   const { deploy } = hre.deployments;
   let timeConverter: Contract;
@@ -41,7 +41,7 @@ export const getTimeConverter = async (hre: HardhatRuntimeEnvironment): Promise<
   return timeConverter;
 };
 
-export const getAssetBond = async (
+export const deployAssetBond = async (
   hre: HardhatRuntimeEnvironment,
   timeConverter: Contract
 ): Promise<Contract> => {
