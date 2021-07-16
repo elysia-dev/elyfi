@@ -1,7 +1,7 @@
 import { BigNumber, ethers } from 'ethers';
 import { tokenIdGenerator } from '../../../misc/assetBond/generator';
 import AssetBondSettleData from '../../../test/types/AssetBondSettleData';
-import { toRate } from '../../../test/utils/Ethereum';
+import { toRate } from '../../../test/utils/wadRayMath';
 import { AssetBondIdData } from '../../../misc/assetBond/types';
 
 // Elysia gangnam

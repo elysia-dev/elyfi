@@ -2,7 +2,7 @@ import { AssetBondIdData, AssetBondIdDataDigits, wholeNumber } from './types';
 import assetBondIdDataDigits from './assetBondIdDataDigits.json';
 import AssetBondSettleData from '../../test/types/AssetBondSettleData';
 import { BigNumber, ethers } from 'ethers';
-import { toRate } from '../../test/utils/Ethereum';
+import { toRate } from '../../test/utils/wadRayMath';
 import { tokenIdGenerator } from './generator';
 import { bigDecimalStringToBinaryString } from './position';
 
