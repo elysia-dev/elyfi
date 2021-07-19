@@ -41,7 +41,7 @@ const checkCouncil = async ({
   txSender,
 }: {
   connector: Connector;
-  txSender: SignerWithAddress;
+  txSender: Wallet;
 }) => {
   const isCouncil = await connector.isCouncil(txSender.address);
   if (!isCouncil) {
@@ -119,7 +119,6 @@ task('mainnet:settleAssetBond', 'settle empty asset bond')
 task('mainnet:signAssetBond', 'sign settled asset bond')
   .addParam('data', 'The asset bond from saved production data')
   .setAction(async (args: Args, hre: HardhatRuntimeEnvironment) => {
-    const collateralServiceProvider = await getCSP(hre);
     const signer = await getCouncil(hre);
 
     const tokenizer = (await getTokenizer(hre)) as Tokenizer;
@@ -130,14 +129,14 @@ task('mainnet:signAssetBond', 'sign settled asset bond')
 
     checkAssetBondFileData(assetBondData);
 
-    await checkCollateralServiceProvider({
+    await checkCouncil({
       connector: connector,
-      txSender: collateralServiceProvider,
+      txSender: signer,
     });
 
     await tokenizer
       .connect(signer)
       .signAssetBond(assetBondData.tokenId, assetBondData.signerOpinionHash);
 
-    console.log(`The signer signs on asset token which data is "${args.data}"`);
+    console.log(`The signer signs on asset token which da is "${args.data}"`);
   });
