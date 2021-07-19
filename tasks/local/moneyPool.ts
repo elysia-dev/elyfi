@@ -4,7 +4,7 @@ import { testAssetBond } from '../../test/utils/testData';
 import { HardhatRuntimeEnvironment } from 'hardhat/types';
 import assetBondIdData from '../../misc/assetBond/assetBondIdDataExample.json';
 import { tokenIdGenerator } from '../../misc/assetBond/generator';
-import { getDai } from '../../utils/getDependencies';
+import { getDai, getElyfi, getElysia } from '../../utils/getDependencies';
 import { Connector, ERC20Test, LToken, MoneyPool, Tokenizer } from '../../typechain';
 
 interface Args {

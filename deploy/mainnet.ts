@@ -5,13 +5,12 @@ import { daiReserveData } from '../data/moneyPool/reserves';
 import { MoneyPool } from '../typechain';
 import {
   deployAssetBond,
-  getDai,
-  getElyfi,
   deployIndex,
   deployRate,
   deployTimeConverter,
   deployValidation,
 } from './utils/contractDeployer';
+import { getDai, getElyfi } from '../utils/getDependencies';
 
 export enum ELYFIContractType {
   CONNECTOR,
@@ -28,9 +27,9 @@ const deployMainnet: DeployFunction = async function (hre: HardhatRuntimeEnviron
   const { deployer } = await hre.getNamedAccounts();
   const { deploy } = hre.deployments;
 
-  const dai = await getDai(hre, deployer);
+  const dai = await getDai(hre);
 
-  const incentiveElyfi = await getElyfi(hre, deployer);
+  const incentiveElyfi = await getElyfi(hre);
 
   const timeConverter = await deployTimeConverter(hre);
 

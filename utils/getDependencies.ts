@@ -3,16 +3,6 @@ import { HardhatRuntimeEnvironment } from 'hardhat/types';
 import { DeployedContract } from 'hardhat-deploy/types';
 import path from 'path';
 
-const getdependencyPath = (network: string, file: string) => {
-  return path.join(__dirname, '..', 'deployments', network, file);
-};
-
-const dependencies = {
-  Dai: 'Dai.json',
-  EL: 'ELToken.json',
-  Elyfi: 'Elyfi.json',
-};
-
 const getdependency = (hre: HardhatRuntimeEnvironment, dependency: string) => {
   const dependencies = {
     Dai: 'Dai.json',

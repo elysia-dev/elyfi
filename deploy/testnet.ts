@@ -9,14 +9,13 @@ import { getContractAt } from 'hardhat-deploy-ethers/dist/src/helpers';
 import { MoneyPool } from '../typechain';
 import {
   deployAssetBond,
-  getDai,
-  getElyfi,
   deployIndex,
   deployRate,
   deployTimeConverter,
   deployValidation,
 } from './utils/contractDeployer';
 import { ethers } from 'hardhat';
+import { getDai, getElyfi, getElysia } from '../utils/getDependencies';
 
 export enum ELYFIContractType {
   CONNECTOR,
@@ -30,9 +29,9 @@ const deployTestnet: DeployFunction = async function (hre: HardhatRuntimeEnviron
   const { deployer } = await hre.getNamedAccounts();
   const { deploy } = hre.deployments;
 
-  const testUnderlyingAsset = await getDai(hre, deployer);
+  const testUnderlyingAsset = await getDai(hre);
 
-  const testIncentiveAsset = await getElyfi(hre, deployer);
+  const testIncentiveAsset = await getElyfi(hre);
 
   const timeConverter = await deployTimeConverter(hre);
 

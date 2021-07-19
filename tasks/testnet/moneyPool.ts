@@ -1,5 +1,5 @@
 import { task } from 'hardhat/config';
-import { getTokenizer } from '../../utils/getDeployedContracts';
+import { getMoneyPool, getTokenizer } from '../../utils/getDeployedContracts';
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers';
 import { HardhatRuntimeEnvironment } from 'hardhat/types';
 import AssetBondSettleData from '../../test/types/AssetBondSettleData';
