@@ -2,6 +2,8 @@ import { task } from 'hardhat/config';
 import ElyfiContracts from '../../test/types/ElyfiContracts';
 import getDeployedContracts from '../../utils/getDeployedContracts';
 import { HardhatRuntimeEnvironment } from 'hardhat/types';
+import { ERC20Test } from '../../typechain';
+import { getDai } from '../../utils/getDependencies';
 
 interface Args {
   from: string;
@@ -18,7 +20,7 @@ task('local:approve', 'Approve, default: 100')
     const [deployer] = await hre.ethers.getSigners();
 
     const deployedElyfiContracts = (await getDeployedContracts(hre, deployer)) as ElyfiContracts;
-    const underlyingAsset = deployedElyfiContracts.underlyingAsset;
+    const underlyingAsset = (await getDai(hre)) as ERC20Test;
 
     amount = args.amount != undefined ? args.amount : hre.ethers.utils.parseEther('100').toString();
 
@@ -36,8 +38,7 @@ task('local:transfer', 'Transfer underlyingAsset to account, default amount: 100
     let amount: string;
     const [deployer] = await hre.ethers.getSigners();
 
-    const deployedElyfiContracts = (await getDeployedContracts(hre, deployer)) as ElyfiContracts;
-    const underlyingAsset = deployedElyfiContracts.underlyingAsset;
+    const underlyingAsset = (await getDai(hre)) as ERC20Test;
 
     amount = args.amount != undefined ? args.amount : hre.ethers.utils.parseEther('100').toString();
 

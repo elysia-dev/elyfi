@@ -17,130 +17,83 @@ import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers';
 import fs from 'fs';
 import path from 'path';
 import { Contract } from 'ethers';
+import { getDai, getElyfi } from './getDependencies';
 
 type DeployedContract = {
   address: string;
   abi: [];
 };
 
-async function getDeployedContract(
-  hre: HardhatRuntimeEnvironment,
-  deployedContract: DeployedContract,
-  signer: SignerWithAddress
-): Promise<Contract> {
-  return getContractAt(hre, deployedContract.abi, deployedContract.address, signer);
-}
+const getDeploymentPath = (network: string, file: string) => {
+  return path.join(__dirname, '..', 'deployments', network, file);
+};
+
+const elyfi = {
+  MoneyPool: 'MoneyPool.json',
+  Connector: 'Connector.json',
+  DataPipeline: 'DataPipeline.json',
+  DToken: 'DToken.json',
+  LToken: 'LToken.json',
+  Tokenizer: 'Tokenizer.json',
+  InterestRateModel: 'InterestRateModel.json',
+  IncentivePool: 'IncentivePool.json',
+};
+
+export const getMoneyPool = async (hre: HardhatRuntimeEnvironment): Promise<Contract> => {
+  const file = require(getDeploymentPath(hre.network.name, elyfi.MoneyPool)) as DeployedContract;
+  return await hre.ethers.getContractAt(file.abi, file.address);
+};
+
+export const getConnector = async (hre: HardhatRuntimeEnvironment): Promise<Contract> => {
+  const file = require(getDeploymentPath(hre.network.name, elyfi.Connector)) as DeployedContract;
+  return await hre.ethers.getContractAt(file.abi, file.address);
+};
+
+export const getLToken = async (hre: HardhatRuntimeEnvironment): Promise<Contract> => {
+  const file = require(getDeploymentPath(hre.network.name, elyfi.LToken)) as DeployedContract;
+  return await hre.ethers.getContractAt(file.abi, file.address);
+};
+
+export const getDToken = async (hre: HardhatRuntimeEnvironment): Promise<Contract> => {
+  const file = require(getDeploymentPath(hre.network.name, elyfi.DToken)) as DeployedContract;
+  return await hre.ethers.getContractAt(file.abi, file.address);
+};
+
+export const getTokenizer = async (hre: HardhatRuntimeEnvironment): Promise<Contract> => {
+  const file = require(getDeploymentPath(hre.network.name, elyfi.Tokenizer)) as DeployedContract;
+  return await hre.ethers.getContractAt(file.abi, file.address);
+};
+
+export const getInterestRateModel = async (hre: HardhatRuntimeEnvironment): Promise<Contract> => {
+  const file = require(getDeploymentPath(
+    hre.network.name,
+    elyfi.InterestRateModel
+  )) as DeployedContract;
+  return await hre.ethers.getContractAt(file.abi, file.address);
+};
+
+export const getIncentivePool = async (hre: HardhatRuntimeEnvironment): Promise<Contract> => {
+  const file = require(getDeploymentPath(
+    hre.network.name,
+    elyfi.IncentivePool
+  )) as DeployedContract;
+  return await hre.ethers.getContractAt(file.abi, file.address);
+};
 //need refactor
 export const getDeployedContracts = async (
   hre: HardhatRuntimeEnvironment,
   deployer: SignerWithAddress
 ): Promise<ElyfiContracts | null> => {
-  let underlyingAsset!: ERC20Test;
-  let connector!: Connector;
-  let moneyPool!: MoneyPoolTest;
-  let incentiveAsset!: ERC20Test;
+  let underlyingAsset = (await getDai(hre)) as ERC20Test;
+  let connector = (await getConnector(hre)) as Connector;
+  let moneyPool = (await getMoneyPool(hre)) as MoneyPoolTest;
+  let incentiveAsset = (await getElyfi(hre)) as ERC20Test;
   let incentivePool!: IncentivePool;
   let interestRateModel!: InterestRateModel;
   let lToken!: LToken;
   let dToken!: DToken;
   let tokenizer!: Tokenizer;
   let dataPipeline!: DataPipeline;
-
-  const deploymentDataPath = path.join(__dirname, '..', 'deployments', hre.network.name);
-
-  const files = fs.readdirSync(deploymentDataPath);
-
-  const getDeployedContract = (deployedContract: DeployedContract) => {
-    return getContractAt(hre, deployedContract.abi, deployedContract.address, deployer);
-  };
-
-  for (const file of files) {
-    if (path.extname(file) == '.json') {
-      const deployedContract = require(path.join(deploymentDataPath, file)) as DeployedContract;
-
-      switch (file) {
-        case 'Connector.json':
-          try {
-            connector = (await getDeployedContract(deployedContract)) as Connector;
-          } catch (e) {
-            console.log(e);
-          }
-          break;
-
-        case 'IncentivePool.json':
-          try {
-            incentivePool = (await getDeployedContract(deployedContract)) as IncentivePool;
-          } catch (e) {
-            console.log(e);
-          }
-          break;
-
-        case 'DataPipeline.json':
-          try {
-            dataPipeline = (await getDeployedContract(deployedContract)) as DataPipeline;
-          } catch (e) {
-            console.log(e);
-          }
-          break;
-
-        case 'DToken.json':
-          try {
-            dToken = (await getDeployedContract(deployedContract)) as DToken;
-          } catch (e) {
-            console.log(e);
-          }
-          break;
-
-        case 'ERC20Test.json':
-          try {
-            underlyingAsset = (await getDeployedContract(deployedContract)) as ERC20Test;
-          } catch (e) {
-            console.log(e);
-          }
-          break;
-
-        case 'ERC20Test.json':
-          try {
-            incentiveAsset = (await getDeployedContract(deployedContract)) as ERC20Test;
-          } catch (e) {
-            console.log(e);
-          }
-          break;
-
-        case 'InteresRateModel.json':
-          try {
-            interestRateModel = (await getDeployedContract(deployedContract)) as InterestRateModel;
-          } catch (e) {
-            console.log(e);
-          }
-          break;
-
-        case 'LToken.json':
-          try {
-            lToken = (await getDeployedContract(deployedContract)) as LToken;
-          } catch (e) {
-            console.log(e);
-          }
-          break;
-
-        case 'MoneyPool.json':
-          try {
-            moneyPool = (await getDeployedContract(deployedContract)) as MoneyPoolTest;
-          } catch (e) {
-            console.log(e);
-          }
-          break;
-
-        case 'Tokenizer.json':
-          try {
-            tokenizer = (await getDeployedContract(deployedContract)) as Tokenizer;
-          } catch (e) {
-            console.log(e);
-          }
-          break;
-      }
-    }
-  }
 
   const elyfiContracts = {
     underlyingAsset,

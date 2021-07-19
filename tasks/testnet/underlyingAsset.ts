@@ -18,7 +18,7 @@ task('testnet:approve', 'Approve to moneyPool, default: 100')
     const [deployer] = await hre.ethers.getSigners();
 
     const deployedElyfiContracts = (await getDeployedContracts(hre, deployer)) as ElyfiContracts;
-    const underlyingAsset = deployedElyfiContracts.underlyingAsset;
+    const underlyingAsset = await getDai(hre);
 
     amount = args.amount != undefined ? args.amount : hre.ethers.utils.parseEther('100').toString();
 
@@ -38,7 +38,7 @@ task('testnet:transfer', 'Transfer underlyingAsset to account, default amount: 1
     const [deployer] = await hre.ethers.getSigners();
 
     const deployedElyfiContracts = (await getDeployedContracts(hre, deployer)) as ElyfiContracts;
-    const underlyingAsset = deployedElyfiContracts.underlyingAsset;
+    const underlyingAsset = await getDai(hre);
 
     amount = args.amount != undefined ? args.amount : hre.ethers.utils.parseEther('100').toString();
 

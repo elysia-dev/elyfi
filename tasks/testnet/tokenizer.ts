@@ -1,6 +1,10 @@
 import { task } from 'hardhat/config';
 import ElyfiContracts from '../../test/types/ElyfiContracts';
-import getDeployedContracts from '../../utils/getDeployedContracts';
+import getDeployedContracts, {
+  getConnector,
+  getMoneyPool,
+  getTokenizer,
+} from '../../utils/getDeployedContracts';
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers';
 import { testAssetBond } from '../../test/utils/testData';
 import { HardhatRuntimeEnvironment } from 'hardhat/types';
@@ -8,6 +12,7 @@ import assetBondIdData from '../../misc/assetBond/assetBondIdDataExample.json';
 import { tokenIdGenerator } from '../../misc/assetBond/generator';
 import AssetBondSettleData from '../../test/types/AssetBondSettleData';
 import { AssetBondIdData } from '../../misc/assetBond/types';
+import { Connector, MoneyPool, Tokenizer } from '../../typechain';
 
 interface Args {
   asset: string;
@@ -28,10 +33,9 @@ task('testnet:createSignedAssetBond', 'Create signed asset bond from production 
     const [deployer, depositor, borrower, collateralServiceProvider, signer] =
       await hre.ethers.getSigners();
 
-    const deployedElyfiContracts = (await getDeployedContracts(hre, deployer)) as ElyfiContracts;
-    const moneyPool = deployedElyfiContracts.moneyPool;
-    const tokenizer = deployedElyfiContracts.tokenizer;
-    const connector = deployedElyfiContracts.connector;
+    const moneyPool = (await getMoneyPool(hre)) as MoneyPool;
+    const tokenizer = (await getTokenizer(hre)) as Tokenizer;
+    const connector = (await getConnector(hre)) as Connector;
 
     txSender = collateralServiceProvider;
 
@@ -133,10 +137,9 @@ task('testnet:createSignedAssetBondForTest', 'Create signed asset bond for only 
     const [deployer, depositor, borrower, collateralServiceProvider, signer] =
       await hre.ethers.getSigners();
 
-    const deployedElyfiContracts = (await getDeployedContracts(hre, deployer)) as ElyfiContracts;
-    const moneyPool = deployedElyfiContracts.moneyPool;
-    const tokenizer = deployedElyfiContracts.tokenizer;
-    const connector = deployedElyfiContracts.connector;
+    const moneyPool = (await getMoneyPool(hre)) as MoneyPool;
+    const tokenizer = (await getTokenizer(hre)) as Tokenizer;
+    const connector = (await getConnector(hre)) as Connector;
 
     txSender = collateralServiceProvider;
     amount = '';
@@ -253,8 +256,7 @@ task('testnet:settleAssetBond', 'settle empty asset bond')
     const [deployer, depositor, borrower, collateralServiceProvider, signer] =
       await hre.ethers.getSigners();
 
-    const deployedElyfiContracts = (await getDeployedContracts(hre, deployer)) as ElyfiContracts;
-    const tokenizer = deployedElyfiContracts.tokenizer;
+    const tokenizer = (await getTokenizer(hre)) as Tokenizer;
 
     assetBondIdData.nonce = +args.bond;
     if (args.bond.length > 5) {
@@ -289,9 +291,8 @@ task('testnet:signAssetBond', 'sign settled asset bond')
     const [deployer, depositor, borrower, collateralServiceProvider, signer] =
       await hre.ethers.getSigners();
 
-    const deployedElyfiContracts = (await getDeployedContracts(hre, deployer)) as ElyfiContracts;
-    const connector = deployedElyfiContracts.connector;
-    const tokenizer = deployedElyfiContracts.tokenizer;
+    const connector = (await getConnector(hre)) as Connector;
+    const tokenizer = (await getTokenizer(hre)) as Tokenizer;
 
     assetBondIdData.nonce = +args.bond;
     if (args.bond.length > 5) {

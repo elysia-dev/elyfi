@@ -3,46 +3,45 @@ import { HardhatRuntimeEnvironment } from 'hardhat/types';
 import { DeployedContract } from 'hardhat-deploy/types';
 import path from 'path';
 
-const dependencies = {
-  mainnet: { Dai: 'Dai.json', EL: 'ELToken.json', Elyfi: 'Elyfi.json' },
-  ropsten: { Dai: 'Dai.json', EL: 'ELToken.json', Elyfi: 'Elyfi.json' },
+const getdependencyPath = (network: string, file: string) => {
+  return path.join(__dirname, '..', 'deployments', network, file);
 };
 
-export const getElysia = async (hre: HardhatRuntimeEnvironment): Promise<Contract> => {
+const dependencies = {
+  Dai: 'Dai.json',
+  EL: 'ELToken.json',
+  Elyfi: 'Elyfi.json',
+};
+
+const getdependency = (hre: HardhatRuntimeEnvironment, dependency: string) => {
+  const dependencies = {
+    Dai: 'Dai.json',
+    EL: 'ELToken.json',
+    Elyfi: 'Elyfi.json',
+  };
   const filePath = path.join(
     __dirname,
     '..',
     'dependencies',
     hre.network.name,
-    dependencies[hre.network.name as keyof typeof dependencies].EL
+    dependencies[dependency as keyof typeof dependencies]
   );
-  const file = require(filePath) as DeployedContract;
 
+  return filePath;
+};
+
+export const getElysia = async (hre: HardhatRuntimeEnvironment): Promise<Contract> => {
+  const file = require(getdependency(hre, 'EL')) as DeployedContract;
   return await hre.ethers.getContractAt(file.abi, file.address);
 };
 
 export const getDai = async (hre: HardhatRuntimeEnvironment): Promise<Contract> => {
-  const filePath = path.join(
-    __dirname,
-    '..',
-    'dependencies',
-    hre.network.name,
-    dependencies[hre.network.name as keyof typeof dependencies].Dai
-  );
-  const file = require(filePath) as DeployedContract;
+  const file = require(getdependency(hre, 'Dai')) as DeployedContract;
 
   return await hre.ethers.getContractAt(file.abi, file.address);
 };
 
 export const getElyfi = async (hre: HardhatRuntimeEnvironment): Promise<Contract> => {
-  const filePath = path.join(
-    __dirname,
-    '..',
-    'dependencies',
-    hre.network.name,
-    dependencies[hre.network.name as keyof typeof dependencies].Elyfi
-  );
-  const file = require(filePath) as DeployedContract;
-
+  const file = require(getdependency(hre, 'Elyfi')) as DeployedContract;
   return await hre.ethers.getContractAt(file.abi, file.address);
 };

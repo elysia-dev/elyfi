@@ -1,9 +1,11 @@
 import { task } from 'hardhat/config';
 import ElyfiContracts from '../../test/types/ElyfiContracts';
-import getDeployedContracts from '../../utils/getDeployedContracts';
+import getDeployedContracts, { getMoneyPool, getTokenizer } from '../../utils/getDeployedContracts';
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers';
 import { HardhatRuntimeEnvironment } from 'hardhat/types';
 import AssetBondSettleData from '../../test/types/AssetBondSettleData';
+import { ERC20Test, MoneyPool, Tokenizer } from '../../typechain';
+import { getDai } from '../../utils/getDependencies';
 
 interface Args {
   bond: string;
@@ -22,8 +24,8 @@ task('testnet:deposit', 'Create deposit, default amount : 100, default txSender 
       await hre.ethers.getSigners();
 
     const deployedElyfiContracts = (await getDeployedContracts(hre, deployer)) as ElyfiContracts;
-    const moneyPool = deployedElyfiContracts.moneyPool;
-    const underlyingAsset = deployedElyfiContracts.underlyingAsset;
+    const moneyPool = (await getMoneyPool(hre)) as MoneyPool;
+    const underlyingAsset = (await getDai(hre)) as ERC20Test;
 
     txSender = depositor;
     amount = '';
@@ -84,9 +86,8 @@ task('testnet:withdraw', 'Create withdraw, default amount : 100, default txSende
     const [deployer, depositor, borrower, collateralServiceProvider, signer] =
       await hre.ethers.getSigners();
 
-    const deployedElyfiContracts = (await getDeployedContracts(hre, deployer)) as ElyfiContracts;
-    const moneyPool = deployedElyfiContracts.moneyPool;
-    const underlyingAsset = deployedElyfiContracts.underlyingAsset;
+    const moneyPool = (await getMoneyPool(hre)) as MoneyPool;
+    const underlyingAsset = (await getDai(hre)) as ERC20Test;
 
     txSender = depositor;
 
@@ -118,10 +119,9 @@ task('testnet:borrow', 'Create a loan on the token id')
     const [deployer, depositor, borrower, collateralServiceProvider, signer] =
       await hre.ethers.getSigners();
 
-    const deployedElyfiContracts = (await getDeployedContracts(hre, deployer)) as ElyfiContracts;
-    const moneyPool = deployedElyfiContracts.moneyPool;
-    const tokenizer = deployedElyfiContracts.tokenizer;
-    const underlyingAsset = deployedElyfiContracts.underlyingAsset;
+    const moneyPool = (await getMoneyPool(hre)) as MoneyPool;
+    const tokenizer = (await getTokenizer(hre)) as Tokenizer;
+    const underlyingAsset = (await getDai(hre)) as ERC20Test;
     console.log(underlyingAsset.address);
 
     const file = require(`../../data/assetBond/testnet/assetBond_test_${args.data}`);
@@ -165,10 +165,9 @@ task('testnet:repay', 'Create repay on an asset bond')
     const [deployer, depositor, borrower, collateralServiceProvider, signer] =
       await hre.ethers.getSigners();
 
-    const deployedElyfiContracts = (await getDeployedContracts(hre, deployer)) as ElyfiContracts;
-    const moneyPool = deployedElyfiContracts.moneyPool;
-    const underlyingAsset = deployedElyfiContracts.underlyingAsset;
-    const tokenizer = deployedElyfiContracts.tokenizer;
+    const moneyPool = (await getMoneyPool(hre)) as MoneyPool;
+    const underlyingAsset = (await getDai(hre)) as ERC20Test;
+    const tokenizer = (await getTokenizer(hre)) as Tokenizer;
 
     txSender = borrower;
 
