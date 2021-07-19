@@ -1,5 +1,4 @@
 import '@nomiclabs/hardhat-waffle';
-import { getContractAt } from 'hardhat-deploy-ethers/dist/src/helpers';
 import {
   Tokenizer,
   Connector,
@@ -14,7 +13,6 @@ import {
 import { HardhatRuntimeEnvironment } from 'hardhat/types';
 import ElyfiContracts from '../test/types/ElyfiContracts';
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers';
-import fs from 'fs';
 import path from 'path';
 import { Contract } from 'ethers';
 import { getDai, getElyfi } from './getDependencies';
@@ -110,5 +108,3 @@ export const getDeployedContracts = async (
 
   return !!elyfiContracts ? elyfiContracts : null;
 };
-
-export default getDeployedContracts;

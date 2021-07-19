@@ -1,6 +1,5 @@
 import { task } from 'hardhat/config';
-import ElyfiContracts from '../../test/types/ElyfiContracts';
-import getDeployedContracts, { getMoneyPool, getTokenizer } from '../../utils/getDeployedContracts';
+import { getTokenizer } from '../../utils/getDeployedContracts';
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers';
 import { HardhatRuntimeEnvironment } from 'hardhat/types';
 import AssetBondSettleData from '../../test/types/AssetBondSettleData';

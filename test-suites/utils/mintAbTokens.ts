@@ -2,7 +2,6 @@ import { MockProvider } from '@ethereum-waffle/provider';
 import UserType from '../enums/UserType';
 import AbToken from '../types/AbToken';
 import { testAssetBond } from '../../test/utils/testData';
-import { settleAssetBond } from '../../test/utils/Helpers';
 import generateTokenId from './generateTokenId';
 import AssetBondSettleData from '../../test/types/AssetBondSettleData';
 import ElyfiContracts from '../../test/types/ElyfiContracts';
@@ -21,87 +20,95 @@ const mintAbTokens = async (
   if (abTokens.length === 0) return [];
 
   await elyfiContracts.connector.connect(deployer).addCollateralServiceProvider(CSP.address);
-  const tx = await elyfiContracts.connector.connect(deployer).addCouncil(CSP.address)
+  const tx = await elyfiContracts.connector.connect(deployer).addCouncil(CSP.address);
 
   let cspNonce = await provider.getTransactionCount(CSP.address);
 
-  await Promise.all(abTokens.map(async (_abToken, index) => {
-    const { data: mintData } = await elyfiContracts.tokenizer.populateTransaction.mintAssetBond(
-      CSP.address, generateTokenId(index + 1)
-    )
+  await Promise.all(
+    abTokens.map(async (_abToken, index) => {
+      const { data: mintData } = await elyfiContracts.tokenizer.populateTransaction.mintAssetBond(
+        CSP.address,
+        generateTokenId(index + 1)
+      );
 
-    const tx = await CSP.sendTransaction({
-      to: elyfiContracts.tokenizer.address,
-      data: mintData,
-      nonce: cspNonce + index
+      const tx = await CSP.sendTransaction({
+        to: elyfiContracts.tokenizer.address,
+        data: mintData,
+        nonce: cspNonce + index,
+      });
+
+      await tx.wait();
     })
-
-    await tx.wait();
-  }));
+  );
 
   cspNonce = cspNonce + abTokens.length;
 
-  const minted = await Promise.all(abTokens.map(async (abToken, index) => {
-    const assetBondData = { ...testAssetBond };
-    assetBondData.tokenId = generateTokenId(index + 1);
+  const minted = await Promise.all(
+    abTokens.map(async (abToken, index) => {
+      const assetBondData = { ...testAssetBond };
+      assetBondData.tokenId = generateTokenId(index + 1);
 
-    assetBondData.borrower = wallets[UserType[abToken.borrower]].address;
-    assetBondData.signer = CSP.address;
-    assetBondData.principal = utils.parseEther(abToken.principal.toString());
+      assetBondData.borrower = wallets[UserType[abToken.borrower]].address;
+      assetBondData.signer = CSP.address;
+      assetBondData.principal = utils.parseEther(abToken.principal.toString());
 
-    const { data: settleData } = await elyfiContracts.tokenizer.populateTransaction.settleAssetBond(
-      assetBondData.borrower,
-      assetBondData.signer,
-      assetBondData.tokenId,
-      assetBondData.principal,
-      assetBondData.couponRate,
-      assetBondData.delinquencyRate,
-      assetBondData.debtCeiling,
-      assetBondData.loanDuration,
-      assetBondData.loanStartTimeYear,
-      assetBondData.loanStartTimeMonth,
-      assetBondData.loanStartTimeDay,
-      assetBondData.ipfsHash
-    );
+      const { data: settleData } =
+        await elyfiContracts.tokenizer.populateTransaction.settleAssetBond(
+          assetBondData.borrower,
+          assetBondData.signer,
+          assetBondData.tokenId,
+          assetBondData.principal,
+          assetBondData.couponRate,
+          assetBondData.delinquencyRate,
+          assetBondData.debtCeiling,
+          assetBondData.loanDuration,
+          assetBondData.loanStartTimeYear,
+          assetBondData.loanStartTimeMonth,
+          assetBondData.loanStartTimeDay,
+          assetBondData.ipfsHash
+        );
 
-    const tx = await CSP.sendTransaction({
-      to: elyfiContracts.tokenizer.address,
-      data: settleData,
-      nonce: cspNonce + index
+      const tx = await CSP.sendTransaction({
+        to: elyfiContracts.tokenizer.address,
+        data: settleData,
+        nonce: cspNonce + index,
+      });
+
+      await tx.wait();
+
+      return assetBondData;
     })
-
-    await tx.wait();
-
-    return assetBondData
-  }));
+  );
 
   cspNonce = cspNonce + abTokens.length;
 
   await Promise.all(
     abTokens.map(async (abToken, index) => {
-
-      await elyfiContracts.underlyingAsset.connect(wallets[UserType[abToken.borrower]])
+      await elyfiContracts.underlyingAsset
+        .connect(wallets[UserType[abToken.borrower]])
         .approve(elyfiContracts.moneyPool.address, constants.MaxUint256);
 
       const { data: approveData } = await elyfiContracts.tokenizer.populateTransaction.approve(
-        elyfiContracts.moneyPool.address, generateTokenId(index + 1)
-      )
+        elyfiContracts.moneyPool.address,
+        generateTokenId(index + 1)
+      );
 
       const { data: signData } = await elyfiContracts.tokenizer.populateTransaction.signAssetBond(
-        generateTokenId(index + 1), 'result'
-      )
+        generateTokenId(index + 1),
+        'result'
+      );
 
       await Promise.all(
         [approveData, signData].map(async (data, dataIndex) => {
           await CSP.sendTransaction({
             to: elyfiContracts.tokenizer.address,
             data,
-            nonce: cspNonce + 2 * index + dataIndex
-          })
+            nonce: cspNonce + 2 * index + dataIndex,
+          });
         })
-      )
+      );
     })
-  )
+  );
 
   const loanStartTimestamp = toTimestamp(
     testAssetBond.loanStartTimeYear,
@@ -112,6 +119,6 @@ const mintAbTokens = async (
   await advanceTimeTo(await getTimestamp(tx), loanStartTimestamp);
 
   return minted;
-}
+};
 
 export default mintAbTokens;

@@ -1,15 +1,10 @@
 import { task } from 'hardhat/config';
-import ElyfiContracts from '../../test/types/ElyfiContracts';
-import getDeployedContracts, {
-  getConnector,
-  getMoneyPool,
-  getTokenizer,
-} from '../../utils/getDeployedContracts';
+import { getConnector, getMoneyPool, getTokenizer } from '../../utils/getDeployedContracts';
 import { testAssetBond } from '../../test/utils/testData';
 import { HardhatRuntimeEnvironment } from 'hardhat/types';
 import assetBondIdData from '../../misc/assetBond/assetBondIdDataExample.json';
 import { tokenIdGenerator } from '../../misc/assetBond/generator';
-import { getDai, getElyfi, getElysia } from '../../utils/getDependencies';
+import { getDai } from '../../utils/getDependencies';
 import { Connector, ERC20Test, LToken, MoneyPool, Tokenizer } from '../../typechain';
 
 interface Args {
@@ -28,43 +23,37 @@ task('local:deposit', 'Deposit, default amount : 100, default txSender : deposit
       await hre.ethers.getSigners();
 
     const moneyPool = (await getMoneyPool(hre)) as MoneyPool;
-    const dai = (await getDai(hre)) as ERC20Test;
+    const underlyingAsset = (await getDai(hre)) as ERC20Test;
 
-    console.log(await moneyPool.getLTokenInterestIndex(dai.address));
+    amount =
+      args.amount != undefined
+        ? hre.ethers.utils.parseEther(args.amount).toString()
+        : hre.ethers.utils.parseEther('100').toString();
 
-    // const deployedElyfiContracts = (await getDeployedContracts(hre, deployer)) as ElyfiContracts;
-    // const moneyPool = await getMoneyPool(hre);
-    // const underlyingAsset = await getDai(hre);
+    const balance = await underlyingAsset.balanceOf(depositor.address);
+    if (balance.lt(amount)) {
+      await hre.run('local:transfer', {
+        from: deployer.address,
+        to: depositor.address,
+        amount: amount,
+      });
+    }
 
-    // amount =
-    //   args.amount != undefined
-    //     ? hre.ethers.utils.parseEther(args.amount).toString()
-    //     : hre.ethers.utils.parseEther('100').toString();
+    const allowance = await underlyingAsset.allowance(depositor.address, moneyPool.address);
+    if (allowance.lt(amount)) {
+      await hre.run('local:approve', {
+        from: depositor.address,
+        to: moneyPool.address,
+        amount: amount,
+      });
+    }
 
-    // const balance = await underlyingAsset.balanceOf(depositor.address);
-    // if (balance.lt(amount)) {
-    //   await hre.run('local:transfer', {
-    //     from: deployer.address,
-    //     to: depositor.address,
-    //     amount: amount,
-    //   });
-    // }
+    const tx = await moneyPool
+      .connect(deployer)
+      .deposit(underlyingAsset.address, depositor.address, amount);
 
-    // const allowance = await underlyingAsset.allowance(depositor.address, moneyPool.address);
-    // if (allowance.lt(amount)) {
-    //   await hre.run('local:approve', {
-    //     from: depositor.address,
-    //     to: moneyPool.address,
-    //     amount: amount,
-    //   });
-    // }
-
-    // const tx = await moneyPool
-    //   .connect(deployer)
-    //   .deposit(underlyingAsset.address, depositor.address, amount);
-
-    // console.log((await tx.wait()).events);
-    // console.log(`${depositor.address.substr(0, 10)} deposits ${amount}`);
+    console.log((await tx.wait()).events);
+    console.log(`${depositor.address.substr(0, 10)} deposits ${amount}`);
   });
 
 task('local:withdraw', 'Create withdraw, default txSender: depositor, amount: 100')
@@ -72,7 +61,6 @@ task('local:withdraw', 'Create withdraw, default txSender: depositor, amount: 10
   .setAction(async (args: Args, hre: HardhatRuntimeEnvironment) => {
     const [deployer, depositor] = await hre.ethers.getSigners();
 
-    const deployedElyfiContracts = (await getDeployedContracts(hre, deployer)) as ElyfiContracts;
     const moneyPool = (await getMoneyPool(hre)) as MoneyPool;
     const underlyingAsset = (await getDai(hre)) as ERC20Test;
 

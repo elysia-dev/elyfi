@@ -1,6 +1,4 @@
 import { task } from 'hardhat/config';
-import ElyfiContracts from '../../test/types/ElyfiContracts';
-import getDeployedContracts from '../../utils/getDeployedContracts';
 import { HardhatRuntimeEnvironment } from 'hardhat/types';
 import { ERC20Test } from '../../typechain';
 import { getDai } from '../../utils/getDependencies';
