@@ -10,6 +10,7 @@ import './tasks/testnet/moneyPool';
 import './tasks/testnet/underlyingAsset';
 import './tasks/testnet/tokenizer';
 import './tasks/mainnet/connector';
+import './tasks/mainnet/tokenizer';
 
 const testMnemonic = 'suggest mirror pulp horn goat wagon body long fortune dirt glass awesome';
 

@@ -13,12 +13,18 @@ export const getPoolAdmin = async (hre: HardhatRuntimeEnvironment): Promise<ethe
 
 export const getCSP = async (hre: HardhatRuntimeEnvironment): Promise<ethers.Wallet> => {
   const privateKey = process.env.CSP as string;
-  const poolAdmin = new Wallet(privateKey, await provider(hre.network.name));
-  return poolAdmin;
+  const csp = new Wallet(privateKey, await provider(hre.network.name));
+  return csp;
 };
 
 export const getCouncil = async (hre: HardhatRuntimeEnvironment): Promise<ethers.Wallet> => {
   const privateKey = process.env.COUNCIL as string;
-  const poolAdmin = new Wallet(privateKey, await provider(hre.network.name));
-  return poolAdmin;
+  const council = new Wallet(privateKey, await provider(hre.network.name));
+  return council;
+};
+
+export const getBorrower = async (hre: HardhatRuntimeEnvironment): Promise<ethers.Wallet> => {
+  const privateKey = process.env.BORROWER as string;
+  const borrower = new Wallet(privateKey, await provider(hre.network.name));
+  return borrower;
 };
