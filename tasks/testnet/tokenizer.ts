@@ -24,6 +24,44 @@ interface Args {
   loanStart: string;
 }
 
+const checkCollateralServiceProvider = async ({
+  connector,
+  txSender,
+  deployer,
+}: {
+  connector: Connector;
+  txSender: SignerWithAddress;
+  deployer: SignerWithAddress;
+}) => {
+  const isCollateralServiceProvider = await connector.isCollateralServiceProvider(txSender.address);
+  if (!isCollateralServiceProvider) {
+    const addCollateralServiceProviderTx = await connector
+      .connect(deployer)
+      .addCollateralServiceProvider(txSender.address);
+    await addCollateralServiceProviderTx.wait();
+    console.log(
+      `Deployer add a collateral service provider role to ${txSender.address.substr(0, 10)}`
+    );
+  }
+};
+
+const checkCouncil = async ({
+  connector,
+  txSender,
+  deployer,
+}: {
+  connector: Connector;
+  txSender: SignerWithAddress;
+  deployer: SignerWithAddress;
+}) => {
+  const isCouncil = await connector.isCouncil(txSender.address);
+  if (!isCouncil) {
+    const addCouncilTx = await connector.connect(deployer).addCouncil(txSender.address);
+    await addCouncilTx.wait();
+    console.log(`Deployer add a council role to ${txSender.address.substr(0, 10)}`);
+  }
+};
+
 task('testnet:createSignedAssetBond', 'Create signed asset bond from production data')
   .addOptionalParam('txSender', 'The tx txSender, default: collateral service provider')
   .addParam('data', 'The asset bond from saved data')
@@ -39,21 +77,6 @@ task('testnet:createSignedAssetBond', 'Create signed asset bond from production 
 
     txSender = collateralServiceProvider;
 
-    switch (args.txSender) {
-      case `${deployer.address}`:
-        txSender = deployer;
-        break;
-      case `${depositor.address}`:
-        txSender = depositor;
-        break;
-      case `${borrower.address}`:
-        txSender = borrower;
-        break;
-      case `${signer.address}`:
-        txSender = signer;
-        break;
-    }
-
     const file = require(`../../data/assetBond/testnet/assetBond_test_${args.data}`);
     assetBondSettleData = file.data;
     if (!assetBondSettleData.principal) {
@@ -63,24 +86,12 @@ task('testnet:createSignedAssetBond', 'Create signed asset bond from production 
 
     const tokenId = assetBondSettleData.tokenId;
 
-    const isCollateralServiceProvider = await connector.isCollateralServiceProvider(
-      txSender.address
-    );
-    if (!isCollateralServiceProvider) {
-      const addCollateralServiceProviderTx = await connector
-        .connect(deployer)
-        .addCollateralServiceProvider(txSender.address);
-      await addCollateralServiceProviderTx.wait();
-      console.log(
-        `Deployer add a collateral service provider role to ${txSender.address.substr(0, 10)}`
-      );
-    }
-    const isCouncil = await connector.isCouncil(signer.address);
-    if (!isCouncil) {
-      const addCouncilTx = await connector.connect(deployer).addCouncil(signer.address);
-      await addCouncilTx.wait();
-      console.log(`Deployer add a council role to ${signer.address.substr(0, 10)}`);
-    }
+    await checkCollateralServiceProvider({
+      connector: connector,
+      txSender: txSender,
+      deployer: deployer,
+    });
+    await checkCouncil({ connector: connector, txSender: txSender, deployer: deployer });
 
     const mintTx = await tokenizer.connect(txSender).mintAssetBond(txSender.address, tokenId);
     await mintTx.wait();
@@ -145,21 +156,6 @@ task('testnet:createSignedAssetBondForTest', 'Create signed asset bond for only 
     amount = '';
     loanStart = '';
 
-    switch (args.txSender) {
-      case `${deployer.address}`:
-        txSender = deployer;
-        break;
-      case `${depositor.address}`:
-        txSender = depositor;
-        break;
-      case `${borrower.address}`:
-        txSender = borrower;
-        break;
-      case `${signer.address}`:
-        txSender = signer;
-        break;
-    }
-
     const file = require(`../../data/assetBond/testnet/example`);
 
     assetBondIdData = file.id;
@@ -177,20 +173,12 @@ task('testnet:createSignedAssetBondForTest', 'Create signed asset bond for only 
         ? hre.ethers.utils.parseEther(args.amount).toString()
         : assetBondSettleData.principal.toString();
 
-    const isCollateralServiceProvider = await connector.isCollateralServiceProvider(
-      txSender.address
-    );
-    if (!isCollateralServiceProvider) {
-      await connector.connect(deployer).addCollateralServiceProvider(txSender.address);
-      console.log(
-        `Deployer add a collateral service provider role to ${txSender.address.substr(0, 10)}`
-      );
-    }
-    const isCouncil = await connector.isCouncil(signer.address);
-    if (!isCouncil) {
-      await connector.connect(deployer).addCouncil(signer.address);
-      `Deployer add a council role to ${signer.address.substr(0, 10)}`;
-    }
+    await checkCollateralServiceProvider({
+      connector: connector,
+      txSender: txSender,
+      deployer: deployer,
+    });
+    await checkCouncil({ connector: connector, txSender: txSender, deployer: deployer });
 
     await tokenizer.connect(txSender).mintAssetBond(txSender.address, tokenId);
     console.log(`The collateral service provider mints asset token which nonce is "${args.bond}"`);

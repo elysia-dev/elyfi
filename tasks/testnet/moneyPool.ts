@@ -23,32 +23,10 @@ task('testnet:deposit', 'Create deposit, default amount : 100, default txSender 
     const [deployer, depositor, borrower, collateralServiceProvider, signer] =
       await hre.ethers.getSigners();
 
-    const deployedElyfiContracts = (await getDeployedContracts(hre, deployer)) as ElyfiContracts;
     const moneyPool = (await getMoneyPool(hre)) as MoneyPool;
     const underlyingAsset = (await getDai(hre)) as ERC20Test;
 
     txSender = depositor;
-    amount = '';
-
-    if (args.txSender != undefined) {
-      switch (args.txSender) {
-        case `${deployer.address}`:
-          txSender = deployer;
-          break;
-        case `${depositor.address}`:
-          txSender = depositor;
-          break;
-        case `${borrower.address}`:
-          txSender = borrower;
-          break;
-        case `${collateralServiceProvider.address}`:
-          txSender = collateralServiceProvider;
-          break;
-        case `${signer.address}`:
-          txSender = signer;
-          break;
-      }
-    }
 
     amount =
       args.amount != undefined
@@ -90,21 +68,6 @@ task('testnet:withdraw', 'Create withdraw, default amount : 100, default txSende
     const underlyingAsset = (await getDai(hre)) as ERC20Test;
 
     txSender = depositor;
-
-    switch (args.txSender) {
-      case `${deployer.address}`:
-        txSender = deployer;
-        break;
-      case `${borrower.address}`:
-        txSender = borrower;
-        break;
-      case `${collateralServiceProvider.address}`:
-        txSender = collateralServiceProvider;
-        break;
-      case `${signer.address}`:
-        txSender = signer;
-        break;
-    }
 
     amount = args.amount != undefined ? args.amount : hre.ethers.utils.parseEther('100').toString();
 
@@ -170,24 +133,6 @@ task('testnet:repay', 'Create repay on an asset bond')
     const tokenizer = (await getTokenizer(hre)) as Tokenizer;
 
     txSender = borrower;
-
-    switch (args.txSender) {
-      case `${deployer.address}`:
-        txSender = deployer;
-        break;
-      case `${depositor.address}`:
-        txSender = depositor;
-        break;
-      case `${borrower.address}`:
-        txSender = borrower;
-        break;
-      case `${collateralServiceProvider.address}`:
-        txSender = collateralServiceProvider;
-        break;
-      case `${signer.address}`:
-        txSender = signer;
-        break;
-    }
 
     const file = require(`../../data/assetBond/testnet/assetBond_test_${args.data}`);
     assetBondSettleData = file.data;
