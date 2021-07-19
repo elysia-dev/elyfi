@@ -1,21 +1,7 @@
 import '@nomiclabs/hardhat-waffle';
-import {
-  Tokenizer,
-  Connector,
-  DataPipeline,
-  DToken,
-  InterestRateModel,
-  LToken,
-  MoneyPoolTest,
-  ERC20Test,
-  IncentivePool,
-} from '../typechain';
 import { HardhatRuntimeEnvironment } from 'hardhat/types';
-import ElyfiContracts from '../test/types/ElyfiContracts';
-import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers';
 import path from 'path';
 import { Contract } from 'ethers';
-import { getDai, getElyfi } from './getDependencies';
 
 type DeployedContract = {
   address: string;
@@ -76,35 +62,4 @@ export const getIncentivePool = async (hre: HardhatRuntimeEnvironment): Promise<
     elyfi.IncentivePool
   )) as DeployedContract;
   return await hre.ethers.getContractAt(file.abi, file.address);
-};
-//need refactor
-export const getDeployedContracts = async (
-  hre: HardhatRuntimeEnvironment,
-  deployer: SignerWithAddress
-): Promise<ElyfiContracts | null> => {
-  let underlyingAsset = (await getDai(hre)) as ERC20Test;
-  let connector = (await getConnector(hre)) as Connector;
-  let moneyPool = (await getMoneyPool(hre)) as MoneyPoolTest;
-  let incentiveAsset = (await getElyfi(hre)) as ERC20Test;
-  let incentivePool!: IncentivePool;
-  let interestRateModel!: InterestRateModel;
-  let lToken!: LToken;
-  let dToken!: DToken;
-  let tokenizer!: Tokenizer;
-  let dataPipeline!: DataPipeline;
-
-  const elyfiContracts = {
-    underlyingAsset,
-    incentiveAsset,
-    connector,
-    moneyPool,
-    incentivePool,
-    interestRateModel,
-    lToken,
-    dToken,
-    tokenizer,
-    dataPipeline,
-  };
-
-  return !!elyfiContracts ? elyfiContracts : null;
 };

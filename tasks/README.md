@@ -3,7 +3,27 @@
 **All tasks requires network name**
 
 ```
-yarn task network:action --networkname --args
+yarn task network:action --networkname network --argsname args
+```
+
+## Mainnet
+
+#### Connector
+
+```
+mainnet:addCSP
+# required
+--address
+(The address to add a role)
+
+```
+
+```
+mainnet:addCouncil
+# required
+--address
+(The address to add a role)
+
 ```
 
 ## Testnet

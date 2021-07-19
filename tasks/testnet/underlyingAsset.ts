@@ -15,7 +15,6 @@ task('testnet:approve', 'Approve to moneyPool, default: 100')
   .addOptionalParam('amount', 'The approve amount')
   .setAction(async (args: Args, hre: HardhatRuntimeEnvironment) => {
     let amount: string;
-    const [deployer] = await hre.ethers.getSigners();
 
     const underlyingAsset = (await getDai(hre)) as ERC20Test;
 
