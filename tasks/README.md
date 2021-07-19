@@ -26,6 +26,32 @@ mainnet:addCouncil
 
 ```
 
+#### Tokenizer
+
+```
+mainnet:mintAssetBond
+# required
+--data
+(AssetBond Data in data)
+
+```
+
+```
+mainnet:settleAssetBond
+# required
+--data
+(AssetBond Data in data)
+
+```
+
+```
+mainnet:signAssetBond
+# required
+--data
+(AssetBond Data in data)
+
+```
+
 ## Testnet
 
 #### Moneypool

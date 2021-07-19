@@ -139,5 +139,5 @@ task('mainnet:signAssetBond', 'sign settled asset bond')
       .connect(signer)
       .signAssetBond(assetBondData.tokenId, assetBondData.signerOpinionHash);
 
-    console.log(`The signer signs on asset token which id is "${args.data}"`);
+    console.log(`The signer signs on asset token which data is "${args.data}"`);
   });
