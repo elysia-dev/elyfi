@@ -9,6 +9,7 @@ import './tasks/local/underlyingAsset';
 import './tasks/testnet/moneyPool';
 import './tasks/testnet/underlyingAsset';
 import './tasks/testnet/tokenizer';
+import './tasks/mainnet/connector';
 
 const testMnemonic = 'suggest mirror pulp horn goat wagon body long fortune dirt glass awesome';
 

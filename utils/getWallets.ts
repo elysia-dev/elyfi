@@ -1,20 +1,24 @@
-import { Wallet } from 'ethers';
-import { ethers } from 'hardhat';
+import { ethers, Wallet } from 'ethers';
+import { HardhatRuntimeEnvironment } from 'hardhat/types';
 
-export const getPoolAdmin = (): Wallet => {
-  const privateKey = process.env.ADMIN;
-  const poolAdmin = new Wallet(privateKey);
+const provider = async (network: string) => {
+  return new ethers.providers.InfuraProvider(network, process.env.INFURA_API_KEY);
+};
+
+export const getPoolAdmin = async (hre: HardhatRuntimeEnvironment): Promise<ethers.Wallet> => {
+  const privateKey = process.env.ADMIN as string;
+  const poolAdmin = new Wallet(privateKey, await provider(hre.network.name));
   return poolAdmin;
 };
 
-export const getCSP = (): Wallet => {
-  const privateKey = process.env.CSP;
-  const poolAdmin = new Wallet(privateKey);
+export const getCSP = async (hre: HardhatRuntimeEnvironment): Promise<ethers.Wallet> => {
+  const privateKey = process.env.CSP as string;
+  const poolAdmin = new Wallet(privateKey, await provider(hre.network.name));
   return poolAdmin;
 };
 
-export const getCouncil = (): Wallet => {
-  const privateKey = process.env.COUNCIL;
-  const poolAdmin = new ethers.Wallet(privateKey);
+export const getCouncil = async (hre: HardhatRuntimeEnvironment): Promise<ethers.Wallet> => {
+  const privateKey = process.env.COUNCIL as string;
+  const poolAdmin = new Wallet(privateKey, await provider(hre.network.name));
   return poolAdmin;
 };
