@@ -27,9 +27,9 @@ export const data: AssetBondSettleData = {
   debtCeiling: ethers.utils.parseEther('338556'),
   couponRate: toRate(0.1),
   delinquencyRate: toRate(0.03),
-  loanDuration: BigNumber.from(88),
+  loanDuration: BigNumber.from(87),
   loanStartTimeYear: BigNumber.from(2021),
   loanStartTimeMonth: BigNumber.from(7),
-  loanStartTimeDay: BigNumber.from(21),
+  loanStartTimeDay: BigNumber.from(22),
   ipfsHash: 'test',
 };
