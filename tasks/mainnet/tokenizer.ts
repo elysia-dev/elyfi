@@ -1,8 +1,8 @@
 import { task } from 'hardhat/config';
-import { getConnector, getTokenizer } from '../../utils/getDeployedContracts';
+import { getConnector, getMoneyPool, getTokenizer } from '../../utils/getDeployedContracts';
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers';
 import { HardhatRuntimeEnvironment } from 'hardhat/types';
-import { Connector, Tokenizer } from '../../typechain';
+import { Connector, MoneyPool, Tokenizer } from '../../typechain';
 import { getBorrower, getCouncil, getCSP } from '../../utils/getWallets';
 import AssetBondSettleData from '../../test/types/AssetBondSettleData';
 import { ethers, Wallet } from 'ethers';
@@ -97,8 +97,8 @@ task('mainnet:settleAssetBond', 'settle empty asset bond')
     const settleTx = await tokenizer
       .connect(collateralServiceProvider)
       .settleAssetBond(
-        borrower.address,
-        signer.address,
+        assetBondData.borrower,
+        assetBondData.signer,
         assetBondData.tokenId,
         assetBondData.principal,
         assetBondData.couponRate,
@@ -139,4 +139,33 @@ task('mainnet:signAssetBond', 'sign settled asset bond')
       .signAssetBond(assetBondData.tokenId, assetBondData.signerOpinionHash);
 
     console.log(`The signer signs on asset token which da is "${args.data}"`);
+  });
+
+task('mainnet:approveAssetBond', 'approve asset bond to the tokenizer')
+  .addParam('data', 'The asset bond from saved production data')
+  .setAction(async (args: Args, hre: HardhatRuntimeEnvironment) => {
+    const collateralServiceProvider = await getCSP(hre);
+
+    const tokenizer = (await getTokenizer(hre)) as Tokenizer;
+    const moneyPool = (await getMoneyPool(hre)) as MoneyPool;
+
+    const assetBondData = require(`../../data/assetBond/mainnet/${args.data}`)
+      .data as AssetBondSettleData;
+
+    checkAssetBondFileData(assetBondData);
+
+    const isApproved = (await tokenizer.getApproved(assetBondData.tokenId)) == moneyPool.address;
+
+    if (!isApproved) {
+      if ((await tokenizer.ownerOf(assetBondData.tokenId)) != collateralServiceProvider.address) {
+        throw new Error(`${collateralServiceProvider.address} is not the token owner`);
+      }
+      const approveTx = await tokenizer
+        .connect(collateralServiceProvider)
+        .approve(moneyPool.address, assetBondData.tokenId);
+      await approveTx.wait();
+      console.log('Token approve success');
+      return;
+    }
+    console.log('Token already approved to the moneyPool');
   });

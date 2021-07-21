@@ -3,7 +3,7 @@ import '@nomiclabs/hardhat-waffle';
 import '@nomiclabs/hardhat-solhint';
 import '@nomiclabs/hardhat-etherscan';
 import '@openzeppelin/hardhat-upgrades';
-import 'hardhat-typechain';
+import '@typechain/hardhat';
 import 'hardhat-deploy-ethers';
 import 'hardhat-deploy';
 import 'hardhat-abi-exporter';
