@@ -6,11 +6,18 @@ This repository contains the smart contracts source code and markets configurati
 
 ELYFI is adding real estate to the DEFI concept. This is the expansion of the current crypto-to-crypto applications as ELYFI will introduce traditional assets to the open financial market.
 
-To implment the project, We use same DEFI concepts like Index Model, Kinked Rates Model and Tokenization of Aave protocol
+- [The Elyfi documents](https://elyfi-docs.elysia.land/v/eng/), describing what is elyfi and how it works
+- For using the elyfi, [The Elyfi dapp](https://elyfi.elysia.land/)
 
-## Setup
+## Community
 
-- Create an file named .env and fill the next enviroment variables
+You can join at the [telegram](https://t.me/elysia_official) or [kakaotalk](https://open.kakao.com/o/gUpSOwkb) for asking questions about protocol.
+
+The forum for the elyfi will be completed soon. You can join and participate fully in the running of the elyfi protocol with the governance.
+
+## Installation
+
+- Set up .env file in the project directory and add the following environment variables:
 
 ```
 # Secret key for deploying contracts
@@ -24,9 +31,23 @@ ETHERSCAN_API_KEY=
 
 - Install dependencies with `yarn`
 
+## Deploy
+
+```
+## Deploy local network
+yarn deploy:local
+
+## Deploy test network
+yarn deploy:testnet
+
+## Deploy main network
+yarn deploy:mainnet
+```
+
 ## Test
 
 For convenience, we assume that waffle's wallets are mapped in order of [deployer, account1, account2, account3 ...]
+You can run test with below scripts
 
 ```
 # Run specific test code
@@ -45,17 +66,4 @@ yarn task createWithdraw --network ganache --asset ASSET_ADDRESS --pool POOL_ADD
 # Coverage
 yarn coverage
 open ./coverage/index.html
-```
-
-## Deploy
-
-```
-## Deploy local network
-yarn deploy:local
-
-## Deploy test network
-yarn deploy:testnet
-
-## Deploy main network
-yarn deploy:mainnet
 ```
