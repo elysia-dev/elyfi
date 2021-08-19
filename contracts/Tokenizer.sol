@@ -278,7 +278,7 @@ contract Tokenizer is ITokenizer, TokenizerStorage, ERC721 {
   }
 
   /**
-   * @notice When the repayment scenario, the dTokens are destroyed and the collateral of the locked up
+   * @notice In the repayment scenario, the dTokens are destroyed and the collateral of the locked up
    * asset bond tokens in the MoneyPool is unlocked. The asset bond tokens are transfered to the
    * address of the borrower for terminating the collateral contract.
    * @dev The releasing asset bond token should be only from the MoneyPool.
@@ -294,7 +294,7 @@ contract Tokenizer is ITokenizer, TokenizerStorage, ERC721 {
   }
 
   /**
-   * @notice When the liquidation scenario, the dTokens are destroyed and the collateral of the locked up
+   * @notice In the liquidation scenario, the dTokens are burned and the collateral of the locked up
    * asset bond tokens in the MoneyPool is transferred to liquidator.
    * @dev The liquidating asset bond token should be only from the MoneyPool.
    * @param account The liquidator
@@ -309,17 +309,17 @@ contract Tokenizer is ITokenizer, TokenizerStorage, ERC721 {
 
   /************ Access Functions ************/
 
-  modifier onlyMoneyPool {
+  modifier onlyMoneyPool() {
     require(_msgSender() == address(_moneyPool), 'OnlyMoneyPool');
     _;
   }
 
-  modifier onlyCollateralServiceProvider {
+  modifier onlyCollateralServiceProvider() {
     require(_connector.isCollateralServiceProvider(msg.sender), 'OnlyCollateralServiceProvider');
     _;
   }
 
-  modifier onlyCouncil {
+  modifier onlyCouncil() {
     require(_connector.isCouncil(msg.sender), 'OnlyCouncil');
     _;
   }

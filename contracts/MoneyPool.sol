@@ -26,7 +26,7 @@ import './MoneyPoolStorage.sol';
  * participants, and all issuance and burn processes are carried out through the Money Pool Contract.
  * The depositor and borrower should approve the ELYFI moneypool contract to move their AssetBond token
  * or ERC20 tokens on their behalf.
- * @dev Only admin can modify the variables and state of the moneypool
+ * @dev Only admin can modify the variables and state of the moneypool.
  **/
 contract MoneyPool is IMoneyPool, MoneyPoolStorage {
   using SafeERC20 for IERC20;
@@ -118,7 +118,7 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
    * recorded in the asset bond data. As asset bonds are deposited as collateral in the Money Pool
    * and loans are made, financial services that link real assets and cryptoassets can be achieved.
    * @dev Transfer asset bond from the collateral service provider to the moneypool and mint dTokens
-   *  corresponding to principal. After that, transfer the underlying asset
+   * corresponding to principal. After that, transfer the underlying asset
    * @param asset The address of the underlying asset to withdraw
    * @param tokenId The id of the token to collateralize
    **/
@@ -126,7 +126,7 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
     require(_connector.isCollateralServiceProvider(msg.sender), 'OnlyCollateralServiceProvider');
     DataStruct.ReserveData storage reserve = _reserves[asset];
     DataStruct.AssetBondData memory assetBond = ITokenizer(reserve.tokenizerAddress)
-    .getAssetBondData(tokenId);
+      .getAssetBondData(tokenId);
 
     uint256 borrowAmount = assetBond.principal;
     address receiver = assetBond.borrower;
@@ -163,12 +163,12 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
   function repay(address asset, uint256 tokenId) external override {
     DataStruct.ReserveData storage reserve = _reserves[asset];
     DataStruct.AssetBondData memory assetBond = ITokenizer(reserve.tokenizerAddress)
-    .getAssetBondData(tokenId);
+      .getAssetBondData(tokenId);
 
     Validation.validateRepay(reserve, assetBond);
 
     (uint256 accruedDebtOnMoneyPool, uint256 feeOnCollateralServiceProvider) = assetBond
-    .getAssetBondDebtData();
+      .getAssetBondDebtData();
 
     uint256 totalRetrieveAmount = accruedDebtOnMoneyPool + feeOnCollateralServiceProvider;
 
@@ -197,16 +197,27 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
     );
   }
 
+  /**
+   * @notice Liquidate a non performed asset bond and retrieve asset bond token. The caller must be
+   * the collateral service provider,
+   * @dev Transfer liquidation amount of the underlying asset from msg.sender to the moneypool and
+   * burn the corresponding amount of dTokens. Then release the asset bond token which is locked in the
+   * moneypool and transfer it to the liquidator. The total amount of transferred underlying asset is
+   * the sum of the fee on the collateral service provider and debt on the moneypool. The fee on the
+   * collateral service provider is paid as a form of minted corresponding lToken
+   * @param asset The address of the underlying asset to liquidate
+   * @param tokenId The id of the token to liquidate
+   **/
   function liquidate(address asset, uint256 tokenId) external override {
     require(_connector.isCollateralServiceProvider(msg.sender), 'OnlyCollateralServiceProvider');
     DataStruct.ReserveData storage reserve = _reserves[asset];
     DataStruct.AssetBondData memory assetBond = ITokenizer(reserve.tokenizerAddress)
-    .getAssetBondData(tokenId);
+      .getAssetBondData(tokenId);
 
     Validation.validateLiquidation(reserve, assetBond);
 
     (uint256 accruedDebtOnMoneyPool, uint256 feeOnCollateralServiceProvider) = assetBond
-    .getAssetBondLiquidationData();
+      .getAssetBondLiquidationData();
 
     uint256 totalLiquidationAmount = accruedDebtOnMoneyPool + feeOnCollateralServiceProvider;
 
@@ -264,6 +275,18 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
 
   /************ Configuration Functions ************/
 
+  /**
+   * @dev Initializes a new reserve and assign lToken, dToken, interestModel, tokenizer
+   * and incentive pool. Only admin can add new reserve. In the elyfi version 1, the initiation
+   * of the new reserve will be in the limited circumstances.
+   * @param asset The address of the underlying asset of the reserve
+   * @param lToken The address of the lToken of the reserve
+   * @param dToken The address of the dToken of the reserve
+   * @param interestModel The address of interestModel of the reserve
+   * @param tokenizer The address of the tokenizer of the reserve
+   * @param incentivePool The address of the incentivePool of the reserve
+   * @param moneyPoolFactor_ The address of the moneyPoolFactor of the reserve
+   **/
   function addNewReserve(
     address asset,
     address lToken,
@@ -317,22 +340,48 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
     _reserveCount = reserveCount + 1;
   }
 
+  /**
+   * @notice Set the isActivated state of a reserve
+   * @dev Only moneypool admin can deactivate the reserve
+   * @param asset The address of the underlying asset of the reserve
+   **/
   function deactivateMoneyPool(address asset) external onlyMoneyPoolAdmin {
     _reserves[asset].isActivated = false;
   }
 
+  /**
+   * @notice Set the isActivated state of a reserve
+   * @dev Only moneypool admin can activate the reserve
+   * @param asset The address of the underlying asset of the reserve
+   **/
   function activateMoneyPool(address asset) external onlyMoneyPoolAdmin {
     _reserves[asset].isActivated = true;
   }
 
+  /**
+   * @notice Set the isPaused state of a reserve
+   * @dev Only moneypool admin can pause the reserve
+   * @param asset The address of the underlying asset of the reserve
+   **/
   function pauseMoneyPool(address asset) external onlyMoneyPoolAdmin {
     _reserves[asset].isPaused = true;
   }
 
+  /**
+   * @notice Set the isPaused state of a reserve
+   * @dev Only moneypool admin can uppause the reserve
+   * @param asset The address of the underlying asset of the reserve
+   **/
   function unPauseMoneyPool(address asset) external onlyMoneyPoolAdmin {
     _reserves[asset].isPaused = false;
   }
 
+  /**
+   * @notice Update the incentive of the reserve
+   * @dev Only moneypool admin can update the incentive pool
+   * @param asset The address of the underlying asset of the reserve
+   * @param newIncentivePool The address of the new incentivepool of the reserve
+   **/
   function updateIncentivePool(address asset, address newIncentivePool)
     external
     onlyMoneyPoolAdmin
@@ -341,7 +390,7 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
     ILToken(reserve.lTokenAddress).updateIncentivePool(newIncentivePool);
   }
 
-  modifier onlyMoneyPoolAdmin {
+  modifier onlyMoneyPoolAdmin() {
     require(_connector.isMoneyPoolAdmin(msg.sender), 'OnlyMoneyPoolAdmin');
     _;
   }

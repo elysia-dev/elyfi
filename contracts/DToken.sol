@@ -14,7 +14,7 @@ import './interfaces/IMoneyPool.sol';
  * @notice The DToken balance of borrower is the amount of money that the borrower
  * would be required to repay and seize the collateralized asset bond token.
  *
- * @author Aave
+ * @author Elysia
  **/
 contract DToken is IDToken, Context {
   using WadRayMath for uint256;
