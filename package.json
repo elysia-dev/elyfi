@@ -8,12 +8,7 @@
     "task": "yarn hardhat --config hardhat.config.tasks.ts",
     "coverage": "yarn hardhat coverage --testfiles 'test/contracts/**/*.test.ts' --solcoverjs ./.solcover.js"
   },
-  "dependencies": {
-    "@typechain/ethers-v5": "^6.0.5",
-    "hardhat-typechain": "^0.3.5",
-    "ts-generator": "^0.1.1",
-    "typechain": "^4.0.3"
-  },
+  "dependencies": {},
   "devDependencies": {
     "@cucumber/cucumber": "^7.1.0",
     "@eth-optimism/smock": "^1.1.0",
@@ -25,6 +20,7 @@
     "@openzeppelin/contracts": "^4.0.0",
     "@openzeppelin/contracts-upgradeable": "^4.0.0",
     "@openzeppelin/hardhat-upgrades": "^1.6.0",
+    "@typechain/ethers-v5": "^7.0.1",
     "@types/chai": "^4.2.17",
     "@types/mocha": "^8.2.2",
     "@types/node": "^15.0.1",
@@ -37,10 +33,14 @@
     "hardhat-abi-exporter": "^2.2.1",
     "hardhat-deploy": "^0.7.10",
     "hardhat-deploy-ethers": "^0.3.0-beta.8",
+    "hardhat-docgen": "^1.1.1",
     "hardhat-gas-reporter": "^1.0.4",
+    "hardhat-typechain": "^0.3.5",
     "mocha": "^8.3.2",
     "solidity-coverage": "donguks/solidity-coverage",
+    "ts-generator": "^0.1.1",
     "ts-node": "^9.1.1",
+    "typechain": "^5.1.2",
     "typescript": "^4.2.4"
   },
   "resolutions": {

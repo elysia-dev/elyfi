@@ -6,6 +6,7 @@ import '@openzeppelin/hardhat-upgrades';
 import 'hardhat-typechain';
 import 'hardhat-deploy-ethers';
 import 'hardhat-deploy';
+import 'hardhat-docgen';
 import 'hardhat-abi-exporter';
 // import "solidity-coverage"
 // Gas-reporter's parser dependency makes Warning:
@@ -54,20 +55,6 @@ const config: HardhatUserConfig = {
         mnemonic: process.env.TEST_MNEMONIC || testMnemonic,
       },
       chainId: 42,
-    },
-    binanceTestnet: {
-      url: 'https://data-seed-prebsc-1-s1.binance.org:8545',
-      chainId: 97,
-      gasPrice: 20000000000,
-      accounts: {
-        mnemonic: process.env.TEST_MNEMONIC || testMnemonic,
-      },
-    },
-    binanceMainnet: {
-      url: 'https://bsc-dataseed.binance.org/',
-      chainId: 56,
-      gasPrice: 20000000000,
-      accounts: [process.env.ADMIN || ''],
     },
     ganache: {
       url: 'http://0.0.0.0:8545',
