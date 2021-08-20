@@ -6,7 +6,8 @@
     "test": "yarn hardhat test",
     "test:zap": "yarn hardhat test --no-compile",
     "task": "yarn hardhat --config hardhat.config.tasks.ts",
-    "coverage": "yarn hardhat coverage --testfiles 'test/contracts/**/*.test.ts' --solcoverjs ./.solcover.js"
+    "coverage": "yarn hardhat coverage --testfiles 'test/contracts/**/*.test.ts' --solcoverjs ./.solcover.js",
+    "docgen": "yarn run solidity-docgen --solc-module solc-0.8.3 --templates ./templates"
   },
   "dependencies": {},
   "devDependencies": {
@@ -33,11 +34,12 @@
     "hardhat-abi-exporter": "^2.2.1",
     "hardhat-deploy": "^0.7.10",
     "hardhat-deploy-ethers": "^0.3.0-beta.8",
-    "hardhat-docgen": "^1.1.1",
     "hardhat-gas-reporter": "^1.0.4",
     "hardhat-typechain": "^0.3.5",
     "mocha": "^8.3.2",
+    "solc-0.8.3": "npm:solc@0.8.3",
     "solidity-coverage": "donguks/solidity-coverage",
+    "solidity-docgen": "^0.5.13",
     "ts-generator": "^0.1.1",
     "ts-node": "^9.1.1",
     "typechain": "^5.1.2",

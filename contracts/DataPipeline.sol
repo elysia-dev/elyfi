@@ -35,6 +35,8 @@ contract DataPipeline {
 
   /**
    * @dev Returns the user's data for asset.
+   * @param asset The address of the underlying asset of the reserve
+   * @param user The address of the user
    */
   function getUserData(address asset, address user)
     external
@@ -50,7 +52,7 @@ contract DataPipeline {
     vars.dTokenBalance = IDToken(reserve.dTokenAddress).balanceOf(user);
     vars.principalDTokenBalance = IDToken(reserve.dTokenAddress).principalBalanceOf(user);
     vars.averageRealAssetBorrowRate = IDToken(reserve.dTokenAddress)
-    .getUserAverageRealAssetBorrowRate(user);
+      .getUserAverageRealAssetBorrowRate(user);
     vars.lastUpdateTimestamp = IDToken(reserve.dTokenAddress).getUserLastUpdateTimestamp(user);
 
     return vars;
@@ -71,6 +73,7 @@ contract DataPipeline {
 
   /**
    * @dev Returns the reserve's data for asset.
+   * @param asset The address of the underlying asset of the reserve
    */
   function getReserveData(address asset) external view returns (ReserveDataLocalVars memory) {
     ReserveDataLocalVars memory vars;
@@ -99,6 +102,11 @@ contract DataPipeline {
     uint256 feeOnCollateralServiceProvider;
   }
 
+  /**
+   * @dev Return the asset bond data
+   * @param asset The address of the underlying asset of the reserve
+   * @param tokenId The id of the token
+   */
   function getAssetBondStateData(address asset, uint256 tokenId)
     external
     view
@@ -108,7 +116,7 @@ contract DataPipeline {
 
     DataStruct.ReserveData memory reserve = moneyPool.getReserveData(asset);
     DataStruct.AssetBondData memory assetBond = ITokenizer(reserve.tokenizerAddress)
-    .getAssetBondData(tokenId);
+      .getAssetBondData(tokenId);
 
     vars.assetBondState = assetBond.state;
     vars.tokenOwner = ITokenizer(reserve.tokenizerAddress).ownerOf(tokenId);

@@ -160,12 +160,12 @@ contract IncentivePool is IIncentivePool {
     emit IncentivePoolEnded();
   }
 
-  modifier onlyMoneyPool {
+  modifier onlyMoneyPool() {
     require(msg.sender == address(_moneyPool), 'OnlyMoneyPool');
     _;
   }
 
-  modifier onlyLToken {
+  modifier onlyLToken() {
     require(msg.sender == address(lToken), 'OnlyLToken');
     _;
   }

@@ -262,7 +262,7 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
   /**
    * @dev Returns the reserveData struct of underlying asset
    * @param asset The address of the underlying asset of the reserve
-   * @return The state of the reserve
+   * @return The state struct of the reserve
    **/
   function getReserveData(address asset)
     external
@@ -276,8 +276,9 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
   /************ Configuration Functions ************/
 
   /**
-   * @dev Initializes a new reserve and assign lToken, dToken, interestModel, tokenizer
-   * and incentive pool. Only admin can add new reserve. In the elyfi version 1, the initiation
+   * @notice Initializes a new reserve and assign lToken, dToken, interestModel, tokenizer
+   * and incentive pool.
+   * @dev Only admin can add new reserve. In the elyfi version 1, the initiation
    * of the new reserve will be in the limited circumstances.
    * @param asset The address of the underlying asset of the reserve
    * @param lToken The address of the lToken of the reserve

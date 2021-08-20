@@ -51,8 +51,7 @@ contract InterestRateModel is IInterestRateModel, InterestRateModelStorage {
 
   /**
    * @notice Calculates the interest rates.
-   * @dev
-   * Calculation Example
+   * @dev Calculation Example
    * Case1: under optimal U
    * baseRate = 2%, util = 40%, optimalRate = 10%, optimalUtil = 80%
    * result = 2+40*(10-2)/80 = 4%
@@ -63,6 +62,7 @@ contract InterestRateModel is IInterestRateModel, InterestRateModelStorage {
    * @param totalDTokenBalance total loan amount
    * @param depositAmount The liquidity added during the operation
    * @param borrowAmount The liquidity taken during the operation
+   * @param moneyPoolFactor The moneypool factor. ununsed variable in version 1
    */
   function calculateRates(
     uint256 lTokenAssetBalance,
@@ -97,8 +97,8 @@ contract InterestRateModel is IInterestRateModel, InterestRateModelStorage {
         _borrowRateOptimal +
         (
           (_borrowRateMax - _borrowRateOptimal)
-          .rayDiv(WadRayMath.ray() - _optimalUtilizationRate)
-          .rayMul(vars.utilizationRate - _borrowRateOptimal)
+            .rayDiv(WadRayMath.ray() - _optimalUtilizationRate)
+            .rayMul(vars.utilizationRate - _borrowRateOptimal)
         );
     }
 
