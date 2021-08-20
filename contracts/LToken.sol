@@ -144,7 +144,7 @@ contract LToken is ILToken, ERC20 {
     _incentivePool = IIncentivePool(newIncentivePool);
   }
 
-  modifier onlyMoneyPool {
+  modifier onlyMoneyPool() {
     require(_msgSender() == address(_moneyPool), 'OnlyMoneyPool');
     _;
   }
