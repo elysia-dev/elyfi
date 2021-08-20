@@ -70,7 +70,7 @@ open ./coverage/index.html
 
 ## Docgen
 
-To genenerate markdown docs from the smart contracts natspec,
+You can genenerate markdown docs from the smart contracts natspec.
 The markdown docs templates is in the contracts.hbs in the ./template. You can edit this file or replace it on your own.
 
 ```
