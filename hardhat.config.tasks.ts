@@ -1,5 +1,5 @@
 import 'dotenv/config';
-import 'hardhat-typechain';
+import '@typechain/hardhat';
 import 'hardhat-deploy-ethers';
 import 'hardhat-deploy';
 
