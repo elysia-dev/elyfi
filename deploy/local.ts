@@ -34,12 +34,6 @@ const deployTestnet: DeployFunction = async function (hre: HardhatRuntimeEnviron
     log: true,
   });
 
-  const testIncentiveAsset = await deploy('ERC20Test', {
-    from: deployer,
-    args: [ethers.utils.parseUnits('1', 36), 'name', 'symbol'],
-    log: true,
-  });
-
   const timeConverter = await deployTimeConverter(hre);
 
   const index = await deployIndex(hre);
@@ -131,8 +125,8 @@ const deployTestnet: DeployFunction = async function (hre: HardhatRuntimeEnviron
 
   const deployedIncentiveAsset = (await getContractAt(
     hre,
-    testIncentiveAsset.abi,
-    testIncentiveAsset.address,
+    testUnderlyingAsset.abi,
+    testUnderlyingAsset.address,
     deployer
   )) as ERC20Test;
 
