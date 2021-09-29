@@ -77,6 +77,12 @@ export const getIncentivePool = async (hre: HardhatRuntimeEnvironment): Promise<
   )) as DeployedContract;
   return await hre.ethers.getContractAt(file.abi, file.address);
 };
+
+export const getTestAsset = async (hre: HardhatRuntimeEnvironment): Promise<Contract> => {
+  const file = require(getDeploymentPath(hre.network.name, 'ERC20Test')) as DeployedContract;
+  return await hre.ethers.getContractAt(file.abi, file.address);
+};
+
 //need refactor
 export const getDeployedContracts = async (
   hre: HardhatRuntimeEnvironment,

@@ -5,7 +5,6 @@ import 'hardhat-deploy';
 
 import { HardhatUserConfig } from 'hardhat/types';
 import './tasks/local/moneyPool';
-import './tasks/local/underlyingAsset';
 import './tasks/testnet/moneyPool';
 import './tasks/testnet/underlyingAsset';
 import './tasks/testnet/tokenizer';
