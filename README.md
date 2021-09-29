@@ -33,15 +33,14 @@ ETHERSCAN_API_KEY=
 
 ## Deploy
 
+The Elyfi protocol has two components. The core component including moneypool contract is the main part of the elyfi protocol which is main entry point into Elyfi protocol and each reserve components has its own supporting contracts for tokenization. Therefore, deployment can be done with two process.
+
 ```
-## Deploy local network
-yarn deploy:local
+## Deploying Core Components
+yarn deploy:core --network ${networkname}
 
-## Deploy test network
-yarn deploy:testnet
-
-## Deploy main network
-yarn deploy:mainnet
+## Deploying Reserve Components
+yarn deploy:reserve --network ${networkname} --tags ${asset symbol}_reserve
 ```
 
 ## Test
