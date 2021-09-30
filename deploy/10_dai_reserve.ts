@@ -1,12 +1,8 @@
 import { HardhatRuntimeEnvironment } from 'hardhat/types';
 import { DeployFunction } from 'hardhat-deploy/types';
-import {
-  testIncentiveAmountPerSecond,
-  testInterestModelParams,
-  testReserveData,
-} from '../test/utils/testData';
 import { ethers } from 'hardhat';
 import { getDai, getElyfi } from '../utils/getDependencies';
+import { daiReserveData } from '../data/moneyPool/reserves';
 
 const deploy: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { deployer } = await hre.getNamedAccounts();
@@ -25,6 +21,8 @@ const deploy: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     underlyingAsset = incentiveAsset = token;
   }
 
+  const reserveData = daiReserveData;
+
   const moneyPool = await get('MoneyPool');
   const connector = await get('Connector');
   const assetBond = await get('AssetBond');
@@ -33,44 +31,69 @@ const deploy: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
   const deployedMoneyPool = await hre.ethers.getContractAt(moneyPool.abi, moneyPool.address);
 
-  const incentivePool = await deploy('IncentivePool', {
-    from: deployer,
-    args: [moneyPool.address, incentiveAsset.address, testIncentiveAmountPerSecond],
-    log: true,
-  });
-
-  const interestRateModel = await deploy('InterestRateModel', {
+  const incentivePool = await deploy(reserveData.incentivePool.name, {
     from: deployer,
     args: [
-      testInterestModelParams.optimalUtilizationRate,
-      testInterestModelParams.borrowRateBase,
-      testInterestModelParams.borrowRateOptimal,
-      testInterestModelParams.borrowRateMax,
+      moneyPool.address,
+      incentiveAsset.address,
+      reserveData.incentivePool.incentiveAmountPerSecond,
     ],
     log: true,
+    contract: 'IncentivePool',
   });
 
-  const lToken = await deploy('LToken', {
+  const interestRateModel = await deploy(reserveData.interestRateModel.name, {
     from: deployer,
-    args: [moneyPool.address, underlyingAsset?.address, incentivePool.address, 'testLToken', 'L'],
+    args: [
+      reserveData.interestRateModel.params.optimalUtilizationRate,
+      reserveData.interestRateModel.params.borrowRateBase,
+      reserveData.interestRateModel.params.borrowRateOptimal,
+      reserveData.interestRateModel.params.borrowRateMax,
+    ],
     log: true,
+    contract: 'InterestRateModel',
   });
 
-  const dToken = await deploy('DToken', {
+  const lToken = await deploy(reserveData.lToken.name, {
     from: deployer,
-    args: [moneyPool.address, underlyingAsset?.address, 'testDToken', 'D'],
+    args: [
+      moneyPool.address,
+      underlyingAsset?.address,
+      incentivePool.address,
+      reserveData.lToken.name,
+      reserveData.lToken.symbol,
+    ],
     log: true,
+    contract: 'LToken',
   });
 
-  const tokenizer = await deploy('Tokenizer', {
+  const dToken = await deploy(reserveData.dToken.name, {
     from: deployer,
-    args: [connector.address, moneyPool.address, 'testTokenizer', 'T'],
+    args: [
+      moneyPool.address,
+      underlyingAsset?.address,
+      reserveData.dToken.name,
+      reserveData.dToken.symbol,
+    ],
+    log: true,
+    contract: 'DToken',
+  });
+
+  const tokenizer = await deploy(reserveData.tokenizer.name, {
+    from: deployer,
+    args: [
+      connector.address,
+      moneyPool.address,
+      reserveData.tokenizer.name,
+      reserveData.tokenizer.symbol,
+    ],
     log: true,
     libraries: {
       AssetBond: assetBond.address,
       Validation: validation.address,
       TimeConverter: timeConverter.address,
     },
+    contract: 'Tokenizer',
   });
 
   const addNewReserveTx = await deployedMoneyPool.addNewReserve(
@@ -80,7 +103,7 @@ const deploy: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     interestRateModel.address,
     tokenizer.address,
     incentivePool.address,
-    testReserveData.moneyPoolFactor
+    reserveData.moneyPoolFactor
   );
   console.log('addNewReserve done');
 

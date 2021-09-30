@@ -1,16 +1,13 @@
 import { HardhatRuntimeEnvironment } from 'hardhat/types';
 import { DeployFunction } from 'hardhat-deploy/types';
-import { daiReserveData } from '../data/moneyPool/reserves';
 import { ethers } from 'hardhat';
 import { getDai, getElyfi } from '../utils/getDependencies';
+import { usdcReserveData } from '../data/moneyPool/reserves';
 
 const deploy: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { deployer } = await hre.getNamedAccounts();
   const { deploy, get } = hre.deployments;
-  //TODO
-  const productionDaiReserveData = { ...daiReserveData };
 
-  //TODO
   let underlyingAsset = await getDai(hre);
   let incentiveAsset = await getElyfi(hre);
 
@@ -24,6 +21,8 @@ const deploy: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     underlyingAsset = incentiveAsset = token;
   }
 
+  const reserveData = usdcReserveData;
+
   const moneyPool = await get('MoneyPool');
   const connector = await get('Connector');
   const assetBond = await get('AssetBond');
@@ -32,48 +31,69 @@ const deploy: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
   const deployedMoneyPool = await hre.ethers.getContractAt(moneyPool.abi, moneyPool.address);
 
-  const incentivePool = await deploy('IncentivePool', {
+  const incentivePool = await deploy(reserveData.incentivePool.name, {
     from: deployer,
     args: [
       moneyPool.address,
       incentiveAsset.address,
-      productionDaiReserveData.incentiveAmountPerSecond,
+      reserveData.incentivePool.incentiveAmountPerSecond,
     ],
     log: true,
+    contract: 'IncentivePool',
   });
 
-  const interestRateModel = await deploy('InterestRateModel', {
+  const interestRateModel = await deploy(reserveData.interestRateModel.name, {
     from: deployer,
     args: [
-      productionDaiReserveData.interestRateModel.optimalUtilizationRate,
-      productionDaiReserveData.interestRateModel.borrowRateBase,
-      productionDaiReserveData.interestRateModel.borrowRateOptimal,
-      productionDaiReserveData.interestRateModel.borrowRateMax,
+      reserveData.interestRateModel.params.optimalUtilizationRate,
+      reserveData.interestRateModel.params.borrowRateBase,
+      reserveData.interestRateModel.params.borrowRateOptimal,
+      reserveData.interestRateModel.params.borrowRateMax,
     ],
     log: true,
+    contract: 'InterestRateModel',
   });
 
-  const lToken = await deploy('LToken', {
+  const lToken = await deploy(reserveData.lToken.name, {
     from: deployer,
-    args: [moneyPool.address, underlyingAsset?.address, incentivePool.address, 'testLToken', 'L'],
+    args: [
+      moneyPool.address,
+      underlyingAsset?.address,
+      incentivePool.address,
+      reserveData.lToken.name,
+      reserveData.lToken.symbol,
+    ],
     log: true,
+    contract: 'LToken',
   });
 
-  const dToken = await deploy('DToken', {
+  const dToken = await deploy(reserveData.dToken.name, {
     from: deployer,
-    args: [moneyPool.address, underlyingAsset?.address, 'testDToken', 'D'],
+    args: [
+      moneyPool.address,
+      underlyingAsset?.address,
+      reserveData.dToken.name,
+      reserveData.dToken.symbol,
+    ],
     log: true,
+    contract: 'DToken',
   });
 
-  const tokenizer = await deploy('Tokenizer', {
+  const tokenizer = await deploy(reserveData.tokenizer.name, {
     from: deployer,
-    args: [connector.address, moneyPool.address, 'testTokenizer', 'T'],
+    args: [
+      connector.address,
+      moneyPool.address,
+      reserveData.tokenizer.name,
+      reserveData.tokenizer.symbol,
+    ],
     log: true,
     libraries: {
       AssetBond: assetBond.address,
       Validation: validation.address,
       TimeConverter: timeConverter.address,
     },
+    contract: 'Tokenizer',
   });
 
   const addNewReserveTx = await deployedMoneyPool.addNewReserve(
@@ -83,7 +103,7 @@ const deploy: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     interestRateModel.address,
     tokenizer.address,
     incentivePool.address,
-    productionDaiReserveData.moneyPoolFactor
+    reserveData.moneyPoolFactor
   );
   console.log('addNewReserve done');
 
