@@ -8,6 +8,7 @@ const deploy: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { deployer } = await hre.getNamedAccounts();
   const { deploy, get } = hre.deployments;
 
+  // Assets depend on the reserve
   let underlyingAsset = await getDai(hre);
   let incentiveAsset = await getElyfi(hre);
 
@@ -29,6 +30,7 @@ const deploy: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const validation = await get('Validation');
   const timeConverter = await get('TimeConverter');
 
+  // Make sure core contracts not deployed again
   const deployedMoneyPool = await hre.ethers.getContractAt(moneyPool.abi, moneyPool.address);
 
   const incentivePool = await deploy(reserveData.incentivePool.name, {
@@ -115,6 +117,5 @@ const deploy: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 };
 
 deploy.tags = ['dai_reserve'];
-deploy.dependencies = ['core'];
 
 export default deploy;
