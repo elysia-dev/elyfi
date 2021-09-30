@@ -21,7 +21,7 @@ interface Args {
 }
 
 task('local:deposit', 'Deposit, default amount : 100, default txSender : depositor')
-  .addOptionalParam('amount', 'The approve amount')
+  .addOptionalParam('amount', 'The deposit amount')
   .setAction(async (args: Args, hre: HardhatRuntimeEnvironment) => {
     let amount: string;
     const [deployer, depositor, borrower, collateralServiceProvider, signer] =
@@ -50,18 +50,24 @@ task('local:deposit', 'Deposit, default amount : 100, default txSender : deposit
   });
 
 task('local:withdraw', 'Create withdraw, default txSender: depositor, amount: 100')
-  .addOptionalParam('amount', 'The approve amount')
+  .addOptionalParam('amount', 'The withdrawal amount')
   .setAction(async (args: Args, hre: HardhatRuntimeEnvironment) => {
+    let amount: string;
     const [deployer, depositor] = await hre.ethers.getSigners();
 
     const moneyPool = (await getMoneyPool(hre)) as MoneyPool;
     const underlyingAsset = (await getTestAsset(hre)) as ERC20Test;
 
+    amount =
+      args.amount != undefined
+        ? hre.ethers.utils.parseEther(args.amount).toString()
+        : hre.ethers.utils.parseEther('100').toString();
+
     await moneyPool
       .connect(depositor)
       .withdraw(underlyingAsset.address, depositor.address, hre.ethers.utils.parseEther('100'));
 
-    console.log(`Depositor withdraws 100`);
+    console.log(`Depositor withdraws ${amount}`);
   });
 
 task('local:borrow', 'Create borrow : 1500ETH')
@@ -142,6 +148,7 @@ task('local:borrow', 'Create borrow : 1500ETH')
 
     if (currentTimestamp < loanStartTimestamp) {
       const secondsToIncrease = loanStartTimestamp - currentTimestamp + 1;
+      const timestamp = await hre.network.provider.send('evm_increaseTime', [secondsToIncrease]);
       await tokenizer.connect(collateralServiceProvider).approve(moneyPool.address, tokenId);
       await moneyPool.connect(collateralServiceProvider).borrow(underlyingAsset.address, tokenId);
       console.log(

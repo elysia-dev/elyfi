@@ -13,12 +13,10 @@ yarn task network:action --networkname --args
 ```
 testnet:deposit
 # optional
---txSender
 --amount
 
 testnet:withdraw
 # optional
---txSender
 --amount
 
 testnet:borrow
@@ -105,7 +103,6 @@ local:deposit
 
 local:withdraw
 # optional
---txSender
 --amount
 
 local:borrow

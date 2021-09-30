@@ -14,7 +14,6 @@ interface Args {
 }
 
 task('testnet:deposit', 'Create deposit, default amount : 100, default txSender : depositor')
-  .addOptionalParam('txSender', 'The depositor txSender, default: depositor')
   .addOptionalParam('amount', 'The approve amount')
   .setAction(async (args: Args, hre: HardhatRuntimeEnvironment) => {
     let txSender: SignerWithAddress;
@@ -55,7 +54,6 @@ task('testnet:deposit', 'Create deposit, default amount : 100, default txSender 
   });
 
 task('testnet:withdraw', 'Create withdraw, default amount : 100, default txSender : depositor')
-  .addOptionalParam('txSender', 'The txSender, default: depositor')
   .addOptionalParam('amount', 'The approve amount, default amount: 100')
   .setAction(async (args: Args, hre: HardhatRuntimeEnvironment) => {
     let txSender: SignerWithAddress;
