@@ -2,7 +2,7 @@ import { HardhatRuntimeEnvironment } from 'hardhat/types';
 import { DeployFunction } from 'hardhat-deploy/types';
 import { ethers } from 'hardhat';
 import { getDai, getElyfi } from '../utils/getDependencies';
-import { usdcReserveData } from '../data/moneyPool/reserves';
+import { usdtReserveData } from '../data/moneyPool/reserves';
 
 const deploy: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { deployer } = await hre.getNamedAccounts();
@@ -22,7 +22,7 @@ const deploy: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     underlyingAsset = incentiveAsset = token;
   }
 
-  const reserveData = usdcReserveData;
+  const reserveData = usdtReserveData;
 
   const moneyPool = await get('MoneyPool');
   const connector = await get('Connector');

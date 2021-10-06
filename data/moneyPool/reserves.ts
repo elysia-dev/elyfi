@@ -32,17 +32,17 @@ export const daiReserveData = {
   moneyPoolFactor: BigNumber.from(0),
 };
 
-export const usdcReserveData = {
+export const usdtReserveData = {
   lToken: {
-    name: 'Elyfi_USDCoin_LToken',
-    symbol: 'ELFI_USDC_LToken',
+    name: 'Elyfi_USDToin_LToken',
+    symbol: 'ELFI_USDT_LToken',
   },
   dToken: {
-    name: 'Elyfi_USDCoin_DToken',
-    symbol: 'ELFI_USDC_DToken',
+    name: 'Elyfi_USDToin_DToken',
+    symbol: 'ELFI_USDT_DToken',
   },
   interestRateModel: {
-    name: 'Elyfi_USDCoin_InterestRateModel',
+    name: 'Elyfi_USDToin_InterestRateModel',
     params: <InterestModelParams>{
       optimalUtilizationRate: toRate(0.75),
       borrowRateBase: toRate(0.05),
@@ -51,11 +51,11 @@ export const usdcReserveData = {
     },
   },
   tokenizer: {
-    name: 'Elyfi_USDCoin_Tokenzier',
-    symbol: 'ELFI_USDC_Tokenizer',
+    name: 'Elyfi_USDToin_Tokenzier',
+    symbol: 'ELFI_USDT_Tokenizer',
   },
   incentivePool: {
-    name: 'Elyfi_USDCoin_IncentivePool',
+    name: 'Elyfi_USDToin_IncentivePool',
     incentiveAmountPerSecond: BigNumber.from(WAD).mul(3000000).div(180).div(SECONDSPERDAY),
   },
   moneyPoolFactor: BigNumber.from(0),
