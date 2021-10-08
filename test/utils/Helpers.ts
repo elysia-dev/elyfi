@@ -85,11 +85,11 @@ export async function getAssetBondData({
   tokenId: BigNumber;
 }): Promise<AssetBondData> {
   const assetBondData = <AssetBondData>{};
-  const contractAssetBondStateData = await dataPipeline.deployAssetBondStateData(
+  const contractAssetBondStateData = await dataPipeline.getAssetBondStateData(
     underlyingAsset.address,
     tokenId
   );
-  const contractAssetBondData = await tokenizer.deployAssetBondData(tokenId);
+  const contractAssetBondData = await tokenizer.getAssetBondData(tokenId);
 
   return {
     ...assetBondData,
