@@ -49,7 +49,7 @@ contract IncentivePool is IIncentivePool {
     require(!_initialized, 'AlreadyInitialized');
     _initialized = true;
     lToken = lToken_;
-    endTimestamp = block.timestamp + 180 * 1 days;
+    endTimestamp = block.timestamp + 95 * 1 days;
   }
 
   function isClosed() public view returns (bool) {

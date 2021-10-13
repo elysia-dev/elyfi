@@ -1,17 +1,23 @@
 import { HardhatRuntimeEnvironment } from 'hardhat/types';
 import { DeployFunction } from 'hardhat-deploy/types';
 import { ethers } from 'hardhat';
-import { getDai, getElyfi } from '../utils/getDependencies';
+import { getUsdt, getElyfi } from '../utils/getDependencies';
 import { usdtReserveData } from '../data/moneyPool/reserves';
 
 const deploy: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { deployer } = await hre.getNamedAccounts();
   const { deploy, get } = hre.deployments;
+  const moneyPool = await get('MoneyPool');
+  const connector = await get('Connector');
+  const assetBond = await get('AssetBond');
+  const validation = await get('Validation');
+  const timeConverter = await get('TimeConverter');
 
   // Assets depend on the reserve
-  let underlyingAsset = await getDai(hre);
+  let underlyingAsset = await getUsdt(hre);
   let incentiveAsset = await getElyfi(hre);
 
+  /*
   if (hre.network.name == 'ganache' || hre.network.name == 'hardhat') {
     const tokenDeployment = await deploy('ERC20Test', {
       from: deployer,
@@ -21,14 +27,9 @@ const deploy: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     const token = await hre.ethers.getContractAt(tokenDeployment.abi, tokenDeployment.address);
     underlyingAsset = incentiveAsset = token;
   }
+  */
 
   const reserveData = usdtReserveData;
-
-  const moneyPool = await get('MoneyPool');
-  const connector = await get('Connector');
-  const assetBond = await get('AssetBond');
-  const validation = await get('Validation');
-  const timeConverter = await get('TimeConverter');
 
   // Make sure core contracts not deployed again
   const deployedMoneyPool = await hre.ethers.getContractAt(moneyPool.abi, moneyPool.address);
@@ -108,14 +109,8 @@ const deploy: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     reserveData.moneyPoolFactor
   );
   console.log('addNewReserve done');
-
-  if (hre.network.name != 'ganache' && hre.network.name != 'hardhat') {
-    await hre.run('etherscan-verify', {
-      network: hre.network.name,
-    });
-  }
 };
 
-deploy.tags = ['usdc_reserve'];
+deploy.tags = ['usdt_reserve'];
 
 export default deploy;

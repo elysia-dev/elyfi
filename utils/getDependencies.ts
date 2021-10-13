@@ -6,6 +6,7 @@ import path from 'path';
 const getdependency = (hre: HardhatRuntimeEnvironment, dependency: string) => {
   const dependencies = {
     Dai: 'Dai.json',
+    Usdt: 'Usdt.json',
     EL: 'ELToken.json',
     Elyfi: 'Elyfi.json',
   };
@@ -27,6 +28,12 @@ export const getElysia = async (hre: HardhatRuntimeEnvironment): Promise<Contrac
 
 export const getDai = async (hre: HardhatRuntimeEnvironment): Promise<Contract> => {
   const file = require(getdependency(hre, 'Dai')) as DeployedContract;
+
+  return await hre.ethers.getContractAt(file.abi, file.address);
+};
+
+export const getUsdt = async (hre: HardhatRuntimeEnvironment): Promise<Contract> => {
+  const file = require(getdependency(hre, 'Usdt')) as DeployedContract;
 
   return await hre.ethers.getContractAt(file.abi, file.address);
 };
