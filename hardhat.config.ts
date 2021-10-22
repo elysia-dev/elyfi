@@ -54,6 +54,11 @@ const config: HardhatUserConfig = {
       },
       chainId: 42,
     },
+    rinkeby: {
+      url: `https://rinkeby.infura.io/v3/${process.env.INFURA_API_KEY}`,
+      accounts: [process.env.ADMIN || ''],
+      chainId: 4,
+    },
     ganache: {
       url: 'http://0.0.0.0:8545',
     },
