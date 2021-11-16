@@ -45,6 +45,9 @@ const config: HardhatUserConfig = {
     ganache: {
       url: 'http://0.0.0.0:8545',
     },
+    ganache_remote: {
+      url: 'http://host.docker.internal:8545',
+    },
   },
   paths: {
     sources: './contracts',
