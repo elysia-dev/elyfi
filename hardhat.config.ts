@@ -66,6 +66,9 @@ const config: HardhatUserConfig = {
     ganache_remote: {
       url: 'http://ElysiaApiALB-1596046119.ap-northeast-2.elb.amazonaws.com:8545',
     },
+    ganache_remote_dev: {
+      url: 'http://host.docker.internal:8545',
+    }
   },
   etherscan: {
     apiKey: process.env.ETHERSCAN_API_KEY,
