@@ -5,15 +5,15 @@ import { toRate } from '../../test/utils/wadRayMath';
 
 export const daiReserveData = {
   lToken: {
-    name: 'Elyfi_DaiStablecoin_LToken',
+    name: 'Elyfi_Dai_LToken',
     symbol: 'ELFI_DAI_LToken',
   },
   dToken: {
-    name: 'Elyfi_DaiStablecoin_DToken',
+    name: 'Elyfi_Dai_DToken',
     symbol: 'ELFI_DAI_DToken',
   },
   interestRateModel: {
-    name: 'Elyfi_DaiStableCoin_InterestRateModel',
+    name: 'Elyfi_Dai_InterestRateModel',
     params: <InterestModelParams>{
       optimalUtilizationRate: toRate(0.75),
       borrowRateBase: toRate(0.05),
@@ -22,11 +22,11 @@ export const daiReserveData = {
     },
   },
   tokenizer: {
-    name: 'Elyfi_DaiStablecoin_Tokenzier',
+    name: 'Elyfi_Dai_Tokenzier',
     symbol: 'ELFI_DAI_Tokenizer',
   },
   incentivePool: {
-    name: 'Elyfi_DaiStablecoin_IncentivePool',
+    name: 'Elyfi_Dai_IncentivePool',
     incentiveAmountPerSecond: BigNumber.from(WAD).mul(3000000).div(180).div(SECONDSPERDAY),
   },
   moneyPoolFactor: BigNumber.from(0),
@@ -34,15 +34,15 @@ export const daiReserveData = {
 
 export const usdtReserveData = {
   lToken: {
-    name: 'Elyfi_USDToin_LToken',
+    name: 'Elyfi_USDT_LToken',
     symbol: 'ELFI_USDT_LToken',
   },
   dToken: {
-    name: 'Elyfi_USDToin_DToken',
+    name: 'Elyfi_USDT_DToken',
     symbol: 'ELFI_USDT_DToken',
   },
   interestRateModel: {
-    name: 'Elyfi_USDToin_InterestRateModel',
+    name: 'Elyfi_USDT_InterestRateModel',
     params: <InterestModelParams>{
       optimalUtilizationRate: toRate(0.75),
       borrowRateBase: toRate(0.05),
@@ -51,11 +51,11 @@ export const usdtReserveData = {
     },
   },
   tokenizer: {
-    name: 'Elyfi_USDToin_Tokenzier',
+    name: 'Elyfi_USDT_Tokenzier',
     symbol: 'ELFI_USDT_Tokenizer',
   },
   incentivePool: {
-    name: 'Elyfi_USDToin_IncentivePool',
+    name: 'Elyfi_USDT_IncentivePool',
     incentiveAmountPerSecond: BigNumber.from(WAD).mul(3000000).div(180).div(SECONDSPERDAY),
   },
   moneyPoolFactor: BigNumber.from(0),

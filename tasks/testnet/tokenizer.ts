@@ -8,6 +8,7 @@ import { tokenIdGenerator } from '../../misc/assetBond/generator';
 import AssetBondSettleData from '../../test/types/AssetBondSettleData';
 import { AssetBondIdData } from '../../misc/assetBond/types';
 import { Connector, MoneyPool, Tokenizer } from '../../typechain';
+import { Z_ASCII } from 'zlib';
 
 interface Args {
   asset: string;
@@ -17,6 +18,7 @@ interface Args {
   amount: string;
   txSender: string;
   loanStart: string;
+  address: string;
 }
 
 const checkCollateralServiceProvider = async ({
@@ -123,8 +125,7 @@ task('testnet:createSignedAssetBond', 'Create signed asset bond from production 
     const borrowprincipal = assetBondData.principal;
 
     console.log(
-      `${txSender.address.substr(0, 10)} is ready for collateralizing ${
-        args.data
+      `${txSender.address.substr(0, 10)} is ready for collateralizing ${args.data
       }!. The borrow principal is ${borrowprincipal.toString()} and token id is ${tokenId}`
     );
   });
@@ -227,8 +228,7 @@ task('testnet:createSignedAssetBondForTest', 'Create signed asset bond for only 
     const borrowprincipal = assetBondData.principal;
 
     console.log(
-      `${txSender.address.substr(0, 10)} is ready for collateralizing ${
-        args.bond
+      `${txSender.address.substr(0, 10)} is ready for collateralizing ${args.bond
       }!. The borrow principal is ${borrowprincipal.toString()}`
     );
   });
@@ -266,6 +266,32 @@ task('testnet:settleAssetBond', 'settle empty asset bond')
       );
 
     console.log(`The collateral service provider settles asset token which id is "${args.bond}"`);
+  });
+
+task('testnet:addCouncil', 'sign settled asset bond')
+  .addParam('address', 'address of new conucil')
+  .setAction(async (args: Args, hre: HardhatRuntimeEnvironment) => {
+    const [deployer] =
+      await hre.ethers.getSigners();
+
+    const connector = (await getConnector(hre)) as Connector;
+    const tx = await connector.connect(deployer).addCouncil(args.address);
+
+    console.log(tx.hash);
+    tx.wait();
+  });
+
+task('testnet:addCSP', 'sign settled asset bond')
+  .addParam('address', 'address of new conucil')
+  .setAction(async (args: Args, hre: HardhatRuntimeEnvironment) => {
+    const [deployer] =
+      await hre.ethers.getSigners();
+
+    const connector = (await getConnector(hre)) as Connector;
+    const tx = await connector.connect(deployer).addCollateralServiceProvider(args.address);
+
+    console.log(tx.hash);
+    tx.wait();
   });
 
 task('testnet:signAssetBond', 'sign settled asset bond')
