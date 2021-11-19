@@ -60,12 +60,6 @@ const deploy: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   });
 
   console.log('core deploy done');
-
-  if (hre.network.name != 'ganache' && hre.network.name != 'hardhat') {
-    await hre.run('etherscan-verify', {
-      network: hre.network.name,
-    });
-  }
 };
 
 deploy.tags = ['core'];
