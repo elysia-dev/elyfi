@@ -32,9 +32,9 @@ const config: HardhatUserConfig = {
       },
     },
   },
-  // namedAccounts: {
-  //   deployer: 0,
-  // },
+  namedAccounts: {
+    deployer: 0,
+  },
   networks: {
     mainnet: {
       url: `https://mainnet.infura.io/v3/${process.env.INFURA_API_KEY}`,
