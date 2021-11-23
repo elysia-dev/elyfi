@@ -1,5 +1,6 @@
 import { HardhatRuntimeEnvironment } from 'hardhat/types';
 import { DeployFunction } from 'hardhat-deploy/types';
+import { ethers } from 'hardhat';
 
 export enum ELYFIContractType {
   CONNECTOR,
@@ -10,6 +11,10 @@ export enum ELYFIContractType {
   DATA_PIPELINE,
 }
 const deploy: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
+  const signer = ethers.Wallet.fromMnemonic(String(process.env.TEST_MNEMONIC));
+  const addr = signer.getAddress();
+  console.log(`deploy addr : ${addr}`);
+
   const { deployer } = await hre.getNamedAccounts();
   const { deploy } = hre.deployments;
 
