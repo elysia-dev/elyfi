@@ -12,7 +12,7 @@ export enum ELYFIContractType {
 }
 const deploy: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const signer = ethers.Wallet.fromMnemonic(String(process.env.TEST_MNEMONIC));
-  const addr = signer.getAddress();
+  const addr = await signer.getAddress();
   console.log(`deploy addr : ${addr}`);
 
   // const { deployer } = await hre.getNamedAccounts();
