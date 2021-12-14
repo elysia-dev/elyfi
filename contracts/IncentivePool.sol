@@ -152,12 +152,31 @@ contract IncentivePool is IIncentivePool {
     return (_incentiveIndex, _lastUpdateTimestamp);
   }
 
-  function withdrawResidue() external override {
-    require(msg.sender == _owner, 'onlyAdmin');
+  function withdrawResidue() external override onlyOwner {
     require(isClosed(), 'OnlyClosed');
     uint256 residue = IERC20(_incentiveAsset).balanceOf(address(this));
     IERC20(_incentiveAsset).safeTransfer(_owner, residue);
     emit IncentivePoolEnded();
+  }
+
+  /**
+   * @notice Admin can update amount per second
+   */
+  function setAmountPerSecond(uint256 newAmountPerSecond) external override onlyOwner {
+    _incentiveIndex = getIncentiveIndex();
+
+    amountPerSecond = newAmountPerSecond;
+
+    emit RewardPerSecondUpdated(newAmountPerSecond);
+  }
+
+  /**
+   * @notice Admin can update incentive pool end timestamp
+   */
+  function setEndTimestamp(uint256 newEndTimestamp) external override onlyOwner {
+    endTimestamp = newEndTimestamp;
+
+    emit IncentiveEndTimestampUpdated(newEndTimestamp);
   }
 
   modifier onlyMoneyPool() {
@@ -167,6 +186,11 @@ contract IncentivePool is IIncentivePool {
 
   modifier onlyLToken() {
     require(msg.sender == address(lToken), 'OnlyLToken');
+    _;
+  }
+
+  modifier onlyOwner() {
+    require(msg.sender == _owner, 'onlyAdmin');
     _;
   }
 }

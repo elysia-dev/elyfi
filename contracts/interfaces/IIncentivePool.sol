@@ -10,7 +10,18 @@ interface IIncentivePool {
 
   event IncentivePoolEnded();
 
+  event RewardPerSecondUpdated(uint256 newAmountPerSecond);
+
+  event IncentiveEndTimestampUpdated(uint256 newEndTimestamp);
+
   function initializeIncentivePool(address lToken) external;
+
+  function setAmountPerSecond(uint256 newAmountPerSecond) external;
+
+  /**
+   * @notice Admin can update incentive pool end timestamp
+   */
+  function setEndTimestamp(uint256 newEndTimestamp) external;
 
   function updateIncentivePool(address user) external;
 
