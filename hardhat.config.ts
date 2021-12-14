@@ -3,6 +3,7 @@ import '@typechain/hardhat';
 import '@nomiclabs/hardhat-waffle';
 import '@nomiclabs/hardhat-solhint';
 import '@nomiclabs/hardhat-etherscan';
+import '@nomiclabs/hardhat-ganache';
 import '@openzeppelin/hardhat-upgrades';
 import 'hardhat-deploy-ethers';
 import 'hardhat-deploy';
@@ -31,9 +32,9 @@ const config: HardhatUserConfig = {
       },
     },
   },
-  namedAccounts: {
-    deployer: 0,
-  },
+  // namedAccounts: {
+  //   deployer: 0,
+  // },
   networks: {
     mainnet: {
       url: `https://mainnet.infura.io/v3/${process.env.INFURA_API_KEY}`,
@@ -54,16 +55,24 @@ const config: HardhatUserConfig = {
       },
       chainId: 42,
     },
+    rinkeby: {
+      url: `https://rinkeby.infura.io/v3/${process.env.INFURA_API_KEY}`,
+      accounts: [process.env.ADMIN || ''],
+      chainId: 4,
+    },
     ganache: {
       url: 'http://0.0.0.0:8545',
     },
     ganache_remote: {
-      url: 'http://host.docker.internal:8545',
+      url: 'http://elyfi-test-ALB-1122646302.ap-northeast-2.elb.amazonaws.com:8545',
     },
+    ganache_remote_dev: {
+      url: 'http://host.docker.internal:8545',
+    }
   },
-  etherscan: {
-    apiKey: process.env.ETHERSCAN_API_KEY,
-  },
+  // etherscan: {
+  //   apiKey: process.env.ETHERSCAN_API_KEY,
+  // },
   paths: {
     sources: './contracts',
     tests: './test',
