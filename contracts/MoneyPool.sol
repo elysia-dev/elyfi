@@ -178,7 +178,7 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
 
     IDToken(reserve.dTokenAddress).burn(assetBond.borrower, accruedDebtOnMoneyPool);
 
-    reserve.updateRates(asset, totalRetrieveAmount, 0);
+    reserve.updateRates(asset, feeOnCollateralServiceProvider, accruedDebtOnMoneyPool);
 
     ITokenizer(reserve.tokenizerAddress).releaseAssetBond(assetBond.borrower, tokenId);
 
@@ -225,7 +225,7 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
 
     IDToken(reserve.dTokenAddress).burn(assetBond.borrower, accruedDebtOnMoneyPool);
 
-    reserve.updateRates(asset, totalLiquidationAmount, 0);
+    reserve.updateRates(asset, feeOnCollateralServiceProvider, accruedDebtOnMoneyPool);
 
     IERC20(asset).safeTransferFrom(msg.sender, reserve.lTokenAddress, totalLiquidationAmount);
 

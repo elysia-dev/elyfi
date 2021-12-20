@@ -367,8 +367,8 @@ export function expectReserveDataAfterRepay({
   const [borrowAPY, depositAPY] = calculateRateInInterestRateModel(
     newReserveData.underlyingAssetBalance,
     newReserveData.totalDTokenSupply,
-    totalRetrieveAmount,
-    constants.Zero,
+    feeOnRepayment,
+    accruedDebtOnMoneyPool,
     newReserveData.interestRateModelParams
   );
 
@@ -498,8 +498,8 @@ export function expectReserveDataAfterLiquidate({
   const [borrowAPY, depositAPY] = calculateRateInInterestRateModel(
     newReserveData.underlyingAssetBalance,
     newReserveData.totalDTokenSupply,
-    totalLiquidationAmount,
-    constants.Zero,
+    feeOnRepayment,
+    accruedDebtOnMoneyPool,
     newReserveData.interestRateModelParams
   );
 
