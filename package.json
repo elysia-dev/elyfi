@@ -1,7 +1,9 @@
 {
   "scripts": {
     "deploy:core": "hardhat deploy --tags core",
-    "deploy:reserve": "hardhat deploy",
+    "deploy:reserve:dai": "hardhat deploy --tags dai_reserve",
+    "deploy:reserve:usdt": "hardhat deploy --tags usdt_reserve",
+    "deploy:reserve:busd": "hardhat deploy --tags busd_reserve",
     "test": "yarn hardhat test",
     "test:zap": "yarn hardhat test --no-compile",
     "task": "yarn hardhat --config hardhat.config.tasks.ts",

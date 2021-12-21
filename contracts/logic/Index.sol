@@ -31,8 +31,8 @@ library Index {
     }
 
     uint256 newIndex = Math
-    .calculateLinearInterest(reserve.depositAPY, lastUpdateTimestamp, block.timestamp)
-    .rayMul(reserve.lTokenInterestIndex);
+      .calculateLinearInterest(reserve.depositAPY, lastUpdateTimestamp, block.timestamp)
+      .rayMul(reserve.lTokenInterestIndex);
 
     return newIndex;
   }
