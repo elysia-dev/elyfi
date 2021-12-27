@@ -56,7 +56,7 @@ yarn test test/contracts/Index.test.ts
 yarn test:zap test/contracts/Index.test.ts
 
 # Run scenarios. The below script dynamically loads ./scenarios/*.json
-yarn test test-suites/scenario.test.ts
+yarn test test-suites/scenarios.test.ts
 
 # Run script for subgrap testing
 yarn hardhat deploy --network ganache

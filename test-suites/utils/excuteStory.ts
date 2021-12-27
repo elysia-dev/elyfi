@@ -23,7 +23,7 @@ import AssetBondSettleData from '../../test/types/AssetBondSettleData';
 import hre from 'hardhat';
 import UserType from '../enums/UserType';
 import AbToken from '../types/AbToken';
-import { deployAssetBondData } from '../../test/utils/Helpers';
+import { getAssetBondData } from '../../test/utils/Helpers';
 
 require('../../test/assertions/equals');
 
@@ -213,7 +213,7 @@ const excuteStory = async (
       });
       break;
     case ActionType.repay:
-      const assetBondData = await deployAssetBondData({
+      const assetBondData = await getAssetBondData({
         underlyingAsset: elyfiContracts.underlyingAsset,
         dataPipeline: elyfiContracts.dataPipeline,
         tokenizer: elyfiContracts.tokenizer,
