@@ -105,4 +105,17 @@ contract InterestRateModel is IInterestRateModel, InterestRateModelStorage {
 
     return (vars.newBorrowAPY, vars.newDepositAPY);
   }
+
+  // TODO
+  function updateParameters(
+    uint256 optimalUtilizationRate,
+    uint256 borrowRateBase,
+    uint256 borrowRateOptimal,
+    uint256 borrowRateMax
+  ) external override {
+    _optimalUtilizationRate = optimalUtilizationRate;
+    _borrowRateBase = borrowRateBase;
+    _borrowRateOptimal = borrowRateOptimal;
+    _borrowRateMax = borrowRateMax;
+  }
 }

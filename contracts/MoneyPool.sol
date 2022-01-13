@@ -391,6 +391,33 @@ contract MoneyPool is IMoneyPool, MoneyPoolStorage {
     ILToken(reserve.lTokenAddress).updateIncentivePool(newIncentivePool);
   }
 
+  /**
+   * @notice TODO Update the incentive of the reserve
+   * @dev Only moneypool admin can update the incentive pool
+   * @param asset The address of the underlying asset of the reserve
+   * @param newIncentivePool The address of the new incentivepool of the reserve
+   **/
+  function updateInterestRateModelParams(
+    address asset,
+    uint256 optimalUtilizationRate,
+    uint256 borrowRateBase,
+    uint256 borrowRateOptimal,
+    uint256 borrowRateMax
+  )
+    external
+    onlyMoneyPoolAdmin
+  {
+    DataStruct.ReserveData storage reserve = _reserves[asset];
+    reserve.updateState(asset);
+    IInterestRateModel(reserve.interestModelAddress).updateParameters(
+      optimalUtilizationRate,
+      borrowRateBase,
+      borrowRateOptimal,
+      borrowRateMax
+    );
+    reserve.updateRates(asset, 0, 0);
+  }
+
   modifier onlyMoneyPoolAdmin() {
     require(_connector.isMoneyPoolAdmin(msg.sender), 'OnlyMoneyPoolAdmin');
     _;

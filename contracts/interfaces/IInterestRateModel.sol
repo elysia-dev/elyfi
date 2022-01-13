@@ -11,4 +11,11 @@ interface IInterestRateModel {
     uint256 borrowAmount,
     uint256 moneyPoolFactor
   ) external view returns (uint256, uint256);
+
+  function updateParameters(
+    uint256 optimalUtilizationRate,
+    uint256 borrowRateBase,
+    uint256 borrowRateOptimal,
+    uint256 borrowRateMax
+  ) external;
 }
