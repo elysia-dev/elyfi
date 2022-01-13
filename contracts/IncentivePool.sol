@@ -166,6 +166,7 @@ contract IncentivePool is IIncentivePool {
     _incentiveIndex = getIncentiveIndex();
 
     amountPerSecond = newAmountPerSecond;
+    _lastUpdateTimestamp = block.timestamp;
 
     emit RewardPerSecondUpdated(newAmountPerSecond);
   }
