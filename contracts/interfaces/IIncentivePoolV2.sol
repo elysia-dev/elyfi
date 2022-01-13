@@ -3,7 +3,7 @@ pragma solidity 0.8.3;
 
 import '../libraries/DataStruct.sol';
 
-interface IIncentivePool {
+interface IIncentivePoolV2 {
   event ClaimIncentive(address indexed user, uint256 claimedIncentive, uint256 userIncentiveIndex);
 
   event UpdateIncentivePool(address indexed user, uint256 accruedIncentive, uint256 incentiveIndex);
@@ -13,8 +13,6 @@ interface IIncentivePool {
   event RewardPerSecondUpdated(uint256 newAmountPerSecond);
 
   event IncentiveEndTimestampUpdated(uint256 newEndTimestamp);
-
-  function initializeIncentivePool(address lToken) external;
 
   function setAmountPerSecond(uint256 newAmountPerSecond) external;
 

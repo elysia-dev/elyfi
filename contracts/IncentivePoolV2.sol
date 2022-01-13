@@ -2,30 +2,34 @@
 pragma solidity 0.8.3;
 
 import './libraries/WadRayMath.sol';
-import './interfaces/IIncentivePool.sol';
+import './interfaces/IIncentivePoolV2.sol';
 import './interfaces/IMoneyPool.sol';
 import '@openzeppelin/contracts/token/ERC20/ERC20.sol';
 import '@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol';
 import 'hardhat/console.sol';
 
-contract IncentivePool is IIncentivePool {
+contract IncentivePoolV2 is IIncentivePoolV2 {
   using WadRayMath for uint256;
   using SafeERC20 for IERC20;
 
   constructor(
     IMoneyPool moneyPool,
     address incentiveAsset,
-    uint256 amountPerSecond_
+    address lToken_,
+    uint256 amountPerSecond_,
+    uint256 startTimestamp,
+    uint256 _endTimestamp
   ) {
     _moneyPool = moneyPool;
     _incentiveAsset = incentiveAsset;
     amountPerSecond = amountPerSecond_;
     _owner = msg.sender;
+    lToken = lToken_;
+    _lastUpdateTimestamp = startTimestamp;
+    endTimestamp = _endTimestamp;
   }
 
   address private _owner;
-
-  bool private _initialized;
 
   IMoneyPool internal _moneyPool;
 
@@ -44,14 +48,6 @@ contract IncentivePool is IIncentivePool {
   address public lToken;
 
   uint256 public endTimestamp;
-
-  function initializeIncentivePool(address lToken_) external override onlyMoneyPool {
-    require(!_initialized, 'AlreadyInitialized');
-    _initialized = true;
-    lToken = lToken_;
-    _lastUpdateTimestamp = block.timestamp;
-    endTimestamp = block.timestamp + 95 * 1 days;
-  }
 
   function isClosed() public view returns (bool) {
     if (block.timestamp > endTimestamp) {
