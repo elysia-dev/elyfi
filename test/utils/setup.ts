@@ -220,8 +220,10 @@ export async function setupDToken({
 
 export async function setupInterestRateModel({
   interestRateModelParam = testInterestModelParams,
+  connector,
 }: {
   interestRateModelParam?: InterestModelParams;
+  connector: Connector;
 }): Promise<InterestRateModel> {
   let interestRateModel: InterestRateModel;
 
@@ -233,7 +235,8 @@ export async function setupInterestRateModel({
     interestRateModelParam.optimalUtilizationRate,
     interestRateModelParam.borrowRateBase,
     interestRateModelParam.borrowRateOptimal,
-    interestRateModelParam.borrowRateMax
+    interestRateModelParam.borrowRateMax,
+    connector.address,
   );
 
   return interestRateModel;
@@ -320,7 +323,7 @@ export async function setupAllContracts(): Promise<ElyfiContracts> {
     incentiveAsset,
   });
 
-  const interestRateModel = await setupInterestRateModel({});
+  const interestRateModel = await setupInterestRateModel({ connector });
 
   const lToken = await setupLToken({
     moneyPool,
