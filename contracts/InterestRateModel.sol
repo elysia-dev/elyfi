@@ -9,6 +9,8 @@ import './interfaces/IInterestRateModel.sol';
 
 import './InterestRateModelStorage.sol';
 
+import './interfaces/IConnector.sol';
+
 /**
  * @title ELYFI InterestRateModel
  * @author ELYSIA
@@ -33,12 +35,14 @@ contract InterestRateModel is IInterestRateModel, InterestRateModelStorage {
     uint256 optimalUtilizationRate,
     uint256 borrowRateBase,
     uint256 borrowRateOptimal,
-    uint256 borrowRateMax
+    uint256 borrowRateMax,
+    address connector
   ) {
     _optimalUtilizationRate = optimalUtilizationRate;
     _borrowRateBase = borrowRateBase;
     _borrowRateOptimal = borrowRateOptimal;
     _borrowRateMax = borrowRateMax;
+    _connector = connector;
   }
 
   struct calculateRatesLocalVars {
@@ -104,5 +108,34 @@ contract InterestRateModel is IInterestRateModel, InterestRateModelStorage {
     vars.newDepositAPY = vars.newBorrowAPY.rayMul(vars.utilizationRate);
 
     return (vars.newBorrowAPY, vars.newDepositAPY);
+  }
+
+  function updateOptimalUtilizationRate(
+    uint256 optimalUtilizationRate
+  ) onlyMoneyPoolAdmin external override {
+    _optimalUtilizationRate = optimalUtilizationRate;
+  }
+
+  function updateBorrowRateBase(
+    uint256 borrowRateBase
+  ) onlyMoneyPoolAdmin external override {
+    _borrowRateBase = borrowRateBase;
+  }
+
+  function updateBorrowRateOptimal(
+    uint256 borrowRateOptimal
+  ) onlyMoneyPoolAdmin external override {
+    _borrowRateOptimal = borrowRateOptimal;
+  }
+
+  function updateBorrowRateMax(
+    uint256 borrowRateMax
+  ) onlyMoneyPoolAdmin external override {
+    _borrowRateMax = borrowRateMax;
+  }
+
+  modifier onlyMoneyPoolAdmin() {
+    require(IConnector(_connector).isMoneyPoolAdmin(msg.sender), 'OnlyMoneyPoolAdmin');
+    _;
   }
 }

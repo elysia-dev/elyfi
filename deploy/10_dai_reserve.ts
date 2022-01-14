@@ -51,6 +51,7 @@ const deploy: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
       reserveData.interestRateModel.params.borrowRateBase,
       reserveData.interestRateModel.params.borrowRateOptimal,
       reserveData.interestRateModel.params.borrowRateMax,
+      connector.address,
     ],
     log: true,
     contract: 'InterestRateModel',
