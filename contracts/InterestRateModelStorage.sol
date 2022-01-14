@@ -5,6 +5,7 @@ pragma solidity 0.8.3;
  * @title ELYFI InterestRateModel
  * @author ELYSIA
  */
+
 contract InterestRateModelStorage {
   uint256 internal _optimalUtilizationRate;
 
@@ -13,4 +14,6 @@ contract InterestRateModelStorage {
   uint256 internal _borrowRateOptimal;
 
   uint256 internal _borrowRateMax;
+
+  address internal _connector;
 }
