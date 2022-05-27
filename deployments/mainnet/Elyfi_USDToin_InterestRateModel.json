@@ -1,0 +1,180 @@
+{
+  "address": "0x3047dFb0Dc3f21670BBB61311E9fa18037a4d0Ca",
+  "abi": [
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "optimalUtilizationRate",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "borrowRateBase",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "borrowRateOptimal",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "borrowRateMax",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "constructor"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "lTokenAssetBalance",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "totalDTokenBalance",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "depositAmount",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "borrowAmount",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "moneyPoolFactor",
+          "type": "uint256"
+        }
+      ],
+      "name": "calculateRates",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    }
+  ],
+  "transactionHash": "0xd5a3c2cd3a1f54be3d423c51c7c83a6cee0e90d89f66b3a99eacb749e3bece53",
+  "receipt": {
+    "to": null,
+    "from": "0x715B006d4723977CcDb1581a62948f6354752e62",
+    "contractAddress": "0x3047dFb0Dc3f21670BBB61311E9fa18037a4d0Ca",
+    "transactionIndex": 233,
+    "gasUsed": "338295",
+    "logsBloom": "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+    "blockHash": "0x06d932d6257d17779fd15190f5ba38877a7575ede850099ac51df58131b850fe",
+    "transactionHash": "0xd5a3c2cd3a1f54be3d423c51c7c83a6cee0e90d89f66b3a99eacb749e3bece53",
+    "logs": [],
+    "blockNumber": 13376905,
+    "cumulativeGasUsed": "21250519",
+    "status": 1,
+    "byzantium": true
+  },
+  "args": [
+    "750000000000000000000000000",
+    "50000000000000000000000000",
+    "60000000000000000000000000",
+    "1000000000000000000000000000"
+  ],
+  "solcInputHash": "42d1baa4145363a1ba400418c2e1e951",
+  "metadata": "{\"compiler\":{\"version\":\"0.8.3+commit.8d00100c\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"optimalUtilizationRate\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"borrowRateBase\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"borrowRateOptimal\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"borrowRateMax\",\"type\":\"uint256\"}],\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"lTokenAssetBalance\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"totalDTokenBalance\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"depositAmount\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"borrowAmount\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"moneyPoolFactor\",\"type\":\"uint256\"}],\"name\":\"calculateRates\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"}],\"devdoc\":{\"author\":\"ELYSIA\",\"kind\":\"dev\",\"methods\":{\"calculateRates(uint256,uint256,uint256,uint256,uint256)\":{\"details\":\"Calculation Example Case1: under optimal U baseRate = 2%, util = 40%, optimalRate = 10%, optimalUtil = 80% result = 2+40*(10-2)/80 = 4% Case2: over optimal U optimalRate = 10%, util = 90%, maxRate = 100%, optimalUtil = 80% result = 10+(90-80)*(100-10)/(100-80) = 55%\",\"params\":{\"borrowAmount\":\"The liquidity taken during the operation\",\"depositAmount\":\"The liquidity added during the operation\",\"lTokenAssetBalance\":\"Total deposit amount\",\"moneyPoolFactor\":\"The moneypool factor. ununsed variable in version 1\",\"totalDTokenBalance\":\"total loan amount\"}},\"constructor\":{\"params\":{\"borrowRateBase\":\"The base interest rate.\",\"borrowRateMax\":\"Interest rate when the Money Pool utilization ratio is 1\",\"borrowRateOptimal\":\"Interest rate when the Money Pool utilization ratio is optimal\",\"optimalUtilizationRate\":\"When the MoneyPool utilization ratio exceeds this parameter, `optimalUtilizationRate`, the kinked rates model adjusts interests.\"}}},\"title\":\"ELYFI InterestRateModel\",\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{\"calculateRates(uint256,uint256,uint256,uint256,uint256)\":{\"notice\":\"Calculates the interest rates.\"}},\"notice\":\"Interest rates model in ELYFI. ELYFI's interest rates are determined by algorithms. When borrowing demand increases, borrowing interest and MoneyPool ROI increase, suppressing excessove borrowing demand and inducing depositors to supply liquidity. Therefore, ELYFI's interest rates are influenced by the Money Pool `utilizationRatio`. The Money Pool utilization ratio is a variable representing the current borrowing and deposit status of the Money Pool. The interest rates of ELYFI exhibits some form of kink. They sharply change at some defined threshold, `optimalUtilazationRate`.\",\"version\":1}},\"settings\":{\"compilationTarget\":{\"contracts/InterestRateModel.sol\":\"InterestRateModel\"},\"evmVersion\":\"istanbul\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\",\"useLiteralContent\":true},\"optimizer\":{\"enabled\":true,\"runs\":1},\"remappings\":[]},\"sources\":{\"@openzeppelin/contracts/token/ERC20/IERC20.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\n\\npragma solidity ^0.8.0;\\n\\n/**\\n * @dev Interface of the ERC20 standard as defined in the EIP.\\n */\\ninterface IERC20 {\\n    /**\\n     * @dev Returns the amount of tokens in existence.\\n     */\\n    function totalSupply() external view returns (uint256);\\n\\n    /**\\n     * @dev Returns the amount of tokens owned by `account`.\\n     */\\n    function balanceOf(address account) external view returns (uint256);\\n\\n    /**\\n     * @dev Moves `amount` tokens from the caller's account to `recipient`.\\n     *\\n     * Returns a boolean value indicating whether the operation succeeded.\\n     *\\n     * Emits a {Transfer} event.\\n     */\\n    function transfer(address recipient, uint256 amount) external returns (bool);\\n\\n    /**\\n     * @dev Returns the remaining number of tokens that `spender` will be\\n     * allowed to spend on behalf of `owner` through {transferFrom}. This is\\n     * zero by default.\\n     *\\n     * This value changes when {approve} or {transferFrom} are called.\\n     */\\n    function allowance(address owner, address spender) external view returns (uint256);\\n\\n    /**\\n     * @dev Sets `amount` as the allowance of `spender` over the caller's tokens.\\n     *\\n     * Returns a boolean value indicating whether the operation succeeded.\\n     *\\n     * IMPORTANT: Beware that changing an allowance with this method brings the risk\\n     * that someone may use both the old and the new allowance by unfortunate\\n     * transaction ordering. One possible solution to mitigate this race\\n     * condition is to first reduce the spender's allowance to 0 and set the\\n     * desired value afterwards:\\n     * https://github.com/ethereum/EIPs/issues/20#issuecomment-263524729\\n     *\\n     * Emits an {Approval} event.\\n     */\\n    function approve(address spender, uint256 amount) external returns (bool);\\n\\n    /**\\n     * @dev Moves `amount` tokens from `sender` to `recipient` using the\\n     * allowance mechanism. `amount` is then deducted from the caller's\\n     * allowance.\\n     *\\n     * Returns a boolean value indicating whether the operation succeeded.\\n     *\\n     * Emits a {Transfer} event.\\n     */\\n    function transferFrom(\\n        address sender,\\n        address recipient,\\n        uint256 amount\\n    ) external returns (bool);\\n\\n    /**\\n     * @dev Emitted when `value` tokens are moved from one account (`from`) to\\n     * another (`to`).\\n     *\\n     * Note that `value` may be zero.\\n     */\\n    event Transfer(address indexed from, address indexed to, uint256 value);\\n\\n    /**\\n     * @dev Emitted when the allowance of a `spender` for an `owner` is set by\\n     * a call to {approve}. `value` is the new allowance.\\n     */\\n    event Approval(address indexed owner, address indexed spender, uint256 value);\\n}\\n\",\"keccak256\":\"0x027b891937d20ccf213fdb9c31531574256de774bda99d3a70ecef6e1913ed2a\",\"license\":\"MIT\"},\"contracts/InterestRateModel.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\npragma solidity 0.8.3;\\n\\nimport '@openzeppelin/contracts/token/ERC20/IERC20.sol';\\n\\nimport './libraries/WadRayMath.sol';\\n\\nimport './interfaces/IInterestRateModel.sol';\\n\\nimport './InterestRateModelStorage.sol';\\n\\n/**\\n * @title ELYFI InterestRateModel\\n * @author ELYSIA\\n * @notice Interest rates model in ELYFI. ELYFI's interest rates are determined by algorithms.\\n * When borrowing demand increases, borrowing interest and MoneyPool ROI increase,\\n * suppressing excessove borrowing demand and inducing depositors to supply liquidity.\\n * Therefore, ELYFI's interest rates are influenced by the Money Pool `utilizationRatio`.\\n * The Money Pool utilization ratio is a variable representing the current borrowing\\n * and deposit status of the Money Pool. The interest rates of ELYFI exhibits some form of kink.\\n * They sharply change at some defined threshold, `optimalUtilazationRate`.\\n */\\ncontract InterestRateModel is IInterestRateModel, InterestRateModelStorage {\\n  using WadRayMath for uint256;\\n\\n  /**\\n   * @param optimalUtilizationRate When the MoneyPool utilization ratio exceeds this parameter, `optimalUtilizationRate`, the kinked rates model adjusts interests.\\n   * @param borrowRateBase The base interest rate.\\n   * @param borrowRateOptimal Interest rate when the Money Pool utilization ratio is optimal\\n   * @param borrowRateMax Interest rate when the Money Pool utilization ratio is 1\\n   */\\n  constructor(\\n    uint256 optimalUtilizationRate,\\n    uint256 borrowRateBase,\\n    uint256 borrowRateOptimal,\\n    uint256 borrowRateMax\\n  ) {\\n    _optimalUtilizationRate = optimalUtilizationRate;\\n    _borrowRateBase = borrowRateBase;\\n    _borrowRateOptimal = borrowRateOptimal;\\n    _borrowRateMax = borrowRateMax;\\n  }\\n\\n  struct calculateRatesLocalVars {\\n    uint256 totalDebt;\\n    uint256 utilizationRate;\\n    uint256 newBorrowAPY;\\n    uint256 newDepositAPY;\\n  }\\n\\n  /**\\n   * @notice Calculates the interest rates.\\n   * @dev Calculation Example\\n   * Case1: under optimal U\\n   * baseRate = 2%, util = 40%, optimalRate = 10%, optimalUtil = 80%\\n   * result = 2+40*(10-2)/80 = 4%\\n   * Case2: over optimal U\\n   * optimalRate = 10%, util = 90%, maxRate = 100%, optimalUtil = 80%\\n   * result = 10+(90-80)*(100-10)/(100-80) = 55%\\n   * @param lTokenAssetBalance Total deposit amount\\n   * @param totalDTokenBalance total loan amount\\n   * @param depositAmount The liquidity added during the operation\\n   * @param borrowAmount The liquidity taken during the operation\\n   * @param moneyPoolFactor The moneypool factor. ununsed variable in version 1\\n   */\\n  function calculateRates(\\n    uint256 lTokenAssetBalance,\\n    uint256 totalDTokenBalance,\\n    uint256 depositAmount,\\n    uint256 borrowAmount,\\n    uint256 moneyPoolFactor\\n  ) public view override returns (uint256, uint256) {\\n    calculateRatesLocalVars memory vars;\\n    moneyPoolFactor;\\n\\n    vars.totalDebt = totalDTokenBalance;\\n\\n    uint256 availableLiquidity = lTokenAssetBalance + depositAmount - borrowAmount;\\n\\n    vars.utilizationRate = vars.totalDebt == 0\\n      ? 0\\n      : vars.totalDebt.rayDiv(availableLiquidity + vars.totalDebt);\\n\\n    vars.newBorrowAPY = 0;\\n\\n    if (vars.utilizationRate <= _optimalUtilizationRate) {\\n      vars.newBorrowAPY =\\n        _borrowRateBase +\\n        (\\n          (_borrowRateOptimal - _borrowRateBase).rayDiv(_optimalUtilizationRate).rayMul(\\n            vars.utilizationRate\\n          )\\n        );\\n    } else {\\n      vars.newBorrowAPY =\\n        _borrowRateOptimal +\\n        (\\n          (_borrowRateMax - _borrowRateOptimal)\\n            .rayDiv(WadRayMath.ray() - _optimalUtilizationRate)\\n            .rayMul(vars.utilizationRate - _borrowRateOptimal)\\n        );\\n    }\\n\\n    vars.newDepositAPY = vars.newBorrowAPY.rayMul(vars.utilizationRate);\\n\\n    return (vars.newBorrowAPY, vars.newDepositAPY);\\n  }\\n}\\n\",\"keccak256\":\"0xb1efe1b03c51de8434e26683d21ea4869e041209d42f6afbea4eec3a246cde49\",\"license\":\"MIT\"},\"contracts/InterestRateModelStorage.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\npragma solidity 0.8.3;\\n\\n/**\\n * @title ELYFI InterestRateModel\\n * @author ELYSIA\\n */\\ncontract InterestRateModelStorage {\\n  uint256 internal _optimalUtilizationRate;\\n\\n  uint256 internal _borrowRateBase;\\n\\n  uint256 internal _borrowRateOptimal;\\n\\n  uint256 internal _borrowRateMax;\\n}\\n\",\"keccak256\":\"0x80675ebb46a251beba7ff85b946f7b0b62ffed230d80c027128493f84272e7e7\",\"license\":\"MIT\"},\"contracts/interfaces/IInterestRateModel.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\npragma solidity 0.8.3;\\n\\nimport '../libraries/DataStruct.sol';\\n\\ninterface IInterestRateModel {\\n  function calculateRates(\\n    uint256 lTokenAssetBalance,\\n    uint256 totalDTokenBalance,\\n    uint256 depositAmount,\\n    uint256 borrowAmount,\\n    uint256 moneyPoolFactor\\n  ) external view returns (uint256, uint256);\\n}\\n\",\"keccak256\":\"0x98e3452a0d0d50c9bb581353c5a897c7714ae8ab9b3bac80b9373dc28d163138\",\"license\":\"MIT\"},\"contracts/libraries/DataStruct.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\npragma solidity 0.8.3;\\n\\nlibrary DataStruct {\\n  /**\\n    @notice The main reserve data struct.\\n   */\\n  struct ReserveData {\\n    uint256 moneyPoolFactor;\\n    uint256 lTokenInterestIndex;\\n    uint256 borrowAPY;\\n    uint256 depositAPY;\\n    uint256 lastUpdateTimestamp;\\n    address lTokenAddress;\\n    address dTokenAddress;\\n    address interestModelAddress;\\n    address tokenizerAddress;\\n    uint8 id;\\n    bool isPaused;\\n    bool isActivated;\\n  }\\n\\n  /**\\n   * @notice The asset bond data struct.\\n   * @param ipfsHash The IPFS hash that contains the informations and contracts\\n   * between Collateral Service Provider and lender.\\n   * @param maturityTimestamp The amount of time measured in seconds that can elapse\\n   * before the NPL company liquidate the loan and seize the asset bond collateral.\\n   * @param borrower The address of the borrower.\\n   */\\n  struct AssetBondData {\\n    AssetBondState state;\\n    address borrower;\\n    address signer;\\n    address collateralServiceProvider;\\n    uint256 principal;\\n    uint256 debtCeiling;\\n    uint256 couponRate;\\n    uint256 interestRate;\\n    uint256 delinquencyRate;\\n    uint256 loanStartTimestamp;\\n    uint256 collateralizeTimestamp;\\n    uint256 maturityTimestamp;\\n    uint256 liquidationTimestamp;\\n    string ipfsHash; // refactor : gas\\n    string signerOpinionHash;\\n  }\\n\\n  struct AssetBondIdData {\\n    uint256 nonce;\\n    uint256 countryCode;\\n    uint256 collateralServiceProviderIdentificationNumber;\\n    uint256 collateralLatitude;\\n    uint256 collateralLatitudeSign;\\n    uint256 collateralLongitude;\\n    uint256 collateralLongitudeSign;\\n    uint256 collateralDetail;\\n    uint256 collateralCategory;\\n    uint256 productNumber;\\n  }\\n\\n  /**\\n    @notice The states of asset bond\\n    * EMPTY: After\\n    * SETTLED:\\n    * CONFIRMED:\\n    * COLLATERALIZED:\\n    * DELINQUENT:\\n    * REDEEMED:\\n    * LIQUIDATED:\\n   */\\n  enum AssetBondState {\\n    EMPTY,\\n    SETTLED,\\n    CONFIRMED,\\n    COLLATERALIZED,\\n    DELINQUENT,\\n    REDEEMED,\\n    LIQUIDATED\\n  }\\n}\\n\",\"keccak256\":\"0xfef0408a202a6814e92f396333b81c78b4fff0bb1a9411b64afe849ced4ea3b1\",\"license\":\"MIT\"},\"contracts/libraries/WadRayMath.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\npragma solidity 0.8.3;\\n\\n/**\\n * @title WadRayMath library\\n * @author Aave\\n * @dev Provides mul and div function for wads (decimal numbers with 18 digits precision) and rays (decimals with 27 digits)\\n **/\\n\\nlibrary WadRayMath {\\n  uint256 internal constant WAD = 1e18;\\n  uint256 internal constant halfWAD = WAD / 2;\\n\\n  uint256 internal constant RAY = 1e27;\\n  uint256 internal constant halfRAY = RAY / 2;\\n\\n  uint256 internal constant WAD_RAY_RATIO = 1e9;\\n\\n  /**\\n   * @return One ray, 1e27\\n   **/\\n  function ray() internal pure returns (uint256) {\\n    return RAY;\\n  }\\n\\n  /**\\n   * @return One wad, 1e18\\n   **/\\n\\n  function wad() internal pure returns (uint256) {\\n    return WAD;\\n  }\\n\\n  /**\\n   * @return Half ray, 1e27/2\\n   **/\\n  function halfRay() internal pure returns (uint256) {\\n    return halfRAY;\\n  }\\n\\n  /**\\n   * @return Half ray, 1e18/2\\n   **/\\n  function halfWad() internal pure returns (uint256) {\\n    return halfWAD;\\n  }\\n\\n  /**\\n   * @dev Multiplies two wad, rounding half up to the nearest wad\\n   * @param a Wad\\n   * @param b Wad\\n   * @return The result of a*b, in wad\\n   **/\\n  function wadMul(uint256 a, uint256 b) internal pure returns (uint256) {\\n    if (a == 0 || b == 0) {\\n      return 0;\\n    }\\n    return (a * b + halfWAD) / WAD;\\n  }\\n\\n  /**\\n   * @dev Divides two wad, rounding half up to the nearest wad\\n   * @param a Wad\\n   * @param b Wad\\n   * @return The result of a/b, in wad\\n   **/\\n  function wadDiv(uint256 a, uint256 b) internal pure returns (uint256) {\\n    require(b != 0, 'Division by Zero');\\n    uint256 halfB = b / 2;\\n    return (a * WAD + halfB) / b;\\n  }\\n\\n  /**\\n   * @dev Multiplies two ray, rounding half up to the nearest ray\\n   * @param a Ray\\n   * @param b Ray\\n   * @return The result of a*b, in ray\\n   **/\\n  function rayMul(uint256 a, uint256 b) internal pure returns (uint256) {\\n    if (a == 0 || b == 0) {\\n      return 0;\\n    }\\n    return (a * b + halfRAY) / RAY;\\n  }\\n\\n  /**\\n   * @dev Divides two ray, rounding half up to the nearest ray\\n   * @param a Ray\\n   * @param b Ray\\n   * @return The result of a/b, in ray\\n   **/\\n  function rayDiv(uint256 a, uint256 b) internal pure returns (uint256) {\\n    require(b != 0, 'Division by Zero');\\n    uint256 halfB = b / 2;\\n    return (a * RAY + halfB) / b;\\n  }\\n\\n  /**\\n   * @dev Casts ray down to wad\\n   * @param a Ray\\n   * @return a casted to wad, rounded half up to the nearest wad\\n   **/\\n  function rayToWad(uint256 a) internal pure returns (uint256) {\\n    uint256 halfRatio = WAD_RAY_RATIO / 2;\\n    uint256 result = halfRatio + a;\\n    return result / WAD_RAY_RATIO;\\n  }\\n\\n  /**\\n   * @dev Converts wad up to ray\\n   * @param a Wad\\n   * @return a converted in ray\\n   **/\\n  function wadToRay(uint256 a) internal pure returns (uint256) {\\n    uint256 result = a * WAD_RAY_RATIO;\\n    return result;\\n  }\\n}\\n\",\"keccak256\":\"0x219da6a5d0c7c597faad6e638a2f0174b75d2ae50ee97314fb4afbc244abf01f\",\"license\":\"MIT\"}},\"version\":1}",
+  "bytecode": "0x608060405234801561001057600080fd5b5060405161040c38038061040c83398101604081905261002f91610046565b60009390935560019190915560025560035561007b565b6000806000806080858703121561005b578384fd5b505082516020840151604085015160609095015191969095509092509050565b6103828061008a6000396000f3fe608060405234801561001057600080fd5b506004361061002b5760003560e01c806309d10c5314610030575b600080fd5b61004361003e36600461028e565b61005c565b6040805192835260208301919091520160405180910390f35b60008061008a6040518060800160405280600081526020016000815260200160008152602001600081525090565b86815260008561009a888b6102c8565b6100a4919061031f565b8251909150156100cb5781516100c6906100be90836102c8565b8351906101ae565b6100ce565b60005b6020830181905260006040840181905254106101255761010e8260200151610108600054600154600254610102919061031f565b906101ae565b90610238565b60015461011b91906102c8565b604083015261017f565b61016c600254836020015161013a919061031f565b610108600054610152676765c793fa10079d601b1b90565b61015c919061031f565b600254600354610102919061031f565b60025461017991906102c8565b60408301525b6020820151604083015161019291610238565b6060830181905260409092015199919850909650505050505050565b6000816101f45760405162461bcd60e51b815260206004820152601060248201526f4469766973696f6e206279205a65726f60801b604482015260640160405180910390fd5b60006102016002846102e0565b9050828161021a676765c793fa10079d601b1b87610300565b61022491906102c8565b61022e91906102e0565b9150505b92915050565b6000821580610245575081155b1561025257506000610232565b676765c793fa10079d601b1b6102696002826102e0565b6102738486610300565b61027d91906102c8565b61028791906102e0565b9392505050565b600080600080600060a086880312156102a5578081fd5b505083359560208501359550604085013594606081013594506080013592509050565b600082198211156102db576102db610336565b500190565b6000826102fb57634e487b7160e01b81526012600452602481fd5b500490565b600081600019048311821515161561031a5761031a610336565b500290565b60008282101561033157610331610336565b500390565b634e487b7160e01b600052601160045260246000fdfea2646970667358221220389bd791de9378a81cbf52258c9c5a2a65ef89e80382e122614dc01a154e20d764736f6c63430008030033",
+  "deployedBytecode": "0x608060405234801561001057600080fd5b506004361061002b5760003560e01c806309d10c5314610030575b600080fd5b61004361003e36600461028e565b61005c565b6040805192835260208301919091520160405180910390f35b60008061008a6040518060800160405280600081526020016000815260200160008152602001600081525090565b86815260008561009a888b6102c8565b6100a4919061031f565b8251909150156100cb5781516100c6906100be90836102c8565b8351906101ae565b6100ce565b60005b6020830181905260006040840181905254106101255761010e8260200151610108600054600154600254610102919061031f565b906101ae565b90610238565b60015461011b91906102c8565b604083015261017f565b61016c600254836020015161013a919061031f565b610108600054610152676765c793fa10079d601b1b90565b61015c919061031f565b600254600354610102919061031f565b60025461017991906102c8565b60408301525b6020820151604083015161019291610238565b6060830181905260409092015199919850909650505050505050565b6000816101f45760405162461bcd60e51b815260206004820152601060248201526f4469766973696f6e206279205a65726f60801b604482015260640160405180910390fd5b60006102016002846102e0565b9050828161021a676765c793fa10079d601b1b87610300565b61022491906102c8565b61022e91906102e0565b9150505b92915050565b6000821580610245575081155b1561025257506000610232565b676765c793fa10079d601b1b6102696002826102e0565b6102738486610300565b61027d91906102c8565b61028791906102e0565b9392505050565b600080600080600060a086880312156102a5578081fd5b505083359560208501359550604085013594606081013594506080013592509050565b600082198211156102db576102db610336565b500190565b6000826102fb57634e487b7160e01b81526012600452602481fd5b500490565b600081600019048311821515161561031a5761031a610336565b500290565b60008282101561033157610331610336565b500390565b634e487b7160e01b600052601160045260246000fdfea2646970667358221220389bd791de9378a81cbf52258c9c5a2a65ef89e80382e122614dc01a154e20d764736f6c63430008030033",
+  "devdoc": {
+    "author": "ELYSIA",
+    "kind": "dev",
+    "methods": {
+      "calculateRates(uint256,uint256,uint256,uint256,uint256)": {
+        "details": "Calculation Example Case1: under optimal U baseRate = 2%, util = 40%, optimalRate = 10%, optimalUtil = 80% result = 2+40*(10-2)/80 = 4% Case2: over optimal U optimalRate = 10%, util = 90%, maxRate = 100%, optimalUtil = 80% result = 10+(90-80)*(100-10)/(100-80) = 55%",
+        "params": {
+          "borrowAmount": "The liquidity taken during the operation",
+          "depositAmount": "The liquidity added during the operation",
+          "lTokenAssetBalance": "Total deposit amount",
+          "moneyPoolFactor": "The moneypool factor. ununsed variable in version 1",
+          "totalDTokenBalance": "total loan amount"
+        }
+      },
+      "constructor": {
+        "params": {
+          "borrowRateBase": "The base interest rate.",
+          "borrowRateMax": "Interest rate when the Money Pool utilization ratio is 1",
+          "borrowRateOptimal": "Interest rate when the Money Pool utilization ratio is optimal",
+          "optimalUtilizationRate": "When the MoneyPool utilization ratio exceeds this parameter, `optimalUtilizationRate`, the kinked rates model adjusts interests."
+        }
+      }
+    },
+    "title": "ELYFI InterestRateModel",
+    "version": 1
+  },
+  "userdoc": {
+    "kind": "user",
+    "methods": {
+      "calculateRates(uint256,uint256,uint256,uint256,uint256)": {
+        "notice": "Calculates the interest rates."
+      }
+    },
+    "notice": "Interest rates model in ELYFI. ELYFI's interest rates are determined by algorithms. When borrowing demand increases, borrowing interest and MoneyPool ROI increase, suppressing excessove borrowing demand and inducing depositors to supply liquidity. Therefore, ELYFI's interest rates are influenced by the Money Pool `utilizationRatio`. The Money Pool utilization ratio is a variable representing the current borrowing and deposit status of the Money Pool. The interest rates of ELYFI exhibits some form of kink. They sharply change at some defined threshold, `optimalUtilazationRate`.",
+    "version": 1
+  },
+  "storageLayout": {
+    "storage": [
+      {
+        "astId": 4610,
+        "contract": "contracts/InterestRateModel.sol:InterestRateModel",
+        "label": "_optimalUtilizationRate",
+        "offset": 0,
+        "slot": "0",
+        "type": "t_uint256"
+      },
+      {
+        "astId": 4612,
+        "contract": "contracts/InterestRateModel.sol:InterestRateModel",
+        "label": "_borrowRateBase",
+        "offset": 0,
+        "slot": "1",
+        "type": "t_uint256"
+      },
+      {
+        "astId": 4614,
+        "contract": "contracts/InterestRateModel.sol:InterestRateModel",
+        "label": "_borrowRateOptimal",
+        "offset": 0,
+        "slot": "2",
+        "type": "t_uint256"
+      },
+      {
+        "astId": 4616,
+        "contract": "contracts/InterestRateModel.sol:InterestRateModel",
+        "label": "_borrowRateMax",
+        "offset": 0,
+        "slot": "3",
+        "type": "t_uint256"
+      }
+    ],
+    "types": {
+      "t_uint256": {
+        "encoding": "inplace",
+        "label": "uint256",
+        "numberOfBytes": "32"
+      }
+    }
+  }
+}

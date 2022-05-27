@@ -47,6 +47,11 @@ cache/
 
 # Deployement files
 deployments/
+!deployments/mainnet
+!deployments/bsc_mainnet
+
+# typechain
+typechain-types
 
 # Snowpack dependency directory (https://snowpack.dev/)
 web_modules/

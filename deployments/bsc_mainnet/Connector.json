@@ -1,0 +1,384 @@
+{
+  "address": "0x424C2A31976C2d609819582c84F534b15b001793",
+  "abi": [
+    {
+      "inputs": [],
+      "stateMutability": "nonpayable",
+      "type": "constructor"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "account",
+          "type": "address"
+        }
+      ],
+      "name": "CollateralServiceProviderRevoked",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "account",
+          "type": "address"
+        }
+      ],
+      "name": "CouncilRevoked",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "account",
+          "type": "address"
+        }
+      ],
+      "name": "NewCollateralServiceProviderAdded",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "account",
+          "type": "address"
+        }
+      ],
+      "name": "NewCouncilAdded",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "previousOwner",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "newOwner",
+          "type": "address"
+        }
+      ],
+      "name": "OwnershipTransferred",
+      "type": "event"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "account",
+          "type": "address"
+        }
+      ],
+      "name": "addCollateralServiceProvider",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "account",
+          "type": "address"
+        }
+      ],
+      "name": "addCouncil",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "account",
+          "type": "address"
+        }
+      ],
+      "name": "isCollateralServiceProvider",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "account",
+          "type": "address"
+        }
+      ],
+      "name": "isCouncil",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "account",
+          "type": "address"
+        }
+      ],
+      "name": "isMoneyPoolAdmin",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "owner",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "renounceOwnership",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "account",
+          "type": "address"
+        }
+      ],
+      "name": "revokeCollateralServiceProvider",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "account",
+          "type": "address"
+        }
+      ],
+      "name": "revokeCouncil",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "newOwner",
+          "type": "address"
+        }
+      ],
+      "name": "transferOwnership",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    }
+  ],
+  "transactionHash": "0xf06dbe50b41dc2878699149b3df961e844a22720daf4b29f878c8fbd081021a1",
+  "receipt": {
+    "to": null,
+    "from": "0x8d86dD9fe7318e04Cc51440C0252663f7FeCF01E",
+    "contractAddress": "0x424C2A31976C2d609819582c84F534b15b001793",
+    "transactionIndex": 0,
+    "gasUsed": "420111",
+    "logsBloom": "0x00000000000000000000000000000000008000800000000000800000000800000000000000000000000400000000000000000000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000020000000000000000000800000000000000100000000000000000400000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000000000",
+    "blockHash": "0xf59402d4cdbf54e528f90467f8f64e413169e5aeab11c76454f69bf89f267b25",
+    "transactionHash": "0xf06dbe50b41dc2878699149b3df961e844a22720daf4b29f878c8fbd081021a1",
+    "logs": [
+      {
+        "transactionIndex": 0,
+        "blockNumber": 14521971,
+        "transactionHash": "0xf06dbe50b41dc2878699149b3df961e844a22720daf4b29f878c8fbd081021a1",
+        "address": "0x424C2A31976C2d609819582c84F534b15b001793",
+        "topics": [
+          "0x8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e0",
+          "0x0000000000000000000000000000000000000000000000000000000000000000",
+          "0x0000000000000000000000008d86dd9fe7318e04cc51440c0252663f7fecf01e"
+        ],
+        "data": "0x",
+        "logIndex": 0,
+        "blockHash": "0xf59402d4cdbf54e528f90467f8f64e413169e5aeab11c76454f69bf89f267b25"
+      }
+    ],
+    "blockNumber": 14521971,
+    "cumulativeGasUsed": "420111",
+    "status": 1,
+    "byzantium": true
+  },
+  "args": [],
+  "solcInputHash": "efcd845ea837ae5482eec05fa8d312de",
+  "metadata": "{\"compiler\":{\"version\":\"0.8.3+commit.8d00100c\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"}],\"name\":\"CollateralServiceProviderRevoked\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"}],\"name\":\"CouncilRevoked\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"}],\"name\":\"NewCollateralServiceProviderAdded\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"}],\"name\":\"NewCouncilAdded\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"previousOwner\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"newOwner\",\"type\":\"address\"}],\"name\":\"OwnershipTransferred\",\"type\":\"event\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"}],\"name\":\"addCollateralServiceProvider\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"}],\"name\":\"addCouncil\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"}],\"name\":\"isCollateralServiceProvider\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"}],\"name\":\"isCouncil\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"}],\"name\":\"isMoneyPoolAdmin\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"owner\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"renounceOwnership\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"}],\"name\":\"revokeCollateralServiceProvider\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"}],\"name\":\"revokeCouncil\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"newOwner\",\"type\":\"address\"}],\"name\":\"transferOwnership\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}],\"devdoc\":{\"author\":\"ELYSIA\",\"details\":\"Only admin can add or revoke roles of the ELYFI. The admin account of the connector is strictly managed, and it is to be managed by governance of ELYFI.\",\"kind\":\"dev\",\"methods\":{\"owner()\":{\"details\":\"Returns the address of the current owner.\"},\"renounceOwnership()\":{\"details\":\"Leaves the contract without owner. It will not be possible to call `onlyOwner` functions anymore. Can only be called by the current owner. NOTE: Renouncing ownership will leave the contract without an owner, thereby removing any functionality that is only available to the owner.\"},\"transferOwnership(address)\":{\"details\":\"Transfers ownership of the contract to a new account (`newOwner`). Can only be called by the current owner.\"}},\"title\":\"ELYFI Connector\",\"version\":1},\"userdoc\":{\"events\":{\"CollateralServiceProviderRevoked(address)\":{\"notice\":\"Emitted when a collateral service provider role is revoked by admin*\"},\"CouncilRevoked(address)\":{\"notice\":\"Emitted when a council role is revoked by admin*\"},\"NewCollateralServiceProviderAdded(address)\":{\"notice\":\"Emitted when an admin adds a collateral service provider role*\"},\"NewCouncilAdded(address)\":{\"notice\":\"Emitted when an admin adds a council role*\"}},\"kind\":\"user\",\"methods\":{},\"notice\":\"ELYFI functions through continual interaction among the various participants. In order to link the real assets and the blockchain, unlike the existing DeFi platform, ELYFI has a group of participants in charge of actual legal contracts and maintenance. 1. Collateral service providers are a group of users who sign a collateral contract with a borrower who takes out a real asset-backed loan and borrows cryptocurrencies from the Money Pool based on this contract. 2. The council, such as legal service provider is a corporation that provides legal services such as document review in the context of legal proceedings, consulting, and the provision of documents necessary in the process of taking out loans secured by real assets, In the future, the types of participant groups will be diversified and subdivided.\",\"version\":1}},\"settings\":{\"compilationTarget\":{\"contracts/Connector.sol\":\"Connector\"},\"evmVersion\":\"istanbul\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\",\"useLiteralContent\":true},\"optimizer\":{\"enabled\":true,\"runs\":1},\"remappings\":[]},\"sources\":{\"@openzeppelin/contracts/access/Ownable.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\n\\npragma solidity ^0.8.0;\\n\\nimport \\\"../utils/Context.sol\\\";\\n\\n/**\\n * @dev Contract module which provides a basic access control mechanism, where\\n * there is an account (an owner) that can be granted exclusive access to\\n * specific functions.\\n *\\n * By default, the owner account will be the one that deploys the contract. This\\n * can later be changed with {transferOwnership}.\\n *\\n * This module is used through inheritance. It will make available the modifier\\n * `onlyOwner`, which can be applied to your functions to restrict their use to\\n * the owner.\\n */\\nabstract contract Ownable is Context {\\n    address private _owner;\\n\\n    event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);\\n\\n    /**\\n     * @dev Initializes the contract setting the deployer as the initial owner.\\n     */\\n    constructor() {\\n        _setOwner(_msgSender());\\n    }\\n\\n    /**\\n     * @dev Returns the address of the current owner.\\n     */\\n    function owner() public view virtual returns (address) {\\n        return _owner;\\n    }\\n\\n    /**\\n     * @dev Throws if called by any account other than the owner.\\n     */\\n    modifier onlyOwner() {\\n        require(owner() == _msgSender(), \\\"Ownable: caller is not the owner\\\");\\n        _;\\n    }\\n\\n    /**\\n     * @dev Leaves the contract without owner. It will not be possible to call\\n     * `onlyOwner` functions anymore. Can only be called by the current owner.\\n     *\\n     * NOTE: Renouncing ownership will leave the contract without an owner,\\n     * thereby removing any functionality that is only available to the owner.\\n     */\\n    function renounceOwnership() public virtual onlyOwner {\\n        _setOwner(address(0));\\n    }\\n\\n    /**\\n     * @dev Transfers ownership of the contract to a new account (`newOwner`).\\n     * Can only be called by the current owner.\\n     */\\n    function transferOwnership(address newOwner) public virtual onlyOwner {\\n        require(newOwner != address(0), \\\"Ownable: new owner is the zero address\\\");\\n        _setOwner(newOwner);\\n    }\\n\\n    function _setOwner(address newOwner) private {\\n        address oldOwner = _owner;\\n        _owner = newOwner;\\n        emit OwnershipTransferred(oldOwner, newOwner);\\n    }\\n}\\n\",\"keccak256\":\"0x6bb804a310218875e89d12c053e94a13a4607cdf7cc2052f3e52bd32a0dc50a1\",\"license\":\"MIT\"},\"@openzeppelin/contracts/utils/Context.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\n\\npragma solidity ^0.8.0;\\n\\n/**\\n * @dev Provides information about the current execution context, including the\\n * sender of the transaction and its data. While these are generally available\\n * via msg.sender and msg.data, they should not be accessed in such a direct\\n * manner, since when dealing with meta-transactions the account sending and\\n * paying for execution may not be the actual sender (as far as an application\\n * is concerned).\\n *\\n * This contract is only required for intermediate, library-like contracts.\\n */\\nabstract contract Context {\\n    function _msgSender() internal view virtual returns (address) {\\n        return msg.sender;\\n    }\\n\\n    function _msgData() internal view virtual returns (bytes calldata) {\\n        return msg.data;\\n    }\\n}\\n\",\"keccak256\":\"0x90565a39ae45c80f0468dc96c7b20d0afc3055f344c8203a0c9258239f350b9f\",\"license\":\"MIT\"},\"contracts/Connector.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\npragma solidity 0.8.3;\\n\\nimport '@openzeppelin/contracts/access/Ownable.sol';\\n\\nimport './libraries/Role.sol';\\n\\nimport './interfaces/IConnector.sol';\\n\\nimport './ConnectorStorage.sol';\\n\\n/**\\n * @title ELYFI Connector\\n * @author ELYSIA\\n * @notice ELYFI functions through continual interaction among the various participants.\\n * In order to link the real assets and the blockchain, unlike the existing DeFi platform,\\n * ELYFI has a group of participants in charge of actual legal contracts and maintenance.\\n * 1. Collateral service providers are a group of users who sign a collateral contract with\\n * a borrower who takes out a real asset-backed loan and borrows cryptocurrencies from the\\n * Money Pool based on this contract.\\n * 2. The council, such as legal service provider is a corporation that provides\\n * legal services such as document review in the context of legal proceedings, consulting,\\n * and the provision of documents necessary in the process of taking out loans secured by real assets,\\n * In the future, the types of participant groups will be diversified and subdivided.\\n * @dev Only admin can add or revoke roles of the ELYFI. The admin account of the connector is strictly\\n * managed, and it is to be managed by governance of ELYFI.\\n */\\ncontract Connector is IConnector, ConnectorStorage, Ownable {\\n  constructor() {}\\n\\n  function addCouncil(address account) external onlyOwner {\\n    _grantRole(Role.COUNCIL, account);\\n    emit NewCouncilAdded(account);\\n  }\\n\\n  function addCollateralServiceProvider(address account) external onlyOwner {\\n    _grantRole(Role.CollateralServiceProvider, account);\\n    emit NewCollateralServiceProviderAdded(account);\\n  }\\n\\n  function revokeCouncil(address account) external onlyOwner {\\n    _revokeRole(Role.COUNCIL, account);\\n    emit CouncilRevoked(account);\\n  }\\n\\n  function revokeCollateralServiceProvider(address account) external onlyOwner {\\n    _revokeRole(Role.CollateralServiceProvider, account);\\n    emit CollateralServiceProviderRevoked(account);\\n  }\\n\\n  function _grantRole(bytes32 role, address account) internal {\\n    _roles[role].participants[account] = true;\\n  }\\n\\n  function _revokeRole(bytes32 role, address account) internal {\\n    _roles[role].participants[account] = false;\\n  }\\n\\n  function _hasRole(bytes32 role, address account) internal view returns (bool) {\\n    return _roles[role].participants[account];\\n  }\\n\\n  function isCollateralServiceProvider(address account) external view override returns (bool) {\\n    return _hasRole(Role.CollateralServiceProvider, account);\\n  }\\n\\n  function isCouncil(address account) external view override returns (bool) {\\n    return _hasRole(Role.COUNCIL, account);\\n  }\\n\\n  function isMoneyPoolAdmin(address account) external view override returns (bool) {\\n    return owner() == account;\\n  }\\n}\\n\",\"keccak256\":\"0xd1745ac893aad2fa54b5b95d5a0843c21808861de651a2afd9a8154ed8d04862\",\"license\":\"MIT\"},\"contracts/ConnectorStorage.sol\":{\"content\":\"import './interfaces/IMoneyPool.sol';\\n\\n// SPDX-License-Identifier: MIT\\npragma solidity 0.8.3;\\n\\n/**\\n * @title ELYFI Connector storage\\n * @author ELYSIA\\n */\\ncontract ConnectorStorage {\\n  struct RoleData {\\n    mapping(address => bool) participants;\\n    bytes32 admin;\\n  }\\n\\n  mapping(bytes32 => RoleData) internal _roles;\\n\\n  IMoneyPool internal _moneyPool;\\n}\\n\",\"keccak256\":\"0x5fad6c44e09b00c8e5c28b2ffbd360ec060e02fa21b7f29e44cddf30cd8ec3a8\",\"license\":\"MIT\"},\"contracts/interfaces/IConnector.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\npragma solidity 0.8.3;\\n\\nimport '../libraries/DataStruct.sol';\\n\\ninterface IConnector {\\n  /**\\n   * @notice Emitted when an admin adds a council role\\n   **/\\n  event NewCouncilAdded(address indexed account);\\n\\n  /**\\n   * @notice Emitted when an admin adds a collateral service provider role\\n   **/\\n  event NewCollateralServiceProviderAdded(address indexed account);\\n\\n  /**\\n   * @notice Emitted when a council role is revoked by admin\\n   **/\\n  event CouncilRevoked(address indexed account);\\n\\n  /**\\n   * @notice Emitted when a collateral service provider role is revoked by admin\\n   **/\\n  event CollateralServiceProviderRevoked(address indexed account);\\n\\n  function isCollateralServiceProvider(address account) external view returns (bool);\\n\\n  function isCouncil(address account) external view returns (bool);\\n\\n  function isMoneyPoolAdmin(address account) external view returns (bool);\\n}\\n\",\"keccak256\":\"0x8d00f13d4b3f1d2b43209c0e6921321c976376f93bed9db3e2a285a0881da9de\",\"license\":\"MIT\"},\"contracts/interfaces/IMoneyPool.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\npragma solidity 0.8.3;\\n\\nimport '../libraries/DataStruct.sol';\\n\\ninterface IMoneyPool {\\n  event NewReserve(\\n    address indexed asset,\\n    address lToken,\\n    address dToken,\\n    address interestModel,\\n    address tokenizer,\\n    address incentivePool,\\n    uint256 moneyPoolFactor\\n  );\\n\\n  event Deposit(address indexed asset, address indexed account, uint256 amount);\\n\\n  event Withdraw(\\n    address indexed asset,\\n    address indexed account,\\n    address indexed to,\\n    uint256 amount\\n  );\\n\\n  event Borrow(\\n    address indexed asset,\\n    address indexed collateralServiceProvider,\\n    address indexed borrower,\\n    uint256 tokenId,\\n    uint256 borrowAPY,\\n    uint256 borrowAmount\\n  );\\n\\n  event Repay(\\n    address indexed asset,\\n    address indexed borrower,\\n    uint256 tokenId,\\n    uint256 userDTokenBalance,\\n    uint256 feeOnCollateralServiceProvider\\n  );\\n\\n  event Liquidation(\\n    address indexed asset,\\n    address indexed borrower,\\n    uint256 tokenId,\\n    uint256 userDTokenBalance,\\n    uint256 feeOnCollateralServiceProvider\\n  );\\n\\n  function deposit(\\n    address asset,\\n    address account,\\n    uint256 amount\\n  ) external;\\n\\n  function withdraw(\\n    address asset,\\n    address account,\\n    uint256 amount\\n  ) external;\\n\\n  function borrow(address asset, uint256 tokenID) external;\\n\\n  function repay(address asset, uint256 tokenId) external;\\n\\n  function liquidate(address asset, uint256 tokenId) external;\\n\\n  function getLTokenInterestIndex(address asset) external view returns (uint256);\\n\\n  function getReserveData(address asset) external view returns (DataStruct.ReserveData memory);\\n\\n  function addNewReserve(\\n    address asset,\\n    address lToken,\\n    address dToken,\\n    address interestModel,\\n    address tokenizer,\\n    address incentivePool,\\n    uint256 moneyPoolFactor_\\n  ) external;\\n}\\n\",\"keccak256\":\"0x36ca1cfa806be7e8f1b1681faeda0f1dc4a26462728aa403b73e4eef12567ef1\",\"license\":\"MIT\"},\"contracts/libraries/DataStruct.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\npragma solidity 0.8.3;\\n\\nlibrary DataStruct {\\n  /**\\n    @notice The main reserve data struct.\\n   */\\n  struct ReserveData {\\n    uint256 moneyPoolFactor;\\n    uint256 lTokenInterestIndex;\\n    uint256 borrowAPY;\\n    uint256 depositAPY;\\n    uint256 lastUpdateTimestamp;\\n    address lTokenAddress;\\n    address dTokenAddress;\\n    address interestModelAddress;\\n    address tokenizerAddress;\\n    uint8 id;\\n    bool isPaused;\\n    bool isActivated;\\n  }\\n\\n  /**\\n   * @notice The asset bond data struct.\\n   * @param ipfsHash The IPFS hash that contains the informations and contracts\\n   * between Collateral Service Provider and lender.\\n   * @param maturityTimestamp The amount of time measured in seconds that can elapse\\n   * before the NPL company liquidate the loan and seize the asset bond collateral.\\n   * @param borrower The address of the borrower.\\n   */\\n  struct AssetBondData {\\n    AssetBondState state;\\n    address borrower;\\n    address signer;\\n    address collateralServiceProvider;\\n    uint256 principal;\\n    uint256 debtCeiling;\\n    uint256 couponRate;\\n    uint256 interestRate;\\n    uint256 delinquencyRate;\\n    uint256 loanStartTimestamp;\\n    uint256 collateralizeTimestamp;\\n    uint256 maturityTimestamp;\\n    uint256 liquidationTimestamp;\\n    string ipfsHash; // refactor : gas\\n    string signerOpinionHash;\\n  }\\n\\n  struct AssetBondIdData {\\n    uint256 nonce;\\n    uint256 countryCode;\\n    uint256 collateralServiceProviderIdentificationNumber;\\n    uint256 collateralLatitude;\\n    uint256 collateralLatitudeSign;\\n    uint256 collateralLongitude;\\n    uint256 collateralLongitudeSign;\\n    uint256 collateralDetail;\\n    uint256 collateralCategory;\\n    uint256 productNumber;\\n  }\\n\\n  /**\\n    @notice The states of asset bond\\n    * EMPTY: After\\n    * SETTLED:\\n    * CONFIRMED:\\n    * COLLATERALIZED:\\n    * DELINQUENT:\\n    * REDEEMED:\\n    * LIQUIDATED:\\n   */\\n  enum AssetBondState {\\n    EMPTY,\\n    SETTLED,\\n    CONFIRMED,\\n    COLLATERALIZED,\\n    DELINQUENT,\\n    REDEEMED,\\n    LIQUIDATED\\n  }\\n}\\n\",\"keccak256\":\"0xfef0408a202a6814e92f396333b81c78b4fff0bb1a9411b64afe849ced4ea3b1\",\"license\":\"MIT\"},\"contracts/libraries/Role.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\npragma solidity 0.8.3;\\n\\n/**\\n * @title ELYFI Role\\n * @author ELYSIA\\n */\\nlibrary Role {\\n  bytes32 internal constant CollateralServiceProvider = 'CollateralServiceProvider';\\n  bytes32 internal constant COUNCIL = 'COUNCIL';\\n  bytes32 internal constant MONEYPOOL_ADMIN = 'MONEYPOOL_ADMIN';\\n}\\n\",\"keccak256\":\"0x1376c5a17ca76309119bd4f2d34217850e107067b9705b16a49829d7af0c530b\",\"license\":\"MIT\"}},\"version\":1}",
+  "bytecode": "0x608060405234801561001057600080fd5b5061001a3361001f565b610071565b600280546001600160a01b038381166001600160a01b0319831681179093556040519116919082907f8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e090600090a35050565b610634806100806000396000f3fe608060405234801561001057600080fd5b506004361061008e5760003560e01c806322aa8e7d146100935780632b0f90c0146100a85780632bac1c55146100bb5780633f8d65f2146100ce578063715018a6146100f65780638da5cb5b146100fe5780639aa360ec1461011e578063c60288ab14610131578063f2770bf014610144578063f2fde38b14610157575b600080fd5b6100a66100a136600461057b565b61016a565b005b6100a66100b636600461057b565b6101ed565b6100a66100c936600461057b565b610267565b6100e16100dc36600461057b565b6102e5565b60405190151581526020015b60405180910390f35b6100a6610305565b610106610340565b6040516001600160a01b0390911681526020016100ed565b6100e161012c36600461057b565b61034f565b6100a661013f36600461057b565b610365565b6100e161015236600461057b565b6103e3565b6100a661016536600461057b565b610407565b33610173610340565b6001600160a01b0316146101a25760405162461bcd60e51b8152600401610199906105a9565b60405180910390fd5b6101b66610d3d55390d25360ca1b826104a7565b6040516001600160a01b038216907f94b301526e028aec5a50c07590d098bdf8483f32485a8b8bba723955763063d590600090a250565b336101f6610340565b6001600160a01b03161461021c5760405162461bcd60e51b8152600401610199906105a9565b6102306610d3d55390d25360ca1b826104d5565b6040516001600160a01b038216907feb68cd3369a51fe9f5bc81762f144b8021f7b211fca65d0a0bb689407354a95690600090a250565b33610270610340565b6001600160a01b0316146102965760405162461bcd60e51b8152600401610199906105a9565b6102ae6000805160206105df833981519152826104a7565b6040516001600160a01b038216907f890180e7c1b13ee272f812ff06c5bca5ffff5588bb97c5650754f9e6eaec194b90600090a250565b60006102ff6000805160206105df83398151915283610500565b92915050565b3361030e610340565b6001600160a01b0316146103345760405162461bcd60e51b8152600401610199906105a9565b61033e6000610529565b565b6002546001600160a01b031690565b60006102ff6610d3d55390d25360ca1b83610500565b3361036e610340565b6001600160a01b0316146103945760405162461bcd60e51b8152600401610199906105a9565b6103ac6000805160206105df833981519152826104d5565b6040516001600160a01b038216907fbfc39f8a0326a282cdf9a0a6495a1efc731ee34e232f69ef5dc4669485cd889f90600090a250565b6000816001600160a01b03166103f7610340565b6001600160a01b03161492915050565b33610410610340565b6001600160a01b0316146104365760405162461bcd60e51b8152600401610199906105a9565b6001600160a01b03811661049b5760405162461bcd60e51b815260206004820152602660248201527f4f776e61626c653a206e6577206f776e657220697320746865207a65726f206160448201526564647265737360d01b6064820152608401610199565b6104a481610529565b50565b6000918252602082815260408084206001600160a01b0390931684529190529020805460ff19166001179055565b6000918252602082815260408084206001600160a01b0390931684529190529020805460ff19169055565b6000918252602082815260408084206001600160a01b0393909316845291905290205460ff1690565b600280546001600160a01b038381166001600160a01b0319831681179093556040519116919082907f8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e090600090a35050565b60006020828403121561058c578081fd5b81356001600160a01b03811681146105a2578182fd5b9392505050565b6020808252818101527f4f776e61626c653a2063616c6c6572206973206e6f7420746865206f776e657260408201526060019056fe436f6c6c61746572616c5365727669636550726f766964657200000000000000a2646970667358221220ddea809c39e23ef9269392e8bb0783606fc6c9f6aa22f3666b0eed2d880e141b64736f6c63430008030033",
+  "deployedBytecode": "0x608060405234801561001057600080fd5b506004361061008e5760003560e01c806322aa8e7d146100935780632b0f90c0146100a85780632bac1c55146100bb5780633f8d65f2146100ce578063715018a6146100f65780638da5cb5b146100fe5780639aa360ec1461011e578063c60288ab14610131578063f2770bf014610144578063f2fde38b14610157575b600080fd5b6100a66100a136600461057b565b61016a565b005b6100a66100b636600461057b565b6101ed565b6100a66100c936600461057b565b610267565b6100e16100dc36600461057b565b6102e5565b60405190151581526020015b60405180910390f35b6100a6610305565b610106610340565b6040516001600160a01b0390911681526020016100ed565b6100e161012c36600461057b565b61034f565b6100a661013f36600461057b565b610365565b6100e161015236600461057b565b6103e3565b6100a661016536600461057b565b610407565b33610173610340565b6001600160a01b0316146101a25760405162461bcd60e51b8152600401610199906105a9565b60405180910390fd5b6101b66610d3d55390d25360ca1b826104a7565b6040516001600160a01b038216907f94b301526e028aec5a50c07590d098bdf8483f32485a8b8bba723955763063d590600090a250565b336101f6610340565b6001600160a01b03161461021c5760405162461bcd60e51b8152600401610199906105a9565b6102306610d3d55390d25360ca1b826104d5565b6040516001600160a01b038216907feb68cd3369a51fe9f5bc81762f144b8021f7b211fca65d0a0bb689407354a95690600090a250565b33610270610340565b6001600160a01b0316146102965760405162461bcd60e51b8152600401610199906105a9565b6102ae6000805160206105df833981519152826104a7565b6040516001600160a01b038216907f890180e7c1b13ee272f812ff06c5bca5ffff5588bb97c5650754f9e6eaec194b90600090a250565b60006102ff6000805160206105df83398151915283610500565b92915050565b3361030e610340565b6001600160a01b0316146103345760405162461bcd60e51b8152600401610199906105a9565b61033e6000610529565b565b6002546001600160a01b031690565b60006102ff6610d3d55390d25360ca1b83610500565b3361036e610340565b6001600160a01b0316146103945760405162461bcd60e51b8152600401610199906105a9565b6103ac6000805160206105df833981519152826104d5565b6040516001600160a01b038216907fbfc39f8a0326a282cdf9a0a6495a1efc731ee34e232f69ef5dc4669485cd889f90600090a250565b6000816001600160a01b03166103f7610340565b6001600160a01b03161492915050565b33610410610340565b6001600160a01b0316146104365760405162461bcd60e51b8152600401610199906105a9565b6001600160a01b03811661049b5760405162461bcd60e51b815260206004820152602660248201527f4f776e61626c653a206e6577206f776e657220697320746865207a65726f206160448201526564647265737360d01b6064820152608401610199565b6104a481610529565b50565b6000918252602082815260408084206001600160a01b0390931684529190529020805460ff19166001179055565b6000918252602082815260408084206001600160a01b0390931684529190529020805460ff19169055565b6000918252602082815260408084206001600160a01b0393909316845291905290205460ff1690565b600280546001600160a01b038381166001600160a01b0319831681179093556040519116919082907f8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e090600090a35050565b60006020828403121561058c578081fd5b81356001600160a01b03811681146105a2578182fd5b9392505050565b6020808252818101527f4f776e61626c653a2063616c6c6572206973206e6f7420746865206f776e657260408201526060019056fe436f6c6c61746572616c5365727669636550726f766964657200000000000000a2646970667358221220ddea809c39e23ef9269392e8bb0783606fc6c9f6aa22f3666b0eed2d880e141b64736f6c63430008030033",
+  "devdoc": {
+    "author": "ELYSIA",
+    "details": "Only admin can add or revoke roles of the ELYFI. The admin account of the connector is strictly managed, and it is to be managed by governance of ELYFI.",
+    "kind": "dev",
+    "methods": {
+      "owner()": {
+        "details": "Returns the address of the current owner."
+      },
+      "renounceOwnership()": {
+        "details": "Leaves the contract without owner. It will not be possible to call `onlyOwner` functions anymore. Can only be called by the current owner. NOTE: Renouncing ownership will leave the contract without an owner, thereby removing any functionality that is only available to the owner."
+      },
+      "transferOwnership(address)": {
+        "details": "Transfers ownership of the contract to a new account (`newOwner`). Can only be called by the current owner."
+      }
+    },
+    "title": "ELYFI Connector",
+    "version": 1
+  },
+  "userdoc": {
+    "events": {
+      "CollateralServiceProviderRevoked(address)": {
+        "notice": "Emitted when a collateral service provider role is revoked by admin*"
+      },
+      "CouncilRevoked(address)": {
+        "notice": "Emitted when a council role is revoked by admin*"
+      },
+      "NewCollateralServiceProviderAdded(address)": {
+        "notice": "Emitted when an admin adds a collateral service provider role*"
+      },
+      "NewCouncilAdded(address)": {
+        "notice": "Emitted when an admin adds a council role*"
+      }
+    },
+    "kind": "user",
+    "methods": {},
+    "notice": "ELYFI functions through continual interaction among the various participants. In order to link the real assets and the blockchain, unlike the existing DeFi platform, ELYFI has a group of participants in charge of actual legal contracts and maintenance. 1. Collateral service providers are a group of users who sign a collateral contract with a borrower who takes out a real asset-backed loan and borrows cryptocurrencies from the Money Pool based on this contract. 2. The council, such as legal service provider is a corporation that provides legal services such as document review in the context of legal proceedings, consulting, and the provision of documents necessary in the process of taking out loans secured by real assets, In the future, the types of participant groups will be diversified and subdivided.",
+    "version": 1
+  },
+  "storageLayout": {
+    "storage": [
+      {
+        "astId": 2712,
+        "contract": "contracts/Connector.sol:Connector",
+        "label": "_roles",
+        "offset": 0,
+        "slot": "0",
+        "type": "t_mapping(t_bytes32,t_struct(RoleData)2707_storage)"
+      },
+      {
+        "astId": 2715,
+        "contract": "contracts/Connector.sol:Connector",
+        "label": "_moneyPool",
+        "offset": 0,
+        "slot": "1",
+        "type": "t_contract(IMoneyPool)7140"
+      },
+      {
+        "astId": 7,
+        "contract": "contracts/Connector.sol:Connector",
+        "label": "_owner",
+        "offset": 0,
+        "slot": "2",
+        "type": "t_address"
+      }
+    ],
+    "types": {
+      "t_address": {
+        "encoding": "inplace",
+        "label": "address",
+        "numberOfBytes": "20"
+      },
+      "t_bool": {
+        "encoding": "inplace",
+        "label": "bool",
+        "numberOfBytes": "1"
+      },
+      "t_bytes32": {
+        "encoding": "inplace",
+        "label": "bytes32",
+        "numberOfBytes": "32"
+      },
+      "t_contract(IMoneyPool)7140": {
+        "encoding": "inplace",
+        "label": "contract IMoneyPool",
+        "numberOfBytes": "20"
+      },
+      "t_mapping(t_address,t_bool)": {
+        "encoding": "mapping",
+        "key": "t_address",
+        "label": "mapping(address => bool)",
+        "numberOfBytes": "32",
+        "value": "t_bool"
+      },
+      "t_mapping(t_bytes32,t_struct(RoleData)2707_storage)": {
+        "encoding": "mapping",
+        "key": "t_bytes32",
+        "label": "mapping(bytes32 => struct ConnectorStorage.RoleData)",
+        "numberOfBytes": "32",
+        "value": "t_struct(RoleData)2707_storage"
+      },
+      "t_struct(RoleData)2707_storage": {
+        "encoding": "inplace",
+        "label": "struct ConnectorStorage.RoleData",
+        "members": [
+          {
+            "astId": 2704,
+            "contract": "contracts/Connector.sol:Connector",
+            "label": "participants",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_mapping(t_address,t_bool)"
+          },
+          {
+            "astId": 2706,
+            "contract": "contracts/Connector.sol:Connector",
+            "label": "admin",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_bytes32"
+          }
+        ],
+        "numberOfBytes": "64"
+      }
+    }
+  }
+}
