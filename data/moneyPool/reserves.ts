@@ -89,3 +89,32 @@ export const busdReserveData = {
   },
   moneyPoolFactor: BigNumber.from(0),
 };
+
+export const usdcReserveData = {
+  lToken: {
+    name: 'Elyfi_USDC_LToken',
+    symbol: 'ELFI_USDC_LToken',
+  },
+  dToken: {
+    name: 'Elyfi_USDC_DToken',
+    symbol: 'ELFI_USDC_DToken',
+  },
+  interestRateModel: {
+    name: 'Elyfi_USDC_InterestRateModel',
+    params: <InterestModelParams>{
+      optimalUtilizationRate: toRate(0.75),
+      borrowRateBase: toRate(0.05),
+      borrowRateOptimal: toRate(0.06),
+      borrowRateMax: toRate(1),
+    },
+  },
+  tokenizer: {
+    name: 'Elyfi_USDC_Tokenzier',
+    symbol: 'ELFI_USDC_Tokenizer',
+  },
+  incentivePool: {
+    name: 'Elyfi_USDC_IncentivePool',
+    incentiveAmountPerSecond: BigNumber.from(WAD).mul(3000000).div(180).div(SECONDSPERDAY),
+  },
+  moneyPoolFactor: BigNumber.from(0),
+};

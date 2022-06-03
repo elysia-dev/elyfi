@@ -47,6 +47,7 @@ cache/
 
 # Deployement files
 deployments/
+!deployments/ganache
 !deployments/mainnet
 !deployments/bsc_mainnet
 

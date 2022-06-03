@@ -8,6 +8,7 @@ const getdependency = (hre: HardhatRuntimeEnvironment, dependency: string) => {
     Dai: 'Dai.json',
     Usdt: 'Usdt.json',
     Busd: 'Busd.json',
+    Usdc: 'Usdc.json',
     EL: 'ELToken.json',
     Elyfi: 'Elyfi.json',
   };
@@ -41,6 +42,12 @@ export const getUsdt = async (hre: HardhatRuntimeEnvironment): Promise<Contract>
 
 export const getBusd = async (hre: HardhatRuntimeEnvironment): Promise<Contract> => {
   const file = require(getdependency(hre, 'Busd')) as DeployedContract;
+
+  return await hre.ethers.getContractAt(file.abi, file.address);
+};
+
+export const getUsdc = async (hre: HardhatRuntimeEnvironment): Promise<Contract> => {
+  const file = require(getdependency(hre, 'Usdc')) as DeployedContract;
 
   return await hre.ethers.getContractAt(file.abi, file.address);
 };

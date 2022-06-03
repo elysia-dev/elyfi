@@ -67,7 +67,8 @@ const config: HardhatUserConfig = {
       accounts: [process.env.BSC_ADMIN || ''],
     },
     ganache: {
-      url: 'http://0.0.0.0:8545',
+      url: 'https://elyfi-test.elyfi.world:8545',
+      chainId: 1337,
     },
     ganache_remote: {
       url: 'http://host.docker.internal:8545',
