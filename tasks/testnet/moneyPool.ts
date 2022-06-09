@@ -1,10 +1,10 @@
-import { task } from 'hardhat/config';
-import { getMoneyPool, getTokenizer } from '../../utils/getDeployedContracts';
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers';
+import { task } from 'hardhat/config';
 import { HardhatRuntimeEnvironment } from 'hardhat/types';
 import AssetBondSettleData from '../../test/types/AssetBondSettleData';
 import { ERC20Test, MoneyPool, Tokenizer } from '../../typechain';
 import { getDai } from '../../utils/getDependencies';
+import { getMoneyPool, getTokenizer } from '../../utils/getDeployedContracts';
 
 interface Args {
   bond: string;
@@ -12,6 +12,16 @@ interface Args {
   amount: string;
   txSender: string;
 }
+
+task('testnet:activate', 'Create deposit, default amount : 100, default txSender : depositor')
+  .addOptionalParam('amount', 'The approve amount')
+  .setAction(async (args: Args, hre: HardhatRuntimeEnvironment) => {
+    const adminAddress = '0x715B006d4723977CcDb1581a62948f6354752e62';
+    const usdcAddress = '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48';
+    const admin = hre.ethers.provider.getSigner(adminAddress);
+    const moneyPool = (await getMoneyPool(hre)) as MoneyPool;
+    await moneyPool.connect(admin).activateMoneyPool(usdcAddress);
+  });
 
 task('testnet:deposit', 'Create deposit, default amount : 100, default txSender : depositor')
   .addOptionalParam('amount', 'The approve amount')
