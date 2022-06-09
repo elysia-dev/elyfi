@@ -1,14 +1,10 @@
+import { JsonRpcSigner } from '@ethersproject/providers';
 import hre from 'hardhat';
 import { DeployFunction } from 'hardhat-deploy/types';
 import { usdcReserveData } from '../data/moneyPool/reserves';
 import { getElyfi, getUsdc } from '../utils/getDependencies';
 
 const deploy: DeployFunction = async function () {
-  const adminAddress = '0x715B006d4723977CcDb1581a62948f6354752e62';
-  const address2 = '0xA929022c9107643515F5c777cE9a910F0D1e490C';
-  const admin = hre.ethers.provider.getSigner(adminAddress);
-  console.log(admin);
-  const deployer = admin._address;
   const { deploy, get } = hre.deployments;
   const moneyPool = await get('MoneyPool');
   const connector = await get('Connector');
@@ -38,13 +34,16 @@ const deploy: DeployFunction = async function () {
   const deployedMoneyPool = await hre.ethers.getContractAt(moneyPool.abi, moneyPool.address);
 
   if (hre.network.name == 'ganache' || hre.network.name == 'hardhat') {
+    const adminAddress = '0x715B006d4723977CcDb1581a62948f6354752e62';
+    const admin = hre.ethers.provider.getSigner(adminAddress);
+
     const IncentivePool = await hre.ethers.getContractFactory('IncentivePool');
     const incentivePool = await IncentivePool.deploy(
       moneyPool.address,
       incentiveAsset.address,
       reserveData.incentivePool.incentiveAmountPerSecond
     );
-    console.log(incentivePool);
+    console.log(`incentivePool.address: ${incentivePool.address}`);
 
     const InterestRateModel = await hre.ethers.getContractFactory('InterestRateModel');
     const interestRateModel = await InterestRateModel.deploy(
@@ -54,7 +53,7 @@ const deploy: DeployFunction = async function () {
       reserveData.interestRateModel.params.borrowRateMax,
       connector.address
     );
-    console.log(interestRateModel);
+    console.log(`interestRateModel.address: ${interestRateModel.address}`);
 
     const LToken = await hre.ethers.getContractFactory('LToken');
     const lToken = await LToken.deploy(
@@ -64,7 +63,7 @@ const deploy: DeployFunction = async function () {
       reserveData.lToken.name,
       reserveData.lToken.symbol
     );
-    console.log(lToken);
+    console.log(`lToken: ${lToken.address}`);
 
     const DToken = await hre.ethers.getContractFactory('DToken');
     const dToken = await DToken.deploy(
@@ -73,7 +72,7 @@ const deploy: DeployFunction = async function () {
       reserveData.dToken.name,
       reserveData.dToken.symbol
     );
-    console.log(dToken);
+    console.log(`dToken: ${dToken.address}`);
 
     const Tokenizer = await hre.ethers.getContractFactory('Tokenizer', {
       libraries: {
@@ -88,7 +87,7 @@ const deploy: DeployFunction = async function () {
       reserveData.tokenizer.name,
       reserveData.tokenizer.symbol
     );
-    console.log(tokenizer);
+    console.log(`tokenizer: ${tokenizer.address}`);
 
     const addNewReserveTx = await deployedMoneyPool
       .connect(admin)
@@ -101,10 +100,13 @@ const deploy: DeployFunction = async function () {
         incentivePool.address,
         reserveData.moneyPoolFactor
       );
-    console.log('addNewReserve done');
+    console.log(addNewReserveTx);
   } else {
+    const { deployer: deployerAddress } = await hre.getNamedAccounts();
+    const deployer: JsonRpcSigner = hre.ethers.provider.getSigner(deployerAddress);
+
     const incentivePool = await deploy(reserveData.incentivePool.name, {
-      from: deployer,
+      from: deployerAddress,
       args: [
         moneyPool.address,
         incentiveAsset.address,
@@ -113,9 +115,10 @@ const deploy: DeployFunction = async function () {
       log: true,
       contract: 'IncentivePool',
     });
+    console.log(`incentivePool.address: ${incentivePool.address}`);
 
     const interestRateModel = await deploy(reserveData.interestRateModel.name, {
-      from: deployer,
+      from: deployerAddress,
       args: [
         reserveData.interestRateModel.params.optimalUtilizationRate,
         reserveData.interestRateModel.params.borrowRateBase,
@@ -126,9 +129,10 @@ const deploy: DeployFunction = async function () {
       log: true,
       contract: 'InterestRateModel',
     });
+    console.log(`interestRateModel.address: ${interestRateModel.address}`);
 
     const lToken = await deploy(reserveData.lToken.name, {
-      from: deployer,
+      from: deployerAddress,
       args: [
         moneyPool.address,
         underlyingAsset?.address,
@@ -139,9 +143,10 @@ const deploy: DeployFunction = async function () {
       log: true,
       contract: 'LToken',
     });
+    console.log(`lToken: ${lToken.address}`);
 
     const dToken = await deploy(reserveData.dToken.name, {
-      from: deployer,
+      from: deployerAddress,
       args: [
         moneyPool.address,
         underlyingAsset?.address,
@@ -151,9 +156,10 @@ const deploy: DeployFunction = async function () {
       log: true,
       contract: 'DToken',
     });
+    console.log(`dToken: ${dToken.address}`);
 
     const tokenizer = await deploy(reserveData.tokenizer.name, {
-      from: deployer,
+      from: deployerAddress,
       args: [
         connector.address,
         moneyPool.address,
@@ -168,9 +174,10 @@ const deploy: DeployFunction = async function () {
       },
       contract: 'Tokenizer',
     });
+    console.log(`tokenizer: ${tokenizer.address}`);
 
     const addNewReserveTx = await deployedMoneyPool
-      .connect(admin)
+      .connect(deployer)
       .addNewReserve(
         underlyingAsset?.address,
         lToken.address,
@@ -180,7 +187,7 @@ const deploy: DeployFunction = async function () {
         incentivePool.address,
         reserveData.moneyPoolFactor
       );
-    console.log('addNewReserve done');
+    console.log(addNewReserveTx);
   }
 };
 
