@@ -188,6 +188,10 @@ const deploy: DeployFunction = async function () {
         reserveData.moneyPoolFactor
       );
     console.log(addNewReserveTx);
+
+    await hre.run('etherscan-verify', {
+      network: hre.network.name,
+    });
   }
 };
 
