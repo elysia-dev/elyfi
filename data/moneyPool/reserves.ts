@@ -102,7 +102,7 @@ export const usdcReserveData = {
   interestRateModel: {
     name: 'Elyfi_USDC_InterestRateModel',
     params: <InterestModelParams>{
-      optimalUtilizationRate: toRate(0.75),
+      optimalUtilizationRate: toRate(0.8),
       borrowRateBase: toRate(0.05),
       borrowRateOptimal: toRate(0.06),
       borrowRateMax: toRate(1),
@@ -114,7 +114,7 @@ export const usdcReserveData = {
   },
   incentivePool: {
     name: 'Elyfi_USDC_IncentivePool',
-    incentiveAmountPerSecond: BigNumber.from(WAD).mul(3000000).div(180).div(SECONDSPERDAY),
+    incentiveAmountPerSecond: BigNumber.from(0),
   },
   moneyPoolFactor: BigNumber.from(0),
 };
