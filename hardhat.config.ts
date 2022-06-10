@@ -1,18 +1,17 @@
-import 'dotenv/config';
-import '@typechain/hardhat';
-import '@nomiclabs/hardhat-waffle';
-import '@nomiclabs/hardhat-solhint';
 import '@nomiclabs/hardhat-etherscan';
+import '@nomiclabs/hardhat-solhint';
+import '@nomiclabs/hardhat-waffle';
 import '@openzeppelin/hardhat-upgrades';
-import 'hardhat-deploy-ethers';
+import '@typechain/hardhat';
+import 'dotenv/config';
 import 'hardhat-deploy';
+import 'hardhat-deploy-ethers';
 // import "solidity-coverage"
 // Gas-reporter's parser dependency makes Warning:
 // Accessing non-existent property 'INVALID_ALT_NUMBER' of module exports inside circular dependency
 import 'hardhat-gas-reporter';
-import 'solidity-coverage';
-
 import { HardhatUserConfig } from 'hardhat/types';
+import 'solidity-coverage';
 
 const testMnemonic = 'suggest mirror pulp horn goat wagon body long fortune dirt glass awesome';
 
@@ -67,7 +66,8 @@ const config: HardhatUserConfig = {
       accounts: [process.env.BSC_ADMIN || ''],
     },
     ganache: {
-      url: 'http://0.0.0.0:8545',
+      url: 'https://elyfi-test.elyfi.world:8545',
+      chainId: 1337,
     },
     ganache_remote: {
       url: 'http://host.docker.internal:8545',
