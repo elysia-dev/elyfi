@@ -37,7 +37,7 @@ const deploy: DeployFunction = async function () {
     const adminAddress = '0x715B006d4723977CcDb1581a62948f6354752e62';
     const admin = hre.ethers.provider.getSigner(adminAddress);
 
-    const IncentivePool = await hre.ethers.getContractFactory('IncentivePool');
+    const IncentivePool = await hre.ethers.getContractFactory('IncentivePool', admin);
     const incentivePool = await IncentivePool.deploy(
       moneyPool.address,
       incentiveAsset.address,
@@ -45,7 +45,7 @@ const deploy: DeployFunction = async function () {
     );
     console.log(`incentivePool.address: ${incentivePool.address}`);
 
-    const InterestRateModel = await hre.ethers.getContractFactory('InterestRateModel');
+    const InterestRateModel = await hre.ethers.getContractFactory('InterestRateModel', admin);
     const interestRateModel = await InterestRateModel.deploy(
       reserveData.interestRateModel.params.optimalUtilizationRate,
       reserveData.interestRateModel.params.borrowRateBase,
@@ -55,7 +55,7 @@ const deploy: DeployFunction = async function () {
     );
     console.log(`interestRateModel.address: ${interestRateModel.address}`);
 
-    const LToken = await hre.ethers.getContractFactory('LToken');
+    const LToken = await hre.ethers.getContractFactory('LToken', admin);
     const lToken = await LToken.deploy(
       moneyPool.address,
       underlyingAsset?.address,
@@ -65,7 +65,7 @@ const deploy: DeployFunction = async function () {
     );
     console.log(`lToken: ${lToken.address}`);
 
-    const DToken = await hre.ethers.getContractFactory('DToken');
+    const DToken = await hre.ethers.getContractFactory('DToken', admin);
     const dToken = await DToken.deploy(
       moneyPool.address,
       underlyingAsset?.address,
@@ -75,6 +75,7 @@ const deploy: DeployFunction = async function () {
     console.log(`dToken: ${dToken.address}`);
 
     const Tokenizer = await hre.ethers.getContractFactory('Tokenizer', {
+      signer: admin,
       libraries: {
         AssetBond: assetBond.address,
         Validation: validation.address,
