@@ -77,6 +77,47 @@ The markdown docs templates is in the contracts.hbs in the ./template. You can e
 yarn docgen
 ```
 
+## Contract Addresses
+Mainnet(ETH)
+| Contract | Address |
+| ------------- | ------------- |
+| Moneypool | 0xa93008fD32EB24E488DDAA6C0aA152559fDa9E8c |
+| DataPipeline | 0x128AF7E290ECCDe0050f33A1b5A4Bc8b2BB4d817 |
+| DAI LToken | 0x527c901E05228f54a9a63151A924A97622F9f173 |
+| DAI DToken | 0x62324ce2E14bb94512eC26C9fF0Be2CaD8c83d1B |
+| DAI Tokeninzer | 0xc6701e7be98a79485364419961838eb141141aaf |
+| USDT LToken | 0xe0BdA8E3A27E889837Ae37970fe97194453ee79C |
+| USDT DToken | 0x62324ce2E14bb94512eC26C9fF0Be2CaD8c83d1B |
+| USDT Tokeninzer | 0x68f69Ab21242e194ebd7534B598e26180dD92616 |
+| USDC LToken | 0xe0BdA8E3A27E889837Ae37970fe97194453ee79C |
+| USDC DToken | 0xf917147d8ED7b57C107D36576f4cCDe410ae29B6 |
+| USDC Tokeninzer | 0xD86f51C8d0F10AAd267fB42E143D6d0B97aE9B23 |
+
+BSC
+| Contract | Address |
+| ------------- | ------------- |
+| Moneypool | 0x0bdFef5f8B75741d33a22d85022244CBE793DA24 |
+| DataPipeline | 0xA63830cCCDcd380b00EF00f070357Cb03cDc2E7b |
+| BUSD LToken | 0x5bb4d02A0BA38fB8B916758f11d9B256967a1F7F |
+| BUSD DToken | 0xE9f638C2ba70EA022c710eAeEf14824F126d0c34 |
+| BUSD Tokeninzer | 0x0d768c1507B5099CB37e5D28B1959B831B5EbF9e |
+
+
+## Primary Accounts
+Mainnet
+| Name | Address |
+| ------------- | ------------- |
+| Moneypool Owner | 0x715B006d4723977CcDb1581a62948f6354752e62 |
+| CSP (Elyloan) | 0x9FCdc09bF1e0f933e529325Ac9D24f56034d8eD7 |
+| Council | 0x53c14659BF777b2D7e0A7fBa4d5DfF87D594495c |
+
+BSC
+| Name | Address |
+| ------------- | ------------- |
+| Moneypool Owner | 0x8d86dD9fe7318e04Cc51440C0252663f7FeCF01E |
+| CSP (Elyloan) | 0x9FCdc09bF1e0f933e529325Ac9D24f56034d8eD7 |
+| Council | 0x1Ba25f40bA5BEFcffef536709271e3098345b0Cc |
+
 ## The graph
 - https://thegraph.com/explorer/subgraph?id=56zkjAwQ8Kq1MjmYm4Zxwe7bv8fGSwUCNBT7jcXi8nFn&view=Playground
 - https://thegraph.com/hosted-service/subgraph/donguks/elyfi-bsc
